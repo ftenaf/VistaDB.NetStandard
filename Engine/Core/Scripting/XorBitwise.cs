@@ -1,0 +1,23 @@
+﻿using VistaDB.Engine.Internal;
+
+namespace VistaDB.Engine.Core.Scripting
+{
+  internal class XorBitwise : Signature
+  {
+    internal XorBitwise(string name, int groupId)
+      : base(name, groupId, Signature.Operations.Xor, Signature.Priorities.Bitwise, VistaDBType.Bit)
+    {
+      this.AddParameter(VistaDBType.Bit);
+      this.AddParameter(VistaDBType.Bit);
+    }
+
+    protected override void OnExecute(ProcedureCode pcode, int entry, Connection connection, DataStorage contextStorage, Row contextRow, ref bool bypassNextGroup, Row rowResult)
+    {
+      PCodeUnit pcodeUnit1 = pcode[entry];
+      PCodeUnit pcodeUnit2 = pcode[entry + 1];
+      bool flag1 = (bool) (pcodeUnit1.ResultColumn.IsNull ? (object) false : pcodeUnit1.ResultColumn.Value);
+      bool flag2 = (bool) (pcodeUnit2.ResultColumn.IsNull ? (object) false : pcodeUnit2.ResultColumn.Value);
+      pcodeUnit1.ResultColumn.Value = (object) (flag1 ^ flag2);
+    }
+  }
+}

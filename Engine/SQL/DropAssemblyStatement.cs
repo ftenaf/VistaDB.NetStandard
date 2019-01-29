@@ -1,0 +1,19 @@
+﻿using VistaDB.Engine.Internal;
+
+namespace VistaDB.Engine.SQL
+{
+  internal class DropAssemblyStatement : DropTableStatement
+  {
+    public DropAssemblyStatement(LocalSQLConnection connection, Statement parent, SQLParser parser, long id)
+      : base(connection, parent, parser, id)
+    {
+    }
+
+    protected override IQueryResult OnExecuteQuery()
+    {
+      foreach (string tableName in this.tableNames)
+        this.Database.DropAssembly(tableName, false);
+      return (IQueryResult) null;
+    }
+  }
+}

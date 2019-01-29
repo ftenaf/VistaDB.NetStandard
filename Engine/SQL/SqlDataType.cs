@@ -1,0 +1,33 @@
+﻿namespace VistaDB.Engine.SQL
+{
+  internal enum SqlDataType
+  {
+    Char,
+    NChar,
+    VarChar,
+    NVarChar,
+    Text,
+    NText,
+    TinyInt,
+    SmallInt,
+    Int,
+    BigInt,
+    Real,
+    Float,
+    Decimal,
+    Numeric,
+    Money,
+    SmallMoney,
+    Bit,
+    SmallDateTime,
+    DateTime,
+    Image,
+    VarBinary,
+    Binary,
+    UniqueIdentifier,
+    National,
+    Timestamp,
+    Double,
+    Table,
+  }
+}
