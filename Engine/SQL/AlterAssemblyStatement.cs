@@ -12,7 +12,7 @@ namespace VistaDB.Engine.SQL
     protected override IQueryResult OnExecuteQuery()
     {
       Database.UpdateAssembly(name, fileName, description);
-      return (IQueryResult) null;
+      return null;
     }
   }
 }

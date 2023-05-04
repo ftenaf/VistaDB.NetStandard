@@ -4,7 +4,7 @@ namespace VistaDB.Engine.Core.Scripting
 {
   internal class NullSignature : Signature
   {
-    private static readonly Row.Column Null = (Row.Column) new BitColumn();
+    private static readonly Row.Column Null = new BitColumn();
 
     internal NullSignature(string name, int groupId)
       : base(name, groupId, Operations.Null, Priorities.Generator, VistaDBType.Bit)

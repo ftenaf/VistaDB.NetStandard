@@ -82,7 +82,7 @@ namespace VistaDB.Engine.SQL
       string caption;
       string description;
       ParseColumnAttributes(out columnName, out dataType, out width, out codePage, out allowNull, out readOnly, out encrypted, out packed, out defaultValue, out setIdentity, out identitySeed, out identityStep, out caption, out description, parser);
-      alterColumn = new ColumnDescr((BaseCreateTableStatement) this, rowNo, colNo, columnName, dataType, width, codePage, allowNull, readOnly, encrypted, packed, defaultValue, setIdentity, identitySeed, identityStep, caption, description);
+      alterColumn = new ColumnDescr(this, rowNo, colNo, columnName, dataType, width, codePage, allowNull, readOnly, encrypted, packed, defaultValue, setIdentity, identitySeed, identityStep, caption, description);
     }
 
     private void ParseAddColumnOrConstraint(SQLParser parser)
@@ -117,7 +117,7 @@ namespace VistaDB.Engine.SQL
     protected override IQueryResult OnExecuteQuery()
     {
       base.OnExecuteQuery();
-      List<string> foreignKeys = (List<string>) null;
+      List<string> foreignKeys = null;
       using (IVistaDBTableSchema vistaDbTableSchema = Database.TableSchema(tableName))
       {
         switch (alterType)
@@ -140,7 +140,7 @@ namespace VistaDB.Engine.SQL
               Database.ActivateSyncService(tableName);
             else
               Database.DeactivateSyncService(tableName);
-            return (IQueryResult) null;
+            return null;
         }
         Database.AlterTable(tableName, vistaDbTableSchema);
       }
@@ -154,7 +154,7 @@ namespace VistaDB.Engine.SQL
       }
       else
         DropForeignKeys(foreignKeys);
-      return (IQueryResult) null;
+      return null;
     }
 
     private void AlterColumn(IVistaDBTableSchema tableSchema)
@@ -163,7 +163,7 @@ namespace VistaDB.Engine.SQL
         tableSchema.AlterColumnType(alterColumn.ColumnName, alterColumn.DataType, alterColumn.Width, alterColumn.CodePage);
       else
         tableSchema.AlterColumnType(alterColumn.ColumnName, alterColumn.DataType);
-      tableSchema.DefineColumnAttributes(alterColumn.ColumnName, alterColumn.AllowNull, alterColumn.ReadOnly, alterColumn.Encrypted, alterColumn.Packed, alterColumn.Caption, alterColumn.Description);
+      tableSchema.DefineColumnAttributes(alterColumn.ColumnName, alterColumn.AllowNull, alterColumn.ReadOnly, alterColumn.Encrypted, alterColumn.Packed, alterColumn.Description);
       if (alterColumn.SetIdentity)
       {
         tableSchema.DefineIdentity(alterColumn.ColumnName, alterColumn.IdentitySeed, alterColumn.IdentityStep);

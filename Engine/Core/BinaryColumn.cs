@@ -6,7 +6,7 @@ namespace VistaDB.Engine.Core
   internal class BinaryColumn : Row.Column
   {
     private static readonly int lengthCounterSize = 2;
-    private static int MaxArray = (int) ushort.MaxValue;
+    private static int MaxArray = ushort.MaxValue;
     private static byte[] dummyNull = new byte[0];
 
     internal BinaryColumn()
@@ -15,17 +15,17 @@ namespace VistaDB.Engine.Core
     }
 
     internal BinaryColumn(byte[] val)
-      : base((object) val, VistaDBType.VarBinary, MaxArray)
+      : base(val, VistaDBType.VarBinary, MaxArray)
     {
     }
 
     internal BinaryColumn(BinaryColumn col)
-      : base((Row.Column) col)
+      : base(col)
     {
     }
 
     protected BinaryColumn(VistaDBType type)
-      : base((object) null, type, MaxArray)
+      : base(null, type, MaxArray)
     {
     }
 
@@ -53,7 +53,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (object)dummyNull;
+        return dummyNull;
       }
     }
 
@@ -91,7 +91,7 @@ namespace VistaDB.Engine.Core
 
     protected override Row.Column OnDuplicate(bool padRight)
     {
-      return (Row.Column) new BinaryColumn(this);
+      return new BinaryColumn(this);
     }
 
     internal override int ConvertToByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
@@ -99,23 +99,23 @@ namespace VistaDB.Engine.Core
       byte[] val = (byte[]) this.val;
       ushort length = (ushort) val.Length;
       int lengthCounterWidth = GetLengthCounterWidth(precedenceColumn);
-      offset = VdbBitConverter.GetBytes((ushort) ((uint) length + (uint) InheritedSize), buffer, offset, lengthCounterWidth);
-      Array.Copy((Array) val, 0, (Array) buffer, offset, (int) length);
-      return offset + (int) length;
+      offset = VdbBitConverter.GetBytes((ushort) (length + (uint) InheritedSize), buffer, offset, lengthCounterWidth);
+      Array.Copy(val, 0, buffer, offset, length);
+      return offset + length;
     }
 
     internal override int ConvertFromByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      int length = (int) BitConverter.ToUInt16(buffer, offset) - (int) InheritedSize;
+      int length = BitConverter.ToUInt16(buffer, offset) - InheritedSize;
       offset += GetLengthCounterWidth(precedenceColumn);
-      val = (object) new byte[length];
-      Array.Copy((Array) buffer, offset, (Array) val, 0, length);
+      val = (new byte[length]);
+      Array.Copy(buffer, offset, (Array) val, 0, length);
       return offset + length;
     }
 
     internal override int ReadVarLength(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      return (int) BitConverter.ToUInt16(buffer, offset);
+      return BitConverter.ToUInt16(buffer, offset);
     }
 
     protected override long Collate(Row.Column col)
@@ -123,9 +123,9 @@ namespace VistaDB.Engine.Core
       byte[] numArray1 = (byte[]) Value;
       byte[] numArray2 = (byte[]) col.Value;
       int length = numArray1.Length;
-      long num = (long) (length - numArray2.Length);
+      long num = length - numArray2.Length;
       for (int index = 0; num == 0L && index < length; ++index)
-        num = (long) ((int) numArray1[index] - (int) numArray2[index]);
+        num = numArray1[index] - numArray2[index];
       return num;
     }
 

@@ -14,9 +14,9 @@ namespace VistaDB.Engine.SQL.Signatures
     public AvgFunction(SQLParser parser)
       : base(parser, false)
     {
-      srcValue = (IColumn) null;
-      dstValue = (IColumn) null;
-      tmpValue = (IColumn) null;
+      srcValue = null;
+      dstValue = null;
+      tmpValue = null;
       count = 0L;
     }
 
@@ -45,7 +45,7 @@ namespace VistaDB.Engine.SQL.Signatures
       if (serObj == null)
       {
         serializedValue = new SerializedValue();
-        serObj = (object) serializedValue;
+        serObj = serializedValue;
       }
       else
         serializedValue = (SerializedValue) serObj;
@@ -62,7 +62,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object InternalCreateEmptyResult()
     {
-      return (object) null;
+      return null;
     }
 
     protected override object InternalCreateNewGroup(object newVal)
@@ -70,24 +70,24 @@ namespace VistaDB.Engine.SQL.Signatures
       if (newVal == null)
       {
         count = 0L;
-        return (object) null;
+        return null;
       }
       count = 1L;
-      ((IValue) srcValue).Value = newVal;
-      Convert((IValue) srcValue, (IValue) dstValue);
-      return ((IValue) dstValue).Value;
+            srcValue.Value = newVal;
+      Convert(srcValue, dstValue);
+      return dstValue.Value;
     }
 
     protected override object InternalAddRowToGroup(object newVal)
     {
       if (newVal == null)
         return val;
-      ((IValue) srcValue).Value = newVal;
-      Convert((IValue) srcValue, (IValue) dstValue);
+            srcValue.Value = newVal;
+      Convert(srcValue, dstValue);
       ++count;
       if (val == null)
-        return ((IValue) dstValue).Value;
-      ((IValue) result).Value = val;
+        return dstValue.Value;
+            result.Value = val;
       return ((Row.Column) result + (Row.Column) dstValue).Value;
     }
 
@@ -95,10 +95,10 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       if (val == null)
         return val;
-      ((IValue) result).Value = val;
-      ((IValue) tmpValue).Value = (object) count;
-      Convert((IValue) ((Row.Column) result / (Row.Column) tmpValue), (IValue) result);
-      return ((IValue) result).Value;
+            result.Value = val;
+            tmpValue.Value = count;
+      Convert((Row.Column)result / (Row.Column)tmpValue, result);
+      return result.Value;
     }
 
     private class SerializedValue

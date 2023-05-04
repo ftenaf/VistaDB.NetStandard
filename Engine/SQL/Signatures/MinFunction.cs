@@ -33,7 +33,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object InternalCreateEmptyResult()
     {
-      return (object) null;
+      return null;
     }
 
     protected override object InternalCreateNewGroup(object newVal)
@@ -47,9 +47,9 @@ namespace VistaDB.Engine.SQL.Signatures
         return val;
       if (val == null)
         return newVal;
-      ((IValue) result).Value = val;
-      ((IValue) tempValue).Value = newVal;
-      if (tempValue.Compare((IVistaDBColumn) result) >= 0)
+            result.Value = val;
+            tempValue.Value = newVal;
+      if (tempValue.Compare(result) >= 0)
         return val;
       return newVal;
     }

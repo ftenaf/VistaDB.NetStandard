@@ -13,10 +13,10 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object ExecuteSubProgram()
     {
-      int num = (int) ((IValue) paramValues[0]).Value;
-      if (num < 0 || num > (int) ushort.MaxValue)
-        return (object) null;
-      return (object) ((char) num).ToString();
+      int num = (int)paramValues[0].Value;
+      if (num < 0 || num > ushort.MaxValue)
+        return null;
+      return ((char)num).ToString();
     }
 
     public override int GetWidth()

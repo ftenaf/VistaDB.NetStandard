@@ -30,7 +30,7 @@ namespace VistaDB.Engine.SQL
                 parser.SkipToken(true);
             }
             else
-                description = (string)null;
+                description = null;
             int symbolNo = parser.TokenValue.SymbolNo;
             parser.ExpectedExpression("(");
             parser.SkipToken(true);
@@ -68,7 +68,7 @@ namespace VistaDB.Engine.SQL
             try
             {
                 parser.PushContext(new CurrentTokenContext(CurrentTokenContext.TokenContext.StoredFunction, functionName));
-                connection.ParseStatement((Statement)this, id);
+                connection.ParseStatement(this, id);
             }
             finally
             {
@@ -83,7 +83,7 @@ namespace VistaDB.Engine.SQL
                 Database.RegisterClrProcedure(functionName, externalName, assemblyName, description);
             else
                 Database.CreateUserDefinedFunctionObject(function);
-            return (IQueryResult)null;
+            return null;
         }
     }
 }

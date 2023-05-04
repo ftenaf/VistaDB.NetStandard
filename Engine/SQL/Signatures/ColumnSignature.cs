@@ -33,7 +33,7 @@ namespace VistaDB.Engine.SQL.Signatures
       this.tableAlias = tableAlias;
       this.columnName = columnName;
       dataType = VistaDBType.Unknown;
-      table = (SourceTable) null;
+      table = null;
       columnIndex = -1;
       tableVersion = -1L;
       width = 0;
@@ -42,14 +42,14 @@ namespace VistaDB.Engine.SQL.Signatures
       isExpression = false;
       isAutoIncrement = false;
       isReadOnly = false;
-      description = (string) null;
-      caption = (string) null;
+      description = null;
+      caption = null;
       encrypted = false;
       codePage = 0;
-      identity = (string) null;
-      identityStep = (string) null;
-      identitySeed = (string) null;
-      defaultValue = (string) null;
+      identity = null;
+      identityStep = null;
+      identitySeed = null;
+      defaultValue = null;
       useInUpdate = false;
       if (string.Compare(this.columnName, "*", StringComparison.OrdinalIgnoreCase) == 0)
         signatureType = SignatureType.MultiplyColumn;
@@ -130,7 +130,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       if (GetIsChanged() && table.Opened)
       {
-        ((IValue) result).Value = table.GetValue(columnIndex);
+                result.Value = table.GetValue(columnIndex);
         tableVersion = table.Version;
       }
       return result;
@@ -140,7 +140,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       if (!GetIsChanged())
         return;
-      ((IValue) result).Value = ((IValue) table.SimpleGetColumn(columnIndex)).Value;
+            result.Value = table.SimpleGetColumn(columnIndex).Value;
       tableVersion = table.Version;
     }
 

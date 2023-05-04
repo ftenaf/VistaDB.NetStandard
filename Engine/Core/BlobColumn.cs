@@ -11,7 +11,7 @@
     }
 
     internal BlobColumn(BlobColumn column)
-      : base((ExtendedColumn) column)
+      : base(column)
     {
       subType = column.subType;
     }
@@ -20,7 +20,7 @@
     {
       get
       {
-        return (ushort) ((uint) base.InheritedSize + (uint)typeReferenceSize);
+        return (ushort) (base.InheritedSize + (uint)typeReferenceSize);
       }
     }
 
@@ -34,7 +34,7 @@
 
     protected override Row.Column OnDuplicate(bool padRight)
     {
-      return (Row.Column) new BlobColumn(this);
+      return new BlobColumn(this);
     }
 
     internal override int ConvertToByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)

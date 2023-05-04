@@ -14,7 +14,7 @@ namespace VistaDB.Engine.SQL
     {
       bool flag1 = false;
       bool flag2 = Database.NestedTransactionLevel == 0;
-      IStoredProcedureInformation sp = (IStoredProcedureInformation) null;
+      IStoredProcedureInformation sp = null;
       if (Database.GetStoredProcedures()[name] == null)
         throw new VistaDBSQLException(607, name, lineNo, symbolNo);
       try
@@ -39,7 +39,7 @@ namespace VistaDB.Engine.SQL
         else if (!flag1)
           Database.CreateStoredProcedureObject(sp);
       }
-      return (IQueryResult) null;
+      return null;
     }
   }
 }

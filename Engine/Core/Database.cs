@@ -328,9 +328,9 @@ namespace VistaDB.Engine.Core
             typeIndex = vistaDbTableSchema.AddColumn("typeId", VistaDBType.Int).RowIndex;
             foreignReferenceIndex = vistaDbTableSchema.AddColumn("foreignReference", VistaDBType.BigInt).RowIndex;
             nameIndex = vistaDbTableSchema.AddColumn("name", VistaDBType.NChar, maxLen1, NCharColumn.Utf16CodePage).RowIndex;
-            vistaDbTableSchema.DefineColumnAttributes("typeId", false, true, encrypted, false, null, null);
-            vistaDbTableSchema.DefineColumnAttributes("foreignReference", false, true, encrypted, false, null, null);
-            vistaDbTableSchema.DefineColumnAttributes("name", false, true, encrypted, false, null, null);
+            vistaDbTableSchema.DefineColumnAttributes("typeId", false, true, encrypted, false, null);
+            vistaDbTableSchema.DefineColumnAttributes("foreignReference", false, true, encrypted, false, null);
+            vistaDbTableSchema.DefineColumnAttributes("name", false, true, encrypted, false, null);
             objectIdIndex = vistaDbTableSchema.AddColumn("objectId", VistaDBType.BigInt).RowIndex;
             referenceIndex = vistaDbTableSchema.AddColumn("reference", VistaDBType.BigInt).RowIndex;
             optionIndex = vistaDbTableSchema.AddColumn("options", VistaDBType.BigInt).RowIndex;
@@ -866,7 +866,7 @@ namespace VistaDB.Engine.Core
         internal void GetIndexes(ulong tableId, IVistaDBIndexCollection indexes)
         {
             ((Dictionary<string, IVistaDBIndexInformation>)indexes).Clear();
-            TraverseDiskObjects(VdbObjects.Index, tableId, new TraverseJobDelegate(LoadIndexesJob), (object)indexes);
+            TraverseDiskObjects(VdbObjects.Index, tableId, new TraverseJobDelegate(LoadIndexesJob), indexes);
         }
 
         private void GetIndexes(ulong tableId, IVistaDBTableSchema schema)
@@ -908,13 +908,13 @@ namespace VistaDB.Engine.Core
         private void GetDefaultValues(ulong tableId, Table.TableSchema.DefaultValueCollection defaults)
         {
             defaults.Clear();
-            TraverseDiskObjects(VdbObjects.DefaultValue, tableId, new TraverseJobDelegate(LoadDefaultValuesJob), (object)defaults);
+            TraverseDiskObjects(VdbObjects.DefaultValue, tableId, new TraverseJobDelegate(LoadDefaultValuesJob), defaults);
         }
 
         private void GetConstraints(ulong tableId, Table.TableSchema.ConstraintCollection constraints)
         {
             constraints.Clear();
-            TraverseDiskObjects(VdbObjects.Constraint, tableId, new TraverseJobDelegate(LoadConstraintsJob), (object)constraints);
+            TraverseDiskObjects(VdbObjects.Constraint, tableId, new TraverseJobDelegate(LoadConstraintsJob), constraints);
         }
 
         private void GetClrTriggers(ulong tableId, ClrTriggerCollection triggers, string tableName)
@@ -1293,7 +1293,7 @@ namespace VistaDB.Engine.Core
                             schema.AddColumn(column.ColumnName, type2);
                             break;
                     }
-                    schema.DefineColumnAttributes(column.ColumnName, column.AllowDBNull, column.ReadOnly, encrypted, packed, column.Caption, description);
+                    schema.DefineColumnAttributes(column.ColumnName, column.AllowDBNull, column.ReadOnly, encrypted, packed, description);
                 }
                 foreach (string key in extendedProperties1.Keys)
                 {
@@ -2558,7 +2558,7 @@ namespace VistaDB.Engine.Core
             try
             {
                 TableIdMap tableIdMap = new TableIdMap(Culture);
-                TraverseDiskObjects(VdbObjects.Table, Row.EmptyReference, new TraverseJobDelegate(LoadTablesJob), (object)tableIdMap);
+                TraverseDiskObjects(VdbObjects.Table, Row.EmptyReference, new TraverseJobDelegate(LoadTablesJob), tableIdMap);
                 return tableIdMap;
             }
             finally
@@ -2588,7 +2588,7 @@ namespace VistaDB.Engine.Core
             try
             {
                 ArrayList arrayList = new ArrayList();
-                TraverseDiskObjects(VdbObjects.Description, Row.EmptyReference, new TraverseJobDelegate(LoadDatabaseDescriptionJob), (object)arrayList);
+                TraverseDiskObjects(VdbObjects.Description, Row.EmptyReference, new TraverseJobDelegate(LoadDatabaseDescriptionJob), arrayList);
                 return arrayList.Count == 0 ? null : (string)arrayList[0];
             }
             finally
@@ -2987,7 +2987,7 @@ namespace VistaDB.Engine.Core
                 if (_viewsCache.IsValid(Header))
                     return _viewsCache.List;
                 ViewList viewList = new ViewList();
-                TraverseDiskObjects(VdbObjects.View, Row.EmptyReference, new TraverseJobDelegate(LoadViewsJob), (object)viewList);
+                TraverseDiskObjects(VdbObjects.View, Row.EmptyReference, new TraverseJobDelegate(LoadViewsJob), viewList);
                 _viewsCache.Update(Header, viewList);
                 return viewList;
             }
@@ -3294,7 +3294,7 @@ namespace VistaDB.Engine.Core
             try
             {
                 AssemblyCollection assemblyCollection = new AssemblyCollection(instantiate);
-                TraverseDiskObjects(VdbObjects.Assembly, Row.EmptyReference, new TraverseJobDelegate(LoadAssembliesJob), (object)assemblyCollection);
+                TraverseDiskObjects(VdbObjects.Assembly, Row.EmptyReference, new TraverseJobDelegate(LoadAssembliesJob), assemblyCollection);
                 return assemblyCollection;
             }
             finally
@@ -3503,7 +3503,7 @@ namespace VistaDB.Engine.Core
                 if (_spCache.IsValid(Header))
                     return _spCache.List;
                 StoredProcedureCollection procedureCollection = new StoredProcedureCollection();
-                TraverseDiskObjects(VdbObjects.StoredProcedure, Row.EmptyReference, new TraverseJobDelegate(LoadSqlStoredProceduresJob), (object)procedureCollection);
+                TraverseDiskObjects(VdbObjects.StoredProcedure, Row.EmptyReference, new TraverseJobDelegate(LoadSqlStoredProceduresJob), procedureCollection);
                 _spCache.Update(Header, procedureCollection);
                 return procedureCollection;
             }
@@ -3562,7 +3562,7 @@ namespace VistaDB.Engine.Core
                 if (_udfCache.IsValid(Header))
                     return _udfCache.List;
                 UdfCollection udfCollection = new UdfCollection();
-                TraverseDiskObjects(VdbObjects.UDF, Row.EmptyReference, new TraverseJobDelegate(LoadSqlFunctionsJob), (object)udfCollection);
+                TraverseDiskObjects(VdbObjects.UDF, Row.EmptyReference, new TraverseJobDelegate(LoadSqlFunctionsJob), udfCollection);
                 _udfCache.Update(Header, udfCollection);
                 return udfCollection;
             }

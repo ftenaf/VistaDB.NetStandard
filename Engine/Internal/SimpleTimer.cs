@@ -47,7 +47,7 @@ namespace VistaDB.Engine.Internal
         double totalMilliseconds = timer.Stopwatch.Elapsed.TotalMilliseconds;
         if (count != 0)
         {
-          double num = totalMilliseconds / (double) count;
+          double num = totalMilliseconds / count;
         }
         timer.Reset();
       }
@@ -75,8 +75,8 @@ namespace VistaDB.Engine.Internal
           string name = timer.Name;
           int count = timer.Count;
           double totalMilliseconds = timer.Stopwatch.Elapsed.TotalMilliseconds;
-          double num = count == 0 ? 0.0 : totalMilliseconds / (double) count;
-          output.AppendLine("Timer " + name + ": " + totalMilliseconds.ToString("F3") + " ms / " + (object) count + " calls = " + num.ToString("F3") + " ms / call");
+          double num = count == 0 ? 0.0 : totalMilliseconds / count;
+          output.AppendLine("Timer " + name + ": " + totalMilliseconds.ToString("F3") + " ms / " + count + " calls = " + num.ToString("F3") + " ms / call");
           if (!reset)
             return;
           timer.Reset();
@@ -100,8 +100,8 @@ namespace VistaDB.Engine.Internal
           string name = timeCounter.Name;
           int count = timeCounter.Count;
           double totalMilliseconds = timeCounter.Stopwatch.Elapsed.TotalMilliseconds;
-          double num = count == 0 ? 0.0 : totalMilliseconds / (double) count;
-          output.AppendLine("Timer " + name + ": " + totalMilliseconds.ToString("F3") + " ms / " + (object) count + " calls = " + num.ToString("F3") + " ms / call");
+          double num = count == 0 ? 0.0 : totalMilliseconds / count;
+          output.AppendLine("Timer " + name + ": " + totalMilliseconds.ToString("F3") + " ms / " + count + " calls = " + num.ToString("F3") + " ms / call");
           if (reset || dropAll)
           {
             timeCounter.Stopwatch.Stop();
@@ -167,7 +167,7 @@ namespace VistaDB.Engine.Internal
           if (num3 > 0)
           {
             int num4 = 100 * num1 / num3;
-            output.AppendFormat("Cache hit rate for:  {0}  {1}%", (object) str, (object) num4);
+            output.AppendFormat("Cache hit rate for:  {0}  {1}%", str, num4);
             output.AppendLine();
           }
         }
@@ -179,7 +179,7 @@ namespace VistaDB.Engine.Internal
     {
             TimeCounter timeCounter;
       if (!s_Timers.TryGetValue(timerName, out timeCounter))
-        return (TimeCounter) null;
+        return null;
       return timeCounter;
     }
 

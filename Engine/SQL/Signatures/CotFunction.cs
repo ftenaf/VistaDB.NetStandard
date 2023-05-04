@@ -14,7 +14,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object ExecuteSubProgram()
     {
-      return (object) (1.0 / Math.Tan((double) ((IValue) paramValues[0]).Value));
+      return 1.0 / Math.Tan((double)paramValues[0].Value);
     }
   }
 }

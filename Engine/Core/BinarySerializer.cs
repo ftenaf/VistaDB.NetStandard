@@ -8,7 +8,7 @@ namespace VistaDB.Engine.Core
 {
   public static class BinarySerializer
   {
-    private static readonly Encoding s_Encoding = (Encoding) new UTF8Encoding();
+    private static readonly Encoding s_Encoding = new UTF8Encoding();
     private static readonly bool s_MonoRuntime;
 
     static BinarySerializer()
@@ -29,7 +29,7 @@ namespace VistaDB.Engine.Core
     {
       if (!hostValue)
         return new byte[1];
-      return new byte[1]{ (byte) 1 };
+      return new byte[1]{ 1 };
     }
 
     public static void SerializeValue(Stream stream, Guid hostValue)
@@ -57,8 +57,8 @@ namespace VistaDB.Engine.Core
         return SerializeValue(0);
       byte[] bytes = s_Encoding.GetBytes(hostValue);
       byte[] numArray = new byte[4 + bytes.Length];
-      Array.Copy((Array)SerializeValue(bytes.Length), (Array) numArray, 4);
-      Array.Copy((Array) bytes, 0, (Array) numArray, 4, bytes.Length);
+      Array.Copy(SerializeValue(bytes.Length), numArray, 4);
+      Array.Copy(bytes, 0, numArray, 4, bytes.Length);
       return numArray;
     }
 
@@ -81,7 +81,7 @@ namespace VistaDB.Engine.Core
 
     public static byte[] SerializeValue(DateTimeOffset hostValue)
     {
-      return SerializeValue(hostValue.ToString("o", (IFormatProvider) CultureInfo.InvariantCulture));
+      return SerializeValue(hostValue.ToString("o", CultureInfo.InvariantCulture));
     }
 
     public static void SerializeValue(Stream stream, long hostValue)
@@ -211,12 +211,12 @@ namespace VistaDB.Engine.Core
             DeserializeValue(networkBytes, out hostValue1);
       if (!s_MonoRuntime)
       {
-        hostValue = DateTimeOffset.ParseExact(hostValue1, "o", (IFormatProvider) null);
+        hostValue = DateTimeOffset.ParseExact(hostValue1, "o", null);
       }
       else
       {
         if (hostValue1.Length != 33 || hostValue1[4] != '-' || (hostValue1[7] != '-' || hostValue1[10] != 'T') || (hostValue1[13] != ':' || hostValue1[16] != ':' || (hostValue1[19] != '.' || hostValue1[30] != ':')))
-          throw new FormatException(string.Format("Unrecognized format for DateTimeOffset deserialization: \"{0}\"", (object) hostValue1));
+          throw new FormatException(string.Format("Unrecognized format for DateTimeOffset deserialization: \"{0}\"", hostValue1));
         int year = int.Parse(hostValue1.Substring(0, 4), NumberStyles.None);
         int month = int.Parse(hostValue1.Substring(5, 2), NumberStyles.None);
         int day = int.Parse(hostValue1.Substring(8, 2), NumberStyles.None);
@@ -229,13 +229,13 @@ namespace VistaDB.Engine.Core
         switch (ch)
         {
           case '+':
-            hostValue = new DateTimeOffset(year, month, day, hour, minute, second, offset).AddTicks((long) num);
+            hostValue = new DateTimeOffset(year, month, day, hour, minute, second, offset).AddTicks(num);
             break;
           case '-':
             offset = offset.Negate();
             goto case '+';
           default:
-            throw new FormatException(string.Format("Unrecognized character for time zone offset sign: '{0}'", (object) ch));
+            throw new FormatException(string.Format("Unrecognized character for time zone offset sign: '{0}'", ch));
         }
       }
     }
@@ -268,7 +268,7 @@ namespace VistaDB.Engine.Core
       else if (hostValue1 == 0)
         hostValue = string.Empty;
       else
-        hostValue = (string) null;
+        hostValue = null;
     }
   }
 }

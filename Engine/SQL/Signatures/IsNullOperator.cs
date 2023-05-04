@@ -43,7 +43,7 @@ namespace VistaDB.Engine.SQL.Signatures
     protected override IColumn InternalExecute()
     {
       if (GetIsChanged())
-        ((IValue) result).Value = (object) (expression.Execute().IsNull == isNull);
+                result.Value = expression.Execute().IsNull == isNull;
       return result;
     }
 

@@ -20,19 +20,19 @@
 
     protected override object InternalCreateEmptyResult()
     {
-      return (object) 0L;
+      return 0L;
     }
 
     protected override object InternalCreateNewGroup(object newVal)
     {
-      return (object) (all || newVal != null ? 1L : 0L);
+      return all || newVal != null ? 1L : 0L;
     }
 
     protected override object InternalAddRowToGroup(object newVal)
     {
       if (!all && newVal == null)
         return val;
-      return (object) ((long) val + 1L);
+      return (long)val + 1L;
     }
 
     protected override object InternalFinishGroup()

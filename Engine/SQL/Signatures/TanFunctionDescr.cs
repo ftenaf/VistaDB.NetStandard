@@ -4,7 +4,7 @@
   {
     public override Signature CreateSignature(SQLParser parser)
     {
-      return (Signature) new TanFunction(parser);
+      return new TanFunction(parser);
     }
   }
 }

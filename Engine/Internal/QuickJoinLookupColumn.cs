@@ -29,7 +29,7 @@ namespace VistaDB.Engine.Internal
     {
       if (InternalGetIsChanged())
       {
-        ((IValue) result).Value = lookupTable.GetValue(dataIndex);
+                result.Value = lookupTable.GetValue(dataIndex);
         dataVersion = lookupTable.TableVersion;
       }
       return result;

@@ -17,7 +17,7 @@ namespace VistaDB.Engine.Core
         }
 
         private TransactionLogRowset(string alias, string name, Database parentDatabase)
-          : base((string)null, alias, parentDatabase, parentDatabase.ParentConnection, parentDatabase.Parser, parentDatabase.Encryption, (ClusteredRowset)null, Table.TableType.Default)
+          : base(null, alias, parentDatabase, parentDatabase.ParentConnection, parentDatabase.Parser, parentDatabase.Encryption, null, Table.TableType.Default)
         {
             rowsetName = alias + name;
         }
@@ -68,17 +68,17 @@ namespace VistaDB.Engine.Core
 
         protected override StorageHeader DoCreateHeaderInstance(int pageSize, CultureInfo culture, DataStorage clonedStorage)
         {
-            return (StorageHeader)TransactionLogRowsetHeader.CreateInstance((DataStorage)this, pageSize, culture);
+            return TransactionLogRowsetHeader.CreateInstance(this, pageSize, culture);
         }
 
         internal override TransactionLogRowset DoCreateTpLog(bool commit)
         {
-            return (TransactionLogRowset)null;
+            return null;
         }
 
         internal override TransactionLogRowset DoOpenTpLog(ulong logHeaderPostion)
         {
-            return (TransactionLogRowset)null;
+            return null;
         }
 
         internal override TpStatus DoGettingAnotherTransactionStatus(uint transactionId)
@@ -147,9 +147,9 @@ namespace VistaDB.Engine.Core
 
         private void FillRowData(Row key, uint transactionId, TpStatus status, int exRowCount)
         {
-            key[Header.TpIdIndex].Value = (object)(int)transactionId;
-            key[Header.StatusIndex].Value = (object)(byte)status;
-            key[Header.ExtraRowCounterIndex].Value = (object)exRowCount;
+            key[Header.TpIdIndex].Value = (int)transactionId;
+            key[Header.StatusIndex].Value = (byte)status;
+            key[Header.ExtraRowCounterIndex].Value = exRowCount;
         }
 
         private void RegisterTransactionStatus(bool commit, uint transactionId, TpStatus status)
@@ -231,9 +231,9 @@ namespace VistaDB.Engine.Core
 
             protected override Row OnAllocateDefaultRow(Row rowInstance)
             {
-                TpIdIndex = rowInstance.AppendColumn((IColumn)new IntColumn());
-                StatusIndex = rowInstance.AppendColumn((IColumn)new TinyIntColumn());
-                ExtraRowCounterIndex = rowInstance.AppendColumn((IColumn)new IntColumn());
+                TpIdIndex = rowInstance.AppendColumn(new IntColumn());
+                StatusIndex = rowInstance.AppendColumn(new TinyIntColumn());
+                ExtraRowCounterIndex = rowInstance.AppendColumn(new IntColumn());
                 rowInstance.InstantiateComparingMask();
                 rowInstance.ComparingMask[0] = TpIdIndex + 1;
                 return rowInstance;

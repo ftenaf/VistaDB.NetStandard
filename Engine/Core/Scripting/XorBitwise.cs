@@ -15,9 +15,9 @@ namespace VistaDB.Engine.Core.Scripting
     {
       PCodeUnit pcodeUnit1 = pcode[entry];
       PCodeUnit pcodeUnit2 = pcode[entry + 1];
-      bool flag1 = (bool) (pcodeUnit1.ResultColumn.IsNull ? (object) false : pcodeUnit1.ResultColumn.Value);
-      bool flag2 = (bool) (pcodeUnit2.ResultColumn.IsNull ? (object) false : pcodeUnit2.ResultColumn.Value);
-      pcodeUnit1.ResultColumn.Value = (object) (flag1 ^ flag2);
+      bool flag1 = (bool) (pcodeUnit1.ResultColumn.IsNull ? false : pcodeUnit1.ResultColumn.Value);
+      bool flag2 = (bool) (pcodeUnit2.ResultColumn.IsNull ? false : pcodeUnit2.ResultColumn.Value);
+      pcodeUnit1.ResultColumn.Value = flag1 ^ flag2;
     }
   }
 }

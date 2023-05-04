@@ -10,7 +10,7 @@ namespace VistaDB.Engine.Core
     }
 
     internal UnicodeColumn(UnicodeColumn col)
-      : base((NVarcharColumn) col)
+      : base(col)
     {
     }
 
@@ -30,7 +30,7 @@ namespace VistaDB.Engine.Core
       }
       set
       {
-        Value = (object) value;
+        Value = value;
       }
     }
 
@@ -45,7 +45,7 @@ namespace VistaDB.Engine.Core
 
     protected override Row.Column OnDuplicate(bool padRight)
     {
-      return (Row.Column) new UnicodeColumn(this);
+      return new UnicodeColumn(this);
     }
   }
 }

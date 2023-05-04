@@ -41,7 +41,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       if (bodyStatement != null)
         parameters.Clear();
-      bodyStatement = (Statement) parent.Connection.CreateStoredProcedureStatement(parent, sp.Statement, out variables);
+      bodyStatement = parent.Connection.CreateStoredProcedureStatement(parent, sp.Statement, out variables);
       if (variables == null)
         return;
       parameters = CheckParameters();
@@ -59,7 +59,7 @@ namespace VistaDB.Engine.SQL.Signatures
           bodyStatement.DoSetParam(variable.Name, ResolveParameter(variable.Name, paramPos));
         }
         else
-          bodyStatement.DoSetParam(variable.Name, (object) null, variable.DataType, ParameterDirection.Input);
+          bodyStatement.DoSetParam(variable.Name, null, variable.DataType, ParameterDirection.Input);
         parameterTypes[paramPos++] = variable.DataType;
       }
     }
@@ -74,7 +74,7 @@ namespace VistaDB.Engine.SQL.Signatures
       else
       {
         Signature parameter = parameters[paramPos];
-        if (parameter != (Signature) null && parameter.SignatureType == SignatureType.Parameter)
+        if (parameter != null && parameter.SignatureType == SignatureType.Parameter)
           paramName1 = parameter.Text.Substring(1);
       }
       return parent.DoGetParam(paramName1);
@@ -82,7 +82,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     private bool IsOutParameter(int paramPos, string paramName)
     {
-      if (parameters[paramPos] != (Signature) null)
+      if (parameters[paramPos] != null)
       {
         if (paramPos < outParams.Count)
           return outParams[paramPos];
@@ -110,22 +110,22 @@ namespace VistaDB.Engine.SQL.Signatures
         }
         else
         {
-          Signature signature = (Signature) null;
+          Signature signature = null;
           if (num < parameters.Count)
             signature = parameters[num++];
-          if (signature == (Signature) null)
+          if (signature == null)
           {
             if (parent.DoGetParam(variable.Name) != null)
             {
-              signatureList.Add((Signature) null);
+              signatureList.Add(null);
             }
             else
             {
               if (variable.Default == null)
                 throw new VistaDBSQLException(641, variable.Name, LineNo, SymbolNo);
               IColumn column = CreateColumn(variable.DataType);
-              parent.Database.Conversion.Convert(variable.Default, (IValue) column);
-              signatureList.Add((Signature) ConstantSignature.CreateSignature(column, parent));
+              parent.Database.Conversion.Convert(variable.Default, column);
+              signatureList.Add(ConstantSignature.CreateSignature(column, parent));
             }
           }
           else
@@ -147,8 +147,8 @@ namespace VistaDB.Engine.SQL.Signatures
         int index = 0;
         foreach (SQLParser.VariableDeclaration variable in variables)
         {
-          if (index < parameters.Count && parameters[index] != (Signature) null)
-            bodyStatement.DoSetParam(variable.Name, ((IValue) paramValues[index]).Value, variable.DataType, variable.Direction);
+          if (index < parameters.Count && parameters[index] != null)
+            bodyStatement.DoSetParam(variable.Name, paramValues[index].Value, variable.DataType, variable.Direction);
           else
             bodyStatement.DoSetParam(variable.Name, parent.DoGetParam(variable.Name).Value, variable.DataType, variable.Direction);
           ++index;
@@ -158,7 +158,7 @@ namespace VistaDB.Engine.SQL.Signatures
       IQueryResult queryResult = bodyStatement.ExecuteQuery();
       if (bodyStatement.AffectedRows > 0L)
         parent.AffectedRows += bodyStatement.AffectedRows;
-      return (object) queryResult;
+      return queryResult;
     }
   }
 }

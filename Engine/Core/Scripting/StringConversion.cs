@@ -15,7 +15,7 @@ namespace VistaDB.Engine.Core.Scripting
       PCodeUnit pcodeUnit = pcode[entry];
       Row.Column resultColumn = pcodeUnit.ResultColumn;
       pcodeUnit.ResultColumn = contextStorage.CreateEmptyColumnInstance(VistaDBType.NChar);
-      pcodeUnit.ResultColumn.Value = resultColumn.IsNull ? (object) (string) null : (object) resultColumn.Value.ToString();
+      pcodeUnit.ResultColumn.Value = resultColumn.IsNull ? null : (object) resultColumn.Value.ToString();
     }
   }
 }

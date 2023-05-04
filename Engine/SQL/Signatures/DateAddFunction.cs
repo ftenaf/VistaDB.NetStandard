@@ -15,33 +15,33 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object ExecuteSubProgram()
     {
-      int months = (int) ((IValue) paramValues[0]).Value;
-      DateTime dateTime = (DateTime) ((IValue) paramValues[1]).Value;
+      int months = (int)paramValues[0].Value;
+      DateTime dateTime = (DateTime)paramValues[1].Value;
       switch (datePart)
       {
         case DatePart.Year:
-          return (object) dateTime.AddYears(months);
+          return dateTime.AddYears(months);
         case DatePart.Quarter:
-          return (object) dateTime.AddMonths(3 * months);
+          return dateTime.AddMonths(3 * months);
         case DatePart.Month:
-          return (object) dateTime.AddMonths(months);
+          return dateTime.AddMonths(months);
         case DatePart.DayOfYear:
         case DatePart.Day:
-          return (object) dateTime.AddDays((double) months);
+          return dateTime.AddDays(months);
         case DatePart.Week:
-          return (object) dateTime.AddDays((double) (7 * months));
+          return dateTime.AddDays(7 * months);
         case DatePart.WeekDay:
-          return (object) dateTime.AddDays((double) months);
+          return dateTime.AddDays(months);
         case DatePart.Hour:
-          return (object) dateTime.AddHours((double) months);
+          return dateTime.AddHours(months);
         case DatePart.Minute:
-          return (object) dateTime.AddMinutes((double) months);
+          return dateTime.AddMinutes(months);
         case DatePart.Second:
-          return (object) dateTime.AddSeconds((double) months);
+          return dateTime.AddSeconds(months);
         case DatePart.Millisecond:
-          return (object) dateTime.AddMilliseconds((double) months);
+          return dateTime.AddMilliseconds(months);
         default:
-          return (object) null;
+          return null;
       }
     }
   }

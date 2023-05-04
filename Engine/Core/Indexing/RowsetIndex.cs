@@ -23,13 +23,13 @@ namespace VistaDB.Engine.Core.Indexing
 
     internal static RowsetIndex CreateInstance(string fileName, string indexName, string keyExpression, bool fts, ClusteredRowset rowSet, DirectConnection connection, Database wrapperDatabase, CultureInfo culture, Encryption encryption)
     {
-      RowsetIndex rowsetIndex = fts ? (RowsetIndex) new FTSIndex(fileName, indexName, keyExpression, rowSet, connection, wrapperDatabase, encryption, (RowsetIndex) null) : new RowsetIndex(fileName, indexName, keyExpression, rowSet, connection, wrapperDatabase, encryption, (RowsetIndex) null);
+      RowsetIndex rowsetIndex = fts ? new FTSIndex(fileName, indexName, keyExpression, rowSet, connection, wrapperDatabase, encryption, null) : new RowsetIndex(fileName, indexName, keyExpression, rowSet, connection, wrapperDatabase, encryption, null);
       rowsetIndex.DoAfterConstruction(rowSet.PageSize, culture == null ? rowSet.Culture : culture);
       return rowsetIndex;
     }
 
     protected RowsetIndex(string fileName, string indexName, string keyExpression, ClusteredRowset rowSet, DirectConnection connection, Database wrapperDatabase, Encryption encryption, RowsetIndex clonedOrigin)
-      : base(fileName, indexName, (Parser) null, connection, wrapperDatabase, encryption, (Index) clonedOrigin)
+      : base(fileName, indexName, null, connection, wrapperDatabase, encryption, clonedOrigin)
     {
       this.rowSet = rowSet;
       this.keyExpression = keyExpression;
@@ -69,12 +69,12 @@ namespace VistaDB.Engine.Core.Indexing
 
     protected override Row OnCreateEmptyRowInstance()
     {
-      return Row.CreateInstance(0U, !Header.Descend, Encryption, (int[]) null);
+      return Row.CreateInstance(0U, !Header.Descend, Encryption, null);
     }
 
     protected override Row OnCreateEmptyRowInstance(int maxColCount)
     {
-      return Row.CreateInstance(0U, !Header.Descend, Encryption, (int[]) null, maxColCount);
+      return Row.CreateInstance(0U, !Header.Descend, Encryption, null, maxColCount);
     }
 
     internal override CrossConversion Conversion
@@ -101,7 +101,7 @@ namespace VistaDB.Engine.Core.Indexing
       }
       catch (Exception ex)
       {
-        keyPcode = (EvalStack) null;
+        keyPcode = null;
         throw ex;
       }
     }
@@ -112,7 +112,7 @@ namespace VistaDB.Engine.Core.Indexing
       {
         if (spool != null)
           spool.Dispose();
-        spool = keyCount == 0U ? (SortSpool) new DummySpool() : new SortSpool(Handle.IsolatedStorage, keyCount, ref expectedKeyLen, BottomRow, ParentConnection.StorageManager, false);
+        spool = keyCount == 0U ? new DummySpool() : new SortSpool(Handle.IsolatedStorage, keyCount, ref expectedKeyLen, BottomRow, ParentConnection.StorageManager, false);
       }
       catch (Exception ex)
       {
@@ -134,8 +134,8 @@ namespace VistaDB.Engine.Core.Indexing
     {
       try
       {
-        SetRelationship((DataStorage) this, (DataStorage) ParentRowset, Relationships.Type.One_To_One, (EvalStack) null, false);
-        ParentRowset.SetRelationship((DataStorage) ParentRowset, (DataStorage) this, Relationships.Type.One_To_One, KeyPCode, true);
+        SetRelationship(this, ParentRowset, Relationships.Type.One_To_One, null, false);
+        ParentRowset.SetRelationship(ParentRowset, this, Relationships.Type.One_To_One, KeyPCode, true);
       }
       finally
       {
@@ -146,8 +146,8 @@ namespace VistaDB.Engine.Core.Indexing
 
     private void UnregisterRowset()
     {
-      ParentRowset.ResetRelationship((DataStorage) ParentRowset, (DataStorage) this);
-      ResetRelationship((DataStorage) this, (DataStorage) ParentRowset);
+      ParentRowset.ResetRelationship(ParentRowset, this);
+      ResetRelationship(this, ParentRowset);
     }
 
     internal bool IsCorrectPrimaryKeyExpr(string primaryKey)
@@ -157,7 +157,7 @@ namespace VistaDB.Engine.Core.Indexing
 
     internal void ReDeclareIndex()
     {
-      DeclareNewStorage((object) CollectIndexInformation());
+      DeclareNewStorage(CollectIndexInformation());
     }
 
     internal byte[] RowKeyStructure
@@ -171,8 +171,8 @@ namespace VistaDB.Engine.Core.Indexing
           int index2 = index1 * 2;
           short rowIndex = (short) columnList[index1].RowIndex;
           numArray[index2] = (byte) rowIndex;
-          short num = (short) ((int) (short) ((int) rowIndex & 768) >> 7);
-          numArray[index2 + 1] = IsDescendKeyColumn(index1) ? (byte) (1U | (uint) (byte) num) : (byte) num;
+          short num = (short) ((short)(rowIndex & 768) >> 7);
+          numArray[index2 + 1] = IsDescendKeyColumn(index1) ? (byte) (1U | (byte)num) : (byte) num;
         }
         return numArray;
       }
@@ -180,7 +180,7 @@ namespace VistaDB.Engine.Core.Indexing
 
     internal IVistaDBIndexInformation CollectIndexInformation()
     {
-      return (IVistaDBIndexInformation) new Table.TableSchema.IndexCollection.IndexInformation(Name, Alias, KeyExpression, IsUnique, IsPrimary, Header.Descend, IsSparse, IsForeignKey, IsFts, false, StorageId, RowKeyStructure);
+      return new Table.TableSchema.IndexCollection.IndexInformation(Name, Alias, KeyExpression, IsUnique, IsPrimary, Header.Descend, IsSparse, IsForeignKey, IsFts, false, StorageId, RowKeyStructure);
     }
 
     internal void EvaluateSpoolKey(bool forceOutput)
@@ -238,7 +238,7 @@ namespace VistaDB.Engine.Core.Indexing
     protected virtual void OnCreatePCode()
     {
       SetParser(ParentRowset.WrapperDatabase.SqlKeyParser);
-      keyPcode = Parser.Compile(KeyExpression, (DataStorage) ParentRowset, false, false, CaseSensitive, (EvalStack) null);
+      keyPcode = Parser.Compile(KeyExpression, ParentRowset, false, false, CaseSensitive, null);
       if (keyPcode == null)
         throw new VistaDBException(282, keyExpression);
       if (ParentRowset != null)
@@ -350,7 +350,7 @@ namespace VistaDB.Engine.Core.Indexing
       Header.Descend = false;
       CreatePCode();
       List<Row.Column> columnList = KeyPCode.EnumColumns();
-      if (columnList.Count > (int) byte.MaxValue)
+      if (columnList.Count > byte.MaxValue)
         throw new VistaDBException(149, keyExpression);
       foreach (Row.Column column in columnList)
       {
@@ -375,7 +375,7 @@ namespace VistaDB.Engine.Core.Indexing
     {
       if (clonedStorage != null)
         return base.DoCreateHeaderInstance(pageSize, culture, clonedStorage);
-      return (StorageHeader)RowsetIndexHeader.CreateHeaderInstance((DataStorage) this, ParentRowset.PageSize, ParentRowset.Culture);
+      return RowsetIndexHeader.CreateHeaderInstance(this, ParentRowset.PageSize, ParentRowset.Culture);
     }
 
     protected override void OnActivateHeader(ulong position)
@@ -482,11 +482,11 @@ namespace VistaDB.Engine.Core.Indexing
     {
       try
       {
-        EvalStack evalStack = ParentRowset.WrapperDatabase.Parser.Compile(keyEvaluationExpression, (DataStorage) ParentRowset, false, false, CaseSensitive, findEvaluator);
+        EvalStack evalStack = ParentRowset.WrapperDatabase.Parser.Compile(keyEvaluationExpression, ParentRowset, false, false, CaseSensitive, findEvaluator);
         if (findEvaluator == null)
           findEvaluator = evalStack;
         if (evalStack != findEvaluator)
-          return (Row) null;
+          return null;
         Row contextRow = ParentRowset.CurrentRow.CopyInstance();
         List<Row.Column> columnList = KeyPCode.EnumColumns();
         int index = 0;
@@ -524,7 +524,7 @@ namespace VistaDB.Engine.Core.Indexing
       {
         int rowIndex = column.RowIndex;
         Row.Column b = CurrentRow[rowIndex];
-        long num = (long) column.MinusColumn(b);
+        long num = column.MinusColumn(b);
         if (rowIndex == 0)
         {
           if (num != 0L)
@@ -629,7 +629,7 @@ namespace VistaDB.Engine.Core.Indexing
         return true;
       Row key = satelliteRow.CopyInstance();
       key.RowId = 0U;
-      return WrapperDatabase.LookForReferencedKey(ParentRowset, key, primaryTable, (string) null);
+      return WrapperDatabase.LookForReferencedKey(ParentRowset, key, primaryTable, null);
     }
 
     internal override bool DoCheckUnlinkedPrimaryKey(string foreignKeyTable, string foreignKeyIndex, VistaDBReferentialIntegrity integrity)
@@ -644,7 +644,7 @@ namespace VistaDB.Engine.Core.Indexing
         key.RowVersion = 0U;
         return !WrapperDatabase.LookForReferencedKey(ParentRowset, key, foreignKeyTable, foreignKeyIndex);
       }
-      WrapperDatabase.ModifyForeignTable(isUpdateOperation, (Index) this, foreignKeyTable, foreignKeyIndex, integrity);
+      WrapperDatabase.ModifyForeignTable(isUpdateOperation, this, foreignKeyTable, foreignKeyIndex, integrity);
       return true;
     }
 
@@ -653,12 +653,12 @@ namespace VistaDB.Engine.Core.Indexing
       if (spool != null)
       {
         spool.Dispose();
-        spool = (SortSpool) null;
+        spool = null;
       }
-      findEvaluator = (EvalStack) null;
-      keyPcode = (EvalStack) null;
+      findEvaluator = null;
+      keyPcode = null;
       base.Destroy();
-      rowSet = (ClusteredRowset) null;
+      rowSet = null;
     }
 
     internal override uint TransactionId

@@ -14,13 +14,13 @@
 
     private uint F(uint x)
     {
-      short num1 = (short) ((int) x & (int) byte.MaxValue);
+      short num1 = (short) ((int) x & byte.MaxValue);
       x >>= 8;
-      short num2 = (short) ((int) x & (int) byte.MaxValue);
+      short num2 = (short) ((int) x & byte.MaxValue);
       x >>= 8;
-      short num3 = (short) ((int) x & (int) byte.MaxValue);
+      short num3 = (short) ((int) x & byte.MaxValue);
       x >>= 8;
-      return (ctx.S[0, (int) (short) ((int) x & (int) byte.MaxValue)] + ctx.S[1, (int) num3] ^ ctx.S[2, (int) num2]) + ctx.S[3, (int) num1];
+      return (ctx.S[0, (short)((int)x & byte.MaxValue)] + ctx.S[1, num3] ^ ctx.S[2, num2]) + ctx.S[3, num1];
     }
 
     private void Init(EncryptionKey cryptoKey)
@@ -29,7 +29,7 @@
       int length = str.Length;
       for (int index1 = 0; index1 <= 3; ++index1)
       {
-        for (int index2 = 0; index2 <= (int) byte.MaxValue; ++index2)
+        for (int index2 = 0; index2 <= byte.MaxValue; ++index2)
           ctx.S[index1, index2] = ORIG_S[index1, index2];
       }
       int index3 = 0;
@@ -38,7 +38,7 @@
         uint num = 0;
         for (int index2 = 0; index2 <= 3; ++index2)
         {
-          num = num << 8 | (uint) str[index3];
+          num = num << 8 | str[index3];
           ++index3;
           if (index3 >= length)
             index3 = 0;

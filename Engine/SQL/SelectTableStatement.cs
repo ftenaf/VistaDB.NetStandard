@@ -10,7 +10,7 @@ namespace VistaDB.Engine.SQL
     private bool tableSent;
 
     internal SelectTableStatement(LocalSQLConnection connection, SQLParser parser, long queryId, IQueryResult table, IQuerySchemaInfo schema)
-      : base(connection, (Statement) null, parser, queryId)
+      : base(connection, null, parser, queryId)
     {
       this.table = table;
       this.schema = schema;
@@ -30,9 +30,9 @@ namespace VistaDB.Engine.SQL
     public override INextQueryResult NextResult(VistaDBPipe pipe)
     {
       if (tableSent)
-        return (INextQueryResult) null;
+        return null;
       tableSent = true;
-      return (INextQueryResult) new BatchStatement.ResultSetData(table, schema, table.RowCount);
+      return new BatchStatement.ResultSetData(table, schema, table.RowCount);
     }
 
     protected override bool AcceptRow()
@@ -56,7 +56,7 @@ namespace VistaDB.Engine.SQL
 
     protected override IQueryResult OnExecuteQuery()
     {
-      return (IQueryResult) null;
+      return null;
     }
   }
 }

@@ -26,15 +26,15 @@ namespace VistaDB.Engine.SQL.Signatures
         columnName = columnSignature1.ColumnName;
         tableName = columnSignature2.ColumnName;
         parameters.Clear();
-        parameterTypes = (VistaDBType[]) null;
+        parameterTypes = null;
       }
       else
       {
         parameterTypes[0] = VistaDBType.Unknown;
-        columnName = (string) null;
-        tableName = (string) null;
+        columnName = null;
+        tableName = null;
       }
-      table = (SourceTable) null;
+      table = null;
     }
 
     public override SignatureType OnPrepare()
@@ -47,7 +47,7 @@ namespace VistaDB.Engine.SQL.Signatures
         table = columnSignature.Table;
         columnName = columnSignature.ColumnName;
         parameters.Clear();
-        parameterTypes = (VistaDBType[]) null;
+        parameterTypes = null;
       }
       else
         dataType = parent.Database.TableSchema(tableName)[columnName].Type;

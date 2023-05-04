@@ -13,7 +13,7 @@ namespace VistaDB.Engine.SQL
     public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
     {
       parser.SkipToken(true);
-      IStatementDescr statement = (IStatementDescr) statements[(object) parser.TokenValue.Token.ToUpper(CultureInfo.InvariantCulture)];
+      IStatementDescr statement = (IStatementDescr) statements[parser.TokenValue.Token.ToUpper(CultureInfo.InvariantCulture)];
       if (statement != null)
         return statement.CreateStatement(conn, parent, parser, id);
       if (elseStatementDescr != null)

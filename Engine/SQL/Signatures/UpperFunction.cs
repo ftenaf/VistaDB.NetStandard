@@ -13,7 +13,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object ExecuteSubProgram()
     {
-      return (object) parent.Connection.StringUpper((string) ((IValue) paramValues[0]).Value);
+      return parent.Connection.StringUpper((string)paramValues[0].Value);
     }
 
     public override int GetWidth()

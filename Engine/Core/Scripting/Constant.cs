@@ -7,7 +7,7 @@ namespace VistaDB.Engine.Core.Scripting
     private Row.Column constant;
 
     internal Constant(int groupId)
-      : base((string) null, groupId, Operations.Nomark, Priorities.Generator, VistaDBType.Unknown)
+      : base(null, groupId, Operations.Nomark, Priorities.Generator, VistaDBType.Unknown)
     {
     }
 
@@ -19,7 +19,7 @@ namespace VistaDB.Engine.Core.Scripting
       }
       set
       {
-        constant = value == (Row.Column) null ? (Row.Column) null : value.Duplicate(false);
+        constant = value == null ? null : value.Duplicate(false);
         SetParameterType(-1, value.Type);
       }
     }
@@ -31,7 +31,7 @@ namespace VistaDB.Engine.Core.Scripting
 
     internal override Signature DoCloneSignature()
     {
-      return (Signature) new Constant(Group);
+      return new Constant(Group);
     }
   }
 }

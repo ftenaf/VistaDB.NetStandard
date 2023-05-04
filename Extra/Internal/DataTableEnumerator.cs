@@ -17,7 +17,7 @@ namespace VistaDB.Extra.Internal
     {
       get
       {
-        return (object) null;
+        return null;
       }
     }
 

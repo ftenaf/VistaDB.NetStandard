@@ -18,8 +18,8 @@ namespace VistaDB.Engine.SQL
         parser.SkipToken(true);
       if (tokenValue.TokenType != TokenType.Unknown && tokenValue.TokenType != TokenType.Name && tokenValue.TokenType != TokenType.ComplexName)
         throw new VistaDBSQLException(585, tokenValue.Token, lineNo, symbolNo);
-      string tableName = parser.GetTableName((Statement) this);
-      destinationTable = (SourceTable) new NativeSourceTable((Statement) this, tableName, tableName, 0, tokenValue.RowNo, tokenValue.ColNo);
+      string tableName = parser.GetTableName(this);
+      destinationTable = new NativeSourceTable(this, tableName, tableName, 0, tokenValue.RowNo, tokenValue.ColNo);
       if (!parser.SkipToken(false))
         return;
       base.OnParse(connection, parser);

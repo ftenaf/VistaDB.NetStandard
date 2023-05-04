@@ -21,7 +21,7 @@ namespace VistaDB.Engine.SQL.Signatures
       if (ParamCount == 1)
       {
         parameterTypes[0] = VistaDBType.Int;
-        rnd = (Random) null;
+        rnd = null;
       }
       else
         rnd = new Random(instanceCounter);
@@ -39,8 +39,8 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       getChanged = true;
       if (ParamCount > 0)
-        return (object) new Random((int) ((IValue) paramValues[0]).Value).NextDouble();
-      return (object) rnd.NextDouble();
+        return new Random((int)paramValues[0].Value).NextDouble();
+      return rnd.NextDouble();
     }
 
     protected override bool InternalGetIsChanged()

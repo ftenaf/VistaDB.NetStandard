@@ -13,7 +13,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       parameterTypes[0] = VistaDBType.DateTime;
       dataType = VistaDBType.NChar;
-      dateFormatInfo = (DateTimeFormatInfo) null;
+      dateFormatInfo = null;
     }
 
     public override SignatureType OnPrepare()
@@ -24,33 +24,33 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object ExecuteSubProgram()
     {
-      DateTime dateTime = (DateTime) ((IValue) paramValues[0]).Value;
+      DateTime dateTime = (DateTime)paramValues[0].Value;
       switch (datePart)
       {
         case DatePart.Year:
-          return (object) dateTime.Year.ToString();
+          return dateTime.Year.ToString();
         case DatePart.Quarter:
-          return (object) ((dateTime.Month - 1) / 3 + 1).ToString();
+          return ((dateTime.Month - 1) / 3 + 1).ToString();
         case DatePart.Month:
-          return (object) dateFormatInfo.MonthNames[dateTime.Month - 1];
+          return dateFormatInfo.MonthNames[dateTime.Month - 1];
         case DatePart.DayOfYear:
-          return (object) dateTime.DayOfYear.ToString();
+          return dateTime.DayOfYear.ToString();
         case DatePart.Day:
-          return (object) dateTime.Day.ToString();
+          return dateTime.Day.ToString();
         case DatePart.Week:
-          return (object) ((dateTime.DayOfYear - 1) / 7 + 1).ToString();
+          return ((dateTime.DayOfYear - 1) / 7 + 1).ToString();
         case DatePart.WeekDay:
-          return (object) dateFormatInfo.DayNames[(int) dateTime.DayOfWeek];
+          return dateFormatInfo.DayNames[(int)dateTime.DayOfWeek];
         case DatePart.Hour:
-          return (object) dateTime.Hour.ToString();
+          return dateTime.Hour.ToString();
         case DatePart.Minute:
-          return (object) dateTime.Minute.ToString();
+          return dateTime.Minute.ToString();
         case DatePart.Second:
-          return (object) dateTime.Second.ToString();
+          return dateTime.Second.ToString();
         case DatePart.Millisecond:
-          return (object) dateTime.Millisecond.ToString();
+          return dateTime.Millisecond.ToString();
         default:
-          return (object) null;
+          return null;
       }
     }
 

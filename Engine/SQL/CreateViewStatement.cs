@@ -20,7 +20,7 @@ namespace VistaDB.Engine.SQL
     protected override void OnParse(LocalSQLConnection connection, SQLParser parser)
     {
       parser.SkipToken(true);
-      name = parser.GetTableName((Statement) this);
+      name = parser.GetTableName(this);
       parser.SkipToken(true);
       if (parser.IsToken("DESCRIPTION"))
       {
@@ -29,14 +29,14 @@ namespace VistaDB.Engine.SQL
         parser.SkipToken(true);
       }
       else
-        description = (string) null;
+        description = null;
       ParseColumnNames(parser);
       parser.ExpectedExpression("AS");
       parser.SkipToken(true);
       parser.ExpectedExpression("SELECT");
       Statement parent = parser.Parent;
       int symbolNo = parser.TokenValue.SymbolNo;
-      statement = new SelectStatement(this.connection, (Statement) null, parser, 0L);
+      statement = new SelectStatement(this.connection, null, parser, 0L);
       parser.Parent = parent;
       int length = (parser.TokenValue.SymbolNo == 0 ? parser.Text.Length : parser.TokenValue.SymbolNo) - symbolNo;
       statement.CommandText = parser.Text.Substring(symbolNo, length).TrimStart();
@@ -46,7 +46,7 @@ namespace VistaDB.Engine.SQL
     {
       if (!parser.IsToken("("))
       {
-        columnNames = (List<string>) null;
+        columnNames = null;
       }
       else
       {
@@ -92,7 +92,7 @@ namespace VistaDB.Engine.SQL
         viewInstance.Expression = str;
         viewInstance.Description = description;
         Database.CreateViewObject(viewInstance);
-        return (IQueryResult) null;
+        return null;
       }
       finally
       {
@@ -102,7 +102,7 @@ namespace VistaDB.Engine.SQL
 
     protected virtual void CheckView(IViewList views, string name)
     {
-      if (views.Contains((object) name))
+      if (views.Contains(name))
         throw new VistaDBSQLException(603, name, lineNo, symbolNo);
     }
 

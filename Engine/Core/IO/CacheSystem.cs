@@ -160,7 +160,7 @@ namespace VistaDB.Engine.Core.IO
     {
       lock (SyncRoot)
       {
-        foreach (Page page in new List<Page>((IEnumerable<Page>) Values))
+        foreach (Page page in new List<Page>(Values))
         {
           if (page.IsDirty)
             page.Refresh(fileStream, false);
@@ -271,7 +271,7 @@ namespace VistaDB.Engine.Core.IO
         int sourceIndex = (int) ((long) filePosition - (long) pageId);
         int num = buffer.Length - sourceIndex;
         int length1 = length <= num ? length : num;
-        Array.Copy((Array) buffer, sourceIndex, (Array) dataBuffer, offset, length1);
+        Array.Copy(buffer, sourceIndex, dataBuffer, offset, length1);
         offset += length1;
         filePosition += (ulong) length1;
         return length1;
@@ -282,7 +282,7 @@ namespace VistaDB.Engine.Core.IO
         int destinationIndex = (int) ((long) filePosition - (long) pageId);
         int num = buffer.Length - destinationIndex;
         int length1 = length <= num ? length : num;
-        Array.Copy((Array) dataBuffer, offset, (Array) buffer, destinationIndex, length1);
+        Array.Copy(dataBuffer, offset, buffer, destinationIndex, length1);
         if (cache != null && !isDirty)
           cache.DirtyPage(this);
         isDirty = true;

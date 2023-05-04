@@ -24,9 +24,9 @@ namespace VistaDB.Engine.SQL
     {
       WhileStatement cycleStatement = DoGetCycleStatement();
       if (cycleStatement == null)
-        throw new VistaDBSQLException(643, (string) null, lineNo, symbolNo);
+        throw new VistaDBSQLException(643, null, lineNo, symbolNo);
       cycleStatement.Continue();
-      return (IQueryResult) null;
+      return null;
     }
   }
 }

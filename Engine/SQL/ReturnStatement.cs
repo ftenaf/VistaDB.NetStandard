@@ -19,7 +19,7 @@ namespace VistaDB.Engine.SQL
 
     protected override VistaDBType OnPrepareQuery()
     {
-      if (returnSignature == (Signature) null)
+      if (returnSignature == null)
         return VistaDBType.Unknown;
       return returnSignature.DataType;
     }
@@ -28,17 +28,17 @@ namespace VistaDB.Engine.SQL
     {
       Batch.ScopeBreakFlag = true;
       IParameter returnParameter = DoGetReturnParameter();
-      if (returnSignature == (Signature) null || returnParameter == null || returnParameter.DataType == VistaDBType.Unknown && parent is StoredFunctionBody)
-        return (IQueryResult) null;
+      if (returnSignature == null || returnParameter == null || returnParameter.DataType == VistaDBType.Unknown && parent is StoredFunctionBody)
+        return null;
       int num = (int) returnSignature.Prepare();
       returnSignature.SetChanged();
       IColumn column = returnSignature.Execute();
       if (returnParameter.DataType == VistaDBType.Unknown)
         returnParameter.DataType = column.Type;
       IColumn emptyColumn = Database.CreateEmptyColumn(returnParameter.DataType);
-      Database.Conversion.Convert((IValue) column, (IValue) emptyColumn);
-      returnParameter.Value = ((IValue) emptyColumn).Value;
-      return (IQueryResult) null;
+      Database.Conversion.Convert(column, emptyColumn);
+      returnParameter.Value = emptyColumn.Value;
+      return null;
     }
   }
 }

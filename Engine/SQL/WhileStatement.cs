@@ -21,11 +21,11 @@ namespace VistaDB.Engine.SQL
       {
         parser.SkipToken(true);
         while (!parser.SkipSemicolons() && !parser.IsToken("END"))
-          Add(connection.ParseStatement((Statement) this, id));
+          Add(connection.ParseStatement(this, id));
         parser.SkipToken(false);
       }
       else
-        Add(connection.ParseStatement((Statement) this, id));
+        Add(connection.ParseStatement(this, id));
     }
 
     protected override VistaDBType OnPrepareQuery()
@@ -46,7 +46,7 @@ namespace VistaDB.Engine.SQL
       if (currentStatement == 0 && !ExecConditionSignature())
       {
         currentStatement = -1;
-        return (INextQueryResult) null;
+        return null;
       }
       INextQueryResult nextQueryResult = base.NextResult(pipe);
       if (currentStatement >= statements.Count)
@@ -64,7 +64,7 @@ namespace VistaDB.Engine.SQL
       conditionSignature.SetChanged();
       IColumn column = conditionSignature.Execute();
       if (column != null && !column.IsNull)
-        return (bool) ((IValue) column).Value;
+        return (bool)column.Value;
       return false;
     }
   }

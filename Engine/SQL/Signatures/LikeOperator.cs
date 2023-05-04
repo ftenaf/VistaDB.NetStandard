@@ -18,8 +18,8 @@ namespace VistaDB.Engine.SQL.Signatures
       signatureType = SignatureType.Expression;
       dataType = VistaDBType.Bit;
       this.expression = expression;
-      finder = (PatternFinder) null;
-      exprResult = (IColumn) null;
+      finder = null;
+      exprResult = null;
       pattern = parser.NextSignature(true, true, 2);
       if (parser.IsToken("ESCAPE"))
       {
@@ -32,7 +32,7 @@ namespace VistaDB.Engine.SQL.Signatures
         parser.SkipToken(false);
       }
       else
-        escapeCharacter = (string) null;
+        escapeCharacter = null;
     }
 
     public override SignatureType OnPrepare()
@@ -71,18 +71,18 @@ namespace VistaDB.Engine.SQL.Signatures
         IColumn column = expression.Execute();
         if (!CreatePattern())
         {
-          ((IValue) result).Value = (object) false;
+                    result.Value = false;
         }
         else
         {
           string matchExpr;
           if (exprResult != null)
           {
-            Convert((IValue) column, (IValue) exprResult);
-            matchExpr = (string) ((IValue) exprResult).Value;
+            Convert(column, exprResult);
+            matchExpr = (string)exprResult.Value;
           }
           else
-            matchExpr = (string) ((IValue) column).Value;
+            matchExpr = (string)column.Value;
 			result.Value = column.IsNull ? false : (Compare(matchExpr) ? true : false);
         }
       }
@@ -204,13 +204,13 @@ namespace VistaDB.Engine.SQL.Signatures
       string pattern;
       if (Utils.IsCharacterDataType(this.pattern.DataType))
       {
-        pattern = (string) ((IValue) this.pattern.Execute()).Value;
+        pattern = (string)this.pattern.Execute().Value;
       }
       else
       {
         IColumn column = CreateColumn(VistaDBType.NChar);
-        Convert((IValue) this.pattern.Result, (IValue) column);
-        pattern = (string) ((IValue) column).Value;
+        Convert(this.pattern.Result, column);
+        pattern = (string)column.Value;
       }
       finder = new PatternFinder(this.pattern.LineNo, this.pattern.SymbolNo, pattern, escapeCharacter, parent.Connection);
       return true;

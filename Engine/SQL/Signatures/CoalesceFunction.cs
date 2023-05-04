@@ -31,9 +31,9 @@ namespace VistaDB.Engine.SQL.Signatures
       for (int paramCount = ParamCount; index < paramCount; ++index)
       {
         if (!paramValues[index].IsNull)
-          return ((IValue) paramValues[index]).Value;
+          return paramValues[index].Value;
       }
-      return (object) null;
+      return null;
     }
   }
 }

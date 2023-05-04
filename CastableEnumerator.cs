@@ -23,7 +23,7 @@ namespace VistaDB
     {
       get
       {
-        return (K) _enum.Current;
+        return _enum.Current;
       }
     }
 
@@ -36,7 +36,7 @@ namespace VistaDB
     {
       get
       {
-        return (object) Current;
+        return Current;
       }
     }
 

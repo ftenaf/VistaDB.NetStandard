@@ -17,7 +17,7 @@ namespace VistaDB.Engine.Core.Scripting
 
     internal override Signature DoCloneSignature()
     {
-      Signature signature = (Signature) new Minus(new string(Name), Group, unaryOffset);
+      Signature signature = new Minus(new string(Name), Group, unaryOffset);
       signature.Entry = Entry;
       return signature;
     }

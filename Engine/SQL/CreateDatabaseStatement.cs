@@ -25,7 +25,7 @@ namespace VistaDB.Engine.SQL
     {
       if (parser.IsToken("INMEMORY"))
       {
-        fileName = (string) null;
+        fileName = null;
         parser.SkipToken(true);
         parser.ExpectedExpression("DATABASE");
       }
@@ -117,7 +117,7 @@ namespace VistaDB.Engine.SQL
       }
       else
         connection.OpenInMemoryDatabase(cryptoKeyString, lcid, caseSensitive);
-      return (IQueryResult) null;
+      return null;
     }
   }
 }

@@ -26,7 +26,7 @@ namespace VistaDB.Engine.Functions
                 return (Database)((Table)VistaDBContext.DDAChannel.CurrentDatabase).Rowset;
             if (VistaDBContext.SQLChannel.IsAvailable)
                 return (Database)VistaDBContext.SQLChannel.CurrentConnection;
-            return (Database)null;
+            return null;
         }
 
         private static VistaDBConnection GetCurrentConnection()
@@ -58,9 +58,9 @@ namespace VistaDB.Engine.Functions
         {
             Type type = typeof(SystemFunctions);
             MethodInfo method = type.GetMethod(name);
-            MethodInfo fillRowProcedure = (MethodInfo)null;
+            MethodInfo fillRowProcedure = null;
             if (method == null)
-                return (ClrHosting.ClrProcedure)null;
+                return null;
             foreach (VistaDBClrProcedureAttribute customAttribute in method.GetCustomAttributes(typeof(VistaDBClrProcedureAttribute), false))
             {
                 string name1 = customAttribute.FillRow;
@@ -80,32 +80,32 @@ namespace VistaDB.Engine.Functions
         {
             octetLength = -1;
             precision = 0;
-            scale = (short)-1;
-            radix = (short)0;
-            dateTime = (short)0;
+            scale = -1;
+            radix = 0;
+            dateTime = 0;
             switch (type)
             {
                 case VistaDBType.Char:
                     if (maxLength < 1 || maxLength > 8000)
-                        throw new Exception(string.Format("Broken database detected! ([{0}].[{1}] {2}) has an invalid length of {3}, must be between {4} and {5}", (object)table, (object)column, (object)type.ToString(), (object)maxLength, (object)1, (object)8000));
+                        throw new Exception(string.Format("Broken database detected! ([{0}].[{1}] {2}) has an invalid length of {3}, must be between {4} and {5}", table, column, type.ToString(), maxLength, 1, 8000));
                     precision = maxLength;
                     octetLength = maxLength;
                     break;
                 case VistaDBType.NChar:
                     if (maxLength < 1 || maxLength > 8000)
-                        throw new Exception(string.Format("Broken database detected! ([{0}].[{1}] {2}) has an invalid length of {3}, must be between {4} and {5}", (object)table, (object)column, (object)type.ToString(), (object)maxLength, (object)1, (object)8000));
+                        throw new Exception(string.Format("Broken database detected! ([{0}].[{1}] {2}) has an invalid length of {3}, must be between {4} and {5}", table, column, type.ToString(), maxLength, 1, 8000));
                     precision = maxLength / 2;
                     octetLength = maxLength;
                     break;
                 case VistaDBType.VarChar:
                     if (maxLength < 1 || maxLength > 8000)
-                        throw new Exception(string.Format("Broken database detected! ([{0}].[{1}] {2}) has an invalid length of {3}, must be between {4} and {5}", (object)table, (object)column, (object)type.ToString(), (object)maxLength, (object)1, (object)8000));
+                        throw new Exception(string.Format("Broken database detected! ([{0}].[{1}] {2}) has an invalid length of {3}, must be between {4} and {5}", table, column, type.ToString(), maxLength, 1, 8000));
                     precision = maxLength;
                     octetLength = maxLength;
                     break;
                 case VistaDBType.NVarChar:
                     if (maxLength < 1 || maxLength > 8000)
-                        throw new Exception(string.Format("Broken database detected! ([{0}].[{1}] {2}) has an invalid length of {3}, must be between {4} and {5}", (object)table, (object)column, (object)type.ToString(), (object)maxLength, (object)1, (object)8000));
+                        throw new Exception(string.Format("Broken database detected! ([{0}].[{1}] {2}) has an invalid length of {3}, must be between {4} and {5}", table, column, type.ToString(), maxLength, 1, 8000));
                     precision = maxLength / 2;
                     octetLength = maxLength;
                     break;
@@ -119,54 +119,54 @@ namespace VistaDB.Engine.Functions
                     break;
                 case VistaDBType.TinyInt:
                     precision = 3;
-                    scale = (short)0;
-                    radix = (short)10;
+                    scale = 0;
+                    radix = 10;
                     break;
                 case VistaDBType.SmallInt:
                     precision = 5;
-                    scale = (short)0;
-                    radix = (short)10;
+                    scale = 0;
+                    radix = 10;
                     break;
                 case VistaDBType.Int:
                     precision = 10;
-                    scale = (short)0;
-                    radix = (short)10;
+                    scale = 0;
+                    radix = 10;
                     break;
                 case VistaDBType.BigInt:
                     precision = 19;
-                    scale = (short)0;
-                    radix = (short)10;
+                    scale = 0;
+                    radix = 10;
                     break;
                 case VistaDBType.Real:
                     precision = 7;
-                    radix = (short)10;
+                    radix = 10;
                     break;
                 case VistaDBType.Float:
                     precision = 15;
-                    radix = (short)10;
+                    radix = 10;
                     break;
                 case VistaDBType.Decimal:
                     precision = 18;
-                    scale = (short)0;
-                    radix = (short)10;
+                    scale = 0;
+                    radix = 10;
                     break;
                 case VistaDBType.Money:
                     precision = 19;
-                    scale = (short)4;
-                    radix = (short)10;
+                    scale = 4;
+                    radix = 10;
                     break;
                 case VistaDBType.SmallMoney:
                     precision = 10;
-                    scale = (short)4;
-                    radix = (short)10;
+                    scale = 4;
+                    radix = 10;
                     break;
                 case VistaDBType.Bit:
                     precision = 1;
                     break;
                 case VistaDBType.DateTime:
                     precision = 23;
-                    scale = (short)3;
-                    dateTime = (short)3;
+                    scale = 3;
+                    dateTime = 3;
                     break;
                 case VistaDBType.Image:
                     precision = int.MaxValue;
@@ -174,7 +174,7 @@ namespace VistaDB.Engine.Functions
                     break;
                 case VistaDBType.VarBinary:
                     if (maxLength < 1 || maxLength > 8000)
-                        throw new Exception(string.Format("Broken database detected! ([{0}].[{1}] {2}) has an invalid length of {3}, must be between {4} and {5}", (object)table, (object)column, (object)type.ToString(), (object)maxLength, (object)1, (object)8000));
+                        throw new Exception(string.Format("Broken database detected! ([{0}].[{1}] {2}) has an invalid length of {3}, must be between {4} and {5}", table, column, type.ToString(), maxLength, 1, 8000));
                     precision = maxLength;
                     octetLength = maxLength;
                     break;
@@ -183,8 +183,8 @@ namespace VistaDB.Engine.Functions
                     break;
                 case VistaDBType.SmallDateTime:
                     precision = 16;
-                    scale = (short)0;
-                    dateTime = (short)-1;
+                    scale = 0;
+                    dateTime = -1;
                     break;
                 case VistaDBType.Timestamp:
                     precision = 8;
@@ -195,7 +195,7 @@ namespace VistaDB.Engine.Functions
 
         private static Statement ParseProcedure(Database db, string body, out List<SQLParser.VariableDeclaration> variables)
         {
-            return (Statement)((LocalSQLConnection)VistaDBContext.SQLChannel.CurrentConnection).CreateStoredProcedureStatement((Statement)null, body, out variables);
+            return ((LocalSQLConnection)VistaDBContext.SQLChannel.CurrentConnection).CreateStoredProcedureStatement(null, body, out variables);
         }
 
         [VistaDBClrProcedure(FillRow = "VistaDB.Engine.Functions.SystemFunctions.FillTableSchema")]
@@ -206,21 +206,21 @@ namespace VistaDB.Engine.Functions
             string databaseName = GetDatabaseName(currentDatabase);
             foreach (string key in (IEnumerable<string>)currentDatabase.GetTableIdMap().Keys)
             {
-                IVistaDBTableSchema tableSchema = (IVistaDBTableSchema)currentDatabase.GetTableSchema(key, false);
+                IVistaDBTableSchema tableSchema = currentDatabase.GetTableSchema(key, false);
                 tableSchemaEntryList.Add(new TableSchemaEntry(databaseName, tableSchema));
             }
             foreach (Database.ViewList.View schema in (IEnumerable)currentDatabase.LoadViews().Values)
                 tableSchemaEntryList.Add(new TableSchemaEntry(databaseName, schema));
-            return (IEnumerable)tableSchemaEntryList;
+            return tableSchemaEntryList;
         }
 
         public static void FillTableSchema(object source, VistaDBString table_catalog, VistaDBString table_schema, VistaDBString table_name, VistaDBString table_type)
         {
             TableSchemaEntry tableSchemaEntry = (TableSchemaEntry)source;
-            table_catalog.Value = (object)tableSchemaEntry.Catalog;
-            table_schema.Value = (object)tableSchemaEntry.Owner;
-            table_name.Value = (object)tableSchemaEntry.Name;
-            table_type.Value = (object)tableSchemaEntry.TableType;
+            table_catalog.Value = tableSchemaEntry.Catalog;
+            table_schema.Value = tableSchemaEntry.Owner;
+            table_name.Value = tableSchemaEntry.Name;
+            table_type.Value = tableSchemaEntry.TableType;
         }
 
         [VistaDBClrProcedure(FillRow = "VistaDB.Engine.Functions.SystemFunctions.EF_Tables_FillRow")]
@@ -231,10 +231,10 @@ namespace VistaDB.Engine.Functions
             List<IVistaDBValue[]> vistaDbValueArrayList = new List<IVistaDBValue[]>(10);
             foreach (string key in (IEnumerable<string>)currentDatabase.GetTableIdMap().Keys)
             {
-                IVistaDBValue[] vistaDbValueArray = new IVistaDBValue[4] { (IVistaDBValue)new VistaDBString("[dbo][" + key + "]"), (IVistaDBValue)new VistaDBString(databaseName), (IVistaDBValue)new VistaDBString("dbo"), (IVistaDBValue)new VistaDBString(key) };
+                IVistaDBValue[] vistaDbValueArray = new IVistaDBValue[4] { new VistaDBString("[dbo][" + key + "]"), new VistaDBString(databaseName), new VistaDBString("dbo"), new VistaDBString(key) };
                 vistaDbValueArrayList.Add(vistaDbValueArray);
             }
-            return (IEnumerable)vistaDbValueArrayList;
+            return vistaDbValueArrayList;
         }
 
         public static void EF_Tables_FillRow(object entry, out VistaDBString Id, out VistaDBString CatalogName, out VistaDBString SchemaName, out VistaDBString Name)
@@ -253,134 +253,134 @@ namespace VistaDB.Engine.Functions
 
         private static void FillColumnInfo(string name, int index, bool allowNull, VistaDBType type, int maxLength, IVistaDBValue[] row, int offset)
         {
-            row[offset] = (IVistaDBValue)new VistaDBString(name);
-            row[offset + 1] = (IVistaDBValue)new VistaDBInt32(index);
-            row[offset + 2] = (IVistaDBValue)new VistaDBBoolean(allowNull);
+            row[offset] = new VistaDBString(name);
+            row[offset + 1] = new VistaDBInt32(index);
+            row[offset + 2] = new VistaDBBoolean(allowNull);
             string lower = type.ToString().ToLower(CultureInfo.CurrentCulture);
             switch (type)
             {
                 case VistaDBType.VarChar:
                 case VistaDBType.NVarChar:
                 case VistaDBType.VarBinary:
-                    row[offset + 3] = maxLength < 1 || maxLength > 8000 ? (IVistaDBValue)new VistaDBString(lower + "(max)") : (IVistaDBValue)new VistaDBString(lower);
+                    row[offset + 3] = maxLength < 1 || maxLength > 8000 ? new VistaDBString(lower + "(max)") : (IVistaDBValue)new VistaDBString(lower);
                     break;
                 default:
-                    row[offset + 3] = (IVistaDBValue)new VistaDBString(lower);
+                    row[offset + 3] = new VistaDBString(lower);
                     break;
             }
             switch (type)
             {
                 case VistaDBType.Char:
                 case VistaDBType.VarChar:
-                    row[offset + 4] = (IVistaDBValue)new VistaDBInt32(maxLength);
+                    row[offset + 4] = new VistaDBInt32(maxLength);
                     break;
                 case VistaDBType.NChar:
                 case VistaDBType.NVarChar:
-                    row[offset + 4] = (IVistaDBValue)new VistaDBInt32(maxLength);
+                    row[offset + 4] = new VistaDBInt32(maxLength);
                     break;
                 case VistaDBType.Text:
-                    row[offset + 4] = (IVistaDBValue)new VistaDBInt32(maxLength);
+                    row[offset + 4] = new VistaDBInt32(maxLength);
                     break;
                 case VistaDBType.NText:
-                    row[offset + 4] = (IVistaDBValue)new VistaDBInt32(maxLength);
+                    row[offset + 4] = new VistaDBInt32(maxLength);
                     break;
                 case VistaDBType.Image:
-                    row[offset + 4] = (IVistaDBValue)new VistaDBInt32(maxLength);
+                    row[offset + 4] = new VistaDBInt32(maxLength);
                     break;
                 case VistaDBType.VarBinary:
-                    row[offset + 4] = (IVistaDBValue)new VistaDBInt32(maxLength);
+                    row[offset + 4] = new VistaDBInt32(maxLength);
                     break;
                 case VistaDBType.Timestamp:
-                    row[offset + 4] = (IVistaDBValue)new VistaDBInt32(maxLength);
+                    row[offset + 4] = new VistaDBInt32(maxLength);
                     break;
                 default:
-                    row[offset + 4] = (IVistaDBValue)new VistaDBInt32();
+                    row[offset + 4] = new VistaDBInt32();
                     break;
             }
             switch (type)
             {
                 case VistaDBType.TinyInt:
-                    row[offset + 5] = (IVistaDBValue)new VistaDBInt32(3);
-                    row[offset + 6] = (IVistaDBValue)new VistaDBInt32();
-                    row[offset + 7] = (IVistaDBValue)new VistaDBInt32(0);
+                    row[offset + 5] = new VistaDBInt32(3);
+                    row[offset + 6] = new VistaDBInt32();
+                    row[offset + 7] = new VistaDBInt32(0);
                     break;
                 case VistaDBType.SmallInt:
-                    row[offset + 5] = (IVistaDBValue)new VistaDBInt32(5);
-                    row[offset + 6] = (IVistaDBValue)new VistaDBInt32();
-                    row[offset + 7] = (IVistaDBValue)new VistaDBInt32(0);
+                    row[offset + 5] = new VistaDBInt32(5);
+                    row[offset + 6] = new VistaDBInt32();
+                    row[offset + 7] = new VistaDBInt32(0);
                     break;
                 case VistaDBType.Int:
-                    row[offset + 5] = (IVistaDBValue)new VistaDBInt32(10);
-                    row[offset + 6] = (IVistaDBValue)new VistaDBInt32();
-                    row[offset + 7] = (IVistaDBValue)new VistaDBInt32(0);
+                    row[offset + 5] = new VistaDBInt32(10);
+                    row[offset + 6] = new VistaDBInt32();
+                    row[offset + 7] = new VistaDBInt32(0);
                     break;
                 case VistaDBType.BigInt:
-                    row[offset + 5] = (IVistaDBValue)new VistaDBInt32(19);
-                    row[offset + 6] = (IVistaDBValue)new VistaDBInt32();
-                    row[offset + 7] = (IVistaDBValue)new VistaDBInt32(0);
+                    row[offset + 5] = new VistaDBInt32(19);
+                    row[offset + 6] = new VistaDBInt32();
+                    row[offset + 7] = new VistaDBInt32(0);
                     break;
                 case VistaDBType.Real:
-                    row[offset + 5] = (IVistaDBValue)new VistaDBInt32(7);
-                    row[offset + 6] = (IVistaDBValue)new VistaDBInt32();
-                    row[offset + 7] = (IVistaDBValue)new VistaDBInt32();
+                    row[offset + 5] = new VistaDBInt32(7);
+                    row[offset + 6] = new VistaDBInt32();
+                    row[offset + 7] = new VistaDBInt32();
                     break;
                 case VistaDBType.Float:
-                    row[offset + 5] = (IVistaDBValue)new VistaDBInt32(15);
-                    row[offset + 6] = (IVistaDBValue)new VistaDBInt32();
-                    row[offset + 7] = (IVistaDBValue)new VistaDBInt32();
+                    row[offset + 5] = new VistaDBInt32(15);
+                    row[offset + 6] = new VistaDBInt32();
+                    row[offset + 7] = new VistaDBInt32();
                     break;
                 case VistaDBType.Decimal:
-                    row[offset + 5] = (IVistaDBValue)new VistaDBInt32(18);
-                    row[offset + 6] = (IVistaDBValue)new VistaDBInt32();
-                    row[offset + 7] = (IVistaDBValue)new VistaDBInt32(0);
+                    row[offset + 5] = new VistaDBInt32(18);
+                    row[offset + 6] = new VistaDBInt32();
+                    row[offset + 7] = new VistaDBInt32(0);
                     break;
                 case VistaDBType.Money:
-                    row[offset + 5] = (IVistaDBValue)new VistaDBInt32(19);
-                    row[offset + 6] = (IVistaDBValue)new VistaDBInt32();
-                    row[offset + 7] = (IVistaDBValue)new VistaDBInt32(4);
+                    row[offset + 5] = new VistaDBInt32(19);
+                    row[offset + 6] = new VistaDBInt32();
+                    row[offset + 7] = new VistaDBInt32(4);
                     break;
                 case VistaDBType.SmallMoney:
-                    row[offset + 5] = (IVistaDBValue)new VistaDBInt32(10);
-                    row[offset + 6] = (IVistaDBValue)new VistaDBInt32();
-                    row[offset + 7] = (IVistaDBValue)new VistaDBInt32(4);
+                    row[offset + 5] = new VistaDBInt32(10);
+                    row[offset + 6] = new VistaDBInt32();
+                    row[offset + 7] = new VistaDBInt32(4);
                     break;
                 case VistaDBType.Bit:
-                    row[offset + 5] = (IVistaDBValue)new VistaDBInt32(1);
-                    row[offset + 6] = (IVistaDBValue)new VistaDBInt32();
-                    row[offset + 7] = (IVistaDBValue)new VistaDBInt32();
+                    row[offset + 5] = new VistaDBInt32(1);
+                    row[offset + 6] = new VistaDBInt32();
+                    row[offset + 7] = new VistaDBInt32();
                     break;
                 case VistaDBType.DateTime:
-                    row[offset + 5] = (IVistaDBValue)new VistaDBInt32(23);
-                    row[offset + 6] = (IVistaDBValue)new VistaDBInt32(3);
-                    row[offset + 7] = (IVistaDBValue)new VistaDBInt32(3);
+                    row[offset + 5] = new VistaDBInt32(23);
+                    row[offset + 6] = new VistaDBInt32(3);
+                    row[offset + 7] = new VistaDBInt32(3);
                     break;
                 case VistaDBType.UniqueIdentifier:
-                    row[offset + 5] = (IVistaDBValue)new VistaDBInt32(36);
-                    row[offset + 6] = (IVistaDBValue)new VistaDBInt32();
-                    row[offset + 7] = (IVistaDBValue)new VistaDBInt32();
+                    row[offset + 5] = new VistaDBInt32(36);
+                    row[offset + 6] = new VistaDBInt32();
+                    row[offset + 7] = new VistaDBInt32();
                     break;
                 case VistaDBType.SmallDateTime:
-                    row[offset + 5] = (IVistaDBValue)new VistaDBInt32(16);
-                    row[offset + 6] = (IVistaDBValue)new VistaDBInt32();
-                    row[offset + 7] = (IVistaDBValue)new VistaDBInt32(0);
+                    row[offset + 5] = new VistaDBInt32(16);
+                    row[offset + 6] = new VistaDBInt32();
+                    row[offset + 7] = new VistaDBInt32(0);
                     break;
                 case VistaDBType.Timestamp:
-                    row[offset + 5] = (IVistaDBValue)new VistaDBInt32(8);
-                    row[offset + 6] = (IVistaDBValue)new VistaDBInt32();
-                    row[offset + 7] = (IVistaDBValue)new VistaDBInt32();
+                    row[offset + 5] = new VistaDBInt32(8);
+                    row[offset + 6] = new VistaDBInt32();
+                    row[offset + 7] = new VistaDBInt32();
                     break;
                 default:
-                    row[offset + 5] = (IVistaDBValue)new VistaDBInt32();
-                    row[offset + 6] = (IVistaDBValue)new VistaDBInt32();
-                    row[offset + 7] = (IVistaDBValue)new VistaDBInt32();
+                    row[offset + 5] = new VistaDBInt32();
+                    row[offset + 6] = new VistaDBInt32();
+                    row[offset + 7] = new VistaDBInt32();
                     break;
             }
-            row[offset + 8] = (IVistaDBValue)new VistaDBString();
-            row[offset + 9] = (IVistaDBValue)new VistaDBString();
-            row[offset + 10] = (IVistaDBValue)new VistaDBString();
-            row[offset + 11] = (IVistaDBValue)new VistaDBString();
-            row[offset + 12] = (IVistaDBValue)new VistaDBString();
-            row[offset + 13] = (IVistaDBValue)new VistaDBString();
+            row[offset + 8] = new VistaDBString();
+            row[offset + 9] = new VistaDBString();
+            row[offset + 10] = new VistaDBString();
+            row[offset + 11] = new VistaDBString();
+            row[offset + 12] = new VistaDBString();
+            row[offset + 13] = new VistaDBString();
         }
 
         [VistaDBClrProcedure(FillRow = "VistaDB.Engine.Functions.SystemFunctions.EF_TableColumns_FillRow")]
@@ -391,24 +391,24 @@ namespace VistaDB.Engine.Functions
             List<IVistaDBValue[]> vistaDbValueArrayList = new List<IVistaDBValue[]>();
             foreach (string key in (IEnumerable<string>)currentDatabase.GetTableIdMap().Keys)
             {
-                using (IVistaDBTableSchema tableSchema = (IVistaDBTableSchema)currentDatabase.GetTableSchema(key, false))
+                using (IVistaDBTableSchema tableSchema = currentDatabase.GetTableSchema(key, false))
                 {
                     foreach (IVistaDBColumnAttributes column in (IEnumerable<IVistaDBColumnAttributes>)tableSchema)
                     {
                         IVistaDBValue[] row = new IVistaDBValue[20];
-                        row[0] = (IVistaDBValue)new VistaDBString("[dbo][" + key + "][" + column.Name + "]");
-                        row[1] = (IVistaDBValue)new VistaDBString("[dbo][" + key + "]");
+                        row[0] = new VistaDBString("[dbo][" + key + "][" + column.Name + "]");
+                        row[1] = new VistaDBString("[dbo][" + key + "]");
                         FillColumnInfo(column, row, 2);
-                        row[16] = (IVistaDBValue)new VistaDBBoolean(false);
-                        row[17] = tableSchema.Identities[column.Name] == null ? (IVistaDBValue)new VistaDBBoolean(false) : (IVistaDBValue)new VistaDBBoolean(true);
-                        row[18] = column.Type != VistaDBType.Timestamp ? (IVistaDBValue)new VistaDBBoolean(false) : (IVistaDBValue)new VistaDBBoolean(true);
+                        row[16] = new VistaDBBoolean(false);
+                        row[17] = tableSchema.Identities[column.Name] == null ? new VistaDBBoolean(false) : (IVistaDBValue)new VistaDBBoolean(true);
+                        row[18] = column.Type != VistaDBType.Timestamp ? new VistaDBBoolean(false) : (IVistaDBValue)new VistaDBBoolean(true);
                         IVistaDBDefaultValueInformation defaultValue = tableSchema.DefaultValues[column.Name];
-                        row[19] = defaultValue != null ? (IVistaDBValue)new VistaDBString(defaultValue.Expression) : (IVistaDBValue)new VistaDBString();
+                        row[19] = defaultValue != null ? new VistaDBString(defaultValue.Expression) : (IVistaDBValue)new VistaDBString();
                         vistaDbValueArrayList.Add(row);
                     }
                 }
             }
-            return (IEnumerable)vistaDbValueArrayList;
+            return vistaDbValueArrayList;
         }
 
         public static void EF_TableColumns_FillRow(object entry, out VistaDBString Id, out VistaDBString ParentId, out VistaDBString Name, out VistaDBInt32 Ordinal, out VistaDBBoolean IsNullable, out VistaDBString TypeName, out VistaDBInt32 MaxLength, out VistaDBInt32 Precision, out VistaDBInt32 DateTimePrecision, out VistaDBInt32 Scale, out VistaDBString CollationCatalog, out VistaDBString CollationSchema, out VistaDBString CollationName, out VistaDBString CharacterSetCatalog, out VistaDBString CharacterSetSchema, out VistaDBString CharacterSetName, out VistaDBBoolean IsMultiSet, out VistaDBBoolean IsIdentity, out VistaDBBoolean IsStoreGenerated, out VistaDBString Default)
@@ -444,7 +444,7 @@ namespace VistaDB.Engine.Functions
             string databaseName = GetDatabaseName(currentDatabase);
             foreach (string key in (IEnumerable<string>)currentDatabase.GetTableIdMap().Keys)
             {
-                IVistaDBTableSchema tableSchema = (IVistaDBTableSchema)currentDatabase.GetTableSchema(key, false);
+                IVistaDBTableSchema tableSchema = currentDatabase.GetTableSchema(key, false);
                 foreach (IVistaDBColumnAttributes schema in (IEnumerable<IVistaDBColumnAttributes>)tableSchema)
                 {
                     IVistaDBDefaultValueInformation defaultValue = tableSchema.DefaultValues[schema.Name];
@@ -454,49 +454,49 @@ namespace VistaDB.Engine.Functions
             }
             foreach (DataRow row in (InternalDataCollectionBase)new VistaDBConnection(VistaDBContext.DDAChannel.CurrentDatabase).GetSchema("VIEWCOLUMNS").Rows)
                 columnSchemaEntryList.Add(new ColumnSchemaEntry(databaseName, row));
-            return (IEnumerable)columnSchemaEntryList;
+            return columnSchemaEntryList;
         }
 
         public static void FillColumnSchema(object source, VistaDBString table_catalog, VistaDBString table_schema, VistaDBString table_name, VistaDBString column_name, VistaDBInt32 ordinal_position, VistaDBString column_default, VistaDBString is_nullable, VistaDBString data_type, VistaDBInt32 character_maximum_length, VistaDBInt32 character_octet_length, VistaDBByte numeric_precision, VistaDBInt16 numeric_precision_radix, VistaDBInt16 numeric_scale, VistaDBInt16 datetime_precision, VistaDBString character_set_catalog, VistaDBString character_set_schema, VistaDBString character_set_name, VistaDBString collation_catalog, VistaDBString collation_schema, VistaDBString collation_name, VistaDBString domain_catalog, VistaDBString domain_schema, VistaDBString domain_name, VistaDBBoolean is_identity, VistaDBBoolean is_storegenerated)
         {
             ColumnSchemaEntry columnSchemaEntry = (ColumnSchemaEntry)source;
-            table_catalog.Value = (object)columnSchemaEntry.Catalog;
-            table_schema.Value = (object)columnSchemaEntry.Owner;
-            table_name.Value = (object)columnSchemaEntry.Table;
-            column_name.Value = (object)columnSchemaEntry.Name;
-            ordinal_position.Value = (object)columnSchemaEntry.Index;
-            column_default.Value = (object)columnSchemaEntry.Default;
-            is_nullable.Value = columnSchemaEntry.Nullable ? (object)"YES" : (object)"NO";
-            data_type.Value = (object)columnSchemaEntry.DataType.ToString().ToLower();
-            is_identity.Value = (object)columnSchemaEntry.IsIdentity;
-            character_maximum_length.Value = (object)null;
-            character_octet_length.Value = (object)null;
-            numeric_precision.Value = (object)null;
-            numeric_precision_radix.Value = (object)null;
-            numeric_scale.Value = (object)null;
-            datetime_precision.Value = (object)null;
-            if (columnSchemaEntry.DateTimeSub != (short)0)
-                datetime_precision.Value = (object)columnSchemaEntry.DateTimeSub;
-            else if (columnSchemaEntry.Radix != (short)0)
+            table_catalog.Value = columnSchemaEntry.Catalog;
+            table_schema.Value = columnSchemaEntry.Owner;
+            table_name.Value = columnSchemaEntry.Table;
+            column_name.Value = columnSchemaEntry.Name;
+            ordinal_position.Value = columnSchemaEntry.Index;
+            column_default.Value = columnSchemaEntry.Default;
+            is_nullable.Value = columnSchemaEntry.Nullable ? "YES" : (object)"NO";
+            data_type.Value = columnSchemaEntry.DataType.ToString().ToLower();
+            is_identity.Value = columnSchemaEntry.IsIdentity;
+            character_maximum_length.Value = null;
+            character_octet_length.Value = null;
+            numeric_precision.Value = null;
+            numeric_precision_radix.Value = null;
+            numeric_scale.Value = null;
+            datetime_precision.Value = null;
+            if (columnSchemaEntry.DateTimeSub != 0)
+                datetime_precision.Value = columnSchemaEntry.DateTimeSub;
+            else if (columnSchemaEntry.Radix != 0)
             {
-                numeric_precision.Value = (object)(byte)columnSchemaEntry.Precision;
-                numeric_precision_radix.Value = (object)columnSchemaEntry.Radix;
-                numeric_scale.Value = (object)columnSchemaEntry.Scale;
+                numeric_precision.Value = (byte)columnSchemaEntry.Precision;
+                numeric_precision_radix.Value = columnSchemaEntry.Radix;
+                numeric_scale.Value = columnSchemaEntry.Scale;
             }
             else if (columnSchemaEntry.MaxLength != 0)
             {
-                character_maximum_length.Value = (object)columnSchemaEntry.Precision;
-                character_octet_length.Value = (object)columnSchemaEntry.OctetLength;
+                character_maximum_length.Value = columnSchemaEntry.Precision;
+                character_octet_length.Value = columnSchemaEntry.OctetLength;
             }
-            character_set_catalog.Value = (object)null;
-            character_set_schema.Value = (object)null;
-            character_set_name.Value = (object)null;
-            collation_catalog.Value = (object)null;
-            collation_schema.Value = (object)null;
-            collation_name.Value = (object)null;
-            domain_catalog.Value = (object)null;
-            domain_schema.Value = (object)null;
-            domain_name.Value = (object)null;
+            character_set_catalog.Value = null;
+            character_set_schema.Value = null;
+            character_set_name.Value = null;
+            collation_catalog.Value = null;
+            collation_schema.Value = null;
+            collation_name.Value = null;
+            domain_catalog.Value = null;
+            domain_schema.Value = null;
+            domain_name.Value = null;
         }
 
         [VistaDBClrProcedure(FillRow = "VistaDB.Engine.Functions.SystemFunctions.EF_Views_FillRow")]
@@ -507,10 +507,10 @@ namespace VistaDB.Engine.Functions
             List<IVistaDBValue[]> vistaDbValueArrayList = new List<IVistaDBValue[]>();
             foreach (Database.ViewList.View view in (IEnumerable)currentDatabase.LoadViews().Values)
             {
-                IVistaDBValue[] vistaDbValueArray = new IVistaDBValue[6] { (IVistaDBValue)new VistaDBString("[dbo][" + view.Name + "]"), (IVistaDBValue)new VistaDBString(databaseName), (IVistaDBValue)new VistaDBString("dbo"), (IVistaDBValue)new VistaDBString(view.Name), (IVistaDBValue)new VistaDBString(view.Expression), (IVistaDBValue)new VistaDBBoolean(false) };
+                IVistaDBValue[] vistaDbValueArray = new IVistaDBValue[6] { new VistaDBString("[dbo][" + view.Name + "]"), new VistaDBString(databaseName), new VistaDBString("dbo"), new VistaDBString(view.Name), new VistaDBString(view.Expression), new VistaDBBoolean(false) };
                 vistaDbValueArrayList.Add(vistaDbValueArray);
             }
-            return (IEnumerable)vistaDbValueArrayList;
+            return vistaDbValueArrayList;
         }
 
         public static void EF_Views_FillRow(object entry, out VistaDBString Id, out VistaDBString CatalogName, out VistaDBString SchemaName, out VistaDBString Name, out VistaDBString ViewDefinition, out VistaDBBoolean IsUpdatable)
@@ -533,7 +533,7 @@ namespace VistaDB.Engine.Functions
             List<IVistaDBValue[]> vistaDbValueArrayList = new List<IVistaDBValue[]>();
             foreach (Database.ViewList.View view in (IEnumerable)currentDatabase.LoadViews().Values)
             {
-                CreateViewStatement createViewStatement = (CreateViewStatement)null;
+                CreateViewStatement createViewStatement = null;
                 try
                 {
                     Statement statement = (Statement)currentConnection.CreateBatchStatement(view.Expression, 0L).SubQuery(0);
@@ -547,15 +547,15 @@ namespace VistaDB.Engine.Functions
                         {
                             IVistaDBValue[] row = new IVistaDBValue[20];
                             string aliasName = selectStatement.GetAliasName(num2);
-                            row[0] = (IVistaDBValue)new VistaDBString("[dbo][" + view.Name + "][" + aliasName + "]");
-                            row[1] = (IVistaDBValue)new VistaDBString("[dbo][" + view.Name + "]");
+                            row[0] = new VistaDBString("[dbo][" + view.Name + "][" + aliasName + "]");
+                            row[1] = new VistaDBString("[dbo][" + view.Name + "]");
                             VistaDBType columnVistaDbType = selectStatement.GetColumnVistaDBType(num2);
                             FillColumnInfo(aliasName, num2, selectStatement.GetIsAllowNull(num2), columnVistaDbType, selectStatement.GetWidth(num2), row, 2);
-                            row[16] = (IVistaDBValue)new VistaDBBoolean(false);
-                            row[17] = (IVistaDBValue)new VistaDBBoolean(selectStatement.GetIsAutoIncrement(num2));
-                            row[18] = columnVistaDbType != VistaDBType.Timestamp ? (IVistaDBValue)new VistaDBBoolean(false) : (IVistaDBValue)new VistaDBBoolean(true);
+                            row[16] = new VistaDBBoolean(false);
+                            row[17] = new VistaDBBoolean(selectStatement.GetIsAutoIncrement(num2));
+                            row[18] = columnVistaDbType != VistaDBType.Timestamp ? new VistaDBBoolean(false) : (IVistaDBValue)new VistaDBBoolean(true);
                             bool useInUpdate;
-                            row[19] = (IVistaDBValue)new VistaDBString(selectStatement.GetDefaultValue(num2, out useInUpdate));
+                            row[19] = new VistaDBString(selectStatement.GetDefaultValue(num2, out useInUpdate));
                             vistaDbValueArrayList.Add(row);
                         }
                         createViewStatement.DropTemporaryTables();
@@ -569,7 +569,7 @@ namespace VistaDB.Engine.Functions
                     createViewStatement?.DropTemporaryTables();
                 }
             }
-            return (IEnumerable)vistaDbValueArrayList;
+            return vistaDbValueArrayList;
         }
 
         public static void EF_ViewColumns_FillRow(object entry, out VistaDBString Id, out VistaDBString ParentId, out VistaDBString Name, out VistaDBInt32 Ordinal, out VistaDBBoolean IsNullable, out VistaDBString TypeName, out VistaDBInt32 MaxLength, out VistaDBInt32 Precision, out VistaDBInt32 DateTimePrecision, out VistaDBInt32 Scale, out VistaDBString CollationCatalog, out VistaDBString CollationSchema, out VistaDBString CollationName, out VistaDBString CharacterSetCatalog, out VistaDBString CharacterSetSchema, out VistaDBString CharacterSetName, out VistaDBBoolean IsMultiSet, out VistaDBBoolean IsIdentity, out VistaDBBoolean IsStoreGenerated, out VistaDBString Default)
@@ -605,18 +605,18 @@ namespace VistaDB.Engine.Functions
             string databaseName = GetDatabaseName(currentDatabase);
             foreach (Database.ViewList.View schema in (IEnumerable)currentDatabase.LoadViews().Values)
                 viewSchemaEntryList.Add(new ViewSchemaEntry(databaseName, schema));
-            return (IEnumerable)viewSchemaEntryList;
+            return viewSchemaEntryList;
         }
 
         public static void FillViewSchema(object source, VistaDBString table_catalog, VistaDBString table_schema, VistaDBString table_name, VistaDBString view_definition, VistaDBString check_option, VistaDBString is_updatable)
         {
             ViewSchemaEntry viewSchemaEntry = (ViewSchemaEntry)source;
-            table_catalog.Value = (object)viewSchemaEntry.Catalog;
-            table_schema.Value = (object)viewSchemaEntry.Owner;
-            table_name.Value = (object)viewSchemaEntry.Name;
-            view_definition.Value = (object)viewSchemaEntry.Expression;
-            check_option.Value = (object)"NONE";
-            is_updatable.Value = (object)"NO";
+            table_catalog.Value = viewSchemaEntry.Catalog;
+            table_schema.Value = viewSchemaEntry.Owner;
+            table_name.Value = viewSchemaEntry.Name;
+            view_definition.Value = viewSchemaEntry.Expression;
+            check_option.Value = "NONE";
+            is_updatable.Value = "NO";
         }
 
         [VistaDBClrProcedure(FillRow = "VistaDB.Engine.Functions.SystemFunctions.FillViewColumnSchema")]
@@ -627,25 +627,25 @@ namespace VistaDB.Engine.Functions
             string databaseName = GetDatabaseName(currentConnection.Database);
             foreach (DataRow row in (InternalDataCollectionBase)currentConnection.GetSchema("VIEWCOLUMNS").Rows)
                 viewColumnDataRowList.Add(new ViewColumnDataRow(databaseName, row));
-            return (IEnumerable)viewColumnDataRowList;
+            return viewColumnDataRowList;
         }
 
         public static void FillViewColumnSchema(object source, VistaDBString view_catalog, VistaDBString view_schema, VistaDBString view_name, VistaDBString table_catalog, VistaDBString table_schema, VistaDBString table_name, VistaDBString column_name)
         {
             ViewColumnDataRow viewColumnDataRow = source as ViewColumnDataRow;
-            view_catalog.Value = (object)viewColumnDataRow.ViewCatalog;
-            view_schema.Value = (object)viewColumnDataRow.ViewSchema;
-            view_name.Value = (object)viewColumnDataRow.ViewName;
-            table_catalog.Value = (object)viewColumnDataRow.TableCatalog;
-            table_schema.Value = (object)viewColumnDataRow.TableSchema;
-            table_name.Value = (object)viewColumnDataRow.TableName;
-            column_name.Value = (object)viewColumnDataRow.Name;
+            view_catalog.Value = viewColumnDataRow.ViewCatalog;
+            view_schema.Value = viewColumnDataRow.ViewSchema;
+            view_name.Value = viewColumnDataRow.ViewName;
+            table_catalog.Value = viewColumnDataRow.TableCatalog;
+            table_schema.Value = viewColumnDataRow.TableSchema;
+            table_name.Value = viewColumnDataRow.TableName;
+            column_name.Value = viewColumnDataRow.Name;
         }
 
         [VistaDBClrProcedure(FillRow = "VistaDB.Engine.Functions.SystemFunctions.FillViewTableSchema")]
         public static IEnumerable ViewTableSchema()
         {
-            return (IEnumerable)new List<object>();
+            return new List<object>();
         }
 
         public static void FillViewTableSchema(object source, VistaDBString view_catalog, VistaDBString view_schema, VistaDBString view_name, VistaDBString table_catalog, VistaDBString table_schema, VistaDBString table_name)
@@ -661,28 +661,28 @@ namespace VistaDB.Engine.Functions
             List<IVistaDBValue[]> vistaDbValueArrayList = new List<IVistaDBValue[]>(10);
             foreach (KeyValuePair<ulong, string> tableId in currentDatabase.GetTableIdMap())
             {
-                IVistaDBIndexCollection indexes = (IVistaDBIndexCollection)new Table.TableSchema.IndexCollection();
+                IVistaDBIndexCollection indexes = new Table.TableSchema.IndexCollection();
                 currentDatabase.GetIndexes(tableId.Key, indexes);
                 foreach (IVistaDBIndexInformation indexInformation in (IEnumerable<IVistaDBIndexInformation>)indexes.Values)
                 {
                     if (indexInformation.Unique || indexInformation.Primary || indexInformation.FKConstraint)
                     {
-                        IVistaDBValue[] vistaDbValueArray = new IVistaDBValue[6] { (IVistaDBValue)new VistaDBString("[dbo][" + tableId.Value + "][" + indexInformation.Name + "]"), (IVistaDBValue)new VistaDBString("[dbo][" + tableId.Value + "]"), (IVistaDBValue)new VistaDBString(indexInformation.Name), null, null, null };
-                        string val = (string)null;
+                        IVistaDBValue[] vistaDbValueArray = new IVistaDBValue[6] { new VistaDBString("[dbo][" + tableId.Value + "][" + indexInformation.Name + "]"), new VistaDBString("[dbo][" + tableId.Value + "]"), new VistaDBString(indexInformation.Name), null, null, null };
+                        string val = null;
                         if (indexInformation.Primary)
                             val = "PRIMARY KEY";
                         else if (indexInformation.Unique)
                             val = "UNIQUE";
                         else if (indexInformation.FKConstraint)
                             val = "FOREIGN KEY";
-                        vistaDbValueArray[3] = (IVistaDBValue)new VistaDBString(val);
-                        vistaDbValueArray[4] = (IVistaDBValue)new VistaDBBoolean(false);
-                        vistaDbValueArray[5] = (IVistaDBValue)new VistaDBBoolean(false);
+                        vistaDbValueArray[3] = new VistaDBString(val);
+                        vistaDbValueArray[4] = new VistaDBBoolean(false);
+                        vistaDbValueArray[5] = new VistaDBBoolean(false);
                         vistaDbValueArrayList.Add(vistaDbValueArray);
                     }
                 }
             }
-            return (IEnumerable)vistaDbValueArrayList;
+            return vistaDbValueArrayList;
         }
 
         public static void EF_Constraints_FillRow(object entry, out VistaDBString Id, out VistaDBString ParentId, out VistaDBString Name, out VistaDBString ConstraintType, out VistaDBBoolean IsDeferrable, out VistaDBBoolean IsInitiallyDeferred)
@@ -704,7 +704,7 @@ namespace VistaDB.Engine.Functions
             string databaseName = GetDatabaseName(currentDatabase);
             foreach (string key in (IEnumerable<string>)currentDatabase.GetTableIdMap().Keys)
             {
-                IVistaDBTableSchema tableSchema = (IVistaDBTableSchema)currentDatabase.GetTableSchema(key, true);
+                IVistaDBTableSchema tableSchema = currentDatabase.GetTableSchema(key, true);
                 foreach (IVistaDBIndexInformation index in (IEnumerable<IVistaDBIndexInformation>)tableSchema.Indexes.Values)
                 {
                     if (index.Unique || index.Primary || index.FKConstraint)
@@ -713,21 +713,21 @@ namespace VistaDB.Engine.Functions
                 foreach (IVistaDBConstraintInformation constraint in (IEnumerable<IVistaDBConstraintInformation>)tableSchema.Constraints.Values)
                     relationshipSchemaEntryList.Add(new RelationshipSchemaEntry(databaseName, tableSchema.Name, constraint));
             }
-            return (IEnumerable)relationshipSchemaEntryList;
+            return relationshipSchemaEntryList;
         }
 
         public static void FillTableConstraintSchema(object source, VistaDBString constraint_catalog, VistaDBString constraint_schema, VistaDBString constraint_name, VistaDBString table_catalog, VistaDBString table_schema, VistaDBString table_name, VistaDBString constraint_type, VistaDBString is_deferrable, VistaDBString initially_deferred)
         {
             RelationshipSchemaEntry relationshipSchemaEntry = (RelationshipSchemaEntry)source;
-            constraint_catalog.Value = (object)relationshipSchemaEntry.Catalog;
-            constraint_schema.Value = (object)relationshipSchemaEntry.Owner;
-            constraint_name.Value = (object)relationshipSchemaEntry.Name;
-            table_catalog.Value = (object)relationshipSchemaEntry.Catalog;
-            table_schema.Value = (object)relationshipSchemaEntry.Owner;
-            table_name.Value = (object)relationshipSchemaEntry.Table;
-            constraint_type.Value = (object)relationshipSchemaEntry.RelationType;
-            is_deferrable.Value = (object)"NO";
-            initially_deferred.Value = (object)"NO";
+            constraint_catalog.Value = relationshipSchemaEntry.Catalog;
+            constraint_schema.Value = relationshipSchemaEntry.Owner;
+            constraint_name.Value = relationshipSchemaEntry.Name;
+            table_catalog.Value = relationshipSchemaEntry.Catalog;
+            table_schema.Value = relationshipSchemaEntry.Owner;
+            table_name.Value = relationshipSchemaEntry.Table;
+            constraint_type.Value = relationshipSchemaEntry.RelationType;
+            is_deferrable.Value = "NO";
+            initially_deferred.Value = "NO";
         }
 
         [VistaDBClrProcedure(FillRow = "VistaDB.Engine.Functions.SystemFunctions.EF_ForeignKeyConstraints_FillRow")]
@@ -738,10 +738,10 @@ namespace VistaDB.Engine.Functions
             List<IVistaDBValue[]> vistaDbValueArrayList = new List<IVistaDBValue[]>(10);
             foreach (IVistaDBRelationshipInformation relationshipInformation in (IEnumerable<IVistaDBRelationshipInformation>)currentDatabase.GetRelationships().Values)
             {
-                IVistaDBValue[] vistaDbValueArray = new IVistaDBValue[3] { (IVistaDBValue)new VistaDBString("[dbo][" + relationshipInformation.ForeignTable + "][" + relationshipInformation.Name + "]"), (IVistaDBValue)new VistaDBString(GetReferentialIntegrity(relationshipInformation.UpdateIntegrity)), (IVistaDBValue)new VistaDBString(GetReferentialIntegrity(relationshipInformation.DeleteIntegrity)) };
+                IVistaDBValue[] vistaDbValueArray = new IVistaDBValue[3] { new VistaDBString("[dbo][" + relationshipInformation.ForeignTable + "][" + relationshipInformation.Name + "]"), new VistaDBString(GetReferentialIntegrity(relationshipInformation.UpdateIntegrity)), new VistaDBString(GetReferentialIntegrity(relationshipInformation.DeleteIntegrity)) };
                 vistaDbValueArrayList.Add(vistaDbValueArray);
             }
-            return (IEnumerable)vistaDbValueArrayList;
+            return vistaDbValueArrayList;
         }
 
         public static void EF_ForeignKeyConstraints_FillRow(object entry, out VistaDBString Id, out VistaDBString UpdateRule, out VistaDBString DeleteRule)
@@ -766,16 +766,16 @@ namespace VistaDB.Engine.Functions
                 IVistaDBTableSchema tableSchema1;
                 if (!dictionary1.TryGetValue(relationshipInformation.ForeignTable, out tableSchema1))
                 {
-                    tableSchema1 = (IVistaDBTableSchema)currentDatabase.GetTableSchema(relationshipInformation.ForeignTable, false);
+                    tableSchema1 = currentDatabase.GetTableSchema(relationshipInformation.ForeignTable, false);
                     dictionary1.Add(tableSchema1.Name, tableSchema1);
                 }
                 IVistaDBTableSchema tableSchema2;
                 if (!dictionary1.TryGetValue(relationshipInformation.PrimaryTable, out tableSchema2))
                 {
-                    tableSchema2 = (IVistaDBTableSchema)currentDatabase.GetTableSchema(relationshipInformation.PrimaryTable, false);
+                    tableSchema2 = currentDatabase.GetTableSchema(relationshipInformation.PrimaryTable, false);
                     dictionary1.Add(tableSchema2.Name, tableSchema2);
                 }
-                IVistaDBIndexInformation indexInformation1 = (IVistaDBIndexInformation)null;
+                IVistaDBIndexInformation indexInformation1 = null;
                 if (!dictionary2.TryGetValue(tableSchema2.Name, out indexInformation1))
                 {
                     foreach (IVistaDBIndexInformation indexInformation2 in (IEnumerable<IVistaDBIndexInformation>)tableSchema2.Indexes.Values)
@@ -793,11 +793,11 @@ namespace VistaDB.Engine.Functions
                 for (int length = strArray.Length; index < length; ++index)
                 {
                     val = tableSchema1[strArray[index]].RowIndex;
-                    IVistaDBValue[] vistaDbValueArray = new IVistaDBValue[5] { (IVistaDBValue)new VistaDBString("[dbo][" + relationshipInformation.ForeignTable + "][" + relationshipInformation.Name + "][" + val.ToString() + "]"), (IVistaDBValue)new VistaDBString("[dbo][" + relationshipInformation.PrimaryTable + "][" + tableSchema2[indexInformation1.KeyStructure[index].RowIndex].Name + "]"), (IVistaDBValue)new VistaDBString("[dbo][" + relationshipInformation.ForeignTable + "][" + strArray[index] + "]"), (IVistaDBValue)new VistaDBString("[dbo][" + relationshipInformation.ForeignTable + "][" + relationshipInformation.Name + "]"), (IVistaDBValue)new VistaDBInt32(val) };
+                    IVistaDBValue[] vistaDbValueArray = new IVistaDBValue[5] { new VistaDBString("[dbo][" + relationshipInformation.ForeignTable + "][" + relationshipInformation.Name + "][" + val.ToString() + "]"), new VistaDBString("[dbo][" + relationshipInformation.PrimaryTable + "][" + tableSchema2[indexInformation1.KeyStructure[index].RowIndex].Name + "]"), new VistaDBString("[dbo][" + relationshipInformation.ForeignTable + "][" + strArray[index] + "]"), new VistaDBString("[dbo][" + relationshipInformation.ForeignTable + "][" + relationshipInformation.Name + "]"), new VistaDBInt32(val) };
                     vistaDbValueArrayList.Add(vistaDbValueArray);
                 }
             }
-            return (IEnumerable)vistaDbValueArrayList;
+            return vistaDbValueArrayList;
         }
 
         public static void EF_ForeignKeys_FillRow(object entry, out VistaDBString Id, out VistaDBString ToColumnId, out VistaDBString FromColumnId, out VistaDBString ConstraintId, out VistaDBInt32 Ordinal)
@@ -819,7 +819,7 @@ namespace VistaDB.Engine.Functions
             foreach (KeyValuePair<ulong, string> tableId in currentDatabase.GetTableIdMap())
             {
                 Table.TableSchema.IndexCollection indexCollection = new Table.TableSchema.IndexCollection();
-                currentDatabase.GetIndexes(tableId.Key, (IVistaDBIndexCollection)indexCollection);
+                currentDatabase.GetIndexes(tableId.Key, indexCollection);
                 foreach (IVistaDBIndexInformation indexInformation in indexCollection.Values)
                 {
                     if (indexInformation.Unique || indexInformation.Primary || indexInformation.FKConstraint)
@@ -827,13 +827,13 @@ namespace VistaDB.Engine.Functions
                         Row row = currentDatabase.AllocateRowsetSchema(tableId.Key, currentDatabase.CreateEmptyRowInstance());
                         foreach (IVistaDBKeyColumn vistaDbKeyColumn in indexInformation.KeyStructure)
                         {
-                            IVistaDBValue[] vistaDbValueArray = new IVistaDBValue[2] { (IVistaDBValue)new VistaDBString("[dbo][" + tableId.Value + "][" + indexInformation.Name + "]"), (IVistaDBValue)new VistaDBString("[dbo][" + tableId.Value + "][" + row[vistaDbKeyColumn.RowIndex].Name + "]") };
+                            IVistaDBValue[] vistaDbValueArray = new IVistaDBValue[2] { new VistaDBString("[dbo][" + tableId.Value + "][" + indexInformation.Name + "]"), new VistaDBString("[dbo][" + tableId.Value + "][" + row[vistaDbKeyColumn.RowIndex].Name + "]") };
                             vistaDbValueArrayList.Add(vistaDbValueArray);
                         }
                     }
                 }
             }
-            return (IEnumerable)vistaDbValueArrayList;
+            return vistaDbValueArrayList;
         }
 
         public static void EF_ConstraintColumns_FillRow(object entry, out VistaDBString ConstraintId, out VistaDBString ColumnId)
@@ -866,14 +866,14 @@ namespace VistaDB.Engine.Functions
             string databaseName = GetDatabaseName(currentDatabase);
             foreach (string key in (IEnumerable<string>)currentDatabase.GetTableIdMap().Keys)
             {
-                IVistaDBTableSchema tableSchema = (IVistaDBTableSchema)currentDatabase.GetTableSchema(key, true);
+                IVistaDBTableSchema tableSchema = currentDatabase.GetTableSchema(key, true);
                 foreach (IVistaDBIndexInformation indexInformation1 in (IEnumerable<IVistaDBIndexInformation>)tableSchema.Indexes.Values)
                 {
                     if (indexInformation1.FKConstraint)
                     {
                         IVistaDBRelationshipInformation foreignKey1 = tableSchema.ForeignKeys[indexInformation1.Name];
-                        IVistaDBTableSchema primaryTable = (IVistaDBTableSchema)currentDatabase.GetTableSchema(foreignKey1.PrimaryTable, true);
-                        IVistaDBIndexInformation foreign_index = (IVistaDBIndexInformation)null;
+                        IVistaDBTableSchema primaryTable = currentDatabase.GetTableSchema(foreignKey1.PrimaryTable, true);
+                        IVistaDBIndexInformation foreign_index = null;
                         foreach (IVistaDBIndexInformation indexInformation2 in (IEnumerable<IVistaDBIndexInformation>)primaryTable.Indexes.Values)
                         {
                             if (indexInformation2.Primary)
@@ -884,7 +884,7 @@ namespace VistaDB.Engine.Functions
                                 foreach (string str in foreignKey2.Split(chArray))
                                 {
                                     string foreignKey = str;
-                                    flag = Array.Exists(indexInformation2.KeyStructure, (Predicate<IVistaDBKeyColumn>)(matchKey => string.Compare(primaryTable[matchKey.RowIndex].Name, foreignKey, StringComparison.OrdinalIgnoreCase) == 0));
+                                    flag = Array.Exists(indexInformation2.KeyStructure, matchKey => string.Compare(primaryTable[matchKey.RowIndex].Name, foreignKey, StringComparison.OrdinalIgnoreCase) == 0);
                                     if (flag)
                                         break;
                                 }
@@ -900,21 +900,21 @@ namespace VistaDB.Engine.Functions
                     }
                 }
             }
-            return (IEnumerable)relationshipSchemaEntryList;
+            return relationshipSchemaEntryList;
         }
 
         public static void FillReferentialConstraintSchema(object source, VistaDBString constraint_catalog, VistaDBString constraint_schema, VistaDBString constraint_name, VistaDBString unique_constraint_catalog, VistaDBString unique_constraint_schema, VistaDBString unique_constraint_name, VistaDBString match_option, VistaDBString update_rule, VistaDBString delete_rule)
         {
             RelationshipSchemaEntry relationshipSchemaEntry = (RelationshipSchemaEntry)source;
-            constraint_catalog.Value = (object)relationshipSchemaEntry.Catalog;
-            constraint_schema.Value = (object)relationshipSchemaEntry.Owner;
-            constraint_name.Value = (object)relationshipSchemaEntry.Name;
-            unique_constraint_catalog.Value = (object)relationshipSchemaEntry.Catalog;
-            unique_constraint_schema.Value = (object)relationshipSchemaEntry.Owner;
-            unique_constraint_name.Value = (object)relationshipSchemaEntry.Expression;
-            match_option.Value = (object)"SIMPLE";
-            update_rule.Value = (object)relationshipSchemaEntry.UpdateRule;
-            delete_rule.Value = (object)relationshipSchemaEntry.DeleteRule;
+            constraint_catalog.Value = relationshipSchemaEntry.Catalog;
+            constraint_schema.Value = relationshipSchemaEntry.Owner;
+            constraint_name.Value = relationshipSchemaEntry.Name;
+            unique_constraint_catalog.Value = relationshipSchemaEntry.Catalog;
+            unique_constraint_schema.Value = relationshipSchemaEntry.Owner;
+            unique_constraint_name.Value = relationshipSchemaEntry.Expression;
+            match_option.Value = "SIMPLE";
+            update_rule.Value = relationshipSchemaEntry.UpdateRule;
+            delete_rule.Value = relationshipSchemaEntry.DeleteRule;
         }
 
         [VistaDBClrProcedure(FillRow = "VistaDB.Engine.Functions.SystemFunctions.FillKeyColumnUsageSchema")]
@@ -925,7 +925,7 @@ namespace VistaDB.Engine.Functions
             string databaseName = GetDatabaseName(currentDatabase);
             foreach (string key1 in (IEnumerable<string>)currentDatabase.GetTableIdMap().Keys)
             {
-                IVistaDBTableSchema tableSchema1 = (IVistaDBTableSchema)currentDatabase.GetTableSchema(key1, true);
+                IVistaDBTableSchema tableSchema1 = currentDatabase.GetTableSchema(key1, true);
                 foreach (IVistaDBIndexInformation index1 in (IEnumerable<IVistaDBIndexInformation>)tableSchema1.Indexes.Values)
                 {
                     if (index1.Primary || index1.Unique)
@@ -936,8 +936,8 @@ namespace VistaDB.Engine.Functions
                     else if (index1.FKConstraint)
                     {
                         IVistaDBRelationshipInformation foreignKey = tableSchema1.ForeignKeys[index1.Name];
-                        IVistaDBTableSchema tableSchema2 = (IVistaDBTableSchema)currentDatabase.GetTableSchema(foreignKey.PrimaryTable, true);
-                        IVistaDBIndexInformation indexInformation1 = (IVistaDBIndexInformation)null;
+                        IVistaDBTableSchema tableSchema2 = currentDatabase.GetTableSchema(foreignKey.PrimaryTable, true);
+                        IVistaDBIndexInformation indexInformation1 = null;
                         foreach (IVistaDBIndexInformation indexInformation2 in (IEnumerable<IVistaDBIndexInformation>)tableSchema2.Indexes.Values)
                         {
                             if (indexInformation2.Primary)
@@ -951,20 +951,20 @@ namespace VistaDB.Engine.Functions
                     }
                 }
             }
-            return (IEnumerable)relationshipSchemaEntryList;
+            return relationshipSchemaEntryList;
         }
 
         public static void FillKeyColumnUsageSchema(object source, VistaDBString constraint_catalog, VistaDBString constraint_schema, VistaDBString constraint_name, VistaDBString table_catalog, VistaDBString table_schema, VistaDBString table_name, VistaDBString column_name, VistaDBInt32 ordinal_position)
         {
             RelationshipSchemaEntry relationshipSchemaEntry = (RelationshipSchemaEntry)source;
-            constraint_catalog.Value = (object)relationshipSchemaEntry.Catalog;
-            constraint_schema.Value = (object)relationshipSchemaEntry.Owner;
-            constraint_name.Value = (object)relationshipSchemaEntry.Name;
-            table_catalog.Value = (object)relationshipSchemaEntry.Catalog;
-            table_schema.Value = (object)relationshipSchemaEntry.Owner;
-            table_name.Value = (object)relationshipSchemaEntry.Table;
-            column_name.Value = (object)relationshipSchemaEntry.Expression;
-            ordinal_position.Value = (object)relationshipSchemaEntry.ColumnOrdinal;
+            constraint_catalog.Value = relationshipSchemaEntry.Catalog;
+            constraint_schema.Value = relationshipSchemaEntry.Owner;
+            constraint_name.Value = relationshipSchemaEntry.Name;
+            table_catalog.Value = relationshipSchemaEntry.Catalog;
+            table_schema.Value = relationshipSchemaEntry.Owner;
+            table_name.Value = relationshipSchemaEntry.Table;
+            column_name.Value = relationshipSchemaEntry.Expression;
+            ordinal_position.Value = relationshipSchemaEntry.ColumnOrdinal;
         }
 
         [VistaDBClrProcedure(FillRow = "VistaDB.Engine.Functions.SystemFunctions.FillCheckConstraintSchema")]
@@ -975,20 +975,20 @@ namespace VistaDB.Engine.Functions
             string databaseName = GetDatabaseName(currentDatabase);
             foreach (string key in (IEnumerable<string>)currentDatabase.GetTableIdMap().Keys)
             {
-                IVistaDBTableSchema tableSchema = (IVistaDBTableSchema)currentDatabase.GetTableSchema(key, true);
+                IVistaDBTableSchema tableSchema = currentDatabase.GetTableSchema(key, true);
                 foreach (IVistaDBConstraintInformation constraint in (IEnumerable<IVistaDBConstraintInformation>)tableSchema.Constraints.Values)
                     relationshipSchemaEntryList.Add(new RelationshipSchemaEntry(databaseName, tableSchema.Name, constraint));
             }
-            return (IEnumerable)relationshipSchemaEntryList;
+            return relationshipSchemaEntryList;
         }
 
         public static void FillCheckConstraintSchema(object source, VistaDBString constraint_catalog, VistaDBString constraint_schema, VistaDBString constraint_name, VistaDBString check_clause)
         {
             RelationshipSchemaEntry relationshipSchemaEntry = (RelationshipSchemaEntry)source;
-            constraint_catalog.Value = (object)relationshipSchemaEntry.Catalog;
-            constraint_schema.Value = (object)relationshipSchemaEntry.Owner;
-            constraint_name.Value = (object)relationshipSchemaEntry.Name;
-            check_clause.Value = (object)relationshipSchemaEntry.Expression;
+            constraint_catalog.Value = relationshipSchemaEntry.Catalog;
+            constraint_schema.Value = relationshipSchemaEntry.Owner;
+            constraint_name.Value = relationshipSchemaEntry.Name;
+            check_clause.Value = relationshipSchemaEntry.Expression;
         }
 
         [VistaDBClrProcedure(FillRow = "VistaDB.Engine.Functions.SystemFunctions.FillForeignKeySchema")]
@@ -999,27 +999,27 @@ namespace VistaDB.Engine.Functions
             string databaseName = GetDatabaseName(currentDatabase);
             foreach (string key in (IEnumerable<string>)currentDatabase.GetTableIdMap().Keys)
             {
-                IVistaDBTableSchema tableSchema = (IVistaDBTableSchema)currentDatabase.GetTableSchema(key, false);
+                IVistaDBTableSchema tableSchema = currentDatabase.GetTableSchema(key, false);
                 foreach (IVistaDBIndexInformation index in (IEnumerable<IVistaDBIndexInformation>)tableSchema.Indexes.Values)
                 {
                     if (index.FKConstraint)
                         foreignKeySchemaEntryList.Add(new ForeignKeySchemaEntry(databaseName, tableSchema, index, tableSchema.ForeignKeys[index.Name]));
                 }
             }
-            return (IEnumerable)foreignKeySchemaEntryList;
+            return foreignKeySchemaEntryList;
         }
 
         public static void FillForeignKeySchema(object source, VistaDBString foreign_key_catalog, VistaDBString foreign_key_schema, VistaDBString foreign_key_name, VistaDBString foreign_key_table, VistaDBString table_name, VistaDBString table_schema, VistaDBInt32 update_referential_action, VistaDBInt32 delete_referential_action)
         {
             ForeignKeySchemaEntry foreignKeySchemaEntry = (ForeignKeySchemaEntry)source;
-            foreign_key_catalog.Value = (object)foreignKeySchemaEntry.Catalog;
-            foreign_key_schema.Value = (object)foreignKeySchemaEntry.Owner;
-            foreign_key_name.Value = (object)foreignKeySchemaEntry.Name;
-            foreign_key_table.Value = (object)foreignKeySchemaEntry.Table;
-            table_name.Value = (object)foreignKeySchemaEntry.TargetTable;
-            table_schema.Value = (object)foreignKeySchemaEntry.Owner;
-            update_referential_action.Value = (object)foreignKeySchemaEntry.Update;
-            delete_referential_action.Value = (object)foreignKeySchemaEntry.Delete;
+            foreign_key_catalog.Value = foreignKeySchemaEntry.Catalog;
+            foreign_key_schema.Value = foreignKeySchemaEntry.Owner;
+            foreign_key_name.Value = foreignKeySchemaEntry.Name;
+            foreign_key_table.Value = foreignKeySchemaEntry.Table;
+            table_name.Value = foreignKeySchemaEntry.TargetTable;
+            table_schema.Value = foreignKeySchemaEntry.Owner;
+            update_referential_action.Value = foreignKeySchemaEntry.Update;
+            delete_referential_action.Value = foreignKeySchemaEntry.Delete;
         }
 
         [VistaDBClrProcedure(FillRow = "VistaDB.Engine.Functions.SystemFunctions.FillForeignKeyColumnSchema")]
@@ -1030,14 +1030,14 @@ namespace VistaDB.Engine.Functions
             string databaseName = GetDatabaseName(currentDatabase);
             foreach (string key in (IEnumerable<string>)currentDatabase.GetTableIdMap().Keys)
             {
-                IVistaDBTableSchema tableSchema1 = (IVistaDBTableSchema)currentDatabase.GetTableSchema(key, false);
+                IVistaDBTableSchema tableSchema1 = currentDatabase.GetTableSchema(key, false);
                 foreach (IVistaDBIndexInformation index in (IEnumerable<IVistaDBIndexInformation>)tableSchema1.Indexes.Values)
                 {
                     if (index.FKConstraint)
                     {
                         IVistaDBRelationshipInformation foreignKey = tableSchema1.ForeignKeys[index.Name];
-                        IVistaDBTableSchema tableSchema2 = (IVistaDBTableSchema)currentDatabase.GetTableSchema(foreignKey.PrimaryTable, true);
-                        IVistaDBIndexInformation targetKey = (IVistaDBIndexInformation)null;
+                        IVistaDBTableSchema tableSchema2 = currentDatabase.GetTableSchema(foreignKey.PrimaryTable, true);
+                        IVistaDBIndexInformation targetKey = null;
                         foreach (IVistaDBIndexInformation indexInformation in (IEnumerable<IVistaDBIndexInformation>)tableSchema2.Indexes.Values)
                         {
                             if (indexInformation.Primary)
@@ -1051,19 +1051,19 @@ namespace VistaDB.Engine.Functions
                     }
                 }
             }
-            return (IEnumerable)columnSchemaEntryList;
+            return columnSchemaEntryList;
         }
 
         public static void FillForeignKeyColumnSchema(object source, VistaDBString foreign_key_catalog, VistaDBString foreign_key_schema, VistaDBString foreign_key_name, VistaDBString foreign_key_table, VistaDBString foreign_key_column, VistaDBString column_name, VistaDBInt32 ordinal_position)
         {
             ForeignKeyColumnSchemaEntry columnSchemaEntry = (ForeignKeyColumnSchemaEntry)source;
-            foreign_key_catalog.Value = (object)columnSchemaEntry.Catalog;
-            foreign_key_schema.Value = (object)columnSchemaEntry.Owner;
-            foreign_key_name.Value = (object)columnSchemaEntry.Name;
-            foreign_key_table.Value = (object)columnSchemaEntry.Table;
-            foreign_key_column.Value = (object)columnSchemaEntry.Key;
-            column_name.Value = (object)columnSchemaEntry.Column;
-            ordinal_position.Value = (object)columnSchemaEntry.Ordinal;
+            foreign_key_catalog.Value = columnSchemaEntry.Catalog;
+            foreign_key_schema.Value = columnSchemaEntry.Owner;
+            foreign_key_name.Value = columnSchemaEntry.Name;
+            foreign_key_table.Value = columnSchemaEntry.Table;
+            foreign_key_column.Value = columnSchemaEntry.Key;
+            column_name.Value = columnSchemaEntry.Column;
+            ordinal_position.Value = columnSchemaEntry.Ordinal;
         }
 
         [VistaDBClrProcedure(FillRow = "VistaDB.Engine.Functions.SystemFunctions.FillIndexSchema")]
@@ -1074,25 +1074,25 @@ namespace VistaDB.Engine.Functions
             string databaseName = GetDatabaseName(currentDatabase);
             foreach (string key in (IEnumerable<string>)currentDatabase.GetTableIdMap().Keys)
             {
-                IVistaDBTableSchema tableSchema = (IVistaDBTableSchema)currentDatabase.GetTableSchema(key, false);
+                IVistaDBTableSchema tableSchema = currentDatabase.GetTableSchema(key, false);
                 foreach (IVistaDBIndexInformation index in (IEnumerable<IVistaDBIndexInformation>)tableSchema.Indexes.Values)
                 {
                     if (!index.FKConstraint)
                         indexSchemaEntryList.Add(new IndexSchemaEntry(databaseName, tableSchema, index));
                 }
             }
-            return (IEnumerable)indexSchemaEntryList;
+            return indexSchemaEntryList;
         }
 
         public static void FillIndexSchema(object source, VistaDBString index_catalog, VistaDBString index_schema, VistaDBString index_name, VistaDBString table_name, VistaDBBoolean is_primary_key, VistaDBBoolean is_unique)
         {
             IndexSchemaEntry indexSchemaEntry = (IndexSchemaEntry)source;
-            index_catalog.Value = (object)indexSchemaEntry.Catalog;
-            index_schema.Value = (object)indexSchemaEntry.Owner;
-            index_name.Value = (object)indexSchemaEntry.Name;
-            table_name.Value = (object)indexSchemaEntry.Table;
-            is_primary_key.Value = (object)indexSchemaEntry.IsPrimary;
-            is_unique.Value = (object)indexSchemaEntry.IsUnique;
+            index_catalog.Value = indexSchemaEntry.Catalog;
+            index_schema.Value = indexSchemaEntry.Owner;
+            index_name.Value = indexSchemaEntry.Name;
+            table_name.Value = indexSchemaEntry.Table;
+            is_primary_key.Value = indexSchemaEntry.IsPrimary;
+            is_unique.Value = indexSchemaEntry.IsUnique;
         }
 
         [VistaDBClrProcedure(FillRow = "VistaDB.Engine.Functions.SystemFunctions.FillIndexColumnSchema")]
@@ -1103,7 +1103,7 @@ namespace VistaDB.Engine.Functions
             string databaseName = GetDatabaseName(currentDatabase);
             foreach (string key in (IEnumerable<string>)currentDatabase.GetTableIdMap().Keys)
             {
-                IVistaDBTableSchema tableSchema = (IVistaDBTableSchema)currentDatabase.GetTableSchema(key, false);
+                IVistaDBTableSchema tableSchema = currentDatabase.GetTableSchema(key, false);
                 foreach (IVistaDBIndexInformation index in (IEnumerable<IVistaDBIndexInformation>)tableSchema.Indexes.Values)
                 {
                     if (!index.FKConstraint)
@@ -1113,18 +1113,18 @@ namespace VistaDB.Engine.Functions
                     }
                 }
             }
-            return (IEnumerable)columnSchemaEntryList;
+            return columnSchemaEntryList;
         }
 
         public static void FillIndexColumnSchema(object source, VistaDBString index_catalog, VistaDBString index_schema, VistaDBString index_name, VistaDBString table_name, VistaDBString column_name, VistaDBInt32 key_ordinal)
         {
             IndexColumnSchemaEntry columnSchemaEntry = (IndexColumnSchemaEntry)source;
-            index_catalog.Value = (object)columnSchemaEntry.Catalog;
-            index_schema.Value = (object)columnSchemaEntry.Owner;
-            index_name.Value = (object)columnSchemaEntry.Index;
-            table_name.Value = (object)columnSchemaEntry.Table;
-            column_name.Value = (object)columnSchemaEntry.Name;
-            key_ordinal.Value = (object)columnSchemaEntry.Ordinal;
+            index_catalog.Value = columnSchemaEntry.Catalog;
+            index_schema.Value = columnSchemaEntry.Owner;
+            index_name.Value = columnSchemaEntry.Index;
+            table_name.Value = columnSchemaEntry.Table;
+            column_name.Value = columnSchemaEntry.Name;
+            key_ordinal.Value = columnSchemaEntry.Ordinal;
         }
 
         [VistaDBClrProcedure(FillRow = "VistaDB.Engine.Functions.SystemFunctions.FillRoutineSchema")]
@@ -1139,79 +1139,79 @@ namespace VistaDB.Engine.Functions
                 Statement procedure = ParseProcedure(currentDatabase, sp.Statement, out variables);
                 routineSchemaEntryList.Add(new RoutineSchemaEntry(databaseName, sp, procedure, variables));
             }
-            return (IEnumerable)routineSchemaEntryList;
+            return routineSchemaEntryList;
         }
 
         public static void FillRoutineSchema(object source, VistaDBString specific_catalog, VistaDBString specific_schema, VistaDBString specific_name, VistaDBString routine_catalog, VistaDBString routine_schema, VistaDBString routine_name, VistaDBString routine_type, VistaDBString module_catalog, VistaDBString module_schema, VistaDBString module_name, VistaDBString udt_catalog, VistaDBString udt_schema, VistaDBString udt_name, VistaDBString data_type, VistaDBInt32 character_maximum_length, VistaDBInt32 character_octet_length, VistaDBString collation_catalog, VistaDBString collation_schema, VistaDBString collation_name, VistaDBString character_set_catalog, VistaDBString character_set_schema, VistaDBString character_set_name, VistaDBByte numeric_precision, VistaDBInt16 numeric_precision_radix, VistaDBInt16 numeric_scale, VistaDBInt16 datetime_precision, VistaDBString interval_type, VistaDBInt16 interval_precision, VistaDBString type_udt_catalog, VistaDBString type_udt_schema, VistaDBString type_udt_name, VistaDBString scope_catalog, VistaDBString scope_schema, VistaDBString scope_name, VistaDBInt64 maximum_cardinality, VistaDBString dtd_identifier, VistaDBString routine_body, VistaDBString routine_definition, VistaDBString external_name, VistaDBString external_language, VistaDBString parameter_style, VistaDBString is_deterministic, VistaDBString sql_data_access, VistaDBString is_null_call, VistaDBString sql_path, VistaDBString schema_level_routine, VistaDBInt16 max_dynamic_result_set, VistaDBString is_user_defined_cast, VistaDBString is_implicitly_invocable, VistaDBDateTime created, VistaDBDateTime last_altered)
         {
             RoutineSchemaEntry routineSchemaEntry = (RoutineSchemaEntry)source;
-            specific_catalog.Value = (object)routineSchemaEntry.Catalog;
-            specific_name.Value = (object)routineSchemaEntry.Name;
-            specific_schema.Value = (object)routineSchemaEntry.Owner;
-            routine_catalog.Value = (object)routineSchemaEntry.Catalog;
-            routine_name.Value = (object)routineSchemaEntry.Name;
-            routine_schema.Value = (object)routineSchemaEntry.Owner;
-            routine_type.Value = routineSchemaEntry.IsFunction ? (object)"FUNCTION" : (object)"PROCEDURE";
-            module_catalog.Value = (object)null;
-            module_name.Value = (object)null;
-            module_schema.Value = (object)null;
-            udt_catalog.Value = (object)null;
-            udt_name.Value = (object)null;
-            udt_schema.Value = (object)null;
+            specific_catalog.Value = routineSchemaEntry.Catalog;
+            specific_name.Value = routineSchemaEntry.Name;
+            specific_schema.Value = routineSchemaEntry.Owner;
+            routine_catalog.Value = routineSchemaEntry.Catalog;
+            routine_name.Value = routineSchemaEntry.Name;
+            routine_schema.Value = routineSchemaEntry.Owner;
+            routine_type.Value = routineSchemaEntry.IsFunction ? "FUNCTION" : (object)"PROCEDURE";
+            module_catalog.Value = null;
+            module_name.Value = null;
+            module_schema.Value = null;
+            udt_catalog.Value = null;
+            udt_name.Value = null;
+            udt_schema.Value = null;
             if (routineSchemaEntry.IsFunction && routineSchemaEntry.IsTable)
-                data_type.Value = (object)"table";
+                data_type.Value = "table";
             else
-                data_type.Value = (object)routineSchemaEntry.DataType.ToString().ToLower();
-            character_maximum_length.Value = (object)null;
-            character_octet_length.Value = (object)null;
-            numeric_precision.Value = (object)null;
-            numeric_precision_radix.Value = (object)null;
-            numeric_scale.Value = (object)null;
-            datetime_precision.Value = (object)null;
-            if (routineSchemaEntry.DateTimeSub != (short)0)
-                datetime_precision.Value = (object)routineSchemaEntry.DateTimeSub;
-            else if (routineSchemaEntry.Radix != (short)0)
+                data_type.Value = routineSchemaEntry.DataType.ToString().ToLower();
+            character_maximum_length.Value = null;
+            character_octet_length.Value = null;
+            numeric_precision.Value = null;
+            numeric_precision_radix.Value = null;
+            numeric_scale.Value = null;
+            datetime_precision.Value = null;
+            if (routineSchemaEntry.DateTimeSub != 0)
+                datetime_precision.Value = routineSchemaEntry.DateTimeSub;
+            else if (routineSchemaEntry.Radix != 0)
             {
-                numeric_precision.Value = (object)(byte)routineSchemaEntry.Precision;
-                numeric_precision_radix.Value = (object)routineSchemaEntry.Radix;
-                numeric_scale.Value = (object)routineSchemaEntry.Scale;
+                numeric_precision.Value = (byte)routineSchemaEntry.Precision;
+                numeric_precision_radix.Value = routineSchemaEntry.Radix;
+                numeric_scale.Value = routineSchemaEntry.Scale;
             }
             else if (routineSchemaEntry.MaxLength != 0)
             {
-                character_maximum_length.Value = (object)routineSchemaEntry.Precision;
-                character_octet_length.Value = (object)routineSchemaEntry.OctetLength;
+                character_maximum_length.Value = routineSchemaEntry.Precision;
+                character_octet_length.Value = routineSchemaEntry.OctetLength;
             }
-            character_set_catalog.Value = (object)null;
-            character_set_schema.Value = (object)null;
-            character_set_name.Value = (object)null;
-            collation_catalog.Value = (object)null;
-            collation_schema.Value = (object)null;
-            collation_name.Value = (object)null;
-            interval_type.Value = (object)null;
-            interval_precision.Value = (object)null;
-            type_udt_catalog.Value = (object)null;
-            type_udt_schema.Value = (object)null;
-            type_udt_name.Value = (object)null;
-            scope_catalog.Value = (object)null;
-            scope_schema.Value = (object)null;
-            scope_name.Value = (object)null;
-            maximum_cardinality.Value = (object)null;
-            dtd_identifier.Value = (object)null;
-            routine_body.Value = routineSchemaEntry.Body == null ? (object)"EXTERNAL" : (object)routineSchemaEntry.Body;
-            routine_definition.Value = (object)null;
-            external_name.Value = (object)null;
-            external_language.Value = (object)null;
-            parameter_style.Value = (object)null;
-            is_deterministic.Value = !routineSchemaEntry.IsFunction ? (object)"NO" : (object)"YES";
-            sql_data_access.Value = !routineSchemaEntry.IsFunction ? (object)"MODIFIED" : (object)"READS";
-            is_null_call.Value = (object)"YES";
-            sql_path.Value = (object)null;
-            schema_level_routine.Value = (object)"YES";
-            max_dynamic_result_set.Value = (object)(short)(routineSchemaEntry.IsFunction ? 0 : (int)(short)routineSchemaEntry.MaxResults);
-            is_user_defined_cast.Value = (object)"NO";
-            is_implicitly_invocable.Value = (object)"NO";
-            created.Value = (object)routineSchemaEntry.Created;
-            last_altered.Value = (object)routineSchemaEntry.LastAltered;
+            character_set_catalog.Value = null;
+            character_set_schema.Value = null;
+            character_set_name.Value = null;
+            collation_catalog.Value = null;
+            collation_schema.Value = null;
+            collation_name.Value = null;
+            interval_type.Value = null;
+            interval_precision.Value = null;
+            type_udt_catalog.Value = null;
+            type_udt_schema.Value = null;
+            type_udt_name.Value = null;
+            scope_catalog.Value = null;
+            scope_schema.Value = null;
+            scope_name.Value = null;
+            maximum_cardinality.Value = null;
+            dtd_identifier.Value = null;
+            routine_body.Value = routineSchemaEntry.Body == null ? "EXTERNAL" : (object)routineSchemaEntry.Body;
+            routine_definition.Value = null;
+            external_name.Value = null;
+            external_language.Value = null;
+            parameter_style.Value = null;
+            is_deterministic.Value = !routineSchemaEntry.IsFunction ? "NO" : (object)"YES";
+            sql_data_access.Value = !routineSchemaEntry.IsFunction ? "MODIFIED" : (object)"READS";
+            is_null_call.Value = "YES";
+            sql_path.Value = null;
+            schema_level_routine.Value = "YES";
+            max_dynamic_result_set.Value = (short)(routineSchemaEntry.IsFunction ? 0 : (short)routineSchemaEntry.MaxResults);
+            is_user_defined_cast.Value = "NO";
+            is_implicitly_invocable.Value = "NO";
+            created.Value = routineSchemaEntry.Created;
+            last_altered.Value = routineSchemaEntry.LastAltered;
         }
 
         [VistaDBClrProcedure(FillRow = "VistaDB.Engine.Functions.SystemFunctions.FillParameterSchema")]
@@ -1221,50 +1221,50 @@ namespace VistaDB.Engine.Functions
             string databaseName = GetDatabaseName(GetCurrentDatabase());
             foreach (DataRow row in (InternalDataCollectionBase)new VistaDBConnection(VistaDBContext.DDAChannel.CurrentDatabase).GetSchema("PROCEDUREPARAMETERS").Rows)
                 parameterSchemaEntryList.Add(new ParameterSchemaEntry(databaseName, row));
-            return (IEnumerable)parameterSchemaEntryList;
+            return parameterSchemaEntryList;
         }
 
         public static void FillParameterSchema(object source, VistaDBString specific_catalog, VistaDBString specific_schema, VistaDBString specific_name, VistaDBInt32 ordinal_position, VistaDBString parameter_mode, VistaDBString is_result, VistaDBString as_locator, VistaDBString parameter_name, VistaDBString data_type, VistaDBInt32 character_maximum_length, VistaDBInt32 character_octet_length, VistaDBString collation_catalog, VistaDBString collation_schema, VistaDBString collation_name, VistaDBString character_set_catalog, VistaDBString character_set_schema, VistaDBString character_set_name, VistaDBByte numeric_precision, VistaDBInt16 numeric_precision_radix, VistaDBInt16 numeric_scale, VistaDBInt16 datetime_precision, VistaDBString interval_type, VistaDBInt16 interval_precision, VistaDBString user_defined_type_catalog, VistaDBString user_defined_type_schema, VistaDBString user_defined_type_name, VistaDBString scope_catalog, VistaDBString scope_schema, VistaDBString scope_name)
         {
             ParameterSchemaEntry parameterSchemaEntry = source as ParameterSchemaEntry;
-            specific_catalog.Value = (object)parameterSchemaEntry.SpecificCatalog;
-            specific_schema.Value = (object)parameterSchemaEntry.SpecificSchema;
-            specific_name.Value = (object)parameterSchemaEntry.SpecificName;
+            specific_catalog.Value = parameterSchemaEntry.SpecificCatalog;
+            specific_schema.Value = parameterSchemaEntry.SpecificSchema;
+            specific_name.Value = parameterSchemaEntry.SpecificName;
             if (parameterSchemaEntry.ParameterMode == 1)
-                parameter_mode.Value = (object)"OUT";
+                parameter_mode.Value = "OUT";
             else
-                parameter_mode.Value = (object)"IN";
-            ordinal_position.Value = (object)((int)parameterSchemaEntry.OrdinalPosition + 1);
-            is_result.Value = parameterSchemaEntry.IsResult ? (object)"YES" : (object)"NO";
-            as_locator.Value = parameterSchemaEntry.AsLocator ? (object)"YES" : (object)"NO";
-            parameter_name.Value = (object)parameterSchemaEntry.ParameterName;
-            data_type.Value = (object)parameterSchemaEntry.DataType.ToLowerInvariant();
-            character_maximum_length.Value = (object)parameterSchemaEntry.CharacterMaxLength;
-            character_octet_length.Value = (object)parameterSchemaEntry.CharacterOctetLength;
-            collation_catalog.Value = (object)parameterSchemaEntry.CollationCatalog;
-            collation_schema.Value = (object)parameterSchemaEntry.CollationSchema;
-            collation_name.Value = (object)parameterSchemaEntry.CollationName;
-            character_set_catalog.Value = (object)parameterSchemaEntry.CharacterSetCatalog;
-            character_set_schema.Value = (object)parameterSchemaEntry.CharacterSetSchema;
-            character_set_name.Value = (object)parameterSchemaEntry.CharacterSetName;
-            numeric_precision.Value = (object)parameterSchemaEntry.NumericPrecision;
-            numeric_precision_radix.Value = (object)parameterSchemaEntry.NumericPrecisionRadix;
-            numeric_scale.Value = (object)parameterSchemaEntry.NumericScale;
-            datetime_precision.Value = (object)parameterSchemaEntry.DateTimePrecision;
-            interval_type.Value = (object)parameterSchemaEntry.IntervalType;
-            interval_precision.Value = (object)parameterSchemaEntry.IntervalPrecision;
-            user_defined_type_catalog.Value = (object)parameterSchemaEntry.UserDefinedTypeCatalog;
-            user_defined_type_schema.Value = (object)parameterSchemaEntry.UserDefinedTypeSchema;
-            user_defined_type_name.Value = (object)parameterSchemaEntry.UserDefinedTypeName;
-            scope_catalog.Value = (object)parameterSchemaEntry.ScopeCatalog;
-            scope_schema.Value = (object)parameterSchemaEntry.ScopeSchema;
-            scope_name.Value = (object)parameterSchemaEntry.ScopeName;
+                parameter_mode.Value = "IN";
+            ordinal_position.Value = parameterSchemaEntry.OrdinalPosition + 1;
+            is_result.Value = parameterSchemaEntry.IsResult ? "YES" : (object)"NO";
+            as_locator.Value = parameterSchemaEntry.AsLocator ? "YES" : (object)"NO";
+            parameter_name.Value = parameterSchemaEntry.ParameterName;
+            data_type.Value = parameterSchemaEntry.DataType.ToLowerInvariant();
+            character_maximum_length.Value = parameterSchemaEntry.CharacterMaxLength;
+            character_octet_length.Value = parameterSchemaEntry.CharacterOctetLength;
+            collation_catalog.Value = parameterSchemaEntry.CollationCatalog;
+            collation_schema.Value = parameterSchemaEntry.CollationSchema;
+            collation_name.Value = parameterSchemaEntry.CollationName;
+            character_set_catalog.Value = parameterSchemaEntry.CharacterSetCatalog;
+            character_set_schema.Value = parameterSchemaEntry.CharacterSetSchema;
+            character_set_name.Value = parameterSchemaEntry.CharacterSetName;
+            numeric_precision.Value = parameterSchemaEntry.NumericPrecision;
+            numeric_precision_radix.Value = parameterSchemaEntry.NumericPrecisionRadix;
+            numeric_scale.Value = parameterSchemaEntry.NumericScale;
+            datetime_precision.Value = parameterSchemaEntry.DateTimePrecision;
+            interval_type.Value = parameterSchemaEntry.IntervalType;
+            interval_precision.Value = parameterSchemaEntry.IntervalPrecision;
+            user_defined_type_catalog.Value = parameterSchemaEntry.UserDefinedTypeCatalog;
+            user_defined_type_schema.Value = parameterSchemaEntry.UserDefinedTypeSchema;
+            user_defined_type_name.Value = parameterSchemaEntry.UserDefinedTypeName;
+            scope_catalog.Value = parameterSchemaEntry.ScopeCatalog;
+            scope_schema.Value = parameterSchemaEntry.ScopeSchema;
+            scope_name.Value = parameterSchemaEntry.ScopeName;
         }
 
         [VistaDBClrProcedure(FillRow = "VistaDB.Engine.Functions.SystemFunctions.FillRoutineColumnSchema")]
         public static IEnumerable RoutineColumnSchema()
         {
-            return (IEnumerable)new List<object>();
+            return new List<object>();
         }
 
         public static void FillRoutineColumnSchema(object source, VistaDBString table_catalog, VistaDBString table_schema, VistaDBString table_name, VistaDBString column_name, VistaDBInt32 ordinal_position, VistaDBString column_default, VistaDBString is_nullable, VistaDBString data_type, VistaDBInt32 character_maximum_length, VistaDBInt32 character_octet_length, VistaDBByte numeric_precision, VistaDBInt16 numeric_precision_radix, VistaDBInt16 numeric_scale, VistaDBInt16 datetime_precision, VistaDBString character_set_catalog, VistaDBString character_set_schema, VistaDBString character_set_name, VistaDBString collation_catalog, VistaDBString collation_schema, VistaDBString collation_name, VistaDBString domain_catalog, VistaDBString domain_schema, VistaDBString domain_name)
@@ -1309,10 +1309,10 @@ namespace VistaDB.Engine.Functions
             string index = (string)column.Value;
             string str = (string)property.Value;
             Database currentDatabase = GetCurrentDatabase();
-            IVistaDBTableSchema vistaDbTableSchema = (IVistaDBTableSchema)null;
+            IVistaDBTableSchema vistaDbTableSchema = null;
             if (currentDatabase != null)
             {
-                vistaDbTableSchema = (IVistaDBTableSchema)currentDatabase.GetTableSchema(objId, true);
+                vistaDbTableSchema = currentDatabase.GetTableSchema(objId, true);
             }
             else
             {
@@ -2396,24 +2396,24 @@ namespace VistaDB.Engine.Functions
                 VistaDBType type = (VistaDBType)Enum.Parse(typeof(VistaDBType), DataType);
                 CharacterMaxLength = new int?();
                 CharacterOctetLength = new int?();
-                CharacterSetCatalog = (string)null;
-                CharacterSetSchema = (string)null;
-                CharacterSetName = (string)null;
-                CollationCatalog = (string)null;
-                CollationSchema = (string)null;
-                CollationName = (string)null;
+                CharacterSetCatalog = null;
+                CharacterSetSchema = null;
+                CharacterSetName = null;
+                CollationCatalog = null;
+                CollationSchema = null;
+                CollationName = null;
                 NumericPrecision = new byte?();
                 NumericPrecisionRadix = new short?();
                 NumericScale = new short?();
                 DateTimePrecision = new short?();
-                IntervalType = (string)null;
+                IntervalType = null;
                 IntervalPrecision = new short?();
-                UserDefinedTypeCatalog = (string)null;
-                UserDefinedTypeSchema = (string)null;
-                UserDefinedTypeName = (string)null;
-                ScopeCatalog = (string)null;
-                ScopeSchema = (string)null;
-                SpecificCatalog = (string)null;
+                UserDefinedTypeCatalog = null;
+                UserDefinedTypeSchema = null;
+                UserDefinedTypeName = null;
+                ScopeCatalog = null;
+                ScopeSchema = null;
+                SpecificCatalog = null;
                 int maxLength = 0;
                 int octetLength = 0;
                 int precision = 0;
@@ -2445,13 +2445,13 @@ namespace VistaDB.Engine.Functions
                     CharacterMaxLength = new int?(maxLength);
                 if (octetLength != -1)
                     CharacterOctetLength = new int?(octetLength);
-                if (precision != 0 && precision < (int)byte.MaxValue)
+                if (precision != 0 && precision < byte.MaxValue)
                     NumericPrecision = new byte?((byte)precision);
-                if (scale != (short)-1)
+                if (scale != -1)
                     NumericScale = new short?(scale);
-                if (radix != (short)0)
+                if (radix != 0)
                     NumericPrecisionRadix = new short?(radix);
-                if (dateTime == (short)0)
+                if (dateTime == 0)
                     return;
                 DateTimePrecision = new short?(dateTime);
             }

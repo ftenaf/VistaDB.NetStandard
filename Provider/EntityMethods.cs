@@ -17,8 +17,8 @@ namespace VistaDB.Provider
                     VistaDBProviderServicesInstanceFieldInfo = type.GetField("Instance");
       }
       if (VistaDBProviderServicesInstanceFieldInfo != null)
-        return VistaDBProviderServicesInstanceFieldInfo.GetValue((object) null);
-      return (object) null;
+        return VistaDBProviderServicesInstanceFieldInfo.GetValue(null);
+      return null;
     }
   }
 }

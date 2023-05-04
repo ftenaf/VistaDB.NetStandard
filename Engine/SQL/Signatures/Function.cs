@@ -36,7 +36,7 @@ namespace VistaDB.Engine.SQL.Signatures
         {
           if (parser.IsToken("DEFAULT"))
           {
-            parameters.Add((Signature) ConstantSignature.CreateSignature(parser));
+            parameters.Add(ConstantSignature.CreateSignature(parser));
             parser.SkipToken(false);
           }
           else

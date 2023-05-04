@@ -17,7 +17,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object ExecuteSubProgram()
     {
-      return (object) Guid.NewGuid();
+      return Guid.NewGuid();
     }
 
     protected override bool InternalGetIsChanged()

@@ -102,7 +102,7 @@ namespace VistaDB.Engine.Core.Indexing
         {
             get
             {
-                return data.DataApartment + data.ExpandingInfo.GetBufferLength((Row.Column)null);
+                return data.DataApartment + data.ExpandingInfo.GetBufferLength(null);
             }
         }
 
@@ -262,7 +262,7 @@ namespace VistaDB.Engine.Core.Indexing
             int count1 = Count;
             int dataLength = data.DataLength;
             int num = data.Buffer.Length - dataLength;
-            Buffer.BlockCopy((Array)data.Buffer, num, (Array)destinationNode.data.Buffer, num, dataLength);
+            Buffer.BlockCopy(data.Buffer, num, destinationNode.data.Buffer, num, dataLength);
             destinationNode.data.DataLength = dataLength;
             destinationNode.keyBars.Clear();
             destinationNode.keyBars.ExpandedDataBuffer = (byte[])data.ExpandingInfo.Value;
@@ -293,7 +293,7 @@ namespace VistaDB.Engine.Core.Indexing
             int expandedDataLen = 0;
             bool flag1 = false;
             int num2 = 0;
-            Row precedenceRow1 = (Row)null;
+            Row precedenceRow1 = null;
             int index = 0;
             bool flag2 = false;
             foreach (Row row in (List<Row>)this)
@@ -348,7 +348,7 @@ namespace VistaDB.Engine.Core.Indexing
                 }
                 int offset = NodeLength - dataLen;
                 byte[] numArray = data.Buffer;
-                Row precedenceRow2 = (Row)null;
+                Row precedenceRow2 = null;
                 int barIndex = 0;
                 bool flag3 = false;
                 bool flag4 = false;
@@ -361,7 +361,7 @@ namespace VistaDB.Engine.Core.Indexing
                         if (num2 == 0)
                         {
                             numArray = new byte[expandedDataLen];
-                            data.ExpandingInfo.Value = (object)numArray;
+                            data.ExpandingInfo.Value = numArray;
                             offset = 0;
                             flag4 = true;
                         }
@@ -413,7 +413,7 @@ namespace VistaDB.Engine.Core.Indexing
             byte[] buffer = data.Buffer;
             int offset1 = buffer.Length - dataLength;
             int actualKeyCount = data.ActualKeyCount;
-            Row precedenceRow = (Row)null;
+            Row precedenceRow = null;
             bool allowPostponing = parentIndex.AllowPostponing;
             keyBars.Clear();
             bool expanding = false;
@@ -431,7 +431,7 @@ namespace VistaDB.Engine.Core.Indexing
                     --actualKeyCount;
                     int offset2 = offset1;
                     offset1 = row.UnformatRowBuffer(buffer, offset1, precedenceRow);
-                    row.ReadExtensions((DataStorage)parentIndex.ParentRowset, allowPostponing);
+                    row.ReadExtensions(parentIndex.ParentRowset, allowPostponing);
                     keyBars.AppendBar(offset2, offset1 - offset2, expanding);
                 }
                 finally
@@ -444,7 +444,7 @@ namespace VistaDB.Engine.Core.Indexing
 
         internal void ClearApartment()
         {
-            DataStorage parentIndex = (DataStorage)parentTree.ParentIndex;
+            DataStorage parentIndex = parentTree.ParentIndex;
             data.ExpandingInfo.FreeSpace(parentIndex);
             parentIndex.SetFreeCluster(Id, 1);
         }
@@ -457,7 +457,7 @@ namespace VistaDB.Engine.Core.Indexing
             do
             {
                 keyIndex = (num1 + num2) / 2;
-                num3 = (long)(key - this[keyIndex]);
+                num3 = key - this[keyIndex];
                 if (num3 == 0L)
                 {
                     keyPosition = KeyPosition.Equal;
@@ -519,7 +519,7 @@ namespace VistaDB.Engine.Core.Indexing
                     Node node1 = parentTree.GoKey(this[0], this);
                     Node rightNode = GetRightNode();
                     Node leftNode = GetLeftNode();
-                    Node node2 = (Node)null;
+                    Node node2 = null;
                     try
                     {
                         if (rightNode != null)
@@ -562,8 +562,8 @@ namespace VistaDB.Engine.Core.Indexing
 
         private void ClearExpandingInfo()
         {
-            data.ExpandingInfo.FreeSpace((DataStorage)parentTree.ParentIndex);
-            data.ExpandingInfo.Value = (object)null;
+            data.ExpandingInfo.FreeSpace(parentTree.ParentIndex);
+            data.ExpandingInfo.Value = null;
         }
 
         internal void InsertKey(int newIndex, Row newKey, ulong childNodeId)
@@ -614,12 +614,12 @@ namespace VistaDB.Engine.Core.Indexing
         {
             if (!IsLeaf)
                 return parentTree.GetNodeAtPosition(this[keyIndex].RefPosition);
-            return (Node)null;
+            return null;
         }
 
         protected virtual char[] OnEncrypt(Index parentIndex)
         {
-            return (char[])null;
+            return null;
         }
 
         protected virtual bool OnDecrypt(Index parentIndex)
@@ -639,20 +639,20 @@ namespace VistaDB.Engine.Core.Indexing
             if (isDisposed)
                 return;
             isDisposed = true;
-            GC.SuppressFinalize((object)this);
+            GC.SuppressFinalize(this);
             Clear();
             if (data != null)
-                data = (NodeHeader)null;
+                data = null;
             if (keyBars != null)
             {
                 keyBars.Clear();
-                keyBars = (BufferBars)null;
+                keyBars = null;
             }
-            parentTree = (Tree)null;
-            bottomKey = (Row)null;
-            topKey = (Row)null;
-            previousAppend = (Row)null;
-            precedenceKey = (Row)null;
+            parentTree = null;
+            bottomKey = null;
+            topKey = null;
+            previousAppend = null;
+            precedenceKey = null;
         }
 
         [Flags]
@@ -685,14 +685,14 @@ namespace VistaDB.Engine.Core.Indexing
             }
 
             private NodeHeader(HeaderId id, Node node, int signature, int pageSize)
-              : base((DataStorage)node.parentTree.ParentIndex, id, EmptyReference, signature, pageSize)
+              : base(node.parentTree.ParentIndex, id, EmptyReference, signature, pageSize)
             {
-                leftNodeIndex = AppendColumn((IColumn)new BigIntColumn((long)EmptyReference));
-                rightNodeIndex = AppendColumn((IColumn)new BigIntColumn((long)EmptyReference));
-                dataLengthIndex = AppendColumn((IColumn)new SmallIntColumn((short)0));
-                packedDataLengthIndex = AppendColumn((IColumn)new SmallIntColumn((short)0));
-                partialKeysIndex = AppendColumn((IColumn)new SmallIntColumn((short)0));
-                expandedDataIndex = AppendColumn((IColumn)new BlobColumn());
+                leftNodeIndex = AppendColumn(new BigIntColumn((long)EmptyReference));
+                rightNodeIndex = AppendColumn(new BigIntColumn((long)EmptyReference));
+                dataLengthIndex = AppendColumn(new SmallIntColumn(0));
+                packedDataLengthIndex = AppendColumn(new SmallIntColumn(0));
+                partialKeysIndex = AppendColumn(new SmallIntColumn(0));
+                expandedDataIndex = AppendColumn(new BlobColumn());
                 nodeContainer = node;
                 this.pageSize = pageSize;
             }
@@ -716,7 +716,7 @@ namespace VistaDB.Engine.Core.Indexing
             {
                 get
                 {
-                    return ((int)(byte)Signature & 1) == 1;
+                    return ((byte)Signature & 1) == 1;
                 }
                 set
                 {
@@ -733,7 +733,7 @@ namespace VistaDB.Engine.Core.Indexing
                 set
                 {
                     Modified = (long)LeftId != (long)value;
-                    this[leftNodeIndex].Value = (object)(long)value;
+                    this[leftNodeIndex].Value = (long)value;
                 }
             }
 
@@ -746,7 +746,7 @@ namespace VistaDB.Engine.Core.Indexing
                 set
                 {
                     Modified = (long)RightId != (long)value;
-                    this[rightNodeIndex].Value = (object)(long)value;
+                    this[rightNodeIndex].Value = (long)value;
                 }
             }
 
@@ -778,12 +778,12 @@ namespace VistaDB.Engine.Core.Indexing
             {
                 get
                 {
-                    return (int)(short)this[partialKeysIndex].Value;
+                    return (short)this[partialKeysIndex].Value;
                 }
                 set
                 {
                     Modified = ActualKeyCount != value;
-                    this[partialKeysIndex].Value = (object)(short)value;
+                    this[partialKeysIndex].Value = (short)value;
                 }
             }
 
@@ -791,12 +791,12 @@ namespace VistaDB.Engine.Core.Indexing
             {
                 get
                 {
-                    return (int)(short)this[dataLengthIndex].Value;
+                    return (short)this[dataLengthIndex].Value;
                 }
                 set
                 {
                     Modified = DataLength != value;
-                    this[dataLengthIndex].Value = (object)(short)value;
+                    this[dataLengthIndex].Value = (short)value;
                 }
             }
 
@@ -804,12 +804,12 @@ namespace VistaDB.Engine.Core.Indexing
             {
                 get
                 {
-                    return (int)(short)this[packedDataLengthIndex].Value;
+                    return (short)this[packedDataLengthIndex].Value;
                 }
                 set
                 {
                     Modified = PackedDataLength != value;
-                    this[packedDataLengthIndex].Value = (object)(short)value;
+                    this[packedDataLengthIndex].Value = (short)value;
                 }
             }
 
@@ -866,7 +866,7 @@ namespace VistaDB.Engine.Core.Indexing
             {
                 get
                 {
-                    return base.GetMemoryApartment((Row)null);
+                    return base.GetMemoryApartment(null);
                 }
             }
 
@@ -921,7 +921,7 @@ namespace VistaDB.Engine.Core.Indexing
                 byte[] buffer = nodeHeader.Buffer;
                 originalOffset = buffer.Length - nodeHeader.DataLength;
                 dataCopyBuffer = new byte[nodeHeader.DataLength];
-                Buffer.BlockCopy((Array)buffer, originalOffset, (Array)dataCopyBuffer, 0, nodeHeader.DataLength);
+                Buffer.BlockCopy(buffer, originalOffset, dataCopyBuffer, 0, nodeHeader.DataLength);
                 if (nodeExpandingBuffer != null)
                     return;
                 nodeExpandingBuffer = (byte[])nodeHeader.ExpandingInfo.Value;
@@ -942,7 +942,7 @@ namespace VistaDB.Engine.Core.Indexing
                     numArray = dataCopyBuffer;
                     srcOffset = contiguousBar.OriginOffset - originalOffset;
                 }
-                Buffer.BlockCopy((Array)numArray, srcOffset, (Array)dataBuffer, offset, contiguousBar.Apartment);
+                Buffer.BlockCopy(numArray, srcOffset, dataBuffer, offset, contiguousBar.Apartment);
                 return offset + contiguousBar.Apartment;
             }
 

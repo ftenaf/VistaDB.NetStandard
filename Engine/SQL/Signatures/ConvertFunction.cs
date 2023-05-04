@@ -95,9 +95,9 @@ namespace VistaDB.Engine.SQL.Signatures
           switch (styleType)
           {
             case StyleType.DateWithoutCentury:
-              return (object) ((DateTime) ((IValue) paramValues[0]).Value).ToString(dateFormat1[styleIndex]);
+              return ((DateTime)paramValues[0].Value).ToString(dateFormat1[styleIndex]);
             case StyleType.DateWithCentury:
-              return (object) ((DateTime) ((IValue) paramValues[0]).Value).ToString(dateFormat2[styleIndex]);
+              return ((DateTime)paramValues[0].Value).ToString(dateFormat2[styleIndex]);
           }
         }
       }
@@ -106,13 +106,13 @@ namespace VistaDB.Engine.SQL.Signatures
         switch (styleType)
         {
           case StyleType.DateWithoutCentury:
-            return (object) DateTime.ParseExact((string) ((IValue) paramValues[0]).Value, dateFormat1[styleIndex], (IFormatProvider) CultureInfo.InvariantCulture.DateTimeFormat);
+            return DateTime.ParseExact((string)paramValues[0].Value, dateFormat1[styleIndex], CultureInfo.InvariantCulture.DateTimeFormat);
           case StyleType.DateWithCentury:
-            return (object) DateTime.ParseExact((string) ((IValue) paramValues[0]).Value, dateFormat2[styleIndex], (IFormatProvider) CultureInfo.InvariantCulture.DateTimeFormat);
+            return DateTime.ParseExact((string)paramValues[0].Value, dateFormat2[styleIndex], CultureInfo.InvariantCulture.DateTimeFormat);
         }
       }
-      Convert((IValue) paramValues[0], (IValue) result);
-      return ((IValue) result).Value;
+      Convert(paramValues[0], result);
+      return result.Value;
     }
 
     public override int GetWidth()

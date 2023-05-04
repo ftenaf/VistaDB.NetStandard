@@ -12,19 +12,19 @@ namespace VistaDB.Engine.SQL.Signatures
       dataType = VistaDBType.Int;
       parameterTypes[0] = VistaDBType.NChar;
       parameterTypes[1] = VistaDBType.NChar;
-      finder = (PatternFinder) null;
+      finder = null;
     }
 
     protected override object ExecuteSubProgram()
     {
-      string matchExpr = (string) ((IValue) paramValues[1]).Value;
+      string matchExpr = (string)paramValues[1].Value;
       CreatePattern();
-      return (object) finder.Compare(matchExpr);
+      return finder.Compare(matchExpr);
     }
 
     public override void SetChanged()
     {
-      finder = (PatternFinder) null;
+      finder = null;
       base.SetChanged();
     }
 
@@ -39,8 +39,8 @@ namespace VistaDB.Engine.SQL.Signatures
             return;
           break;
       }
-      string pattern = (string) ((IValue) paramValues[0]).Value;
-      finder = new PatternFinder(signature.LineNo, signature.SymbolNo, pattern, (string) null, parent.Connection);
+      string pattern = (string)paramValues[0].Value;
+      finder = new PatternFinder(signature.LineNo, signature.SymbolNo, pattern, null, parent.Connection);
     }
   }
 }

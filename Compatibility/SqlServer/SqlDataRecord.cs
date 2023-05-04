@@ -11,7 +11,7 @@ namespace VistaDB.Compatibility.SqlServer
 
     public SqlDataRecord(params SqlMetaData[] metaData)
     {
-      _data = !SqlContext.IsAvailable ? new TemporaryResultSet((IDatabase) null) : new TemporaryResultSet(((LocalSQLConnection) VistaDBContext.SQLChannel.CurrentConnection).Database);
+      _data = !SqlContext.IsAvailable ? new TemporaryResultSet(null) : new TemporaryResultSet(((LocalSQLConnection) VistaDBContext.SQLChannel.CurrentConnection).Database);
       int index = 0;
       for (int length = metaData.Length; index < length; ++index)
         _data.AddColumn(metaData[index].Name, metaData[index].VistaDBType, metaData[index].AllowNull, metaData[index].MaxLength);
@@ -47,8 +47,8 @@ namespace VistaDB.Compatibility.SqlServer
 
     public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
     {
-      Buffer.BlockCopy((Array) _data.GetValue(i, VistaDBType.Image), (int) fieldOffset, (Array) buffer, bufferoffset, length);
-      return (long) length;
+      Buffer.BlockCopy((Array) _data.GetValue(i, VistaDBType.Image), (int) fieldOffset, buffer, bufferoffset, length);
+      return length;
     }
 
     public char GetChar(int i)
@@ -59,12 +59,12 @@ namespace VistaDB.Compatibility.SqlServer
     public long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
     {
       ((string) _data.GetValue(i, VistaDBType.NChar)).CopyTo((int) fieldoffset, buffer, bufferoffset, length);
-      return (long) length;
+      return length;
     }
 
     public IDataReader GetData(int i)
     {
-      return (IDataReader) null;
+      return null;
     }
 
     public string GetDataTypeName(int i)
@@ -168,26 +168,26 @@ namespace VistaDB.Compatibility.SqlServer
 
     public void SetBoolean(int i, bool value)
     {
-      _data.CurrentRow[i].Value = (object) value;
+      _data.CurrentRow[i].Value = value;
     }
 
     public void SetByte(int i, byte value)
     {
-      _data.CurrentRow[i].Value = (object) value;
+      _data.CurrentRow[i].Value = value;
     }
 
     public void SetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
     {
       byte[] numArray1 = (byte[]) _data.CurrentRow[i].Value;
-      if (numArray1 == null || (long) numArray1.Length < fieldOffset + (long) length)
+      if (numArray1 == null || numArray1.Length < fieldOffset + length)
       {
-        byte[] numArray2 = new byte[fieldOffset + (long) length];
+        byte[] numArray2 = new byte[fieldOffset + length];
         if (numArray1 != null && fieldOffset > 0L)
-          Buffer.BlockCopy((Array) numArray1, 0, (Array) numArray2, 0, (int) fieldOffset);
+          Buffer.BlockCopy(numArray1, 0, numArray2, 0, (int) fieldOffset);
         numArray1 = numArray2;
       }
-      Buffer.BlockCopy((Array) buffer, bufferoffset, (Array) numArray1, (int) fieldOffset, length);
-      _data.CurrentRow[i].Value = (object) numArray1;
+      Buffer.BlockCopy(buffer, bufferoffset, numArray1, (int) fieldOffset, length);
+      _data.CurrentRow[i].Value = numArray1;
     }
 
     public void SetChar(int i, char value)
@@ -202,47 +202,47 @@ namespace VistaDB.Compatibility.SqlServer
 
     public void SetDateTime(int i, DateTime value)
     {
-      _data.CurrentRow[i].Value = (object) value;
+      _data.CurrentRow[i].Value = value;
     }
 
     public void SetDecimal(int i, Decimal value)
     {
-      _data.CurrentRow[i].Value = (object) value;
+      _data.CurrentRow[i].Value = value;
     }
 
     public void SetDouble(int i, double value)
     {
-      _data.CurrentRow[i].Value = (object) value;
+      _data.CurrentRow[i].Value = value;
     }
 
     public void SetFloat(int i, float value)
     {
-      _data.CurrentRow[i].Value = (object) value;
+      _data.CurrentRow[i].Value = value;
     }
 
     public void SetGuid(int i, Guid value)
     {
-      _data.CurrentRow[i].Value = (object) value;
+      _data.CurrentRow[i].Value = value;
     }
 
     public void SetInt16(int i, short value)
     {
-      _data.CurrentRow[i].Value = (object) value;
+      _data.CurrentRow[i].Value = value;
     }
 
     public void SetInt32(int i, int value)
     {
-      _data.CurrentRow[i].Value = (object) value;
+      _data.CurrentRow[i].Value = value;
     }
 
     public void SetInt64(int i, long value)
     {
-      _data.CurrentRow[i].Value = (object) value;
+      _data.CurrentRow[i].Value = value;
     }
 
     public void SetString(int i, string value)
     {
-      _data.CurrentRow[i].Value = (object) value;
+      _data.CurrentRow[i].Value = value;
     }
 
     public void SetValue(int i, object value)

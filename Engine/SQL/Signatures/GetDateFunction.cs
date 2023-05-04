@@ -16,7 +16,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       if (value == DateTime.MinValue)
         value = EvaluateCurrentMoment();
-      return (object) value;
+      return value;
     }
 
     protected virtual DateTime EvaluateCurrentMoment()

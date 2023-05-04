@@ -25,7 +25,7 @@ namespace VistaDB.Engine.SQL
     protected override IQueryResult OnExecuteQuery()
     {
       parent.Connection.RollbackTransaction();
-      return (IQueryResult) null;
+      return null;
     }
   }
 }

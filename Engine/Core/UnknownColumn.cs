@@ -3,18 +3,18 @@
   internal class UnknownColumn : Row.Column
   {
     private UnknownColumn()
-      : base((object) null, VistaDBType.Unknown, 0)
+      : base(null, VistaDBType.Unknown, 0)
     {
     }
 
     internal UnknownColumn(UnknownColumn col)
-      : base((Row.Column) col)
+      : base(col)
     {
     }
 
     protected override Row.Column OnDuplicate(bool padRight)
     {
-      return (Row.Column) null;
+      return null;
     }
 
     internal override int GetBufferLength(Row.Column precedenceColumn)

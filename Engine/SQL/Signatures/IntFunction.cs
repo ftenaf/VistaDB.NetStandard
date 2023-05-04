@@ -32,7 +32,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object ExecuteSubProgram()
     {
-      object obj = ((IValue) paramValues[0]).Value;
+      object obj = paramValues[0].Value;
       switch (dataType)
       {
         case VistaDBType.TinyInt:
@@ -41,13 +41,13 @@ namespace VistaDB.Engine.SQL.Signatures
         case VistaDBType.BigInt:
           return obj;
         case VistaDBType.Real:
-          return (object) (float) (long) (float) obj;
+          return (float)(long)(float)obj;
         case VistaDBType.Float:
-          return (object) (double) (long) (double) obj;
+          return (double)(long)(double)obj;
         case VistaDBType.Decimal:
         case VistaDBType.Money:
         case VistaDBType.SmallMoney:
-          return (object) (Decimal) (long) ((Decimal) obj);
+          return (Decimal)(long)((Decimal)obj);
         default:
           throw new VistaDBSQLException(556, "Unknown data type", lineNo, symbolNo);
       }

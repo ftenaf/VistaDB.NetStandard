@@ -18,10 +18,10 @@ namespace VistaDB.Engine.SQL.Signatures
     public CLRResultSetFunction(SQLParser parser, string procedureName)
       : base(parser, procedureName)
     {
-      resultColumnTypes = (VistaDBType[]) null;
-      resultColumnNames = (string[]) null;
-      enumerator = (IEnumerator) null;
-      fillParams = (VistaDBValue[]) null;
+      resultColumnTypes = null;
+      resultColumnNames = null;
+      enumerator = null;
+      fillParams = null;
     }
 
         private void PrepareFillRowMethod()
@@ -55,7 +55,7 @@ namespace VistaDB.Engine.SQL.Signatures
         parameters2[index1] = GetTrueValue(fillParams[index1], parameters1[index1]);
       try
       {
-        fillRow.Invoke((object) null, parameters2);
+        fillRow.Invoke(null, parameters2);
       }
       catch (Exception ex)
       {
@@ -66,7 +66,7 @@ namespace VistaDB.Engine.SQL.Signatures
                 SetTrueValue(fillParams[index2], parameters2[index2]);
       int index3 = 0;
       for (int count = row.Count; index3 < count; ++index3)
-        ((IValue) row[index3]).Value = fillParams[index3 + 1].Value;
+                row[index3].Value = fillParams[index3 + 1].Value;
     }
 
     public override SignatureType OnPrepare()
@@ -125,7 +125,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       if (enumerator is IDisposable)
         ((IDisposable) enumerator).Dispose();
-      enumerator = (IEnumerator) null;
+      enumerator = null;
     }
   }
 }

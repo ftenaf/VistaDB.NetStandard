@@ -39,8 +39,8 @@ namespace VistaDB.Engine.SQL
           externalName = externalName.Substring(1, num - 2) + "." + externalName.Substring(num + 1);
         return true;
       }
-      assemblyName = (string) null;
-      externalName = (string) null;
+      assemblyName = null;
+      externalName = null;
       return false;
     }
 
@@ -61,7 +61,7 @@ namespace VistaDB.Engine.SQL
         parser.SkipToken(true);
       }
       else
-        description = (string) null;
+        description = null;
       bool flag = false;
       if (parser.IsToken("("))
       {
@@ -80,7 +80,7 @@ namespace VistaDB.Engine.SQL
       if (ParseExternalName(name, parser, out assemblyName, out externalName))
         return;
       parser.ExpectedExpression("BEGIN");
-      connection.ParseStatement((Statement) this, id);
+      connection.ParseStatement(this, id);
       storedProcedure = Database.CreateStoredProcedureInstance(name, parser.Text.Substring(symbolNo, parser.SymbolNo - symbolNo), description);
     }
 
@@ -95,7 +95,7 @@ namespace VistaDB.Engine.SQL
         Database.RegisterClrProcedure(name, externalName, assemblyName, description);
       else
         Database.CreateStoredProcedureObject(storedProcedure);
-      return (IQueryResult) null;
+      return null;
     }
   }
 }

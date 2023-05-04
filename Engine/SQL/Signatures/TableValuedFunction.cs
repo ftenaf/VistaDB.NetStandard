@@ -20,7 +20,7 @@ namespace VistaDB.Engine.SQL.Signatures
       using (IVistaDBTableSchema vistaDbTableSchema = parent.Database.TableSchema(resultTableStatement.TableName))
       {
         foreach (IVistaDBColumnAttributes columnAttributes in (IEnumerable<IVistaDBColumnAttributes>) vistaDbTableSchema)
-          arrayList.Add((object) columnAttributes.Type);
+          arrayList.Add(columnAttributes.Type);
       }
       return (VistaDBType[]) arrayList.ToArray(typeof (VistaDBType));
     }
@@ -31,7 +31,7 @@ namespace VistaDB.Engine.SQL.Signatures
       using (IVistaDBTableSchema vistaDbTableSchema = parent.Database.TableSchema(resultTableStatement.TableName))
       {
         foreach (IVistaDBColumnAttributes columnAttributes in (IEnumerable<IVistaDBColumnAttributes>) vistaDbTableSchema)
-          arrayList.Add((object) columnAttributes.Name);
+          arrayList.Add(columnAttributes.Name);
       }
       return (string[]) arrayList.ToArray(typeof (string));
     }
@@ -51,7 +51,7 @@ namespace VistaDB.Engine.SQL.Signatures
       IVistaDBRow currentRow = tableInstance.CurrentRow;
       int index = 0;
       for (int count = row.Count; index < count; ++index)
-        ((IValue) row[index]).Value = currentRow[index].Value;
+                row[index].Value = currentRow[index].Value;
       return true;
     }
 
@@ -63,7 +63,7 @@ namespace VistaDB.Engine.SQL.Signatures
       IVistaDBRow currentRow = tableInstance.CurrentRow;
       int index = 0;
       for (int count = row.Count; index < count; ++index)
-        ((IValue) row[index]).Value = currentRow[index].Value;
+                row[index].Value = currentRow[index].Value;
       return true;
     }
 
@@ -72,7 +72,7 @@ namespace VistaDB.Engine.SQL.Signatures
       if (tableInstance != null)
       {
         tableInstance.Close();
-        tableInstance = (IVistaDBTable) null;
+        tableInstance = null;
       }
       parent.Database.DropTable(resultTableStatement.TableName);
     }

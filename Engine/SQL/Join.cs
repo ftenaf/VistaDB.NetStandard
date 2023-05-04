@@ -23,7 +23,7 @@ namespace VistaDB.Engine.SQL
       while (rightRowSet.ExecuteRowset(constraints))
       {
         IColumn column = signature.Execute();
-        if (!column.IsNull && (bool) ((IValue) column).Value)
+        if (!column.IsNull && (bool)column.Value)
           return true;
         if (!rightRowSet.Next(constraints))
           break;
@@ -65,13 +65,13 @@ namespace VistaDB.Engine.SQL
 
     public void Prepare()
     {
-      if (signature != (Signature) null)
+      if (signature != null)
       {
         SignatureType signatureType = signature.Prepare();
         if (signature.DataType != VistaDBType.Bit)
           throw new VistaDBSQLException(557, "", signature.LineNo, signature.SymbolNo);
         if (signatureType == SignatureType.Constant && signature.SignatureType != SignatureType.Constant)
-          signature = (Signature) ConstantSignature.CreateSignature(signature.Execute(), signature.Parent);
+          signature = ConstantSignature.CreateSignature(signature.Execute(), signature.Parent);
       }
       leftRowSet.Prepare();
       rightRowSet.Prepare();
@@ -79,7 +79,7 @@ namespace VistaDB.Engine.SQL
 
     public bool Optimize(ConstraintOperations constrainOperations)
     {
-      if (signature != (Signature) null && signature.SignatureType != SignatureType.Constant && !signature.Optimize(constrainOperations) || constrainOperations == null)
+      if (signature != null && signature.SignatureType != SignatureType.Constant && !signature.Optimize(constrainOperations) || constrainOperations == null)
         return false;
       int count1 = constrainOperations.Count;
       if (!leftRowSet.Optimize(constrainOperations))
@@ -96,7 +96,7 @@ namespace VistaDB.Engine.SQL
 
     public void SetUpdated()
     {
-      if (signature != (Signature) null)
+      if (signature != null)
         signature.SetChanged();
       leftRowSet.SetUpdated();
       rightRowSet.SetUpdated();
@@ -104,7 +104,7 @@ namespace VistaDB.Engine.SQL
 
     public void ClearUpdated()
     {
-      if (signature != (Signature) null)
+      if (signature != null)
         signature.ClearChanged();
       leftRowSet.ClearUpdated();
       rightRowSet.ClearUpdated();
@@ -142,7 +142,7 @@ namespace VistaDB.Engine.SQL
     {
       leftRowSet = leftRowSet.PrepareTables(tableNames, views, tableList, alwaysAllowNull, ref tableIndex);
       rightRowSet = rightRowSet.PrepareTables(tableNames, views, tableList, alwaysAllowNull, ref tableIndex);
-      return (IRowSet) this;
+      return this;
     }
 
     public IRowSet LeftRowSet

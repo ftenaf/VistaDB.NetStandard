@@ -41,10 +41,10 @@ namespace VistaDB.Engine.SQL
     {
       if (tempValue == null)
         tempValue = Database.CreateEmptyColumn(dataType);
-      Database.Conversion.Convert((IValue) signature.Execute(), (IValue) tempValue);
+      Database.Conversion.Convert(signature.Execute(), tempValue);
       signature.SetChanged();
-      DoSetParam(name, ((IValue) tempValue).Value, dataType, DoGetParam(name).Direction);
-      return (IQueryResult) null;
+      DoSetParam(name, tempValue.Value, dataType, DoGetParam(name).Direction);
+      return null;
     }
   }
 }

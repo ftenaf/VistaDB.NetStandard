@@ -24,8 +24,8 @@ namespace VistaDB.Engine.SQL.Signatures
       beginExpression = parser.NextSignature(true, true, 2);
       parser.ExpectedExpression("AND");
       endExpression = parser.NextSignature(true, true, 2);
-      beginValue = (IColumn) null;
-      endValue = (IColumn) null;
+      beginValue = null;
+      endValue = null;
     }
 
     public override SignatureType OnPrepare()
@@ -107,14 +107,14 @@ namespace VistaDB.Engine.SQL.Signatures
         bool flag = !column1.IsNull && !column2.IsNull && !column3.IsNull;
         if (flag)
         {
-          Convert((IValue) column2, (IValue) beginValue);
-          Convert((IValue) column3, (IValue) endValue);
-          Convert((IValue) column1, (IValue) expValue1);
-          if (!ReferenceEquals((object) expValue1, (object) expValue2))
-            Convert((IValue) column1, (IValue) expValue2);
-          flag = ProcessResult(expValue1.Compare((IVistaDBColumn) beginValue) >= 0 && expValue2.Compare((IVistaDBColumn) endValue) <= 0);
+          Convert(column2, beginValue);
+          Convert(column3, endValue);
+          Convert(column1, expValue1);
+          if (!ReferenceEquals(expValue1, expValue2))
+            Convert(column1, expValue2);
+          flag = ProcessResult(expValue1.Compare(beginValue) >= 0 && expValue2.Compare(endValue) <= 0);
         }
-        ((IValue) result).Value = (object) flag;
+                result.Value = flag;
       }
       return result;
     }

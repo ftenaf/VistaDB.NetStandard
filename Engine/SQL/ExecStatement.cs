@@ -28,9 +28,9 @@ namespace VistaDB.Engine.SQL
           signature = parser.NextSignature(true, true, 6);
         }
         else
-          returnParameterName = (string) null;
+          returnParameterName = null;
         subProgramSignature = signature as ProgrammabilitySignature;
-        if ((Signature) subProgramSignature == (Signature) null)
+        if (subProgramSignature == null)
         {
           if (!connection.DatabaseOpened)
             throw new VistaDBSQLException(1012, string.Empty, 0, 0);
@@ -53,14 +53,14 @@ namespace VistaDB.Engine.SQL
         subProgramSignature.SetReturnParameter(parameter);
       subProgramSignature.Execute();
       prepared = false;
-      return (IQueryResult) null;
+      return null;
     }
 
     public override void Dispose()
     {
       try
       {
-        if (!((Signature) subProgramSignature != (Signature) null))
+        if (!(subProgramSignature != null))
           return;
         subProgramSignature.DisposeSubProgramStatement();
       }

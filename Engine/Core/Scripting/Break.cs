@@ -3,7 +3,7 @@
   internal class Break : Signature
   {
     internal Break(int groupId)
-      : base((string) null, groupId, Operations.Nomark, Priorities.MaximumPriority, VistaDBType.Unknown)
+      : base(null, groupId, Operations.Nomark, Priorities.MaximumPriority, VistaDBType.Unknown)
     {
       allowUnaryToFollow = true;
     }

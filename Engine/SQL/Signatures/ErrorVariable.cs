@@ -14,7 +14,7 @@ namespace VistaDB.Engine.SQL.Signatures
     protected override IColumn InternalExecute()
     {
       VistaDBException lastException = parent.Connection.LastException;
-      ((IValue) result).Value = (object) (lastException == null ? 0 : lastException.ErrorId);
+            result.Value = lastException == null ? 0 : lastException.ErrorId;
       return result;
     }
 

@@ -4,7 +4,7 @@
   {
     public override Signature CreateSignature(SQLParser parser)
     {
-      return (Signature) new IIFFunction(parser);
+      return new IIFFunction(parser);
     }
   }
 }

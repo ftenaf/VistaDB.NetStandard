@@ -19,22 +19,22 @@ namespace VistaDB.Engine.SQL
     protected override void OnParse(LocalSQLConnection connection, SQLParser parser)
     {
       condition = parser.NextSignature(true, true, 6);
-      thenStatement = connection.ParseStatement((Statement) this, id);
+      thenStatement = connection.ParseStatement(this, id);
       if (!parser.SkipSemicolons() && parser.IsToken("ELSE"))
       {
         parser.SkipToken(true);
-        elseStatement = connection.ParseStatement((Statement) this, id);
+        elseStatement = connection.ParseStatement(this, id);
         parser.SkipSemicolons();
       }
       else
-        elseStatement = (Statement) null;
+        elseStatement = null;
       hasDDL = thenStatement.HasDDLCommands || elseStatement != null && elseStatement.HasDDLCommands;
     }
 
     protected override VistaDBType OnPrepareQuery()
     {
       if (condition.Prepare() == SignatureType.Constant && condition.SignatureType != SignatureType.Constant)
-        condition = (Signature) ConstantSignature.CreateSignature(condition.Execute(), parent);
+        condition = ConstantSignature.CreateSignature(condition.Execute(), parent);
       if (condition.DataType != VistaDBType.Bit)
         throw new VistaDBSQLException(564, "", condition.LineNo, condition.SymbolNo);
       int num1 = (int) thenStatement.PrepareQuery();
@@ -49,14 +49,14 @@ namespace VistaDB.Engine.SQL
     {
       condition.SetChanged();
       IColumn column = condition.Execute();
-      thenExecuted = !column.IsNull && (bool) ((IValue) column).Value;
+      thenExecuted = !column.IsNull && (bool)column.Value;
       return ExecBatch(thenExecuted ? thenStatement : elseStatement);
     }
 
     private IQueryResult ExecBatch(Statement batchStatement)
     {
       if (batchStatement == null)
-        return (IQueryResult) null;
+        return null;
       if (batchStatement is BatchStatement)
         batchStatement.DoSetReturnParameter(DoGetReturnParameter());
       return batchStatement.ExecuteQuery();
@@ -67,7 +67,7 @@ namespace VistaDB.Engine.SQL
       if (thenExecuted)
         return thenStatement.GetSchemaInfo();
       if (elseStatement == null)
-        return (IQuerySchemaInfo) null;
+        return null;
       return elseStatement.GetSchemaInfo();
     }
   }

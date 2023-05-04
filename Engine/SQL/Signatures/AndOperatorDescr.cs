@@ -4,7 +4,7 @@
   {
     public Signature CreateSignature(Signature leftSignature, SQLParser parser)
     {
-      return (Signature) new AndOperator(leftSignature, parser);
+      return new AndOperator(leftSignature, parser);
     }
 
     public int Priority

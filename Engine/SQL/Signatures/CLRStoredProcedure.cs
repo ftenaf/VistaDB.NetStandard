@@ -22,16 +22,16 @@ namespace VistaDB.Engine.SQL.Signatures
       : base(parser, -1, false)
     {
       this.procedureName = procedureName;
-      method = (MethodInfo) null;
-      fillRow = (MethodInfo) null;
-      values = (VistaDBValue[]) null;
-      outParams = (List<OutParameter>) null;
+      method = null;
+      fillRow = null;
+      values = null;
+      outParams = null;
       skipNull = false;
     }
 
     private static IDictionary<Type, VistaDBType> InitializeTypeMap()
     {
-      IDictionary<Type, VistaDBType> dictionary = (IDictionary<Type, VistaDBType>) new Dictionary<Type, VistaDBType>();
+      IDictionary<Type, VistaDBType> dictionary = new Dictionary<Type, VistaDBType>();
       dictionary.Add(typeof (VistaDBString), VistaDBType.NChar);
       dictionary.Add(typeof (string), VistaDBType.NVarChar);
       dictionary.Add(typeof (SqlString), VistaDBType.NVarChar);
@@ -74,7 +74,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     private static IDictionary<VistaDBType, Type> InitializeTypeReMap()
     {
-      IDictionary<VistaDBType, Type> dictionary = (IDictionary<VistaDBType, Type>) new Dictionary<VistaDBType, Type>();
+      IDictionary<VistaDBType, Type> dictionary = new Dictionary<VistaDBType, Type>();
       dictionary.Add(VistaDBType.NChar, typeof (VistaDBString));
       dictionary.Add(VistaDBType.NVarChar, typeof (VistaDBString));
       dictionary.Add(VistaDBType.DateTime, typeof (VistaDBDateTime));
@@ -163,7 +163,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       Type parameterType = GetParameterType(parameter);
       if (parameterType.IsSubclassOf(typeof (VistaDBValue)))
-        return (object) value;
+        return value;
       if (parameterType.IsPrimitive || parameterType.Equals(typeof (string)))
         return value.Value;
       if (!value.HasValue)
@@ -174,13 +174,13 @@ namespace VistaDB.Engine.SQL.Signatures
     protected static object GetTrueValue(object value)
     {
       if (value == null)
-        return (object) null;
+        return null;
       if (value is VistaDBValue)
       {
         VistaDBValue vistaDbValue = value as VistaDBValue;
         if (vistaDbValue.HasValue)
           return vistaDbValue.Value;
-        return (object) null;
+        return null;
       }
       Type type = value.GetType();
       if (type.IsPrimitive || type.Equals(typeof (string)))
@@ -189,96 +189,96 @@ namespace VistaDB.Engine.SQL.Signatures
       {
         SqlString sqlString = (SqlString) value;
         if (sqlString.IsNull)
-          return (object) null;
-        return (object) sqlString.Value;
+          return null;
+        return sqlString.Value;
       }
       if (type.Equals(typeof (SqlDateTime)))
       {
         SqlDateTime sqlDateTime = (SqlDateTime) value;
         if (sqlDateTime.IsNull)
-          return (object) null;
-        return (object) sqlDateTime.Value;
+          return null;
+        return sqlDateTime.Value;
       }
       if (type.Equals(typeof (SqlBoolean)))
       {
         SqlBoolean sqlBoolean = (SqlBoolean) value;
         if (sqlBoolean.IsNull)
-          return (object) null;
-        return (object) sqlBoolean.Value;
+          return null;
+        return sqlBoolean.Value;
       }
       if (type.Equals(typeof (SqlByte)))
       {
         SqlByte sqlByte = (SqlByte) value;
         if (sqlByte.IsNull)
-          return (object) null;
-        return (object) sqlByte.Value;
+          return null;
+        return sqlByte.Value;
       }
       if (type.Equals(typeof (SqlInt16)))
       {
         SqlInt16 sqlInt16 = (SqlInt16) value;
         if (sqlInt16.IsNull)
-          return (object) null;
-        return (object) sqlInt16.Value;
+          return null;
+        return sqlInt16.Value;
       }
       if (type.Equals(typeof (SqlInt32)))
       {
         SqlInt32 sqlInt32 = (SqlInt32) value;
         if (sqlInt32.IsNull)
-          return (object) null;
-        return (object) sqlInt32.Value;
+          return null;
+        return sqlInt32.Value;
       }
       if (type.Equals(typeof (SqlInt64)))
       {
         SqlInt64 sqlInt64 = (SqlInt64) value;
         if (sqlInt64.IsNull)
-          return (object) null;
-        return (object) sqlInt64.Value;
+          return null;
+        return sqlInt64.Value;
       }
       if (type.Equals(typeof (SqlDecimal)))
       {
         SqlDecimal sqlDecimal = (SqlDecimal) value;
         if (sqlDecimal.IsNull)
-          return (object) null;
-        return (object) sqlDecimal.Value;
+          return null;
+        return sqlDecimal.Value;
       }
       if (type.Equals(typeof (SqlDecimal)))
       {
         SqlBytes sqlBytes = (SqlBytes) value;
         if (sqlBytes.IsNull)
-          return (object) null;
-        return (object) sqlBytes.Value;
+          return null;
+        return sqlBytes.Value;
       }
       if (type.Equals(typeof (SqlGuid)))
       {
         SqlGuid sqlGuid = (SqlGuid) value;
         if (sqlGuid.IsNull)
-          return (object) null;
-        return (object) sqlGuid.Value;
+          return null;
+        return sqlGuid.Value;
       }
       if (type.Equals(typeof (SqlDouble)))
       {
         SqlDouble sqlDouble = (SqlDouble) value;
         if (sqlDouble.IsNull)
-          return (object) null;
-        return (object) sqlDouble.Value;
+          return null;
+        return sqlDouble.Value;
       }
       if (!type.Equals(typeof (SqlSingle)))
-        return (object) null;
+        return null;
       SqlSingle sqlSingle = (SqlSingle) value;
       if (sqlSingle.IsNull)
-        return (object) null;
-      return (object) sqlSingle.Value;
+        return null;
+      return sqlSingle.Value;
     }
 
     protected static void SetTrueValue(VistaDBValue dest, object value)
     {
       if (value == null)
       {
-        dest.Value = (object) null;
+        dest.Value = null;
       }
       else
       {
-        if (ReferenceEquals((object) dest, value))
+        if (ReferenceEquals(dest, value))
           return;
         dest.Value = GetTrueValue(value);
       }
@@ -288,7 +288,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       if (value == null)
       {
-        dest.Value = (object) null;
+        dest.Value = null;
       }
       else
       {
@@ -297,7 +297,7 @@ namespace VistaDB.Engine.SQL.Signatures
         {
           VistaDBValue vistaDbValue = value as VistaDBValue;
           if (vistaDbValue.IsNull)
-            dest.Value = (object) null;
+            dest.Value = null;
           else
             dest.Value = vistaDbValue.Value;
         }
@@ -321,7 +321,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       int index1 = 0;
       for (int paramCount = ParamCount; index1 < paramCount; ++index1)
-        values[index1].Value = ((IValue) paramValues[index1]).Value;
+        values[index1].Value = paramValues[index1].Value;
       object[] parameters1 = new object[values.Length];
       if (values != null)
       {
@@ -333,7 +333,7 @@ namespace VistaDB.Engine.SQL.Signatures
       object obj;
       try
       {
-        obj = method.Invoke((object) null, parameters1);
+        obj = method.Invoke(null, parameters1);
       }
       catch (Exception ex)
       {

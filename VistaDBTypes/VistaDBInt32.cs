@@ -8,7 +8,7 @@
 
     public VistaDBInt32(int val)
     {
-      Value = (object) val;
+      Value = val;
     }
 
     public override object Value
@@ -19,7 +19,7 @@
       }
       set
       {
-        base.Value = value == null ? value : (object) (int) value;
+        base.Value = value == null ? value : (int)value;
       }
     }
 

@@ -8,7 +8,7 @@ namespace VistaDB.Engine.Core
     private PassedFTSRows passedRows;
 
     internal FTSKeysFilter(uint maxRowId)
-      : base((EvalStack) null, FilterType.Optimized, true, false, 1)
+      : base(null, FilterType.Optimized, true, false, 1)
     {
       passedRows = new PassedFTSRows(maxRowId);
     }
@@ -46,7 +46,7 @@ namespace VistaDB.Engine.Core
         {
           uint num1 = rowId / 8U;
           byte num2 = (byte) (1U << (int) (rowId % 8U));
-          return (int) (byte) ((uint) statusArray[num1] & (uint) num2) == (int) num2;
+          return (byte)(statusArray[num1] & (uint)num2) == num2;
         }
         set
         {
@@ -62,8 +62,8 @@ namespace VistaDB.Engine.Core
           uint length = (uint) statusArray.Length;
           if (num <= length)
           {
-            for (int index = 0; (long) index < (long) num; ++index)
-              statusArray[index] = (byte) 0;
+            for (int index = 0; index < num; ++index)
+              statusArray[index] = 0;
             return;
           }
         }

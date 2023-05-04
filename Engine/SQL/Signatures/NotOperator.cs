@@ -16,9 +16,9 @@ namespace VistaDB.Engine.SQL.Signatures
       {
         IColumn column = operand.Execute();
         if (column.IsNull)
-          ((IValue) result).Value = (object) null;
+                    result.Value = null;
         else
-          ((IValue) result).Value = (object) !(bool) ((IValue) column).Value;
+                    result.Value = !(bool)column.Value;
         needsEvaluation = false;
       }
       return result;

@@ -4,7 +4,7 @@
   {
     public override Signature CreateSignature(Signature leftSignature, SQLParser parser)
     {
-      return (Signature) new PlusOperator(leftSignature, parser);
+      return new PlusOperator(leftSignature, parser);
     }
   }
 }

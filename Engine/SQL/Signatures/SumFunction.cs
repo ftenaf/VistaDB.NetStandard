@@ -12,8 +12,8 @@ namespace VistaDB.Engine.SQL.Signatures
     public SumFunction(SQLParser parser)
       : base(parser, false)
     {
-      srcValue = (IColumn) null;
-      dstValue = (IColumn) null;
+      srcValue = null;
+      dstValue = null;
     }
 
     public override SignatureType OnPrepare()
@@ -46,25 +46,25 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object InternalCreateEmptyResult()
     {
-      return (object) null;
+      return null;
     }
 
     protected override object InternalCreateNewGroup(object newVal)
     {
-      ((IValue) srcValue).Value = newVal;
-      Convert((IValue) srcValue, (IValue) dstValue);
-      return ((IValue) dstValue).Value;
+            srcValue.Value = newVal;
+      Convert(srcValue, dstValue);
+      return dstValue.Value;
     }
 
     protected override object InternalAddRowToGroup(object newVal)
     {
       if (newVal == null)
         return val;
-      ((IValue) srcValue).Value = newVal;
-      Convert((IValue) srcValue, (IValue) dstValue);
+            srcValue.Value = newVal;
+      Convert(srcValue, dstValue);
       if (val == null)
-        return ((IValue) dstValue).Value;
-      ((IValue) result).Value = val;
+        return dstValue.Value;
+            result.Value = val;
       return ((Row.Column) result + (Row.Column) dstValue).Value;
     }
 

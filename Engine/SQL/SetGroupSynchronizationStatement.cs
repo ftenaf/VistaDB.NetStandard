@@ -35,7 +35,7 @@ namespace VistaDB.Engine.SQL
     protected override IQueryResult OnExecuteQuery()
     {
       connection.SetGroupSynchronization(synchronization);
-      return (IQueryResult) null;
+      return null;
     }
   }
 }

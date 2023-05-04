@@ -24,7 +24,7 @@ namespace VistaDB.Engine.SQL
     protected override IQueryResult OnExecuteQuery()
     {
       connection.CloseAllPooledTables();
-      return (IQueryResult) null;
+      return null;
     }
 
     protected static int StrTokenToInt(SQLParser parser)

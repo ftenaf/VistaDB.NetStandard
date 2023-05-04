@@ -13,7 +13,7 @@ namespace VistaDB.Engine.SQL
     {
       foreach (string tableName in tableNames)
         Database.DropAssembly(tableName, false);
-      return (IQueryResult) null;
+      return null;
     }
   }
 }

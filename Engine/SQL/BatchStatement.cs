@@ -49,37 +49,37 @@ namespace VistaDB.Engine.SQL
         {
             if (index < 0 || index >= statements.Count)
                 throw new VistaDBSQLException(591, index.ToString(), 0, 0);
-            return (IQueryStatement)statements[index];
+            return statements[index];
         }
 
         protected override IQueryResult OnExecuteQuery()
         {
             if (statements.Count == 0)
-                return (IQueryResult)null;
-            VistaDBDataReader reader = new VistaDBDataReader((IQueryStatement)this, (VistaDBConnection)null, CommandBehavior.Default);
+                return null;
+            VistaDBDataReader reader = new VistaDBDataReader(this, null, CommandBehavior.Default);
             if (reader.FieldCount > 0)
             {
                 VistaDBContext.SQLChannel.Pipe.Send(reader);
             }
             else
             {
-                affectedRows = (long)reader.RecordsAffected;
+                affectedRows = reader.RecordsAffected;
                 reader.Dispose();
             }
-            return (IQueryResult)null;
+            return null;
         }
 
         private INextQueryResult CheckBatchExceptions()
         {
-            VistaDBException vistaDbException = (VistaDBException)null;
+            VistaDBException vistaDbException = null;
             foreach (Statement statement in (List<Statement>)statements)
             {
                 VistaDBException exception = statement.Exception;
                 if (exception != null)
-                    vistaDbException = vistaDbException != null ? new VistaDBException((Exception)vistaDbException, exception.ErrorId) : exception;
+                    vistaDbException = vistaDbException != null ? new VistaDBException(vistaDbException, exception.ErrorId) : exception;
             }
             if (vistaDbException == null)
-                return (INextQueryResult)null;
+                return null;
             throw vistaDbException;
         }
 
@@ -91,8 +91,8 @@ namespace VistaDB.Engine.SQL
                 return CheckBatchExceptions();
             Statement statement = statements[currentStatement];
             connection.PrepareCLRContext(pipe);
-            IQueryResult resultSet = (IQueryResult)null;
-            VistaDBException vistaDbException = (VistaDBException)null;
+            IQueryResult resultSet = null;
+            VistaDBException vistaDbException = null;
             try
             {
                 resultSet = statement.ExecuteQuery();
@@ -109,7 +109,7 @@ namespace VistaDB.Engine.SQL
                 Connection.LastException = vistaDbException;
             }
             ++currentStatement;
-            return (INextQueryResult)new ResultSetData(resultSet, resultSet == null ? (IQuerySchemaInfo)null : statement.GetSchemaInfo(), statement.AffectedRows);
+            return new ResultSetData(resultSet, resultSet == null ? null : statement.GetSchemaInfo(), statement.AffectedRows);
         }
 
         public override void DoSetParam(string paramName, IParameter parameter)
@@ -127,7 +127,7 @@ namespace VistaDB.Engine.SQL
                 parameter.Direction = direction;
             }
             else
-                prms.Add(paramName, (IParameter)new ParamInfo(val, dataType, direction));
+                prms.Add(paramName, new ParamInfo(val, dataType, direction));
         }
 
         public override IParameter DoGetParam(string paramName)
@@ -135,7 +135,7 @@ namespace VistaDB.Engine.SQL
             IParameter parameter1;
             if (parent == null)
             {
-                parameter1 = (IParameter)null;
+                parameter1 = null;
             }
             else
             {
@@ -145,7 +145,7 @@ namespace VistaDB.Engine.SQL
             if (parameter3 == null)
             {
                 if (!prms.ContainsKey(paramName))
-                    return (IParameter)null;
+                    return null;
                 parameter3 = prms[paramName];
             }
             return parameter3;
@@ -192,7 +192,7 @@ namespace VistaDB.Engine.SQL
         {
             if (parent != null)
                 return parent.DoGetCycleStatement();
-            return (WhileStatement)null;
+            return null;
         }
 
         public override void DoRegisterTemporaryTableName(string paramName, CreateTableStatement createTableStatement)
@@ -206,7 +206,7 @@ namespace VistaDB.Engine.SQL
             CreateTableStatement createTableStatement1;
             if (parent == null)
             {
-                createTableStatement1 = (CreateTableStatement)null;
+                createTableStatement1 = null;
             }
             else
             {
@@ -266,9 +266,9 @@ namespace VistaDB.Engine.SQL
             foreach (Statement statement in (List<Statement>)statements)
                 statement.Dispose();
             prms.Clear();
-            prms = (Dictionary<string, IParameter>)null;
-            statements = (StatementCollection)null;
-            tempTables = (Dictionary<string, CreateTableStatement>)null;
+            prms = null;
+            statements = null;
+            tempTables = null;
             base.Dispose();
         }
 
@@ -387,8 +387,8 @@ namespace VistaDB.Engine.SQL
             {
                 if (resultSet != null)
                     resultSet.Close();
-                resultSet = (IQueryResult)null;
-                schema = (IQuerySchemaInfo)null;
+                resultSet = null;
+                schema = null;
             }
         }
 

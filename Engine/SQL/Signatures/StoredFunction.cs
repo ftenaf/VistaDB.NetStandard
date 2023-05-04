@@ -43,7 +43,7 @@ namespace VistaDB.Engine.SQL.Signatures
         uint num = 0;
         foreach (SQLParser.VariableDeclaration variable in variables)
         {
-          bodyStatement.DoSetParam(variable.Name, ((IValue) paramValues[num]).Value, variable.DataType, variable.Direction);
+          bodyStatement.DoSetParam(variable.Name, paramValues[num].Value, variable.DataType, variable.Direction);
           ++num;
         }
       }
@@ -58,7 +58,7 @@ namespace VistaDB.Engine.SQL.Signatures
       if (bodyStatement != null)
         parameters.Clear();
       bodyStatement = parent.Connection.CreateStoredFunctionStatement(parent, storedFunction.Statement, out dataType, out variables, out resultTableStatement);
-      returnParameter = (IParameter) new BatchStatement.ParamInfo((object) null, dataType, ParameterDirection.ReturnValue);
+      returnParameter = new BatchStatement.ParamInfo(null, dataType, ParameterDirection.ReturnValue);
       if (resultTableStatement != null)
         resultTableStatement.ExecuteQuery();
       if (variables == null)
@@ -71,7 +71,7 @@ namespace VistaDB.Engine.SQL.Signatures
       {
         if (bodyStatement.DoGetParam(variable.Name) != null)
           throw new VistaDBSQLException(620, 64.ToString() + variable.Name, lineNo, symbolNo);
-        bodyStatement.DoSetParam(variable.Name, (object) null, variable.DataType, ParameterDirection.Input);
+        bodyStatement.DoSetParam(variable.Name, null, variable.DataType, ParameterDirection.Input);
         parameterTypes[num++] = variable.DataType;
       }
     }
@@ -82,13 +82,13 @@ namespace VistaDB.Engine.SQL.Signatures
       foreach (SQLParser.VariableDeclaration variable in variables)
       {
         ++index;
-        if (!(parameters[index] != (Signature) null))
+        if (!(parameters[index] != null))
         {
           if (variable.Default == null)
             throw new VistaDBSQLException(641, variable.Name, LineNo, SymbolNo);
           IColumn column = CreateColumn(variable.DataType);
-          parent.Database.Conversion.Convert(variable.Default, (IValue) column);
-          parameters[index] = (Signature) ConstantSignature.CreateSignature(column, parent);
+          parent.Database.Conversion.Convert(variable.Default, column);
+          parameters[index] = ConstantSignature.CreateSignature(column, parent);
         }
       }
     }

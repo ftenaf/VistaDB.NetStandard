@@ -48,7 +48,7 @@ namespace VistaDB.Engine.Internal
         lock (threadsContext)
         {
           if (!active)
-            return (IDisposable) null;
+            return null;
           return GetStack().Current;
         }
       }
@@ -102,7 +102,7 @@ namespace VistaDB.Engine.Internal
         get
         {
           if (Count <= 0)
-            return (IDisposable) null;
+            return null;
           return this[Count - 1];
         }
         set

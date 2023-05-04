@@ -9,7 +9,7 @@ namespace VistaDB.Engine.Core
     private string expression;
 
     internal SQLConstraint(string name, FilterType typeId, CheckStatement checkConstraint, string expression)
-      : base(name, (EvalStack) null, typeId)
+      : base(name, null, typeId)
     {
       this.checkConstraint = checkConstraint;
       this.expression = expression;

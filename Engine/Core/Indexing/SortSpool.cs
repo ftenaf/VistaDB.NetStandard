@@ -51,7 +51,7 @@ namespace VistaDB.Engine.Core.Indexing
       {
         expectedKeyLength = Band.KeyApartment(patternKey);
         ulong num2 = EstimateMemory() / ((ulong) (expectedKeyLength + 100) * 8UL);
-        num1 = num2 < (ulong) keyCount ? (int) num2 : (int) keyCount;
+        num1 = num2 < keyCount ? (int) num2 : (int) keyCount;
       }
       else
         num1 = (int) keyCount;
@@ -87,7 +87,7 @@ namespace VistaDB.Engine.Core.Indexing
       --keyCount;
       Row row = this[keyCount];
   	  RemoveAt(keyCount);
-      Insert(keyCount, (Row) null);
+      Insert(keyCount, null);
       return row;
     }
 
@@ -157,7 +157,7 @@ namespace VistaDB.Engine.Core.Indexing
     {
       if (isDisposed)
         return;
-      GC.SuppressFinalize((object) this);
+      GC.SuppressFinalize(this);
       if (externalBands != null)
         externalBands.Dispose();
       Clear();

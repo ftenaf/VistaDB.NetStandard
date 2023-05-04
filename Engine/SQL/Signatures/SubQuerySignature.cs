@@ -18,7 +18,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     internal static Signature CreateSignature(SQLParser parser)
     {
-      return (Signature) new SubQuerySignature(parser);
+      return new SubQuerySignature(parser);
     }
 
     private SubQuerySignature(SQLParser parser)
@@ -30,8 +30,8 @@ namespace VistaDB.Engine.SQL.Signatures
       signatureType = SignatureType.Expression;
       dataType = VistaDBType.Unknown;
       optimizable = false;
-      table = (IQueryResult) null;
-      tempValue = (IColumn) null;
+      table = null;
+      tempValue = null;
     }
 
     public override SignatureType OnPrepare()
@@ -49,14 +49,14 @@ namespace VistaDB.Engine.SQL.Signatures
         try
         {
           table.FirstRow();
-          obj = !table.EndOfTable ? table.GetValue(0, VistaDBType.Unknown) : (object) null;
+          obj = !table.EndOfTable ? table.GetValue(0, VistaDBType.Unknown) : null;
         }
         finally
         {
           table.Close();
-          table = (IQueryResult) null;
+          table = null;
         }
-        ((IValue) result).Value = obj;
+                result.Value = obj;
       }
       return result;
     }
@@ -111,11 +111,11 @@ namespace VistaDB.Engine.SQL.Signatures
       finally
       {
         table.Close();
-        table = (IQueryResult) null;
+        table = null;
       }
       if (result == null)
         result = CreateColumn(VistaDBType.Bit);
-      ((IValue) result).Value = (object) flag;
+            result.Value = flag;
       return flag;
     }
 
@@ -164,11 +164,11 @@ namespace VistaDB.Engine.SQL.Signatures
         return false;
       while (!table.EndOfTable)
       {
-        ((IValue) result).Value = table.GetValue(0, VistaDBType.Unknown);
-        Convert((IValue) result, (IValue) tempValue);
+                result.Value = table.GetValue(0, VistaDBType.Unknown);
+        Convert(result, tempValue);
         if (Utils.IsCharacterDataType(val.Type) && !tempValue.IsNull)
-          ((IValue) tempValue).Value = (object) ((string) ((IValue) tempValue).Value).TrimEnd();
-        int num = val.Compare((IVistaDBColumn) tempValue);
+                    tempValue.Value = ((string)tempValue.Value).TrimEnd();
+        int num = val.Compare(tempValue);
         switch (op)
         {
           case CompareOperation.Equal:

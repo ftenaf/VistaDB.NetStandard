@@ -12,7 +12,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object ExecuteSubProgram()
     {
-      return (object) Math.PI;
+      return Math.PI;
     }
 
     protected override bool InternalGetIsChanged()

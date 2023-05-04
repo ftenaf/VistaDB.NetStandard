@@ -12,7 +12,7 @@ namespace VistaDB.Engine.Core.Scripting
 
     protected override void OnExecute(ProcedureCode pcode, int entry, Connection connection, DataStorage contextStorage, Row contextRow, ref bool bypassNextGroup, Row rowResult)
     {
-      pcode[entry].ResultColumn = (Row.Column) new UniqueIdentifierColumn(Guid.NewGuid());
+      pcode[entry].ResultColumn = new UniqueIdentifierColumn(Guid.NewGuid());
     }
   }
 }

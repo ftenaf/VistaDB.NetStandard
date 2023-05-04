@@ -10,7 +10,7 @@ namespace VistaDB.Engine.SQL
     public QueryViewSourceTable(Statement parent, IView view, List<string> columnNames, SelectStatement statement, string alias, int index, int lineNo, int symbolNo)
       : base(parent, view, columnNames, statement, alias, index, lineNo, symbolNo)
     {
-      queryTable = (IQueryResult) null;
+      queryTable = null;
     }
 
     public override IColumn SimpleGetColumn(int colIndex)
@@ -23,7 +23,7 @@ namespace VistaDB.Engine.SQL
       if (queryTable == null)
         return;
       queryTable.Close();
-      queryTable = (IQueryResult) null;
+      queryTable = null;
     }
 
     public override void FreeTable()

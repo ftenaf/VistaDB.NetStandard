@@ -148,7 +148,7 @@ namespace VistaDB.Engine.Core
 							if (flag2)
 							{
 								foreach (IVistaDBColumnAttributes columnAttributes in schema)
-									schema.DefineColumnAttributes(columnAttributes.Name, columnAttributes.AllowNull, columnAttributes.ReadOnly, true, columnAttributes.Packed, columnAttributes.Caption, columnAttributes.Description);
+									schema.DefineColumnAttributes(columnAttributes.Name, columnAttributes.AllowNull, columnAttributes.ReadOnly, true, columnAttributes.Packed, columnAttributes.Description);
 							}
 							if (Database.UpgradeDatatypesMode)
 							{

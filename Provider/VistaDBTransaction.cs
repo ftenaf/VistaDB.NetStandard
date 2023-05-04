@@ -26,7 +26,7 @@ namespace VistaDB.Provider
     {
       get
       {
-        return (DbConnection) Connection;
+        return Connection;
       }
     }
 
@@ -54,7 +54,7 @@ namespace VistaDB.Provider
 
     protected override void Dispose(bool disposing)
     {
-      connection = (VistaDBConnection) null;
+      connection = null;
       base.Dispose(disposing);
     }
 

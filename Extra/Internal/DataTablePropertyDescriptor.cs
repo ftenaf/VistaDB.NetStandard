@@ -13,7 +13,7 @@ namespace VistaDB.Extra.Internal
     private bool readOnly;
 
     internal DataTablePropertyDescriptor(string name, Type propertyType, int columnNo, VistaDBType dataType, bool readOnly)
-      : base(name, (Attribute[]) null)
+      : base(name, null)
     {
       this.propertyType = propertyType;
       this.columnNo = columnNo;
@@ -34,7 +34,7 @@ namespace VistaDB.Extra.Internal
       try
       {
         IVistaDBColumn vistaDbColumn = ((EditableRow) component).Row[columnNo];
-        return vistaDbColumn.Value == null ? (object) DBNull.Value : vistaDbColumn.Value;
+        return vistaDbColumn.Value == null ? DBNull.Value : vistaDbColumn.Value;
       }
       catch (Exception ex)
       {

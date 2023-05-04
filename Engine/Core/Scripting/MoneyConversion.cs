@@ -14,7 +14,7 @@ namespace VistaDB.Engine.Core.Scripting
     protected override void OnExecute(ProcedureCode pcode, int entry, Connection connection, DataStorage contextStorage, Row contextRow, ref bool bypassNextGroup, Row rowResult)
     {
       PCodeUnit pcodeUnit = pcode[entry];
-      pcodeUnit.ResultColumn = pcodeUnit.ResultColumn.IsNull ? (Row.Column) new MoneyColumn() : (Row.Column) new MoneyColumn(Decimal.Parse(pcodeUnit.ResultColumn.Value.ToString()));
+      pcodeUnit.ResultColumn = pcodeUnit.ResultColumn.IsNull ? new MoneyColumn() : (Row.Column) new MoneyColumn(Decimal.Parse(pcodeUnit.ResultColumn.Value.ToString()));
     }
   }
 }

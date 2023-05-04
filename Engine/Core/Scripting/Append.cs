@@ -46,7 +46,7 @@ namespace VistaDB.Engine.Core.Scripting
           tmpList.Add(pcodeUnit2.ResultColumn);
         rowResult.Clear();
         foreach (Row.Column tmp in tmpList)
-          rowResult.AppendColumn((IColumn) tmp);
+          rowResult.AppendColumn(tmp);
         pcodeUnit1.ResultRow = rowResult;
       }
     }

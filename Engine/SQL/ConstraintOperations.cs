@@ -54,24 +54,24 @@ namespace VistaDB.Engine.SQL
         {
             if (cmp == CompareOperation.Equal && leftColumn.DataType == rightColumn.DataType && leftColumn.Table.CollectionOrder != rightColumn.Table.CollectionOrder)
             {
-                constraints.Add(leftColumn.Table.CollectionOrder <= rightColumn.Table.CollectionOrder ? (Constraint)new JoinColumnEqualityConstraint(rightColumn, leftColumn) : (Constraint)new JoinColumnEqualityConstraint(leftColumn, rightColumn));
+                constraints.Add(leftColumn.Table.CollectionOrder <= rightColumn.Table.CollectionOrder ? new JoinColumnEqualityConstraint(rightColumn, leftColumn) : (Constraint)new JoinColumnEqualityConstraint(leftColumn, rightColumn));
                 return true;
             }
             if (leftColumn.Table.CollectionOrder > rightColumn.Table.CollectionOrder)
-                return AddValueConstraint(leftColumn, (Signature)rightColumn, cmp, false, true);
-            return AddValueConstraint(rightColumn, (Signature)leftColumn, revCmp, false, true);
+                return AddValueConstraint(leftColumn, rightColumn, cmp, false, true);
+            return AddValueConstraint(rightColumn, leftColumn, revCmp, false, true);
         }
 
         private bool AddNullValueConstraint(ColumnSignature column, bool isNull)
         {
-            constraints.Add((Constraint)new IsNullConstraint(column, isNull));
+            constraints.Add(new IsNullConstraint(column, isNull));
             return true;
         }
 
         private bool AddValueConstraint(ColumnSignature column, Signature valueSignature, CompareOperation cmp, bool fts, bool join)
         {
-            Signature leftConstantValue = (Signature)null;
-            Signature rightConstantValue = (Signature)null;
+            Signature leftConstantValue = null;
+            Signature rightConstantValue = null;
             switch (cmp)
             {
                 case CompareOperation.Equal:
@@ -88,19 +88,19 @@ namespace VistaDB.Engine.SQL
                     rightConstantValue = valueSignature;
                     break;
             }
-            constraints.Add(join ? (Constraint)new JoinColumnCompareConstraint(column, leftConstantValue, rightConstantValue, cmp) : (Constraint)new ColumnCompareConstraint(column, leftConstantValue, rightConstantValue, cmp, fts));
+            constraints.Add(join ? new JoinColumnCompareConstraint(column, leftConstantValue, rightConstantValue, cmp) : (Constraint)new ColumnCompareConstraint(column, leftConstantValue, rightConstantValue, cmp, fts));
             return true;
         }
 
         private bool AddScopeValueContraint(ColumnSignature column, Signature low, Signature high, bool fts)
         {
-            constraints.Add((Constraint)new ColumnCompareConstraint(column, low, high, CompareOperation.InScope, fts));
+            constraints.Add(new ColumnCompareConstraint(column, low, high, CompareOperation.InScope, fts));
             return true;
         }
 
         private bool AddConstantConstraint(Signature leftOperand, Signature rightOperand, CompareOperation cmp)
         {
-            constraints.Add((Constraint)new ConstantsCompareConstraint(leftOperand, rightOperand, cmp));
+            constraints.Add(new ConstantsCompareConstraint(leftOperand, rightOperand, cmp));
             return true;
         }
 
@@ -125,24 +125,24 @@ namespace VistaDB.Engine.SQL
                         Constraint constraint3 = Pop();
                         constraint1.Optimized = constraint2.Optimized || constraint3.Optimized;
                         constraint1.FullOptimized = constraint2.FullOptimized && constraint3.FullOptimized;
-                        Push((object)constraint1);
+                        Push(constraint1);
                         continue;
                     case ConstraintType.Or:
                         Constraint constraint4 = Pop();
                         Constraint constraint5 = Pop();
                         constraint1.Optimized = constraint4.Optimized && constraint5.Optimized;
                         constraint1.FullOptimized = constraint4.FullOptimized && constraint5.FullOptimized;
-                        Push((object)constraint1);
+                        Push(constraint1);
                         continue;
                     case ConstraintType.Not:
                         Constraint constraint6 = Pop();
                         bool flag = constraint6.Optimized && constraint6.FullOptimized;
                         constraint1.Optimized = flag;
                         constraint1.FullOptimized = flag;
-                        Push((object)constraint1);
+                        Push(constraint1);
                         continue;
                     default:
-                        Push((object)constraint1);
+                        Push(constraint1);
                         continue;
                 }
             }
@@ -175,22 +175,22 @@ namespace VistaDB.Engine.SQL
                         Constraint left1 = Pop();
                         Constraint right1 = Pop();
                         constraint1.Conjunction(database, tableOrder, left1, right1, out resetFullOptimization);
-                        Push((object)constraint1);
+                        Push(constraint1);
                         break;
                     case ConstraintType.Or:
                         Constraint left2 = Pop();
                         Constraint right2 = Pop();
                         constraint1.Disjunction(database, tableOrder, left2, right2, out resetFullOptimization);
-                        Push((object)constraint1);
+                        Push(constraint1);
                         break;
                     case ConstraintType.Not:
                         Constraint constraint2 = Pop();
                         constraint2.Invertion();
-                        Push((object)constraint2);
+                        Push(constraint2);
                         break;
                     default:
                         constraint1.InitializeBuilding(database, tableOrder, sourceTables);
-                        Push((object)constraint1);
+                        Push(constraint1);
                         break;
                 }
                 if (resetFullOptimization && optimizationLevel == OptimizationLevel.Full)
@@ -242,19 +242,19 @@ namespace VistaDB.Engine.SQL
 
         internal bool AddLogicalNot()
         {
-            constraints.Add((Constraint)new NotBundle());
+            constraints.Add(new NotBundle());
             return true;
         }
 
         internal bool AddLogicalAnd()
         {
-            constraints.Add((Constraint)new AndBundle());
+            constraints.Add(new AndBundle());
             return true;
         }
 
         internal bool AddLogicalOr()
         {
-            constraints.Add((Constraint)new OrBundle());
+            constraints.Add(new OrBundle());
             return true;
         }
 
@@ -281,7 +281,7 @@ namespace VistaDB.Engine.SQL
         internal string GetIndexName(int rowIndex, int tableOrder)
         {
             if (optimizationLevel == OptimizationLevel.None)
-                return (string)null;
+                return null;
             foreach (Constraint constraint in (List<Constraint>)constraints)
             {
                 if (constraint.Type == ConstraintType.Bitwise)
@@ -291,13 +291,13 @@ namespace VistaDB.Engine.SQL
                         return optimizedIndexName;
                 }
             }
-            return (string)null;
+            return null;
         }
 
         internal string GetJoinedTable(int orOrder, SourceTable table)
         {
             if (optimizationLevel == OptimizationLevel.None)
-                return (string)null;
+                return null;
             foreach (Constraint constraint in (List<Constraint>)constraints)
             {
                 if (constraint.Type == ConstraintType.Bitwise)
@@ -307,7 +307,7 @@ namespace VistaDB.Engine.SQL
                         return joinedTable;
                 }
             }
-            return (string)null;
+            return null;
         }
 
         private enum ConstraintType
@@ -338,7 +338,7 @@ namespace VistaDB.Engine.SQL
                 get
                 {
                     if (!ContainsKey(tableOrder))
-                        return (OptimizationInfo)null;
+                        return null;
                     return base[tableOrder];
                 }
             }
@@ -403,10 +403,10 @@ namespace VistaDB.Engine.SQL
             internal string OptimizationIndexByTableOrder(int tableOrder)
             {
                 if (table == null || table.CollectionOrder != tableOrder)
-                    return (string)null;
+                    return null;
                 if (activeIndex != null)
                     return activeIndex.Name;
-                return (string)null;
+                return null;
             }
 
             internal class OptimizationInfo
@@ -475,7 +475,7 @@ namespace VistaDB.Engine.SQL
                         this.filter = filter;
                     else
                         this.filter.Conjunction(filter);
-                    scopes.Remove((object)scopeIndexName);
+                    scopes.Remove(scopeIndexName);
                 }
 
                 private void ConvertToBitmapAndDisjunction(string scopeIndexName, Constraint parentConstraint)
@@ -487,7 +487,7 @@ namespace VistaDB.Engine.SQL
                         this.filter = filter;
                     else
                         this.filter.Disjunction(filter);
-                    scopes.Remove((object)scopeIndexName);
+                    scopes.Remove(scopeIndexName);
                 }
 
                 internal OptimizationInfo Disjunction(IDatabase db, OptimizationInfo rightInfo, Constraint leftParent, Constraint rightParent)
@@ -508,7 +508,7 @@ namespace VistaDB.Engine.SQL
                                 ConvertToBitmapAndDisjunction(key, leftParent);
                             }
                             else if (emptyResult)
-                                return (OptimizationInfo)null;
+                                return null;
                         }
                     }
                     foreach (string key in (IEnumerable)((Hashtable)rightInfo.scopes.Clone()).Keys)
@@ -538,7 +538,7 @@ namespace VistaDB.Engine.SQL
                                 ConvertToBitmapAndConjunction(key, leftParent);
                             }
                             else if (emptyResult)
-                                return (OptimizationInfo)null;
+                                return null;
                         }
                     }
                     foreach (string key in (IEnumerable)rightInfo.scopes.Keys)
@@ -571,7 +571,7 @@ namespace VistaDB.Engine.SQL
                 internal IVistaDBIndexInformation SimplifyConjunction(Constraint parentConstraint, bool forceFinalBitmapAndInvert)
                 {
                     int num = 0;
-                    IVistaDBIndexInformation indexInformation = (IVistaDBIndexInformation)null;
+                    IVistaDBIndexInformation indexInformation = null;
                     foreach (string key in (IEnumerable)((Hashtable)scopes.Clone()).Keys)
                     {
                         if (num++ == 0)
@@ -604,20 +604,20 @@ namespace VistaDB.Engine.SQL
                     {
                         get
                         {
-                            if (!Contains((object)indexName))
-                                return (ScopeInfo)null;
+                            if (!Contains(indexName))
+                                return null;
                             return (ScopeInfo)this[(object)indexName];
                         }
                     }
 
                     internal void AddScope(IVistaDBIndexInformation scopeIndex, IRow leftScope, IRow rightScope)
                     {
-                        Add((object)scopeIndex.Name, (object)new ScopeInfo(scopeIndex, leftScope, rightScope));
+                        Add(scopeIndex.Name, new ScopeInfo(scopeIndex, leftScope, rightScope));
                     }
 
                     internal void AddScope(ScopeInfo scopeInfo)
                     {
-                        Add((object)scopeInfo.Index.Name, (object)scopeInfo);
+                        Add(scopeInfo.Index.Name, scopeInfo);
                     }
                 }
 
@@ -660,14 +660,14 @@ namespace VistaDB.Engine.SQL
 
                     private IRow LessOf(IRow firstScope, IRow secondScope)
                     {
-                        if (secondScope.Compare((IVistaDBRow)firstScope) <= 0)
+                        if (secondScope.Compare(firstScope) <= 0)
                             return secondScope;
                         return firstScope;
                     }
 
                     private IRow GreatestOf(IRow firstScope, IRow secondScope)
                     {
-                        if (secondScope.Compare((IVistaDBRow)firstScope) >= 0)
+                        if (secondScope.Compare(firstScope) >= 0)
                             return secondScope;
                         return firstScope;
                     }
@@ -677,7 +677,7 @@ namespace VistaDB.Engine.SQL
                         IRow leftScope1 = leftScope;
                         IRow rightScope = this.rightScope;
                         IRow leftScope2 = right.leftScope;
-                        return right.rightScope.CompareKey((IVistaDBRow)leftScope1) >= 0 && rightScope.CompareKey((IVistaDBRow)leftScope2) >= 0;
+                        return right.rightScope.CompareKey(leftScope1) >= 0 && rightScope.CompareKey(leftScope2) >= 0;
                     }
 
                     internal bool Conjunction(ScopeInfo right, out bool emptyResult)
@@ -691,7 +691,7 @@ namespace VistaDB.Engine.SQL
                         IRow row2 = LessOf(rightScope, right.rightScope);
                         leftScope = row1;
                         rightScope = row2;
-                        emptyResult = leftScope.CompareKey((IVistaDBRow)rightScope) > 0;
+                        emptyResult = leftScope.CompareKey(rightScope) > 0;
                         return true;
                     }
 
@@ -706,7 +706,7 @@ namespace VistaDB.Engine.SQL
                         IRow row2 = GreatestOf(rightScope, right.rightScope);
                         leftScope = row1;
                         rightScope = row2;
-                        emptyResult = leftScope.CompareKey((IVistaDBRow)rightScope) > 0;
+                        emptyResult = leftScope.CompareKey(rightScope) > 0;
                         return true;
                     }
                 }
@@ -747,7 +747,7 @@ namespace VistaDB.Engine.SQL
                 this.rightValue = rightValue;
                 compareOperation = compareOpration;
                 useFtsIndex = fts;
-                if (!((Signature)column != (Signature)null))
+                if (!(column != null))
                     return;
                 switch (compareOpration)
                 {
@@ -757,22 +757,22 @@ namespace VistaDB.Engine.SQL
                         compareOperation = CompareOperation.Equal;
                         break;
                     case CompareOperation.Greater:
-                        if (!(rightValue == (Signature)null))
+                        if (!(rightValue == null))
                             break;
                         inverted = true;
                         originInverted = true;
                         compareOperation = CompareOperation.LessOrEqual;
                         this.rightValue = leftValue;
-                        this.leftValue = (Signature)null;
+                        this.leftValue = null;
                         break;
                     case CompareOperation.Less:
-                        if (!(leftValue == (Signature)null))
+                        if (!(leftValue == null))
                             break;
                         inverted = true;
                         originInverted = true;
                         compareOperation = CompareOperation.GreaterOrEqual;
                         this.leftValue = rightValue;
-                        this.rightValue = (Signature)null;
+                        this.rightValue = null;
                         break;
                 }
             }
@@ -923,8 +923,8 @@ namespace VistaDB.Engine.SQL
                 else
                 {
                     ColumnSignature leftValue = this.leftValue as ColumnSignature;
-                    ColumnSignature signature = ReferenceEquals((object)this.leftValue, (object)rightValue) ? (ColumnSignature)null : rightValue as ColumnSignature;
-                    if ((Signature)leftValue != (Signature)null && !TestIfEvaluable(leftValue, sourceTables, currentTableOrder) || (Signature)signature != (Signature)null && !TestIfEvaluable(signature, sourceTables, currentTableOrder))
+                    ColumnSignature signature = ReferenceEquals(this.leftValue, rightValue) ? null : rightValue as ColumnSignature;
+                    if (leftValue != null && !TestIfEvaluable(leftValue, sourceTables, currentTableOrder) || signature != null && !TestIfEvaluable(signature, sourceTables, currentTableOrder))
                         return;
                     bool descending = results.Descending;
                     IRow indexStructure = column.Table.DoGetIndexStructure(results.OptimizationIndex.Name);
@@ -937,16 +937,16 @@ namespace VistaDB.Engine.SQL
                     {
                         for (int index = 0; index < 1; ++index)
                         {
-                            ((IValue)indexStructure[index]).Value = (object)null;
-                            ((IValue)rightScope[index]).Value = (object)null;
+                            indexStructure[index].Value = null;
+                            rightScope[index].Value = null;
                         }
                         results.InitTableResult(indexStructure, rightScope);
                     }
                     else
                     {
-                        if (!descending && this.leftValue == (Signature)null)
+                        if (!descending && this.leftValue == null)
                             indexStructure.RowId = Row.MaxRowId;
-                        if (descending && rightValue == (Signature)null)
+                        if (descending && rightValue == null)
                             rightScope.RowId = Row.MinRowId;
                         IRow row1;
                         IRow row2;
@@ -961,8 +961,8 @@ namespace VistaDB.Engine.SQL
                             row2 = rightScope;
                         }
                         int keyColumnOrder = results.KeyColumnOrder;
-                        IColumn column = (IColumn)null;
-                        if (this.leftValue != (Signature)null)
+                        IColumn column = null;
+                        if (this.leftValue != null)
                         {
                             column = this.leftValue.Execute();
                             if (column.IsNull && NullValuesExcluded)
@@ -973,17 +973,17 @@ namespace VistaDB.Engine.SQL
                             }
                             if (results.OptimizationIndex.FullTextSearch)
                             {
-                                ((IValue)row1[0]).Value = (object)(short)keyColumnOrder;
-                                db.Conversion.Convert((IValue)column, (IValue)row1[1]);
+                                row1[0].Value = (short)keyColumnOrder;
+                                db.Conversion.Convert(column, row1[1]);
                             }
                             else
-                                db.Conversion.Convert((IValue)column, (IValue)row1[keyColumnOrder]);
+                                db.Conversion.Convert(column, row1[keyColumnOrder]);
                             if (compareOperation == CompareOperation.Greater)
                                 row1.RowId = descending ? Row.MinRowId : Row.MaxRowId;
                         }
-                        if (rightValue != (Signature)null)
+                        if (rightValue != null)
                         {
-                            if (!ReferenceEquals((object)this.leftValue, (object)rightValue))
+                            if (!ReferenceEquals(this.leftValue, rightValue))
                             {
                                 column = rightValue.Execute();
                                 if (column.IsNull && NullValuesExcluded)
@@ -995,15 +995,15 @@ namespace VistaDB.Engine.SQL
                             }
                             if (results.OptimizationIndex.FullTextSearch)
                             {
-                                ((IValue)row2[0]).Value = (object)(short)keyColumnOrder;
-                                db.Conversion.Convert((IValue)column, (IValue)row2[1]);
+                                row2[0].Value = (short)keyColumnOrder;
+                                db.Conversion.Convert(column, row2[1]);
                             }
                             else
-                                db.Conversion.Convert((IValue)column, (IValue)row2[keyColumnOrder]);
+                                db.Conversion.Convert(column, row2[keyColumnOrder]);
                             if (compareOperation == CompareOperation.Less)
                                 row2.RowId = descending ? Row.MaxRowId : Row.MinRowId;
                         }
-                        if (indexStructure.Compare((IVistaDBRow)rightScope) > 0)
+                        if (indexStructure.Compare(rightScope) > 0)
                             SetOptimizableResult(Triangular.Value.False);
                         results.InitTableResult(indexStructure, rightScope);
                     }
@@ -1057,7 +1057,7 @@ namespace VistaDB.Engine.SQL
 
             protected virtual void OnInitializeBuilding(IDatabase db, int currentTableOrder, TableCollection sourceTables)
             {
-                EvalScope(db, (Signature)column == (Signature)null ? (SourceTable)null : column.Table, currentTableOrder, sourceTables);
+                EvalScope(db, column == null ? null : column.Table, currentTableOrder, sourceTables);
             }
 
             protected virtual void OnAnalyze()
@@ -1067,9 +1067,9 @@ namespace VistaDB.Engine.SQL
 
             internal void Analyze()
             {
-                if (leftValue != (Signature)null)
+                if (leftValue != null)
                     leftValue.SetChanged();
-                if (rightValue != (Signature)null)
+                if (rightValue != null)
                     rightValue.SetChanged();
                 OnAnalyze();
             }
@@ -1077,7 +1077,7 @@ namespace VistaDB.Engine.SQL
             internal string GetOptimizedIndexName(int tableOrder)
             {
                 if (!optimized || results == null)
-                    return (string)null;
+                    return null;
                 return results.OptimizationIndexByTableOrder(tableOrder);
             }
 
@@ -1089,7 +1089,7 @@ namespace VistaDB.Engine.SQL
                 {
                     SetOptimizableResult(Triangular.Value.True);
                     resetFullOptimization = true;
-                    return (IVistaDBIndexInformation)null;
+                    return null;
                 }
                 resetFullOptimization = false;
                 return results[tableOrder]?.SimplifyConjunction(this, inverted);
@@ -1305,19 +1305,19 @@ namespace VistaDB.Engine.SQL
 
             internal string GetJoinedTable(SourceTable table)
             {
-                if (rightValue != (Signature)null && rightValue is ColumnSignature)
+                if (rightValue != null && rightValue is ColumnSignature)
                 {
                     SourceTable table1 = ((ColumnSignature)rightValue).Table;
                     if (table1.CollectionOrder == table.CollectionOrder + 1)
                         return table1.Alias;
                 }
-                if (leftValue != (Signature)null && leftValue is ColumnSignature)
+                if (leftValue != null && leftValue is ColumnSignature)
                 {
                     SourceTable table1 = ((ColumnSignature)leftValue).Table;
                     if (table1.CollectionOrder == table.CollectionOrder - 1)
                         return table1.Alias;
                 }
-                return (string)null;
+                return null;
             }
         }
 
@@ -1365,8 +1365,8 @@ namespace VistaDB.Engine.SQL
             protected override void OnAnalyze()
             {
                 ColumnSignature leftValue = this.leftValue as ColumnSignature;
-                ColumnSignature columnSignature = ReferenceEquals((object)this.leftValue, (object)rightValue) ? (ColumnSignature)null : rightValue as ColumnSignature;
-                if (!((Signature)leftValue == (Signature)null) && leftValue.Table == ColumnSignature.Table || !((Signature)columnSignature == (Signature)null) && columnSignature.Table == ColumnSignature.Table)
+                ColumnSignature columnSignature = ReferenceEquals(this.leftValue, rightValue) ? null : rightValue as ColumnSignature;
+                if (!(leftValue == null) && leftValue.Table == ColumnSignature.Table || !(columnSignature == null) && columnSignature.Table == ColumnSignature.Table)
                     return;
                 base.OnAnalyze();
             }
@@ -1401,7 +1401,7 @@ namespace VistaDB.Engine.SQL
             private readonly ColumnSignature leftColumnSignature;
 
             internal JoinColumnEqualityConstraint(ColumnSignature rightColumn, ColumnSignature leftColumn)
-              : base(rightColumn, (Signature)leftColumn, (Signature)leftColumn, CompareOperation.Equal)
+              : base(rightColumn, leftColumn, leftColumn, CompareOperation.Equal)
             {
                 leftColumnSignature = leftColumn;
             }
@@ -1426,7 +1426,7 @@ namespace VistaDB.Engine.SQL
             {
                 base.OnAnalyze();
                 SourceTable table = RightColumnSignature.Table;
-                if (!((Signature)table.OptimizedIndexColumn == (Signature)null) || !((Signature)table.OptimizedKeyColumn == (Signature)null))
+                if (!(table.OptimizedIndexColumn == null) || !(table.OptimizedKeyColumn == null))
                     return;
                 int collectionOrder = table.CollectionOrder;
                 IVistaDBIndexInformation optimizationIndex = results.OptimizationIndex;
@@ -1457,7 +1457,7 @@ namespace VistaDB.Engine.SQL
             private bool originIncludeNulls;
 
             internal IsNullConstraint(ColumnSignature column, bool isNull)
-              : base(column, (Signature)null, (Signature)null, CompareOperation.IsNull, false)
+              : base(column, null, null, CompareOperation.IsNull, false)
             {
                 includeNulls = isNull;
                 originIncludeNulls = isNull;
@@ -1507,8 +1507,8 @@ namespace VistaDB.Engine.SQL
                     {
                         for (int index = 0; index < evaluatedScope.RightScope.Count; ++index)
                         {
-                            ((IValue)evaluatedScope.LeftScope[index]).Value = (object)null;
-                            ((IValue)evaluatedScope.RightScope[index]).Value = (object)null;
+                            evaluatedScope.LeftScope[index].Value = null;
+                            evaluatedScope.RightScope[index].Value = null;
                         }
                         evaluatedScope.LeftScope.RowId = Row.MinRowId + 1U;
                         evaluatedScope.RightScope.RowId = Row.MaxRowId - 1U;
@@ -1521,14 +1521,14 @@ namespace VistaDB.Engine.SQL
             {
                 if (optimizedResult != Triangular.Value.Undefined)
                     return;
-                results[tableOrder]?.FinalizeBitmap((Constraint)this);
+                results[tableOrder]?.FinalizeBitmap(this);
             }
         }
 
         private class ConstantsCompareConstraint : Constraint
         {
             internal ConstantsCompareConstraint(Signature leftConstant, Signature rightConstant, CompareOperation cmp)
-              : base(ConstraintType.Bitwise, (ColumnSignature)null, leftConstant, rightConstant, cmp, false)
+              : base(ConstraintType.Bitwise, null, leftConstant, rightConstant, cmp, false)
             {
             }
 
@@ -1552,9 +1552,9 @@ namespace VistaDB.Engine.SQL
                 else
                 {
                     alwaysNull = false;
-                    IColumn column3 = (IColumn)((Row.Column)column1).Duplicate(false);
-                    db.Conversion.Convert((IValue)column2, (IValue)column3);
-                    int num = column1.Compare((IVistaDBColumn)column3);
+                    IColumn column3 = ((Row.Column)column1).Duplicate(false);
+                    db.Conversion.Convert(column2, column3);
+                    int num = column1.Compare(column3);
                     SetOptimizableResult(num == 0 && (compareOperation == CompareOperation.Equal || compareOperation == CompareOperation.GreaterOrEqual || compareOperation == CompareOperation.LessOrEqual) || num < 0 && (compareOperation == CompareOperation.Less || compareOperation == CompareOperation.LessOrEqual || compareOperation == CompareOperation.NotEqual) || num > 0 && (compareOperation == CompareOperation.Greater || compareOperation == CompareOperation.GreaterOrEqual || compareOperation == CompareOperation.NotEqual) ? Triangular.Value.True : Triangular.Value.False);
                 }
             }

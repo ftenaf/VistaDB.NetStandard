@@ -22,7 +22,7 @@ namespace VistaDB.Engine.Core
     }
 
     internal NCharColumn(NCharColumn col)
-      : base((CharColumn) col)
+      : base(col)
     {
     }
 
@@ -31,7 +31,7 @@ namespace VistaDB.Engine.Core
       NCharColumn ncharColumn = new NCharColumn(this);
       if (padRight)
         ncharColumn.PadBySpaces();
-      return (Row.Column) ncharColumn;
+      return ncharColumn;
     }
 
     public override VistaDBType InternalType

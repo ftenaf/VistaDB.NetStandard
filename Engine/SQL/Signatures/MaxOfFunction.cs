@@ -42,14 +42,14 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object ExecuteSubProgram()
     {
-      ((IValue) result).Value = ((IValue) paramValues[0]).Value;
+            result.Value = paramValues[0].Value;
       int index = 1;
       for (int paramCount = ParamCount; index < paramCount; ++index)
       {
-        if (AcceptValue(paramValues[index].Compare((IVistaDBColumn) result)))
-          ((IValue) result).Value = ((IValue) paramValues[index]).Value;
+        if (AcceptValue(paramValues[index].Compare(result)))
+                    result.Value = paramValues[index].Value;
       }
-      return ((IValue) result).Value;
+      return result.Value;
     }
   }
 }

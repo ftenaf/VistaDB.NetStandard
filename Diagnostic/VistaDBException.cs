@@ -18,12 +18,12 @@ namespace VistaDB.Diagnostic
     }
 
     internal VistaDBException(int errorId)
-      : this((Exception) null, errorId, "")
+      : this(null, errorId, "")
     {
     }
 
     internal VistaDBException(int errorId, string hint)
-      : this((Exception) null, errorId, hint)
+      : this(null, errorId, hint)
     {
     }
 
@@ -88,7 +88,7 @@ namespace VistaDB.Diagnostic
     {
       for (Exception innerException = InnerException; innerException != null; innerException = innerException.InnerException)
       {
-        if (innerException is VistaDBException && (long) ((VistaDBException) innerException).ErrorId == errorId)
+        if (innerException is VistaDBException && ((VistaDBException)innerException).ErrorId == errorId)
           return true;
       }
       return false;

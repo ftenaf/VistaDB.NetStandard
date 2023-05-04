@@ -23,7 +23,7 @@ namespace VistaDB.Engine.SQL.Signatures
       parser.SkipToken(true);
       if (allowAll && parser.IsToken("*"))
       {
-        expression = (Signature) null;
+        expression = null;
         parser.SkipToken(true);
       }
       else
@@ -50,8 +50,8 @@ namespace VistaDB.Engine.SQL.Signatures
       }
       parser.ExpectedExpression(")");
       signatureType = SignatureType.Expression;
-      val = (object) null;
-      all = expression == (Signature) null;
+      val = null;
+      all = expression == null;
       changed = false;
       countOptimized = false;
     }
@@ -77,14 +77,14 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public override void SetChanged()
     {
-      if (expression != (Signature) null)
+      if (expression != null)
         expression.SetChanged();
       changed = false;
     }
 
     public override void ClearChanged()
     {
-      if (expression != (Signature) null)
+      if (expression != null)
         expression.ClearChanged();
       changed = false;
     }
@@ -97,7 +97,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public override SignatureType OnPrepare()
     {
-      if (expression != (Signature) null)
+      if (expression != null)
         expression = ConstantSignature.PrepareAndCheckConstant(expression, VistaDBType.Unknown);
       return signatureType;
     }
@@ -112,7 +112,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override bool InternalGetIsChanged()
     {
-      if (!changed && !(expression == (Signature) null))
+      if (!changed && !(expression == null))
         return expression.GetIsChanged();
       return true;
     }
@@ -151,7 +151,7 @@ namespace VistaDB.Engine.SQL.Signatures
       if (result == null)
         result = CreateColumn(dataType);
       val = InternalCreateEmptyResult();
-      ((IValue) result).Value = val;
+            result.Value = val;
       changed = true;
     }
 
@@ -172,7 +172,7 @@ namespace VistaDB.Engine.SQL.Signatures
     public void FinishGroup()
     {
       val = InternalFinishGroup();
-      ((IValue) result).Value = val;
+            result.Value = val;
     }
 
     public void CreateNewGroupAndSerialize(object newVal, ref object serObj)

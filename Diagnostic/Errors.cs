@@ -407,7 +407,7 @@ namespace VistaDB.Diagnostic
       Add(124, "At least one column should be created in the table: ");
       Add(125, "Cannot open table: ");
       Add(126, "Table not found: ");
-      Add((int) sbyte.MaxValue, "Index not found: ");
+      Add(sbyte.MaxValue, "Index not found: ");
       Add(128, "An error happened while table was being closed: ");
       Add(129, "An error happened while data storage was being closed");
       Add(130, "Cannot create index");
@@ -490,7 +490,7 @@ namespace VistaDB.Diagnostic
       Add(252, "Cannot delete row: ");
       Add(253, "Cannot activate referential link to: ");
       Add(254, "Cannot create referential link to: ");
-      Add((int) byte.MaxValue, "Cannot create linked referential data: ");
+      Add(byte.MaxValue, "Cannot create linked referential data: ");
       Add(256, "Cannot update referential link to: ");
       Add(257, "Cannot update referential linked data: ");
       Add(258, "Cannot delete referential link to: ");
@@ -730,7 +730,7 @@ namespace VistaDB.Diagnostic
 
         public string GetMessage(int id)
     {
-      string str = string.Format("Error {0} (Provider v. {1}): ", (object) id, (object) assemblyVersion);
+      string str = string.Format("Error {0} (Provider v. {1}): ", id, assemblyVersion);
       if (!ContainsKey(id))
         return str + "unknown error";
       return str + this[id];

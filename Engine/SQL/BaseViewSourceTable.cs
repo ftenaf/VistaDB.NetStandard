@@ -20,7 +20,7 @@ namespace VistaDB.Engine.SQL
       this.view = view;
       this.columnNames = columnNames;
       this.statement = statement;
-      updateTable = (SourceTable) null;
+      updateTable = null;
     }
 
     private void CheckUpdatable()
@@ -36,23 +36,23 @@ namespace VistaDB.Engine.SQL
 
     public override IVistaDBTableSchema GetTableSchema()
     {
-      return (IVistaDBTableSchema) null;
+      return null;
     }
 
     public override IColumn GetLastIdentity(string columnName)
     {
-      return (IColumn) null;
+      return null;
     }
 
     public override string CreateIndex(string expression, bool instantly)
     {
-      return (string) null;
+      return null;
     }
 
     protected override IQuerySchemaInfo InternalPrepare()
     {
       int num = (int) statement.PrepareQuery();
-      return (IQuerySchemaInfo) this;
+      return this;
     }
 
     protected override void InternalInsert()
@@ -197,8 +197,8 @@ namespace VistaDB.Engine.SQL
         int index = 0;
         for (int count = schemaTable.Rows.Count; index < count; ++index)
         {
-          schemaTable.Rows[index]["ColumnName"] = (object) columnNames[index];
-          schemaTable.Rows[index]["BaseColumnName"] = (object) columnNames[index];
+          schemaTable.Rows[index]["ColumnName"] = columnNames[index];
+          schemaTable.Rows[index]["BaseColumnName"] = columnNames[index];
         }
       }
       return schemaTable;

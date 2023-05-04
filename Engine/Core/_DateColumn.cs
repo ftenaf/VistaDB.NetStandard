@@ -6,17 +6,17 @@ namespace VistaDB.Engine.Core
   internal class _DateColumn : Row.Column
   {
         internal _DateColumn()
-      : base((object) null, VistaDBType.NChar | VistaDBType.SmallMoney, 4)
+      : base(null, VistaDBType.NChar | VistaDBType.SmallMoney, 4)
     {
     }
 
     internal _DateColumn(DateTime val)
-      : base((object) val, VistaDBType.NChar | VistaDBType.SmallMoney, 4)
+      : base(val, VistaDBType.NChar | VistaDBType.SmallMoney, 4)
     {
     }
 
     internal _DateColumn(_DateColumn col)
-      : base((Row.Column) col)
+      : base(col)
     {
     }
 
@@ -24,7 +24,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (object) DateTime.MinValue.Date;
+        return DateTime.MinValue.Date;
       }
     }
 
@@ -32,7 +32,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (object) DateTime.MaxValue.Date;
+        return DateTime.MaxValue.Date;
       }
     }
 
@@ -40,7 +40,7 @@ namespace VistaDB.Engine.Core
     {
       set
       {
-        base.Value = value == null ? value : (object) ((DateTime) value).Date;
+        base.Value = value == null ? value : ((DateTime)value).Date;
       }
     }
 
@@ -62,7 +62,7 @@ namespace VistaDB.Engine.Core
 
     protected override Row.Column OnDuplicate(bool padRight)
     {
-      return (Row.Column) new _DateColumn(this);
+      return new _DateColumn(this);
     }
 
     internal override int ConvertToByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
@@ -72,13 +72,13 @@ namespace VistaDB.Engine.Core
 
     internal override int ConvertFromByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      val = (object) new DateTime((long) BitConverter.ToUInt32(buffer, offset) * 864000000000L);
+      val = new DateTime(BitConverter.ToUInt32(buffer, offset) * 864000000000L);
       return offset + 4;
     }
 
     protected override long Collate(Row.Column col)
     {
-      return (long) DateTime.Compare((DateTime) Value, (DateTime) col.Value);
+      return DateTime.Compare((DateTime)Value, (DateTime)col.Value);
     }
   }
 }

@@ -8,30 +8,30 @@ namespace VistaDB.Engine.SQL
     public BaseCreateStatementDescr()
     {
       statements = new Hashtable();
-      IStatementDescr statementDescr1 = (IStatementDescr) new CreateDatabaseStatementDescr();
-      statements.Add((object) "DATABASE", (object) statementDescr1);
-      statements.Add((object) "INMEMORY", (object) statementDescr1);
-      statements.Add((object) "TABLE", (object) new CreateTableStatementDescr());
-      statements.Add((object) "VIEW", (object) new CreateViewStatementDescr());
-      statements.Add((object) "ASSEMBLY", (object) new CreateAssemblyStatementDescr());
-      statements.Add((object) "TRIGGER", (object) new CreateTriggerStatementDescr());
-      IStatementDescr statementDescr2 = (IStatementDescr) new CreateProcStatementDescr();
-      statements.Add((object) "PROC", (object) statementDescr2);
-      statements.Add((object) "PROCEDURE", (object) statementDescr2);
-      statements.Add((object) "FUNCTION", (object) new CreateFunctionStatementDescr());
-      IStatementDescr statementDescr3 = (IStatementDescr) new CreateIndexStatementDescr();
-      statements.Add((object) "INDEX", (object) statementDescr3);
-      statements.Add((object) "UNIQUE", (object) statementDescr3);
-      statements.Add((object) "CLUSTERED", (object) statementDescr3);
-      statements.Add((object) "FULLTEXT", (object) statementDescr3);
-      statements.Add((object) "NONCLUSTERED", (object) statementDescr3);
+      IStatementDescr statementDescr1 = new CreateDatabaseStatementDescr();
+      statements.Add("DATABASE", statementDescr1);
+      statements.Add("INMEMORY", statementDescr1);
+      statements.Add("TABLE", new CreateTableStatementDescr());
+      statements.Add("VIEW", new CreateViewStatementDescr());
+      statements.Add("ASSEMBLY", new CreateAssemblyStatementDescr());
+      statements.Add("TRIGGER", new CreateTriggerStatementDescr());
+      IStatementDescr statementDescr2 = new CreateProcStatementDescr();
+      statements.Add("PROC", statementDescr2);
+      statements.Add("PROCEDURE", statementDescr2);
+      statements.Add("FUNCTION", new CreateFunctionStatementDescr());
+      IStatementDescr statementDescr3 = new CreateIndexStatementDescr();
+      statements.Add("INDEX", statementDescr3);
+      statements.Add("UNIQUE", statementDescr3);
+      statements.Add("CLUSTERED", statementDescr3);
+      statements.Add("FULLTEXT", statementDescr3);
+      statements.Add("NONCLUSTERED", statementDescr3);
     }
 
     private class CreateDatabaseStatementDescr : IStatementDescr
     {
       public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
       {
-        return (Statement) new CreateDatabaseStatement(conn, parent, parser, id);
+        return new CreateDatabaseStatement(conn, parent, parser, id);
       }
     }
 
@@ -39,7 +39,7 @@ namespace VistaDB.Engine.SQL
     {
       public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
       {
-        return (Statement) new CreateTableStatement(conn, parent, parser, id);
+        return new CreateTableStatement(conn, parent, parser, id);
       }
     }
 
@@ -47,7 +47,7 @@ namespace VistaDB.Engine.SQL
     {
       public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
       {
-        return (Statement) new CreateIndexStatement(conn, parent, parser, id);
+        return new CreateIndexStatement(conn, parent, parser, id);
       }
     }
 
@@ -55,7 +55,7 @@ namespace VistaDB.Engine.SQL
     {
       public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
       {
-        return (Statement) new CreateViewStatement(conn, parent, parser, id);
+        return new CreateViewStatement(conn, parent, parser, id);
       }
     }
 
@@ -63,7 +63,7 @@ namespace VistaDB.Engine.SQL
     {
       public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
       {
-        return (Statement) new CreateTriggerStatement(conn, parent, parser, id);
+        return new CreateTriggerStatement(conn, parent, parser, id);
       }
     }
 
@@ -71,7 +71,7 @@ namespace VistaDB.Engine.SQL
     {
       public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
       {
-        return (Statement) new CreateAssemblyStatement(conn, parent, parser, id);
+        return new CreateAssemblyStatement(conn, parent, parser, id);
       }
     }
 
@@ -79,7 +79,7 @@ namespace VistaDB.Engine.SQL
     {
       public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
       {
-        return (Statement) new CreateFunctionStatement(conn, parent, parser, id);
+        return new CreateFunctionStatement(conn, parent, parser, id);
       }
     }
 
@@ -87,7 +87,7 @@ namespace VistaDB.Engine.SQL
     {
       public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
       {
-        return (Statement) new CreateProcedureStatement(conn, parent, parser, id);
+        return new CreateProcedureStatement(conn, parent, parser, id);
       }
     }
   }

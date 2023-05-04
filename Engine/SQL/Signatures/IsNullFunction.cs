@@ -21,7 +21,7 @@ namespace VistaDB.Engine.SQL.Signatures
       paramValues[0] = CreateColumn(dataType);
       paramValues[1] = CreateColumn(this[1].DataType);
       ConstantSignature parameter = parameters[0] as ConstantSignature;
-      if ((Signature) parameter != (Signature) null && parameter.AlwaysNull)
+      if (parameter != null && parameter.AlwaysNull)
         dataType = paramValues[1].Type;
       isAllowNull = parameters[1].IsAllowNull;
       return signatureType;
@@ -30,8 +30,8 @@ namespace VistaDB.Engine.SQL.Signatures
     protected override object ExecuteSubProgram()
     {
       if (!paramValues[0].IsNull)
-        return ((IValue) paramValues[0]).Value;
-      return ((IValue) paramValues[1]).Value;
+        return paramValues[0].Value;
+      return paramValues[1].Value;
     }
   }
 }

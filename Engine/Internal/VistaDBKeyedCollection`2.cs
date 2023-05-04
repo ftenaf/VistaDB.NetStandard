@@ -21,7 +21,7 @@ namespace VistaDB.Engine.Internal
     {
       get
       {
-        return (ICollection<TKey>) Keys;
+        return Keys;
       }
     }
 
@@ -29,7 +29,7 @@ namespace VistaDB.Engine.Internal
     {
       get
       {
-        return (ICollection<TValue>) Values;
+        return Values;
       }
     }
 
@@ -71,7 +71,7 @@ namespace VistaDB.Engine.Internal
 
     void ICollection<TValue>.CopyTo(TValue[] array, int arrayIndex)
     {
-      new List<TValue>((IEnumerable<TValue>) Values).ToArray().CopyTo((Array) array, arrayIndex);
+      new List<TValue>(Values).ToArray().CopyTo(array, arrayIndex);
     }
 
     int ICollection<TValue>.Count
@@ -97,12 +97,12 @@ namespace VistaDB.Engine.Internal
 
     IEnumerator<TValue> IEnumerable<TValue>.GetEnumerator()
     {
-      return (IEnumerator<TValue>) Values.GetEnumerator();
+      return Values.GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()
     {
-      return (IEnumerator) Values.GetEnumerator();
+      return Values.GetEnumerator();
     }
   }
 }

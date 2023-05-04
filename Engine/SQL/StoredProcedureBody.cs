@@ -8,7 +8,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return (BatchStatement) null;
+        return null;
       }
     }
 
@@ -21,13 +21,13 @@ namespace VistaDB.Engine.SQL
     public override IParameter DoGetParam(string paramName)
     {
       if (!prms.ContainsKey(paramName))
-        return (IParameter) null;
+        return null;
       return prms[paramName];
     }
 
     public override WhileStatement DoGetCycleStatement()
     {
-      return (WhileStatement) null;
+      return null;
     }
   }
 }

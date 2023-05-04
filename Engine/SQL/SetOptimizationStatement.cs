@@ -34,7 +34,7 @@ namespace VistaDB.Engine.SQL
     protected override IQueryResult OnExecuteQuery()
     {
       connection.SetOptimization(optimization);
-      return (IQueryResult) null;
+      return null;
     }
   }
 }

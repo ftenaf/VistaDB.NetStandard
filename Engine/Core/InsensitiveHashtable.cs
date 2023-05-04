@@ -18,17 +18,17 @@ namespace VistaDB.Engine.Core
 
     public override bool ContainsKey(object key)
     {
-      return base.ContainsKey((object) ((string) key).ToUpper(culture));
+      return base.ContainsKey(((string)key).ToUpper(culture));
     }
 
     protected override int GetHash(object key)
     {
-      return base.GetHash((object) ((string) key).ToUpper(culture));
+      return base.GetHash(((string)key).ToUpper(culture));
     }
 
     protected override bool KeyEquals(object item, object key)
     {
-      return base.KeyEquals((object) ((string) item).ToUpper(culture), (object) ((string) key).ToUpper(culture));
+      return base.KeyEquals(((string)item).ToUpper(culture), ((string)key).ToUpper(culture));
     }
 
     public override IDictionaryEnumerator GetEnumerator()

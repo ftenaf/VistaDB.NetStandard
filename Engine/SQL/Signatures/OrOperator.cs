@@ -17,23 +17,23 @@ namespace VistaDB.Engine.SQL.Signatures
       {
         needsEvaluation = false;
         IColumn column1 = leftOperand.Execute();
-        if (!column1.IsNull && (bool) ((IValue) column1).Value)
+        if (!column1.IsNull && (bool)column1.Value)
         {
-          ((IValue) result).Value = (object) true;
+                    result.Value = true;
           return result;
         }
         IColumn column2 = rightOperand.Execute();
-        if (!column2.IsNull && (bool) ((IValue) column2).Value)
+        if (!column2.IsNull && (bool)column2.Value)
         {
-          ((IValue) result).Value = (object) true;
+                    result.Value = true;
           return result;
         }
-        if (!column1.IsNull && !(bool) ((IValue) column1).Value && (!column2.IsNull && !(bool) ((IValue) column2).Value))
+        if (!column1.IsNull && !(bool)column1.Value && (!column2.IsNull && !(bool)column2.Value))
         {
-          ((IValue) result).Value = (object) false;
+                    result.Value = false;
           return result;
         }
-        ((IValue) result).Value = (object) null;
+                result.Value = null;
       }
       return result;
     }

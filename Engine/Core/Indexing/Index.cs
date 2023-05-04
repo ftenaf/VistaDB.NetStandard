@@ -35,7 +35,7 @@ namespace VistaDB.Engine.Core.Indexing
     }
 
     protected Index(string indexName, string alias, Parser parser, DirectConnection connection, Database parentDatabase, Encryption encryption, Index clonedOrigin)
-      : base(indexName, alias, connection, parentDatabase, encryption, (DataStorage) clonedOrigin)
+      : base(indexName, alias, connection, parentDatabase, encryption, clonedOrigin)
     {
       this.parser = parser;
     }
@@ -161,7 +161,7 @@ namespace VistaDB.Engine.Core.Indexing
     {
       get
       {
-        return (ClusteredRowset) null;
+        return null;
       }
     }
 
@@ -355,7 +355,7 @@ namespace VistaDB.Engine.Core.Indexing
       Handle.ClearWholeCache(StorageId, false);
       if (tree != null)
         tree.Dispose();
-      tree = (Tree) null;
+      tree = null;
       return true;
     }
 
@@ -372,7 +372,7 @@ namespace VistaDB.Engine.Core.Indexing
 
     protected virtual Tree OnCreateTreeInstance()
     {
-      Index index = (Index) null;
+      Index index = null;
       if (index != null)
         return index.Tree.GetClone();
       return new Tree(this);
@@ -460,7 +460,7 @@ namespace VistaDB.Engine.Core.Indexing
       {
         try
         {
-          return ParentConnection.StorageManager.OpenOrCreateTemporaryStorage(WrapperDatabase.Name + (object) '$' + headerPosition.ToString() + ".vdb4lck", true, PageSize, (WrapperDatabase.Handle.IsolatedStorage ? 1 : 0) != 0, (ParentConnection.PersistentLockFiles ? 1 : 0) != 0);
+          return ParentConnection.StorageManager.OpenOrCreateTemporaryStorage(WrapperDatabase.Name + '$' + headerPosition.ToString() + ".vdb4lck", true, PageSize, (WrapperDatabase.Handle.IsolatedStorage ? 1 : 0) != 0, (ParentConnection.PersistentLockFiles ? 1 : 0) != 0);
         }
         catch (Exception ex)
         {
@@ -542,7 +542,7 @@ namespace VistaDB.Engine.Core.Indexing
     {
       if (forcedTreeSeek || (int) CurrentRow.RowId != (int) tree.CurrentKey.RowId || ((int) CurrentRow.RowVersion != (int) tree.CurrentKey.RowVersion || (int) CurrentRow.RowId == (int) Row.MinRowId) || !tree.CurrentNode.IsLeaf)
       {
-        switch (tree.GoKey(CurrentRow, (Node) null).KeyRank)
+        switch (tree.GoKey(CurrentRow, null).KeyRank)
         {
           case Node.KeyPosition.OnLeft:
             if (!soft)
@@ -615,9 +615,9 @@ namespace VistaDB.Engine.Core.Indexing
       if (!base.OnCreateRow(blank, newKey))
         return false;
       CurrentRow.RowId = 0U;
-      if (IsFts && (long) tree.TestEqualKeyData(newKey) == (long) newKey.RowId)
+      if (IsFts && (long) tree.TestEqualKeyData(newKey) == newKey.RowId)
         return false;
-      if (!IsUnique || (long) tree.TestEqualKeyData(newKey) == (long) Row.MaxRowId)
+      if (!IsUnique || (long) tree.TestEqualKeyData(newKey) == Row.MaxRowId)
         return true;
       if (IsSparse || SuppressErrors)
         return false;
@@ -636,7 +636,7 @@ namespace VistaDB.Engine.Core.Indexing
       if (!flag2 && IsUnique)
       {
         ulong num = tree.TestEqualKeyData(newKey);
-        flag1 = (long) num != (long) Row.MaxRowId && (long) num != (long) oldKey.RowId;
+        flag1 = (long) num != Row.MaxRowId && (long) num != oldKey.RowId;
         if (flag1)
         {
           if (SuppressErrors || IsSparse)
@@ -713,14 +713,14 @@ namespace VistaDB.Engine.Core.Indexing
         case ScopeType.QueryScope:
           if (currentScope == ScopeType.UserScope)
           {
-            SetScope((Row) null, (Row) null, ScopeType.UserScope, true);
+            SetScope(null, null, ScopeType.UserScope, true);
             return;
           }
           break;
         case ScopeType.UserScope:
           if (currentScope == ScopeType.QueryScope)
           {
-            SetScope((Row) null, (Row) null, ScopeType.QueryScope, true);
+            SetScope(null, null, ScopeType.QueryScope, true);
             return;
           }
           break;
@@ -765,7 +765,7 @@ namespace VistaDB.Engine.Core.Indexing
       BottomRow.InitBottom();
       if (highValue != null)
       {
-        switch (tree.GoKey(highValue, (Node) null).KeyRank)
+        switch (tree.GoKey(highValue, null).KeyRank)
         {
           case Node.KeyPosition.Less:
           case Node.KeyPosition.OnLeft:
@@ -778,7 +778,7 @@ namespace VistaDB.Engine.Core.Indexing
       }
       if (lowValue != null)
       {
-        if (tree.GoKey(lowValue, (Node) null).KeyRank != Node.KeyPosition.OnRight)
+        if (tree.GoKey(lowValue, null).KeyRank != Node.KeyPosition.OnRight)
           tree.GoPrevKey();
         TopRow.Copy(tree.CurrentKey);
       }
@@ -941,7 +941,7 @@ namespace VistaDB.Engine.Core.Indexing
         bmpFilters = new RowIdFilterCollection();
       RowIdFilter filter = bmpFilters.GetFilter(lowConstant, highConstant, excludeNulls);
       if (filter != null)
-        return (IOptimizedFilter) filter;
+        return filter;
       Row lowConstant1 = lowConstant.CopyInstance();
       Row highConstant1 = highConstant.CopyInstance();
       try
@@ -951,7 +951,7 @@ namespace VistaDB.Engine.Core.Indexing
         {
           MarkOptimizedStatus(filter, lowConstant, highConstant, false, false);
           if (IsFts || !excludeNulls)
-            return (IOptimizedFilter) filter;
+            return filter;
           bool flag = false;
           foreach (Row.Column column in (List<Row.Column>) CurrentRow)
           {
@@ -962,7 +962,7 @@ namespace VistaDB.Engine.Core.Indexing
             }
           }
           if (!flag)
-            return (IOptimizedFilter) filter;
+            return filter;
         }
         lowConstant = TopRow;
         highConstant = BottomRow;
@@ -970,11 +970,11 @@ namespace VistaDB.Engine.Core.Indexing
         highConstant.RowId = Row.MaxRowId;
         for (int index = 0; index < 1; ++index)
         {
-          lowConstant[index].Value = (object) null;
-          highConstant[index].Value = (object) null;
+          lowConstant[index].Value = null;
+          highConstant[index].Value = null;
         }
         MarkOptimizedStatus(filter, lowConstant, highConstant, true, !excludeNulls);
-        return (IOptimizedFilter) filter;
+        return filter;
       }
       finally
       {
@@ -998,7 +998,7 @@ namespace VistaDB.Engine.Core.Indexing
           ++num;
           NextRow();
         }
-        return (long) num;
+        return num;
       }
       finally
       {
@@ -1041,8 +1041,8 @@ namespace VistaDB.Engine.Core.Indexing
       protected IndexHeader(DataStorage parentIndex, HeaderId id, Type type, int pageSize, CultureInfo culture)
         : base(parentIndex, id, EmptyReference, (int) type, pageSize, culture)
       {
-        rootEntry = AppendColumn((IColumn) new BigIntColumn((long)EmptyReference));
-        descendEntry = AppendColumn((IColumn) new BitColumn(false));
+        rootEntry = AppendColumn(new BigIntColumn((long)EmptyReference));
+        descendEntry = AppendColumn(new BitColumn(false));
       }
 
       internal static bool IsUnique(uint signature)
@@ -1084,7 +1084,7 @@ namespace VistaDB.Engine.Core.Indexing
         set
         {
           Modified = (long) RootPosition != (long) value;
-          this[rootEntry].Value = (object) (long) value;
+          this[rootEntry].Value = (long)value;
         }
       }
 
@@ -1096,7 +1096,7 @@ namespace VistaDB.Engine.Core.Indexing
         }
         set
         {
-          this[descendEntry].Value = (object) value;
+          this[descendEntry].Value = value;
         }
       }
 

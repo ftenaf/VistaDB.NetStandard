@@ -14,7 +14,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       if (rightOperandIsSubQuery)
         return ((SubQuerySignature) rightOperand).IsValuePresent(leftValue, checkAll, CompareOperation.NotEqual);
-      return leftValue.Compare((IVistaDBColumn) rightValue) != 0;
+      return leftValue.Compare(rightValue) != 0;
     }
 
     protected override CompareOperation GetCompareOperation()

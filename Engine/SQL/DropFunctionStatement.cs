@@ -28,7 +28,7 @@ namespace VistaDB.Engine.SQL
           Database.UnregisterClrProcedure(tableName);
         }
       }
-      return (IQueryResult) null;
+      return null;
     }
   }
 }

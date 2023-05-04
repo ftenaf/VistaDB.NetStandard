@@ -30,14 +30,14 @@ namespace VistaDB.Engine.SQL
         public NativeSourceTable(Statement parent, string tableName, string alias, int index, int lineNo, int symbolNo)
           : base(parent, tableName, alias, index, lineNo, symbolNo)
         {
-            table = (ITable)null;
-            tempIndexExpression = (string)null;
-            tempIndexName = (string)null;
-            tableSchema = (IVistaDBTableSchema)null;
+            table = null;
+            tempIndexExpression = null;
+            tempIndexName = null;
+            tableSchema = null;
         }
 
         public NativeSourceTable(Statement parent, ITable table)
-          : this(parent, (string)null, (string)null, -1, 0, 0)
+          : this(parent, null, null, -1, 0, 0)
         {
             this.table = table;
         }
@@ -64,7 +64,7 @@ namespace VistaDB.Engine.SQL
             foreach (string name in relationships.Names)
             {
                 parent.Connection.FreeTable(relationships[name]);
-                relationships[name] = (ITable)null;
+                relationships[name] = null;
             }
         }
 
@@ -81,7 +81,7 @@ namespace VistaDB.Engine.SQL
         public override IColumn SimpleGetColumn(int colIndex)
         {
             if (OptimizedCaching && optimizedDataValues != null)
-                return (IColumn)optimizedDataRow[colIndex];
+                return optimizedDataRow[colIndex];
             return (IColumn)table.Get(colIndex);
         }
 
@@ -97,7 +97,7 @@ namespace VistaDB.Engine.SQL
                 IRow row = table.CurrentKey.CopyInstance();
                 InternalPost();
                 table.CurrentKey = row;
-                stopNext = table.CurrentKey.CompareKey((IVistaDBRow)row) > 0;
+                stopNext = table.CurrentKey.CompareKey(row) > 0;
             }
             else
                 InternalPost();
@@ -117,11 +117,11 @@ namespace VistaDB.Engine.SQL
             if (table == null)
                 return;
             parent.Connection.CloseTable(table);
-            table = (ITable)null;
-            tempIndexExpression = (string)null;
+            table = null;
+            tempIndexExpression = null;
             if (relationships != null)
                 relationships.Dispose();
-            relationships = (Relationships)null;
+            relationships = null;
         }
 
         public override void FreeTable()
@@ -129,14 +129,14 @@ namespace VistaDB.Engine.SQL
             if (table == null)
                 return;
             parent.Connection.FreeTable(table);
-            table = (ITable)null;
-            tempIndexExpression = (string)null;
+            table = null;
+            tempIndexExpression = null;
         }
 
         public override IVistaDBTableSchema GetTableSchema()
         {
             if (parent.Connection.CompareString(tableName, Database.SystemSchema, true) == 0)
-                return parent.Database.TableSchema((string)null);
+                return parent.Database.TableSchema(null);
             return parent.Database.TableSchema(tableName);
         }
 
@@ -144,13 +144,13 @@ namespace VistaDB.Engine.SQL
         {
             if (table != null)
                 return (IColumn)parent.Database.GetLastIdentity(tableName, columnName);
-            return (IColumn)null;
+            return null;
         }
 
         public override string CreateIndex(string expression, bool instantly)
         {
             if (parent.Connection.CompareString(tableName, Database.SystemSchema, true) == 0)
-                return (string)null;
+                return null;
             if (tempIndexName == null || !parent.Connection.IsIndexExisting(tableName, tempIndexName))
             {
                 tempIndexExpression = expression;
@@ -203,7 +203,7 @@ namespace VistaDB.Engine.SQL
 
         internal override bool SetScope(IRow leftScope, IRow rightScope)
         {
-            table.SetScope((IVistaDBRow)leftScope, (IVistaDBRow)rightScope);
+            table.SetScope(leftScope, rightScope);
             table.PrepareFtsOptimization();
             return false;
         }
@@ -222,7 +222,7 @@ namespace VistaDB.Engine.SQL
             {
                 if (table != null)
                     return table.TemporaryIndexes;
-                return (IVistaDBIndexCollection)null;
+                return null;
             }
         }
 
@@ -259,7 +259,7 @@ namespace VistaDB.Engine.SQL
         internal override bool ActivateOptimizedConstraints(out bool emptyResultSet)
         {
             emptyResultSet = false;
-            if ((Signature)OptimizedIndexColumn == (Signature)null || (Signature)OptimizedKeyColumn == (Signature)null)
+            if (OptimizedIndexColumn == null || OptimizedKeyColumn == null)
                 return false;
             if (string.IsNullOrEmpty(OptimizedIndexName))
             {
@@ -267,16 +267,16 @@ namespace VistaDB.Engine.SQL
                 return false;
             }
             optimizedDataPosition = int.MinValue;
-            optimizedDataValues = (object[])null;
+            optimizedDataValues = null;
             if (OptimizedCaching)
             {
                 if (keyedLookupCache == null)
                 {
                     SelectStatement parent = Parent as SelectStatement;
-                    CacheFactory cacheFactory = parent == null ? (CacheFactory)null : parent.CacheFactory;
+                    CacheFactory cacheFactory = parent == null ? null : parent.CacheFactory;
                     if (cacheFactory != null)
                     {
-                        KeyedLookupTable lookupTable = cacheFactory.GetLookupTable((IVistaDBDatabase)null, (SourceTable)this, OptimizedIndexName, OptimizedKeyColumn);
+                        KeyedLookupTable lookupTable = cacheFactory.GetLookupTable(null, this, OptimizedIndexName, OptimizedKeyColumn);
                         if (lookupTable != null)
                         {
                             keyedLookupCache = lookupTable;
@@ -285,7 +285,7 @@ namespace VistaDB.Engine.SQL
                                 foreach (int key in columnsToRegister.Keys)
                                     keyedLookupCache.RegisterColumnSignature(key);
                             }
-                            columnsToRegister = (Dictionary<int, bool>)null;
+                            columnsToRegister = null;
                         }
                     }
                 }
@@ -313,7 +313,7 @@ namespace VistaDB.Engine.SQL
                             emptyResultSet = true;
                             optimizedDataPosition = int.MaxValue;
                             for (int index = 0; index < count; ++index)
-                                optimizedDataRow[index].Value = (object)null;
+                                optimizedDataRow[index].Value = null;
                         }
                         optimizedDataVersion = dataVersion;
                     }
@@ -331,12 +331,12 @@ namespace VistaDB.Engine.SQL
                     optimizedLeftScope.RowId = Row.MinRowId + 1U;
                     optimizedRightScope.RowId = Row.MaxRowId - 1U;
                 }
-                object obj = ((IValue)OptimizedKeyColumn.Execute()).Value;
+                object obj = OptimizedKeyColumn.Execute().Value;
                 if (obj != null)
                 {
                     optimizedLeftScope[0].Value = obj;
                     optimizedRightScope[0].Value = obj;
-                    table.SetScope((IVistaDBRow)optimizedLeftScope, (IVistaDBRow)optimizedRightScope);
+                    table.SetScope(optimizedLeftScope, optimizedRightScope);
                     if (OptimizedCaching && keyedLookupCache != null)
                     {
                         table.First();
@@ -356,7 +356,7 @@ namespace VistaDB.Engine.SQL
 
         private void SaveOptimizedKeyedRow()
         {
-            if (!OptimizedCaching || (Signature)OptimizedKeyColumn == (Signature)null || (keyedLookupCache == null || optimizedDataValues != null) || (optimizedDataPosition != 0 || table.EndOfTable || optimizedDataVersion >= 0L && optimizedDataVersion == dataVersion))
+            if (!OptimizedCaching || OptimizedKeyColumn == null || (keyedLookupCache == null || optimizedDataValues != null) || (optimizedDataPosition != 0 || table.EndOfTable || optimizedDataVersion >= 0L && optimizedDataVersion == dataVersion))
                 return;
             int count = table.CurrentRow.Count;
             object[] values = new object[count];
@@ -366,7 +366,7 @@ namespace VistaDB.Engine.SQL
                 for (int index = 0; index < count; ++index)
                 {
                     IColumn column = table.CurrentRow[index];
-                    values[index] = column.IsNull || column.ExtendedType || column.SystemType != typeof(string) ? ((IValue)column).Value : (object)column.ToString();
+                    values[index] = column.IsNull || column.ExtendedType || column.SystemType != typeof(string) ? column.Value : column.ToString();
                 }
             }
             else
@@ -374,7 +374,7 @@ namespace VistaDB.Engine.SQL
                 foreach (int index in registeredColumns)
                 {
                     IColumn column = table.CurrentRow[index];
-                    values[index] = column.IsNull || column.ExtendedType || column.SystemType != typeof(string) ? ((IValue)column).Value : (object)column.ToString();
+                    values[index] = column.IsNull || column.ExtendedType || column.SystemType != typeof(string) ? column.Value : column.ToString();
                 }
             }
             keyedLookupCache.SetValues(values);
@@ -388,7 +388,7 @@ namespace VistaDB.Engine.SQL
             table = parent.Connection.OpenTable(tableName, false, readOnly);
             if (table == (ITable)parent.Database)
             {
-                tempIndexExpression = (string)null;
+                tempIndexExpression = null;
             }
             else
             {
@@ -421,8 +421,8 @@ namespace VistaDB.Engine.SQL
 
         protected override IQuerySchemaInfo InternalPrepare()
         {
-            tableSchema = parent.Connection.CompareString(tableName, Database.SystemSchema, true) != 0 ? parent.Database.TableSchema(tableName) : parent.Database.TableSchema((string)null);
-            return (IQuerySchemaInfo)this;
+            tableSchema = parent.Connection.CompareString(tableName, Database.SystemSchema, true) != 0 ? parent.Database.TableSchema(tableName) : parent.Database.TableSchema(null);
+            return this;
         }
 
         protected override void InternalInsert()
@@ -432,7 +432,7 @@ namespace VistaDB.Engine.SQL
 
         protected override void InternalPutValue(int columnIndex, IColumn columnValue)
         {
-            table.Put(columnIndex, (IVistaDBValue)columnValue);
+            table.Put(columnIndex, columnValue);
         }
 
         protected override void InternalDeleteRow()
@@ -446,16 +446,16 @@ namespace VistaDB.Engine.SQL
         protected override SourceTable CreateSourceTableByName(IVistaDBTableNameCollection tableNames, IViewList views)
         {
             if (parent.Connection.CompareString(tableName, Database.SystemSchema, true) == 0)
-                return (SourceTable)this;
+                return this;
             if (tableNames == null)
                 tableNames = parent.Database.GetTableNames();
             if (tableNames.Contains(tableName))
-                return (SourceTable)this;
+                return this;
             if (views == null)
                 views = parent.Database.EnumViews();
-            IView view = (IView)views[(object)tableName];
+            IView view = (IView)views[tableName];
             if (view != null)
-                return (SourceTable)CreateViewSource(view);
+                return CreateViewSource(view);
             throw new VistaDBSQLException(572, tableName, lineNo, symbolNo);
         }
 
@@ -465,8 +465,8 @@ namespace VistaDB.Engine.SQL
             int num = (int)createViewStatement.PrepareQuery();
             SelectStatement selectStatement = createViewStatement.SelectStatement;
             if (selectStatement.IsLiveQuery())
-                return (BaseViewSourceTable)new LiveViewSourceTable(parent, view, createViewStatement.ColumnNames, selectStatement, tableAlias, collectionOrder, lineNo, symbolNo);
-            return (BaseViewSourceTable)new QueryViewSourceTable(parent, view, createViewStatement.ColumnNames, selectStatement, tableAlias, collectionOrder, lineNo, symbolNo);
+                return new LiveViewSourceTable(parent, view, createViewStatement.ColumnNames, selectStatement, tableAlias, collectionOrder, lineNo, symbolNo);
+            return new QueryViewSourceTable(parent, view, createViewStatement.ColumnNames, selectStatement, tableAlias, collectionOrder, lineNo, symbolNo);
         }
 
         public override bool Eof
@@ -523,7 +523,7 @@ namespace VistaDB.Engine.SQL
 
         public bool GetIsKey(int ordinal)
         {
-            IVistaDBKeyColumn[] vistaDbKeyColumnArray = (IVistaDBKeyColumn[])null;
+            IVistaDBKeyColumn[] vistaDbKeyColumnArray = null;
             foreach (IVistaDBIndexInformation indexInformation in (IEnumerable<IVistaDBIndexInformation>)tableSchema.Indexes.Values)
             {
                 if (indexInformation.Primary)
@@ -602,7 +602,7 @@ namespace VistaDB.Engine.SQL
 
         public DataTable GetSchemaTable()
         {
-            return (DataTable)null;
+            return null;
         }
 
         public string GetColumnDescription(int ordinal)
@@ -630,13 +630,13 @@ namespace VistaDB.Engine.SQL
             IVistaDBIdentityInformation identity = tableSchema.Identities[tableSchema[ordinal].Name];
             if (identity == null)
             {
-                step = (string)null;
-                seed = (string)null;
-                return (string)null;
+                step = null;
+                seed = null;
+                return null;
             }
             step = identity.StepExpression;
-            seed = (string)null;
-            return (string)null;
+            seed = null;
+            return null;
         }
 
         public string GetDefaultValue(int ordinal, out bool useInUpdate)
@@ -645,7 +645,7 @@ namespace VistaDB.Engine.SQL
             if (defaultValue == null)
             {
                 useInUpdate = false;
-                return (string)null;
+                return null;
             }
             useInUpdate = defaultValue.UseInUpdate;
             return defaultValue.Expression;
@@ -684,22 +684,22 @@ namespace VistaDB.Engine.SQL
             {
                 get
                 {
-                    return (ITable)linkedTables[(object)name];
+                    return (ITable)linkedTables[name];
                 }
                 set
                 {
-                    if (!linkedTables.Contains((object)name))
+                    if (!linkedTables.Contains(name))
                         return;
-                    linkedTables[(object)name] = (object)value;
+                    linkedTables[name] = value;
                 }
             }
 
             public void Dispose()
             {
                 linkedTables.Clear();
-                linkedTables = (InsensitiveHashtable)null;
+                linkedTables = null;
                 names.Clear();
-                names = (List<string>)null;
+                names = null;
             }
         }
     }

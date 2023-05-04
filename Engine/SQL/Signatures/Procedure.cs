@@ -19,7 +19,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       parameters = new List<Signature>();
       outParams = new List<bool>();
-      namedParams = new Dictionary<string, Signature>((IEqualityComparer<string>) StringComparer.OrdinalIgnoreCase);
+      namedParams = new Dictionary<string, Signature>(StringComparer.OrdinalIgnoreCase);
       bool flag = false;
       if (parser.IsToken(";") || parser.EndOfText)
         return;
@@ -33,7 +33,7 @@ namespace VistaDB.Engine.SQL.Signatures
             parser.SkipToken(true);
             if (parser.IsToken("DEFAULT"))
             {
-              parameters.Add((Signature) null);
+              parameters.Add(null);
               parser.SkipToken(false);
             }
             else
@@ -47,7 +47,7 @@ namespace VistaDB.Engine.SQL.Signatures
           {
             if (flag)
               throw new VistaDBSQLException(638, parser.TokenValue.Token, LineNo, SymbolNo);
-            parameters.Add((Signature) parameterSignature);
+            parameters.Add(parameterSignature);
           }
           if (parser.IsToken("OUT") || parser.IsToken("OUTPUT"))
           {
@@ -61,7 +61,7 @@ namespace VistaDB.Engine.SQL.Signatures
         {
           if (flag)
             throw new VistaDBSQLException(638, parser.TokenValue.Token, LineNo, SymbolNo);
-          parameters.Add((Signature) null);
+          parameters.Add(null);
           outParams.Add(false);
           parser.SkipToken(false);
         }

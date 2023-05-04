@@ -34,27 +34,27 @@ namespace VistaDB.Engine.SQL.Signatures
       IColumn paramValue1 = paramValues[0];
       IColumn paramValue2 = paramValues[1];
       if (paramValue1.IsNull || paramValue2.IsNull)
-        return ((IValue) paramValue1).Value;
+        return paramValue1.Value;
       if (paramValue1.InternalType == paramValue2.InternalType)
       {
-        if (paramValue1.Compare((IVistaDBColumn) paramValue2) != 0)
-          return ((IValue) paramValue1).Value;
-        return (object) null;
+        if (paramValue1.Compare(paramValue2) != 0)
+          return paramValue1.Value;
+        return null;
       }
       if (!ExistConvertion(paramValue1.InternalType, paramValue2.InternalType))
-        return ((IValue) paramValue1).Value;
+        return paramValue1.Value;
       IColumn column = CreateColumn(dataType);
       try
       {
-        Convert((IValue) paramValue2, (IValue) column);
+        Convert(paramValue2, column);
       }
       catch (Exception)
             {
-        return ((IValue) paramValue1).Value;
+        return paramValue1.Value;
       }
-      if (paramValue1.Compare((IVistaDBColumn) column) != 0)
-        return ((IValue) paramValue1).Value;
-      return (object) null;
+      if (paramValue1.Compare(column) != 0)
+        return paramValue1.Value;
+      return null;
     }
   }
 }

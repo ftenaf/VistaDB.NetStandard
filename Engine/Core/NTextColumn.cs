@@ -11,13 +11,13 @@ namespace VistaDB.Engine.Core
     }
 
     internal NTextColumn(NTextColumn col)
-      : base((TextColumn) col)
+      : base(col)
     {
     }
 
     protected override Row.Column OnDuplicate(bool padRight)
     {
-      return (Row.Column) new NTextColumn(this);
+      return new NTextColumn(this);
     }
 
     public override int MaxLength

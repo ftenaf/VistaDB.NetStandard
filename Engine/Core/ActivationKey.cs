@@ -42,22 +42,22 @@ namespace VistaDB.Engine.Core
             using (MemoryStream memoryStream = new MemoryStream(m_CurrentKey))
             {
                 int hostValue1;
-                BinarySerializer.DeserializeValue((Stream)memoryStream, out hostValue1);
+                BinarySerializer.DeserializeValue(memoryStream, out hostValue1);
                 m_Signature = new byte[hostValue1];
                 memoryStream.Read(m_Signature, 0, hostValue1);
                 long position = memoryStream.Position;
-                BinarySerializer.DeserializeValue((Stream)memoryStream, out m_OwnerCaption);
-                BinarySerializer.DeserializeValue((Stream)memoryStream, out m_MachineKey);
-                BinarySerializer.DeserializeValue((Stream)memoryStream, out m_LicenseKey);
-                BinarySerializer.DeserializeValue((Stream)memoryStream, out m_Version);
+                BinarySerializer.DeserializeValue(memoryStream, out m_OwnerCaption);
+                BinarySerializer.DeserializeValue(memoryStream, out m_MachineKey);
+                BinarySerializer.DeserializeValue(memoryStream, out m_LicenseKey);
+                BinarySerializer.DeserializeValue(memoryStream, out m_Version);
                 DateTimeOffset hostValue2;
-                BinarySerializer.DeserializeValue((Stream)memoryStream, out hostValue2);
+                BinarySerializer.DeserializeValue(memoryStream, out hostValue2);
                 if (hostValue2 > DateTimeOffset.MinValue)
                     ExpirationDt = new DateTimeOffset?(hostValue2);
-                BinarySerializer.DeserializeValue((Stream)memoryStream, out m_MaintenanceExpirationDt);
-                BinarySerializer.DeserializeValue((Stream)memoryStream, out m_GeneratedDt);
-                BinarySerializer.DeserializeValue((Stream)memoryStream, out m_RefreshDt);
-                BinarySerializer.DeserializeValue((Stream)memoryStream, out m_NewerVersionReleased);
+                BinarySerializer.DeserializeValue(memoryStream, out m_MaintenanceExpirationDt);
+                BinarySerializer.DeserializeValue(memoryStream, out m_GeneratedDt);
+                BinarySerializer.DeserializeValue(memoryStream, out m_RefreshDt);
+                BinarySerializer.DeserializeValue(memoryStream, out m_NewerVersionReleased);
                 int count = (int)(m_CurrentKey.LongLength - position);
                 m_Payload = new byte[count];
                 memoryStream.Position = position;
@@ -253,7 +253,7 @@ namespace VistaDB.Engine.Core
                 using (MemoryStream memoryStream = new MemoryStream(activationKey))
                 {
                     int hostValue;
-                    BinarySerializer.DeserializeValue((Stream)memoryStream, out hostValue);
+                    BinarySerializer.DeserializeValue(memoryStream, out hostValue);
                     numArray2 = new byte[hostValue];
                     memoryStream.Read(numArray2, 0, hostValue);
                     count = activationKey.Length - (int)memoryStream.Position;
@@ -282,7 +282,7 @@ namespace VistaDB.Engine.Core
                     rijndaelManaged.FeedbackSize = 8;
                     using (ICryptoTransform decryptor = rijndaelManaged.CreateDecryptor())
                     {
-                        using (CryptoStream cryptoStream = new CryptoStream((Stream)memoryStream, decryptor, CryptoStreamMode.Write))
+                        using (CryptoStream cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Write))
                         {
                             cryptoStream.Write(buffer, 0, count);
                             cryptoStream.Close();

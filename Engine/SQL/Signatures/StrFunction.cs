@@ -25,26 +25,26 @@ namespace VistaDB.Engine.SQL.Signatures
     protected override object ExecuteSubProgram()
     {
       string empty = string.Empty;
-      Decimal num1 = (Decimal) ((IValue) paramValues[0]).Value;
+      Decimal num1 = (Decimal)paramValues[0].Value;
       int num2;
       if (ParamCount > 1)
       {
-        num2 = (int) ((IValue) paramValues[1]).Value;
+        num2 = (int)paramValues[1].Value;
         if (num2 <= 0)
-          return (object) null;
+          return null;
       }
       else
         num2 = 10;
       for (int index = 0; index < num2 - 1; ++index)
         empty += "#";
-      string format = empty + (object) '0';
+      string format = empty + '0';
       if (ParamCount > 2)
       {
-        int num3 = (int) ((IValue) paramValues[2]).Value;
+        int num3 = (int)paramValues[2].Value;
         if (num3 > 16)
           num3 = 16;
         else if (num3 < 0)
-          return (object) null;
+          return null;
         format += ".";
         for (int index = 0; index < num3; ++index)
           format += "0";
@@ -54,14 +54,14 @@ namespace VistaDB.Engine.SQL.Signatures
       {
         int num3 = str.IndexOf(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator);
         if (num3 > num2)
-          return (object) null;
+          return null;
         if (num3 == num2 - 1)
-          return (object) str.Substring(0, num2 - 1);
-        return (object) str.Substring(0, num2);
+          return str.Substring(0, num2 - 1);
+        return str.Substring(0, num2);
       }
       if (str.Length < num2)
-        return (object) str.PadLeft(num2, ' ');
-      return (object) str;
+        return str.PadLeft(num2, ' ');
+      return str;
     }
 
     public override int GetWidth()

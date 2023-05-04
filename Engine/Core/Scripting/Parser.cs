@@ -23,7 +23,7 @@ namespace VistaDB.Engine.Core.Scripting
 
     private void RaiseError(int error)
     {
-      RaiseError((Exception) null, error, (string) null);
+      RaiseError(null, error, null);
     }
 
     private void RaiseError(Exception ex, int error, string message)
@@ -35,7 +35,7 @@ namespace VistaDB.Engine.Core.Scripting
       finally
       {
         if (evalStack != null)
-          evalStack = (EvalStack) null;
+          evalStack = null;
       }
     }
 
@@ -140,13 +140,13 @@ namespace VistaDB.Engine.Core.Scripting
       if (TestSquareBrackets(ref expectedNameLength, ref extraLen))
       {
         sourceColumn = this.activeStorage.LookForColumn(new string(evalStack.Expression, thumbOffset + 1, expectedNameLength));
-        if (sourceColumn == (Row.Column) null)
+        if (sourceColumn == null)
           return false;
       }
       else
       {
         sourceColumn = this.activeStorage.LookForColumn(evalStack.Expression, thumbOffset, false);
-        if (sourceColumn == (Row.Column) null)
+        if (sourceColumn == null)
           return false;
         expectedNameLength = sourceColumn.Name.Length;
       }
@@ -241,7 +241,7 @@ namespace VistaDB.Engine.Core.Scripting
       bool elseExpected = false;
       while (ParseCommentsAndColumns(bgnOfGroup, spaceChar, activeStorage) || ParsePatterns() || (ParseOperands() || ParseTableNames(activeStorage, spaceChar)))
       {
-        bgnOfGroup = (char[]) null;
+        bgnOfGroup = null;
         PCodeUnit unit = evalStack.PopCollector();
         Signature signature1 = unit.Signature;
         switch (signature1.Operation)
@@ -270,7 +270,7 @@ namespace VistaDB.Engine.Core.Scripting
             return true;
           case Signature.Operations.Delimiter:
             if (!signature1.IsSameName(delimiter, 0, this.activeStorage.Culture))
-              RaiseError((Exception) null, 287, new string(delimiter));
+              RaiseError(null, 287, new string(delimiter));
             ++delimitersCount;
             evalStack.ReleaseCollector();
             continue;
@@ -311,7 +311,7 @@ namespace VistaDB.Engine.Core.Scripting
     protected virtual bool OnParsePatterns()
     {
       char c = Thumb(0);
-      if ((int) c == (int) EvalStack.SingleQuote)
+      if (c == EvalStack.SingleQuote)
       {
         int num = evalStack.PushStringConstant(thumbOffset, activeStorage);
         if (num < 0)
@@ -319,7 +319,7 @@ namespace VistaDB.Engine.Core.Scripting
         thumbOffset += num;
         return true;
       }
-      if ((int) c == (int) EvalStack.FloatPunctuation || char.IsNumber(c))
+      if (c == EvalStack.FloatPunctuation || char.IsNumber(c))
       {
         int num = evalStack.PushNumericConstant(thumbOffset);
         if (num > 0)
@@ -333,7 +333,7 @@ namespace VistaDB.Engine.Core.Scripting
 
     protected virtual bool OnParseOperands()
     {
-      Signature signature1 = (Signature) null;
+      Signature signature1 = null;
       int num1 = 0;
       int num2 = 0;
       int num3 = 0;
@@ -362,7 +362,7 @@ namespace VistaDB.Engine.Core.Scripting
 
     internal EvalStack Compile(string expression, DataStorage activeStorage, bool checkBoolean)
     {
-      return Compile(expression, activeStorage, false, checkBoolean, activeStorage.CaseSensitive, (EvalStack) null);
+      return Compile(expression, activeStorage, false, checkBoolean, activeStorage.CaseSensitive, null);
     }
 
     internal EvalStack Compile(string expression, DataStorage activeStorage, bool exactEqual, bool checkBoolean, bool caseSensitive, EvalStack evaluator)
@@ -378,7 +378,7 @@ namespace VistaDB.Engine.Core.Scripting
       }
       catch (Exception ex)
       {
-        evalStack = (EvalStack) null;
+        evalStack = null;
         RaiseError(ex, 281, expression);
       }
       this.exactEqual = exactEqual;
@@ -387,26 +387,26 @@ namespace VistaDB.Engine.Core.Scripting
         evalStack.SaveExpression(expression);
         thumbOffset = 0;
         int delimitersCount = 0;
-        if (!ParseExpression(ref delimitersCount, activeStorage, (char[]) null, ' ', (char[]) null))
+        if (!ParseExpression(ref delimitersCount, activeStorage, null, ' ', null))
         {
           if (evalStack != null && evalStack.IsEmptyCollector())
-            RaiseError((Exception) null, 297, expression);
+            RaiseError(null, 297, expression);
           else
-            RaiseError((Exception) null, 298, (string) null);
+            RaiseError(null, 298, null);
         }
         if (evalStack.IsEmptyPcode())
-          RaiseError((Exception) null, 285, expression);
+          RaiseError(null, 285, expression);
         if (!evalStack.IsEmptyCollector())
-          RaiseError((Exception) null, 297, expression);
+          RaiseError(null, 297, expression);
         if (thumbOffset != evalStack.Expression.Length)
-          RaiseError((Exception) null, 285, expression.Substring(thumbOffset, evalStack.Expression.Length - thumbOffset));
+          RaiseError(null, 285, expression.Substring(thumbOffset, evalStack.Expression.Length - thumbOffset));
         evalStack.PushBreak();
         evalStack.PushPCode(evalStack.PopCollector());
         int error = SignaturesValidation(checkBoolean, ref expression);
         if (error > 0)
         {
           thumbOffset = 0;
-          RaiseError((Exception) null, error, expression);
+          RaiseError(null, error, expression);
         }
         return evalStack;
       }
@@ -416,7 +416,7 @@ namespace VistaDB.Engine.Core.Scripting
       }
       finally
       {
-        evalStack = (EvalStack) null;
+        evalStack = null;
       }
     }
 
@@ -427,7 +427,7 @@ namespace VistaDB.Engine.Core.Scripting
 
     protected virtual EvalStack OnCreateEvalStackInstance(DirectConnection connection, DataStorage activeStorage)
     {
-      return new EvalStack((Connection) connection, activeStorage);
+      return new EvalStack(connection, activeStorage);
     }
 
     public void Dispose()
@@ -435,15 +435,15 @@ namespace VistaDB.Engine.Core.Scripting
       if (isDisposed)
         return;
       isDisposed = true;
-      GC.SuppressFinalize((object) this);
+      GC.SuppressFinalize(this);
       if (signatures != null)
       {
         signatures.Clear();
-        signatures = (SignatureList) null;
+        signatures = null;
       }
-      activeStorage = (DataStorage) null;
-      evalStack = (EvalStack) null;
-      connection = (DirectConnection) null;
+      activeStorage = null;
+      evalStack = null;
+      connection = null;
     }
   }
 }

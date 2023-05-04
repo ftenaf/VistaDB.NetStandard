@@ -33,44 +33,44 @@ namespace VistaDB.Provider
 
     public override DbCommand CreateCommand()
     {
-      return (DbCommand) new VistaDBCommand();
+      return new VistaDBCommand();
     }
 
     public override DbCommandBuilder CreateCommandBuilder()
     {
-      return (DbCommandBuilder) new VistaDBCommandBuilder();
+      return new VistaDBCommandBuilder();
     }
 
     public override DbConnection CreateConnection()
     {
-      return (DbConnection) new VistaDBConnection();
+      return new VistaDBConnection();
     }
 
     public override DbConnectionStringBuilder CreateConnectionStringBuilder()
     {
-      return (DbConnectionStringBuilder) new VistaDBConnectionStringBuilder();
+      return new VistaDBConnectionStringBuilder();
     }
 
     public override DbDataAdapter CreateDataAdapter()
     {
-      return (DbDataAdapter) new VistaDBDataAdapter();
+      return new VistaDBDataAdapter();
     }
 
     public override DbParameter CreateParameter()
     {
-      return (DbParameter) new VistaDBParameter();
+      return new VistaDBParameter();
     }
 
     public CodeAccessPermission CreatePermission(PermissionState state)
     {
-      return (CodeAccessPermission) new VistaDBDataPermission();
+      return new VistaDBDataPermission();
     }
 
     object IServiceProvider.GetService(Type serviceType)
     {
       if (serviceType == EntityMethods.SystemDataCommonDbProviderServicesType)
         return EntityMethods.VistaDBProviderServicesInstance();
-      return (object) null;
+      return null;
     }
   }
 }

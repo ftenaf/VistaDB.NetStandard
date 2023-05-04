@@ -8,7 +8,7 @@
         }
 
         private TransactionLogTable(TransactionLogRowset rowset, Database parentDatabase)
-          : base((ClusteredRowset)rowset, parentDatabase)
+          : base(rowset, parentDatabase)
         {
         }
 

@@ -15,12 +15,12 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object ExecuteSubProgram()
     {
-      string str = (string) ((IValue) paramValues[0]).Value;
-      string oldValue = (string) ((IValue) paramValues[1]).Value;
-      string newValue = (string) ((IValue) paramValues[2]).Value;
+      string str = (string)paramValues[0].Value;
+      string oldValue = (string)paramValues[1].Value;
+      string newValue = (string)paramValues[2].Value;
       if (oldValue.Length > str.Length)
-        return (object) null;
-      return (object) str.Replace(oldValue, newValue);
+        return null;
+      return str.Replace(oldValue, newValue);
     }
 
     public override int GetWidth()

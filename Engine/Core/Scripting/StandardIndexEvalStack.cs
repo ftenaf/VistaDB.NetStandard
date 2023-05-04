@@ -42,7 +42,7 @@ namespace VistaDB.Engine.Core.Scripting
             Row.Column column = contextRow[map[index].RowIndex].Duplicate(false);
             column.Descending = patternKey[index].Descending;
             column.RowIndex = index;
-            targetResult.AppendColumn((IColumn) column);
+            targetResult.AppendColumn(column);
           }
         }
       }

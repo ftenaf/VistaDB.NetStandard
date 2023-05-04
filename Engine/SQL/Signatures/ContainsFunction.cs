@@ -41,16 +41,16 @@ namespace VistaDB.Engine.SQL.Signatures
       int index1 = 0;
       for (int index2 = parameters.Count - 1; index1 < index2; ++index1)
       {
-        if (patternFinder.ContainsPattern((string) ((IValue) paramValues[index1]).Value, prefixSearch))
-          return (object) true;
+        if (patternFinder.ContainsPattern((string)paramValues[index1].Value, prefixSearch))
+          return true;
       }
-      return (object) false;
+      return false;
     }
 
     private void FtsIndexExists()
     {
       IVistaDBIndexCollection indexes = parent.Database.TableSchema(parent.GetSourceTable(0).TableName).Indexes;
-      IVistaDBKeyColumn[] vistaDbKeyColumnArray = (IVistaDBKeyColumn[]) null;
+      IVistaDBKeyColumn[] vistaDbKeyColumnArray = null;
       foreach (IVistaDBIndexInformation indexInformation in (IEnumerable<IVistaDBIndexInformation>) indexes.Values)
       {
         if (indexInformation.FullTextSearch)
@@ -67,7 +67,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       SourceTable sourceTable = parent.GetSourceTable(0);
       IVistaDBIndexCollection indexes = parent.Database.TableSchema(sourceTable.TableName).Indexes;
-      IVistaDBKeyColumn[] vistaDbKeyColumnArray = (IVistaDBKeyColumn[]) null;
+      IVistaDBKeyColumn[] vistaDbKeyColumnArray = null;
       foreach (IVistaDBIndexInformation indexInformation in (IEnumerable<IVistaDBIndexInformation>) indexes.Values)
       {
         if (indexInformation.FullTextSearch)
@@ -84,7 +84,7 @@ namespace VistaDB.Engine.SQL.Signatures
       foreach (IVistaDBKeyColumn vistaDbKeyColumn in vistaDbKeyColumnArray)
       {
         IColumn column = sourceTable.SimpleGetColumn(vistaDbKeyColumn.RowIndex);
-        parameters.Insert(0, (Signature) new ColumnSignature(sourceTable, column.RowIndex, parent));
+        parameters.Insert(0, new ColumnSignature(sourceTable, column.RowIndex, parent));
         paramValues = new IColumn[parameters.Count - 1];
       }
     }
@@ -92,7 +92,7 @@ namespace VistaDB.Engine.SQL.Signatures
     protected override bool OnOptimize(ConstraintOperations constrainOperations)
     {
       if (pattern == null && parameters.Count > 0)
-        CreatePattern((SQLParser) null);
+        CreatePattern(null);
       if (IsStopWord(pattern))
         return false;
       if ((parameters[0] as ColumnSignature).SignatureType == SignatureType.MultiplyColumn)
@@ -122,7 +122,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public override void SetChanged()
     {
-      pattern = (string) null;
+      pattern = null;
       base.SetChanged();
     }
 
@@ -136,7 +136,7 @@ namespace VistaDB.Engine.SQL.Signatures
       Signature parameter = parameters[parameters.Count - 1];
       if (parser != null && parameter.SignatureType == SignatureType.Parameter)
         return;
-      pattern = ((IValue) parameter.Execute()).Value as string;
+      pattern = parameter.Execute().Value as string;
       int num1 = pattern.IndexOf('"');
       int num2 = pattern.IndexOf("*");
       if (pattern.IndexOf('%') >= 0 || num1 == -1 && num2 >= 0)
@@ -158,7 +158,7 @@ namespace VistaDB.Engine.SQL.Signatures
           throw new VistaDBSQLException(634, "Example: SELECT * from TABLE WHERE CONTAINS( *, 'word')", lineNo, symbolNo);
         pattern = pattern.Substring(1, num2 < 1 ? pattern.Length - 2 : num2 - 1);
         if (parser != null)
-          parameters[parameters.Count - 1] = (Signature) ConstantSignature.CreateSignature(pattern, VistaDBType.NChar, parser);
+          parameters[parameters.Count - 1] = ConstantSignature.CreateSignature(pattern, VistaDBType.NChar, parser);
         prefixSearch = num2 > -1;
       }
       patternFinder = new PatternFinder(pattern, parent.Connection);

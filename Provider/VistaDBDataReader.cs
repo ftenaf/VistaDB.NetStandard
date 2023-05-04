@@ -26,7 +26,7 @@ namespace VistaDB.Provider
     {
       get
       {
-        return (object) this;
+        return this;
       }
     }
 
@@ -154,10 +154,10 @@ namespace VistaDB.Provider
         }
         finally
         {
-          queryStatements = (IQueryStatement) null;
-          queryResult = (IQueryResult) null;
-          queryResultSchema = (IQuerySchemaInfo) null;
-          vdbConnection = (VistaDBConnection) null;
+          queryStatements = null;
+          queryResult = null;
+          queryResultSchema = null;
+          vdbConnection = null;
         }
       }
     }
@@ -184,11 +184,11 @@ namespace VistaDB.Provider
       if (sourceArray == null || sourceArray.Length == 0)
         return 0;
       if (buffer == null)
-        return (long) sourceArray.Length;
-      long length1 = (long) sourceArray.Length - dataOffset;
-      if (length1 > (long) length)
-        length1 = (long) length;
-      Array.Copy(sourceArray, dataOffset, (Array) buffer, (long) bufferOffset, length1);
+        return sourceArray.Length;
+      long length1 = sourceArray.Length - dataOffset;
+      if (length1 > length)
+        length1 = length;
+      Array.Copy(sourceArray, dataOffset, buffer, bufferOffset, length1);
       return length1;
     }
 
@@ -206,11 +206,11 @@ namespace VistaDB.Provider
       if (str == null || str.Length == 0)
         return 0;
       if (buffer == null)
-        return (long) str.Length;
-      long length1 = (long) str.Length - dataOffset;
-      if (length1 > (long) length)
-        length1 = (long) length;
-      Array.Copy((Array) str.ToCharArray(), dataOffset, (Array) buffer, (long) bufferOffset, length1);
+        return str.Length;
+      long length1 = str.Length - dataOffset;
+      if (length1 > length)
+        length1 = length;
+      Array.Copy(str.ToCharArray(), dataOffset, buffer, bufferOffset, length1);
       return length1;
     }
 
@@ -245,7 +245,7 @@ namespace VistaDB.Provider
 
     public override IEnumerator GetEnumerator()
     {
-      return (IEnumerator) new DbEnumerator((IDataReader) this, closeConnection);
+      return new DbEnumerator((IDataReader)this, closeConnection);
     }
 
     public override Type GetFieldType(int ordinal)
@@ -343,8 +343,8 @@ namespace VistaDB.Provider
     {
       if (queryResult != null)
         queryResult.Close();
-      queryResult = (IQueryResult) null;
-      queryResultSchema = (IQuerySchemaInfo) null;
+      queryResult = null;
+      queryResultSchema = null;
       affectedRows = -1L;
       if (pipedReader == null)
       {
@@ -386,7 +386,7 @@ namespace VistaDB.Provider
       else if (!pipedReader.GoNextResult())
       {
         pipedReader.Close();
-        pipedReader = (VistaDBDataReader) null;
+        pipedReader = null;
         return GoNextResult();
       }
       affectedRows = pipedReader.affectedRows;
@@ -437,12 +437,12 @@ namespace VistaDB.Provider
 
     internal object ExecQuery(ref long affectedRows)
     {
-      object scalar1 = (object) null;
+      object scalar1 = null;
       if (pipedReader == null)
       {
         if (pipe.Count == 0)
         {
-          object scalar2 = (object) null;
+          object scalar2 = null;
           for (INextQueryResult nextQueryResult = queryStatements.NextResult(pipe); nextQueryResult != null; nextQueryResult = queryStatements.NextResult(pipe))
           {
             affectedRows += nextQueryResult.AffectedRows;
@@ -463,7 +463,7 @@ namespace VistaDB.Provider
       {
         scalar1 = pipedReader.ExecQuery(ref affectedRows);
         pipedReader.Close();
-        pipedReader = (VistaDBDataReader) null;
+        pipedReader = null;
       }
       return scalar1;
     }
@@ -472,7 +472,7 @@ namespace VistaDB.Provider
     {
       get
       {
-        return (INextQueryResult) new BatchStatement.ResultSetData(queryResult, queryResultSchema, affectedRows);
+        return new BatchStatement.ResultSetData(queryResult, queryResultSchema, affectedRows);
       }
     }
 

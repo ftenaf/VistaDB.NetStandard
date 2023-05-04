@@ -15,7 +15,7 @@ namespace VistaDB.Engine.SQL.Signatures
     protected override IColumn InternalExecute()
     {
       if (GetIsChanged())
-        ((IValue) result).Value = (object) ((SubQuerySignature) operand).IsResultPresent();
+                result.Value = ((SubQuerySignature)operand).IsResultPresent();
       return result;
     }
 

@@ -9,7 +9,7 @@ namespace VistaDB.Engine.SQL.Signatures
       : base(parser)
     {
       dataType = VistaDBType.Unknown;
-      parent.AlwaysPrepare((Signature) this);
+      parent.AlwaysPrepare(this);
     }
 
     protected override bool InternalGetIsChanged()
@@ -19,20 +19,20 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public override SignatureType OnPrepare()
     {
-      IVistaDBColumn lastIdentity = parent.Database.GetLastIdentity((string) null, (string) null);
+      IVistaDBColumn lastIdentity = parent.Database.GetLastIdentity(null, null);
       VistaDBType vistaDbType = lastIdentity == null ? VistaDBType.Int : lastIdentity.Type;
       if (vistaDbType != dataType)
       {
         dataType = vistaDbType;
-        result = (IColumn) null;
+        result = null;
       }
       return signatureType;
     }
 
     protected override IColumn InternalExecute()
     {
-      IVistaDBColumn lastIdentity = parent.Database.GetLastIdentity((string) null, (string) null);
-      ((IValue) result).Value = lastIdentity == null ? (object) null : lastIdentity.Value;
+      IVistaDBColumn lastIdentity = parent.Database.GetLastIdentity(null, null);
+            result.Value = lastIdentity == null ? null : lastIdentity.Value;
       return result;
     }
   }

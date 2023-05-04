@@ -8,21 +8,21 @@ namespace VistaDB.Engine.SQL
     public BaseAlterStatementDescr()
     {
       statements = new Hashtable();
-      statements.Add((object) "VIEW", (object) new AlterViewStatementDescr());
-      statements.Add((object) "ASSEMBLY", (object) new AlterAssemblyStatementDescr());
-      IStatementDescr statementDescr = (IStatementDescr) new AlterProcedureStatementDescr();
-      statements.Add((object) "PROCEDURE", (object) statementDescr);
-      statements.Add((object) "PROC", (object) statementDescr);
-      statements.Add((object) "FUNCTION", (object) new AlterFunctionStatementDescr());
-      statements.Add((object) "TABLE", (object) new AlterTableStatementDescr());
-      statements.Add((object) "INDEX", (object) new AlterIndexStatementDescr());
+      statements.Add("VIEW", new AlterViewStatementDescr());
+      statements.Add("ASSEMBLY", new AlterAssemblyStatementDescr());
+      IStatementDescr statementDescr = new AlterProcedureStatementDescr();
+      statements.Add("PROCEDURE", statementDescr);
+      statements.Add("PROC", statementDescr);
+      statements.Add("FUNCTION", new AlterFunctionStatementDescr());
+      statements.Add("TABLE", new AlterTableStatementDescr());
+      statements.Add("INDEX", new AlterIndexStatementDescr());
     }
 
     private class AlterViewStatementDescr : IStatementDescr
     {
       public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
       {
-        return (Statement) new AlterViewStatement(conn, parent, parser, id);
+        return new AlterViewStatement(conn, parent, parser, id);
       }
     }
 
@@ -30,7 +30,7 @@ namespace VistaDB.Engine.SQL
     {
       public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
       {
-        return (Statement) new AlterAssemblyStatement(conn, parent, parser, id);
+        return new AlterAssemblyStatement(conn, parent, parser, id);
       }
     }
 
@@ -38,7 +38,7 @@ namespace VistaDB.Engine.SQL
     {
       public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
       {
-        return (Statement) new AlterFunctionStatement(conn, parent, parser, id);
+        return new AlterFunctionStatement(conn, parent, parser, id);
       }
     }
 
@@ -46,7 +46,7 @@ namespace VistaDB.Engine.SQL
     {
       public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
       {
-        return (Statement) new AlterProcedureStatement(conn, parent, parser, id);
+        return new AlterProcedureStatement(conn, parent, parser, id);
       }
     }
 
@@ -54,7 +54,7 @@ namespace VistaDB.Engine.SQL
     {
       public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
       {
-        return (Statement) new AlterTableStatement(conn, parent, parser, id);
+        return new AlterTableStatement(conn, parent, parser, id);
       }
     }
 
@@ -62,7 +62,7 @@ namespace VistaDB.Engine.SQL
     {
       public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
       {
-        return (Statement) new AlterIndexStatement(conn, parent, parser, id);
+        return new AlterIndexStatement(conn, parent, parser, id);
       }
     }
   }

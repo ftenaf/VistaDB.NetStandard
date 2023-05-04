@@ -30,9 +30,9 @@ namespace VistaDB.Engine.Core.Cryptography
       switch (baseKey.Type)
       {
         case EncryptionKey.Cypher.Blowfish:
-          return (Encryption) new BlowFishEncryption(baseKey.Key);
+          return new BlowFishEncryption(baseKey.Key);
         case EncryptionKey.Cypher.None:
-          return (Encryption) null;
+          return null;
         default:
           return new Encryption();
       }

@@ -9,23 +9,23 @@ namespace VistaDB.Engine.SQL
     {
       statements = new Hashtable();
             DropIndexStatementDescr indexStatementDescr = new DropIndexStatementDescr();
-      statements.Add((object) "FULLTEXT", (object) indexStatementDescr);
-      statements.Add((object) "INDEX", (object) indexStatementDescr);
-      statements.Add((object) "TABLE", (object) new DropTableStatementDescr());
-      statements.Add((object) "VIEW", (object) new DropViewStatementDescr());
-      statements.Add((object) "ASSEMBLY", (object) new DropAssemblyStatementDescr());
-      statements.Add((object) "TRIGGER", (object) new DropTriggerStatementDescr());
-      IStatementDescr statementDescr = (IStatementDescr) new DropProcStatementDescr();
-      statements.Add((object) "PROC", (object) statementDescr);
-      statements.Add((object) "PROCEDURE", (object) statementDescr);
-      statements.Add((object) "FUNCTION", (object) new DropFunctionStatementDescr());
+      statements.Add("FULLTEXT", indexStatementDescr);
+      statements.Add("INDEX", indexStatementDescr);
+      statements.Add("TABLE", new DropTableStatementDescr());
+      statements.Add("VIEW", new DropViewStatementDescr());
+      statements.Add("ASSEMBLY", new DropAssemblyStatementDescr());
+      statements.Add("TRIGGER", new DropTriggerStatementDescr());
+      IStatementDescr statementDescr = new DropProcStatementDescr();
+      statements.Add("PROC", statementDescr);
+      statements.Add("PROCEDURE", statementDescr);
+      statements.Add("FUNCTION", new DropFunctionStatementDescr());
     }
 
     private class DropIndexStatementDescr : IStatementDescr
     {
       public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
       {
-        return (Statement) new DropIndexStatement(conn, parent, parser, id);
+        return new DropIndexStatement(conn, parent, parser, id);
       }
     }
 
@@ -33,7 +33,7 @@ namespace VistaDB.Engine.SQL
     {
       public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
       {
-        return (Statement) new DropTableStatement(conn, parent, parser, id);
+        return new DropTableStatement(conn, parent, parser, id);
       }
     }
 
@@ -41,7 +41,7 @@ namespace VistaDB.Engine.SQL
     {
       public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
       {
-        return (Statement) new DropViewStatement(conn, parent, parser, id);
+        return new DropViewStatement(conn, parent, parser, id);
       }
     }
 
@@ -49,7 +49,7 @@ namespace VistaDB.Engine.SQL
     {
       public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
       {
-        return (Statement) new DropAssemblyStatement(conn, parent, parser, id);
+        return new DropAssemblyStatement(conn, parent, parser, id);
       }
     }
 
@@ -57,7 +57,7 @@ namespace VistaDB.Engine.SQL
     {
       public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
       {
-        return (Statement) new DropProcStatement(conn, parent, parser, id);
+        return new DropProcStatement(conn, parent, parser, id);
       }
     }
 
@@ -65,7 +65,7 @@ namespace VistaDB.Engine.SQL
     {
       public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
       {
-        return (Statement) new DropFunctionStatement(conn, parent, parser, id);
+        return new DropFunctionStatement(conn, parent, parser, id);
       }
     }
 
@@ -73,7 +73,7 @@ namespace VistaDB.Engine.SQL
     {
       public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
       {
-        return (Statement) new DropTriggerStatement(conn, parent, parser, id);
+        return new DropTriggerStatement(conn, parent, parser, id);
       }
     }
   }

@@ -20,7 +20,7 @@
       object[] values = TableCache.GetValues(key);
       if (values != null && values.Length > ResultColumnIndex)
         return values[ResultColumnIndex];
-      return (object) null;
+      return null;
     }
   }
 }

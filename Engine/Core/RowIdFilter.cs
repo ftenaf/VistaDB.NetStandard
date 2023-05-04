@@ -10,22 +10,22 @@ namespace VistaDB.Engine.Core
     private long rowCount;
 
     private RowIdFilter(RowIdFilter filter)
-      : base((EvalStack) null, FilterType.Optimized, true, false, 1)
+      : base(null, FilterType.Optimized, true, false, 1)
     {
       activeRows = filter.activeRows.Clone();
       rowCount = filter.rowCount;
     }
 
     internal RowIdFilter(uint maxRowId)
-      : base((EvalStack) null, FilterType.Optimized, true, false, 1)
+      : base(null, FilterType.Optimized, true, false, 1)
     {
       activeRows = new ActiveRows(maxRowId);
     }
 
     protected RowIdFilter()
-      : base((EvalStack) null, FilterType.Optimized, true, false, 1)
+      : base(null, FilterType.Optimized, true, false, 1)
     {
-      activeRows = (ActiveRows) null;
+      activeRows = null;
     }
 
     protected override bool OnGetValidRowStatus(Row row)
@@ -117,7 +117,7 @@ namespace VistaDB.Engine.Core
       private ActiveRows(ActiveRows activeRows)
       {
         statusArray = new byte[activeRows.statusArray.Length];
-        Array.Copy((Array) activeRows.statusArray, (Array) statusArray, statusArray.Length);
+        Array.Copy(activeRows.statusArray, statusArray, statusArray.Length);
         inverted = activeRows.inverted;
       }
 
@@ -138,8 +138,8 @@ namespace VistaDB.Engine.Core
       {
         uint num1 = rowId / 4U;
         byte num2 = (byte) (3U << (int) (2U * (rowId % 4U)));
-        if ((long) num1 < (long) statusArray.Length)
-          return (int) (byte) ((uint) statusArray[num1] & (uint) num2) == (int) num2;
+        if (num1 < statusArray.Length)
+          return (byte)(statusArray[num1] & (uint)num2) == num2;
         return false;
       }
 
@@ -147,7 +147,7 @@ namespace VistaDB.Engine.Core
       {
         uint num1 = rowId / 4U;
         byte num2 = (byte) (3U << (int) (2U * (rowId % 4U)));
-        if ((long) num1 >= (long) statusArray.Length)
+        if (num1 >= statusArray.Length)
           return;
         if (setTrueValue)
           statusArray[num1] |= num2;
@@ -164,9 +164,9 @@ namespace VistaDB.Engine.Core
           int index = 0;
           for (int length = statusArray.Length; index < length; ++index)
           {
-            byte num2 = notMatrix[(int) statusArray[index]];
+            byte num2 = notMatrix[statusArray[index]];
             statusArray[index] = num2;
-            num1 += (long)countMatrix[(int) num2];
+            num1 += countMatrix[num2];
           }
           inverted = false;
         }
@@ -181,11 +181,11 @@ namespace VistaDB.Engine.Core
           int index = 0;
           for (int length = statusArray.Length; index < length; ++index)
           {
-            byte num2 = notMatrix[(int) statusArray[index]];
-            byte num3 = notMatrix[(int) filter.statusArray[index]];
-            byte num4 = orMatrix[(int) num2, (int) num3];
+            byte num2 = notMatrix[statusArray[index]];
+            byte num3 = notMatrix[filter.statusArray[index]];
+            byte num4 = orMatrix[num2, num3];
             statusArray[index] = num4;
-            num1 += (long)countMatrix[(int) num4];
+            num1 += countMatrix[num4];
           }
         }
         else if (inverted)
@@ -193,11 +193,11 @@ namespace VistaDB.Engine.Core
           int index = 0;
           for (int length = statusArray.Length; index < length; ++index)
           {
-            byte num2 = notMatrix[(int) statusArray[index]];
+            byte num2 = notMatrix[statusArray[index]];
             byte status = filter.statusArray[index];
-            byte num3 = orMatrix[(int) num2, (int) status];
+            byte num3 = orMatrix[num2, status];
             statusArray[index] = num3;
-            num1 += (long)countMatrix[(int) num3];
+            num1 += countMatrix[num3];
           }
         }
         else if (filter.inverted)
@@ -206,10 +206,10 @@ namespace VistaDB.Engine.Core
           for (int length = statusArray.Length; index < length; ++index)
           {
             byte status = statusArray[index];
-            byte num2 = notMatrix[(int) filter.statusArray[index]];
-            byte num3 = orMatrix[(int) status, (int) num2];
+            byte num2 = notMatrix[filter.statusArray[index]];
+            byte num3 = orMatrix[status, num2];
             statusArray[index] = num3;
-            num1 += (long)countMatrix[(int) num3];
+            num1 += countMatrix[num3];
           }
         }
         else
@@ -219,9 +219,9 @@ namespace VistaDB.Engine.Core
           {
             byte status1 = statusArray[index];
             byte status2 = filter.statusArray[index];
-            byte num2 = orMatrix[(int) status1, (int) status2];
+            byte num2 = orMatrix[status1, status2];
             statusArray[index] = num2;
-            num1 += (long)countMatrix[(int) num2];
+            num1 += countMatrix[num2];
           }
         }
         inverted = false;
@@ -237,11 +237,11 @@ namespace VistaDB.Engine.Core
           int index = 0;
           for (int length = statusArray.Length; index < length; ++index)
           {
-            byte num2 = notMatrix[(int) statusArray[index]];
-            byte num3 = notMatrix[(int) filter.statusArray[index]];
-            byte num4 = andMatrix[(int) num2, (int) num3];
+            byte num2 = notMatrix[statusArray[index]];
+            byte num3 = notMatrix[filter.statusArray[index]];
+            byte num4 = andMatrix[num2, num3];
             statusArray[index] = num4;
-            num1 += (long)countMatrix[(int) num4];
+            num1 += countMatrix[num4];
           }
         }
         else if (inverted)
@@ -249,11 +249,11 @@ namespace VistaDB.Engine.Core
           int index = 0;
           for (int length = statusArray.Length; index < length; ++index)
           {
-            byte num2 = notMatrix[(int) statusArray[index]];
+            byte num2 = notMatrix[statusArray[index]];
             byte status = filter.statusArray[index];
-            byte num3 = andMatrix[(int) num2, (int) status];
+            byte num3 = andMatrix[num2, status];
             statusArray[index] = num3;
-            num1 += (long)countMatrix[(int) num3];
+            num1 += countMatrix[num3];
           }
         }
         else if (filter.inverted)
@@ -262,10 +262,10 @@ namespace VistaDB.Engine.Core
           for (int length = statusArray.Length; index < length; ++index)
           {
             byte status = statusArray[index];
-            byte num2 = notMatrix[(int) filter.statusArray[index]];
-            byte num3 = andMatrix[(int) status, (int) num2];
+            byte num2 = notMatrix[filter.statusArray[index]];
+            byte num3 = andMatrix[status, num2];
             statusArray[index] = num3;
-            num1 += (long)countMatrix[(int) num3];
+            num1 += countMatrix[num3];
           }
         }
         else
@@ -275,9 +275,9 @@ namespace VistaDB.Engine.Core
           {
             byte status1 = statusArray[index];
             byte status2 = filter.statusArray[index];
-            byte num2 = andMatrix[(int) status1, (int) status2];
+            byte num2 = andMatrix[status1, status2];
             statusArray[index] = num2;
-            num1 += (long)countMatrix[(int) num2];
+            num1 += countMatrix[num2];
           }
         }
         inverted = false;
@@ -294,10 +294,10 @@ namespace VistaDB.Engine.Core
           int index = 0;
           for (int length = statusArray.Length; index < length; ++index)
           {
-            byte num3 = notMatrix[(int) statusArray[index]];
-            byte num4 = orMatrix[(int) num3, (int) num2];
+            byte num3 = notMatrix[statusArray[index]];
+            byte num4 = orMatrix[num3, num2];
             statusArray[index] = num4;
-            num1 += (long)countMatrix[(int) num4];
+            num1 += countMatrix[num4];
           }
         }
         else
@@ -306,9 +306,9 @@ namespace VistaDB.Engine.Core
           for (int length = statusArray.Length; index < length; ++index)
           {
             byte status = statusArray[index];
-            byte num3 = orMatrix[(int) status, (int) num2];
+            byte num3 = orMatrix[status, num2];
             statusArray[index] = num3;
-            num1 += (long)countMatrix[(int) num3];
+            num1 += countMatrix[num3];
           }
         }
         inverted = false;
@@ -324,10 +324,10 @@ namespace VistaDB.Engine.Core
           int index = 0;
           for (int length = statusArray.Length; index < length; ++index)
           {
-            byte num3 = notMatrix[(int) statusArray[index]];
-            byte num4 = orMatrix[(int) num3, (int) num2];
+            byte num3 = notMatrix[statusArray[index]];
+            byte num4 = orMatrix[num3, num2];
             statusArray[index] = num4;
-            num1 += (long)countMatrix[(int) num4];
+            num1 += countMatrix[num4];
           }
         }
         else
@@ -336,9 +336,9 @@ namespace VistaDB.Engine.Core
           for (int length = statusArray.Length; index < length; ++index)
           {
             byte status = statusArray[index];
-            byte num3 = andMatrix[(int) status, (int) num2];
+            byte num3 = andMatrix[status, num2];
             statusArray[index] = num3;
-            num1 += (long)countMatrix[(int) num3];
+            num1 += countMatrix[num3];
           }
         }
         inverted = false;
@@ -351,7 +351,7 @@ namespace VistaDB.Engine.Core
           return;
         int index = 0;
         for (int length = statusArray.Length; index < length; ++index)
-          statusArray[index] = notMatrix[(int) statusArray[index]];
+          statusArray[index] = notMatrix[statusArray[index]];
       }
 
       internal ActiveRows Clone()
@@ -386,10 +386,10 @@ namespace VistaDB.Engine.Core
 
         private static void GetCompositValues(byte v, out Triangular.Value a, out Triangular.Value b, out Triangular.Value c, out Triangular.Value d)
         {
-          a = (Triangular.Value) ((uint) v & 3U);
-          b = (Triangular.Value) ((uint) (byte) ((uint) v >> 2) & 3U);
-          c = (Triangular.Value) ((uint) (byte) ((uint) v >> 4) & 3U);
-          d = (Triangular.Value) ((uint) (byte) ((uint) v >> 6) & 3U);
+          a = (Triangular.Value) (v & 3U);
+          b = (Triangular.Value) ((byte)((uint)v >> 2) & 3U);
+          c = (Triangular.Value) ((byte)((uint)v >> 4) & 3U);
+          d = (Triangular.Value) ((byte)((uint)v >> 6) & 3U);
         }
 
         private static byte NotByte(byte v)
@@ -438,7 +438,7 @@ namespace VistaDB.Engine.Core
           byte num2 = 3;
           for (int index = 0; index < 4; ++index)
           {
-            if ((int) (byte) ((uint) v & (uint) num2) == (int) num2)
+            if ((byte)(v & (uint)num2) == num2)
               ++num1;
             v >>= 2;
           }
@@ -449,7 +449,7 @@ namespace VistaDB.Engine.Core
         {
           byte[] numArray = new byte[256];
           foreach (byte index in Indexes)
-            numArray[(int) index] = NotByte(index);
+            numArray[index] = NotByte(index);
           return numArray;
         }
 
@@ -463,7 +463,7 @@ namespace VistaDB.Engine.Core
             {
               byte v1 = indexes[index1];
               byte v2 = indexes[index2];
-              numArray[(int) v1, (int) v2] = AndByte(v1, v2);
+              numArray[v1, v2] = AndByte(v1, v2);
             }
           }
           return numArray;
@@ -479,7 +479,7 @@ namespace VistaDB.Engine.Core
             {
               byte v1 = indexes[index1];
               byte v2 = indexes[index2];
-              numArray[(int) v1, (int) v2] = OrByte(v1, v2);
+              numArray[v1, v2] = OrByte(v1, v2);
             }
           }
           return numArray;
@@ -489,7 +489,7 @@ namespace VistaDB.Engine.Core
         {
           byte[] numArray = new byte[256];
           foreach (byte index in Indexes)
-            numArray[(int) index] = CountByte(index);
+            numArray[index] = CountByte(index);
           return numArray;
         }
       }

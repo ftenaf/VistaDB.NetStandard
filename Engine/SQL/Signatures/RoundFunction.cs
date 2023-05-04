@@ -33,41 +33,41 @@ namespace VistaDB.Engine.SQL.Signatures
 
         protected override object ExecuteSubProgram()
     {
-      object obj = ((IValue) paramValues[0]).Value;
-      int num1 = (int) ((IValue) paramValues[1]).Value;
+      object obj = paramValues[0].Value;
+      int num1 = (int)paramValues[1].Value;
       int num2 = Math.Abs(num1);
       switch (dataType)
       {
         case VistaDBType.TinyInt:
           if (num1 >= 0)
             return obj;
-          return (object) (byte) Math.Truncate(Math.Round((double) (byte) obj * Math.Pow(0.1, (double) num2)) * Math.Pow(10.0, (double) num2));
+          return (byte)Math.Truncate(Math.Round((byte)obj * Math.Pow(0.1, num2)) * Math.Pow(10.0, num2));
         case VistaDBType.SmallInt:
           if (num1 >= 0)
             return obj;
-          return (object) (short) Math.Truncate(Math.Round((double) (short) obj * Math.Pow(0.1, (double) num2)) * Math.Pow(10.0, (double) num2));
+          return (short)Math.Truncate(Math.Round((short)obj * Math.Pow(0.1, num2)) * Math.Pow(10.0, num2));
         case VistaDBType.Int:
           if (num1 >= 0)
             return obj;
-          return (object) (int) Math.Truncate(Math.Round((double) (int) obj * Math.Pow(0.1, (double) num2)) * Math.Pow(10.0, (double) num2));
+          return (int)Math.Truncate(Math.Round((int)obj * Math.Pow(0.1, num2)) * Math.Pow(10.0, num2));
         case VistaDBType.BigInt:
           if (num1 >= 0)
             return obj;
-          return (object) (long) Math.Truncate(Math.Round((double) (long) obj * Math.Pow(0.1, (double) num2)) * Math.Pow(10.0, (double) num2));
+          return (long)Math.Truncate(Math.Round((long)obj * Math.Pow(0.1, num2)) * Math.Pow(10.0, num2));
         case VistaDBType.Real:
           if (num1 > -1 && num1 < 29)
-            return (object) (float) Math.Round((double) (float) obj, num1);
-          return (object) (Math.Round((double) (float) obj * Math.Pow(0.1, (double) num2)) * Math.Pow(10.0, (double) num2));
+            return (float)Math.Round((double)(float)obj, num1);
+          return Math.Round((double)(float)obj * Math.Pow(0.1, num2)) * Math.Pow(10.0, num2);
         case VistaDBType.Float:
           if (num1 > -1 && num1 < 29)
-            return (object) Math.Round((double) obj, num1);
-          return (object) (Math.Round((double) obj * Math.Pow(0.1, (double) num2)) * Math.Pow(10.0, (double) num2));
+            return Math.Round((double)obj, num1);
+          return Math.Round((double)obj * Math.Pow(0.1, num2)) * Math.Pow(10.0, num2);
         case VistaDBType.Decimal:
         case VistaDBType.Money:
         case VistaDBType.SmallMoney:
           if (num1 > -1 && num1 < 29)
-            return (object) Math.Round((Decimal) obj, num1);
-          return (object) (Math.Round((Decimal) obj * (Decimal) Math.Pow(0.1, (double) num2)) * (Decimal) Math.Pow(10.0, (double) num2));
+            return Math.Round((Decimal)obj, num1);
+          return Math.Round((Decimal)obj * (Decimal)Math.Pow(0.1, num2)) * (Decimal)Math.Pow(10.0, num2);
         default:
           throw new VistaDBSQLException(556, "Unknown data type", lineNo, symbolNo);
       }

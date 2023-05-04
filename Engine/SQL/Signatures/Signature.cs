@@ -27,11 +27,11 @@ namespace VistaDB.Engine.SQL.Signatures
       text = token;
       this.parent = parent;
       dataType = VistaDBType.Unknown;
-      result = (IColumn) null;
+      result = null;
       isAllowNull = true;
       found = false;
       optimizable = false;
-      tempRow = (SourceRow) null;
+      tempRow = null;
       tempColumnIndex = -1;
       signatureType = SignatureType.Constant;
     }
@@ -178,16 +178,16 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public static bool operator ==(Signature signature1, Signature signature2)
     {
-      if (ObjIsNull((object) signature1))
-        return ObjIsNull((object) signature2);
-      return signature1.Equals((object) signature2);
+      if (ObjIsNull(signature1))
+        return ObjIsNull(signature2);
+      return signature1.Equals(signature2);
     }
 
     public static bool operator !=(Signature signature1, Signature signature2)
     {
-      if (ObjIsNull((object) signature1))
-        return !ObjIsNull((object) signature2);
-      return !signature1.Equals((object) signature2);
+      if (ObjIsNull(signature1))
+        return !ObjIsNull(signature2);
+      return !signature1.Equals(signature2);
     }
 
     private static bool ObjIsNull(object obj)
@@ -221,9 +221,9 @@ namespace VistaDB.Engine.SQL.Signatures
       if (tempRow == null)
         return InternalExecute();
       if (tempRow.Columns == null)
-        ((IValue) result).Value = ((IValue) tempRow.Row[tempColumnIndex]).Value;
+                result.Value = tempRow.Row[tempColumnIndex].Value;
       else
-        ((IValue) result).Value = ((IValue) tempRow.Columns[tempColumnIndex]).Value;
+                result.Value = tempRow.Columns[tempColumnIndex].Value;
       return result;
     }
 
@@ -247,7 +247,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public void SwitchToTable()
     {
-      tempRow = (SourceRow) null;
+      tempRow = null;
       tempColumnIndex = -1;
     }
 
@@ -268,7 +268,7 @@ namespace VistaDB.Engine.SQL.Signatures
     public IColumn CreateColumn(VistaDBType dataType)
     {
       if (parent.Connection.Database == null)
-        return (IColumn) DataStorage.CreateRowColumn(dataType, true, CultureInfo.InvariantCulture);
+        return DataStorage.CreateRowColumn(dataType, true, CultureInfo.InvariantCulture);
       if (Utils.IsCharacterDataType(dataType))
         return parent.Database.CreateEmtpyUnicodeColumn();
       return parent.Database.CreateEmptyColumn(dataType);

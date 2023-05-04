@@ -10,7 +10,7 @@ namespace VistaDB.VistaDBTypes
 
     public VistaDBGuid(Guid val)
     {
-      Value = (object) val;
+      Value = val;
     }
 
     public override object Value
@@ -21,7 +21,7 @@ namespace VistaDB.VistaDBTypes
       }
       set
       {
-        base.Value = value == null ? value : (object) (Guid) value;
+        base.Value = value == null ? value : (Guid)value;
       }
     }
 

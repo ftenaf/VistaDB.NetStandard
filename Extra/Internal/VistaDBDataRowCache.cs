@@ -62,7 +62,7 @@ namespace VistaDB.Extra.Internal
       }
       catch (VistaDBException ex)
       {
-        if (ex.ErrorId != (int) sbyte.MaxValue)
+        if (ex.ErrorId != sbyte.MaxValue)
           throw ex;
       }
       finally
@@ -103,7 +103,7 @@ namespace VistaDB.Extra.Internal
         if (tableNewRowCount == 0L)
           return;
         minRowIndex = 0L;
-        for (maxRowIndex = -1L; maxRowIndex < (long) (Capacity - 1) && !table.EndOfTable; ++maxRowIndex)
+        for (maxRowIndex = -1L; maxRowIndex < Capacity - 1 && !table.EndOfTable; ++maxRowIndex)
         {
           Add(table.CurrentKey);
           hashTable.Add(this[(int) (maxRowIndex + 1L)], table.CurrentRow);
@@ -112,7 +112,7 @@ namespace VistaDB.Extra.Internal
       }
       catch (VistaDBException ex)
       {
-        throw new VistaDBDataTableException((Exception) ex, 2024);
+        throw new VistaDBDataTableException(ex, 2024);
       }
     }
 
@@ -126,14 +126,14 @@ namespace VistaDB.Extra.Internal
         table.Prev();
       }
       minRowIndex = num - 1L;
-      maxRowIndex = minRowIndex + (long) Count - 1L;
+      maxRowIndex = minRowIndex + Count - 1L;
     }
 
     private bool ReReadCache(int index, IVistaDBRow oldKey, IVistaDBRow newKey, TypeOfOperation state)
     {
       try
       {
-        long num1 = minRowIndex + (long) index + 1L;
+        long num1 = minRowIndex + index + 1L;
         IVistaDBRow currentKey = table.CurrentKey;
         table.CurrentKey = table.CurrentKey;
         if (currentKey.CompareKey(table.CurrentKey) != 0)
@@ -153,7 +153,7 @@ namespace VistaDB.Extra.Internal
           {
             Clear();
             table.Last();
-            maxRowIndex = num1 + (long) index1 - (long) index - 2L;
+            maxRowIndex = num1 + index1 - index - 2L;
             if (state != TypeOfOperation.Delete)
               tableNewRowCount = maxRowIndex + 1L;
             for (int index2 = 0; index2 < Capacity && !table.StartOfTable; ++index2)
@@ -167,7 +167,7 @@ namespace VistaDB.Extra.Internal
               ResetCache();
               return false;
             }
-            minRowIndex = maxRowIndex - (long) Count + 1L;
+            minRowIndex = maxRowIndex - Count + 1L;
             return true;
           }
           if (index1 < Count)
@@ -199,7 +199,7 @@ namespace VistaDB.Extra.Internal
               table.Next();
             }
             minRowIndex = 0L;
-            maxRowIndex = minRowIndex + (long) num2 - 1L;
+            maxRowIndex = minRowIndex + num2 - 1L;
             tableNewRowCount = maxRowIndex + 1L;
             return false;
           }
@@ -212,7 +212,7 @@ namespace VistaDB.Extra.Internal
         if (table.ActiveIndex != null && newKey.CompareKey(this[0]) < 0)
         {
           ++minRowIndex;
-          maxRowIndex = minRowIndex + (long) Count - 1L;
+          maxRowIndex = minRowIndex + Count - 1L;
         }
         return true;
       }
@@ -281,15 +281,15 @@ namespace VistaDB.Extra.Internal
         minRowIndex = 0L;
         return 0;
       }
-      if (offset < (long) Capacity)
+      if (offset < Capacity)
       {
         int num = Capacity - Count;
         table.CurrentKey = this[0];
         if (CheckRowPosition(0) != 0)
           return tableNewRowCount <= 0L ? -1 : 0;
-        if (offset > (long) num)
+        if (offset > num)
         {
-          for (long index1 = 0; index1 < offset - (long) num; ++index1)
+          for (long index1 = 0; index1 < offset - num; ++index1)
             RemoveAt(Count - 1);
           table.CurrentKey = this[0];
           if (CheckRowPosition(0) != 0)
@@ -301,7 +301,7 @@ namespace VistaDB.Extra.Internal
           {
             minRowIndex = 0L;
             tableNewRowCount = tableRowCount - offset + index1 - 1L;
-            maxRowIndex = minRowIndex + (long) Count - 1L;
+            maxRowIndex = minRowIndex + Count - 1L;
             return 0;
           }
           table.Prev();
@@ -309,7 +309,7 @@ namespace VistaDB.Extra.Internal
           hashTable.Add(this[0], table.CurrentRow);
         }
         minRowIndex -= offset;
-        maxRowIndex = minRowIndex + (long) Count - 1L;
+        maxRowIndex = minRowIndex + Count - 1L;
       }
       else
       {
@@ -328,12 +328,12 @@ namespace VistaDB.Extra.Internal
         else
           minRowIndex -= offset;
         Clear();
-        for (long index1 = 0; index1 < (long) Capacity; ++index1)
+        for (long index1 = 0; index1 < Capacity; ++index1)
         {
           if (table.EndOfTable)
           {
             tableNewRowCount = minRowIndex + index1;
-            maxRowIndex = minRowIndex + (long) Count - 1L;
+            maxRowIndex = minRowIndex + Count - 1L;
             return Count - 1;
           }
           Add(table.CurrentKey);
@@ -344,8 +344,8 @@ namespace VistaDB.Extra.Internal
       int num1 = 0;
       if (index == 0L && checkBOT)
         num1 = IsFirstRow(0);
-      maxRowIndex = minRowIndex + (long) Count - 1L + (long) num1;
-      minRowIndex += (long) num1;
+      maxRowIndex = minRowIndex + Count - 1L + num1;
+      minRowIndex += num1;
       return 0;
     }
 
@@ -364,10 +364,10 @@ namespace VistaDB.Extra.Internal
         minRowIndex = maxRowIndex;
         return 0;
       }
-      if (offset < (long) Capacity)
+      if (offset < Capacity)
       {
         int num = Capacity - Count;
-        if (offset > (long) num)
+        if (offset > num)
         {
           for (long index = 0; index < offset; ++index)
             RemoveAt(0);
@@ -392,7 +392,7 @@ namespace VistaDB.Extra.Internal
           {
             tableNewRowCount = maxRowIndex + index;
             maxRowIndex = tableNewRowCount;
-            minRowIndex = maxRowIndex - (long) Count + 1L;
+            minRowIndex = maxRowIndex - Count + 1L;
             return Count - 1;
           }
           table.Next();
@@ -400,7 +400,7 @@ namespace VistaDB.Extra.Internal
           hashTable.Add(this[Count - 1], table.CurrentRow);
         }
         maxRowIndex += offset;
-        minRowIndex = maxRowIndex - (long) Count + 1L;
+        minRowIndex = maxRowIndex - Count + 1L;
       }
       else
       {
@@ -419,19 +419,19 @@ namespace VistaDB.Extra.Internal
         else
           maxRowIndex += offset;
         Clear();
-        for (long capacity = (long) Capacity; capacity > 0L; --capacity)
+        for (long capacity = Capacity; capacity > 0L; --capacity)
         {
           if (table.StartOfTable)
           {
             minRowIndex = 0L;
-            maxRowIndex = minRowIndex + (long) Count - 1L;
+            maxRowIndex = minRowIndex + Count - 1L;
             return 0;
           }
           Insert(0, table.CurrentKey);
           hashTable.Add(this[0], table.CurrentRow);
           table.Prev();
         }
-        minRowIndex = maxRowIndex - (long) Count + 1L;
+        minRowIndex = maxRowIndex - Count + 1L;
       }
       if (checkEOT && flag)
         IsLastRow(Count - 1);
@@ -475,7 +475,7 @@ namespace VistaDB.Extra.Internal
             return RightUpdate(maxRowIndex < 0L ? 0L : index - maxRowIndex);
           if (index == tableNewRowCount - 1L)
             IsLastRow((int) (index - minRowIndex));
-          if (index - minRowIndex < 0L || index - minRowIndex >= (long) Count)
+          if (index - minRowIndex < 0L || index - minRowIndex >= Count)
             throw new IndexOutOfRangeException("Internal cache exception");
           return (int) (index - minRowIndex);
         }
@@ -508,7 +508,7 @@ namespace VistaDB.Extra.Internal
             ++num;
             table.Next();
           }
-          tableNewRowCount = (long) num;
+          tableNewRowCount = num;
         }
         finally
         {
@@ -521,14 +521,14 @@ namespace VistaDB.Extra.Internal
     {
       try
       {
-        if ((long) index == inserterRowNumber)
+        if (index == inserterRowNumber)
           return insertedRow;
-        int index1 = PositionCache((long) index);
-        if (index1 >= 0 && (long) index < tableNewRowCount)
+        int index1 = PositionCache(index);
+        if (index1 >= 0 && index < tableNewRowCount)
           return hashTable[this[index1]];
         IVistaDBRow currentRow = table.CurrentRow;
         foreach (IVistaDBValue vistaDbValue in (IEnumerable) currentRow)
-          vistaDbValue.Value = (object) null;
+          vistaDbValue.Value = null;
         return currentRow;
       }
       catch (VistaDBException ex)
@@ -582,9 +582,9 @@ namespace VistaDB.Extra.Internal
     internal void SetDataToColumn(int keyIndex, int colIndex, object val)
     {
       if (!optimisticLock && !inserting)
-        table.Lock(this[PositionCache((long) keyIndex)].RowId);
-      insertedRow[colIndex].Value = val is DBNull ? (object) null : val;
-      inserterRowNumber = (long) keyIndex;
+        table.Lock(this[PositionCache(keyIndex)].RowId);
+      insertedRow[colIndex].Value = val is DBNull ? null : val;
+      inserterRowNumber = keyIndex;
     }
 
     internal int CheckRowCount()
@@ -650,21 +650,21 @@ namespace VistaDB.Extra.Internal
         table.Last();
         if (num != 0)
         {
-          tableRowCount += (long) num;
-          tableNewRowCount += (long) num;
+          tableRowCount += num;
+          tableNewRowCount += num;
           throw new VistaDBDataTableException(2012);
         }
         inserterRowNumber = tableRowCount;
         inserting = true;
         foreach (IVistaDBValue vistaDbValue in (IEnumerable) insertedRow)
-          vistaDbValue.Value = (object) null;
+          vistaDbValue.Value = null;
         insertedRow.ClearModified();
         ++tableRowCount;
         ++tableNewRowCount;
       }
       catch (VistaDBException ex)
       {
-        throw new VistaDBDataTableException((Exception) ex, 2010);
+        throw new VistaDBDataTableException(ex, 2010);
       }
     }
 
@@ -680,7 +680,7 @@ namespace VistaDB.Extra.Internal
       }
       catch (VistaDBException ex)
       {
-        throw new VistaDBDataTableException((Exception) ex, 2013);
+        throw new VistaDBDataTableException(ex, 2013);
       }
     }
 
@@ -690,14 +690,14 @@ namespace VistaDB.Extra.Internal
       {
         table.ResetScope();
         tableScoped = false;
-        scopeHighExpression = (string) null;
-        scopeLowExpression = (string) null;
+        scopeHighExpression = null;
+        scopeLowExpression = null;
         ResetCache();
         tableRowCount = tableNewRowCount;
       }
       catch (VistaDBException ex)
       {
-        throw new VistaDBDataTableException((Exception) ex, 2014);
+        throw new VistaDBDataTableException(ex, 2014);
       }
     }
 
@@ -713,7 +713,7 @@ namespace VistaDB.Extra.Internal
       }
       catch (VistaDBException ex)
       {
-        throw new VistaDBDataTableException((Exception) ex, 2015);
+        throw new VistaDBDataTableException(ex, 2015);
       }
     }
 
@@ -738,7 +738,7 @@ namespace VistaDB.Extra.Internal
         switch (typeOp)
         {
           case TypeOfOperation.Update:
-            int index1 = PositionCache((long) index);
+            int index1 = PositionCache(index);
             IVistaDBRow vistaDbRow1 = this[index1];
             try
             {
@@ -751,7 +751,7 @@ namespace VistaDB.Extra.Internal
             }
             catch (VistaDBException ex)
             {
-              throw new VistaDBDataTableException((Exception) ex, 2019);
+              throw new VistaDBDataTableException(ex, 2019);
             }
             finally
             {
@@ -781,11 +781,11 @@ namespace VistaDB.Extra.Internal
               flag = true;
               if (ex.ErrorId == 2020)
                 throw ex;
-              throw new VistaDBDataTableException((Exception) ex, 2021);
+              throw new VistaDBDataTableException(ex, 2021);
             }
             finally
             {
-              maxRowIndex = flag ? (long) (index - 1) : (long) index;
+              maxRowIndex = flag ? index - 1 : index;
               table.Last();
               Clear();
               int num = 0;
@@ -794,17 +794,17 @@ namespace VistaDB.Extra.Internal
                 if (table.StartOfTable)
                 {
                   minRowIndex = 0L;
-                  maxRowIndex = minRowIndex + (long) Count - 1L;
+                  maxRowIndex = minRowIndex + Count - 1L;
                   break;
                 }
                 Insert(0, table.CurrentKey);
                 hashTable.Add(this[0], table.CurrentRow);
                 table.Prev();
-                minRowIndex = maxRowIndex - (long) Count + 1L;
+                minRowIndex = maxRowIndex - Count + 1L;
               }
             }
           case TypeOfOperation.Delete:
-            int index2 = PositionCache((long) index);
+            int index2 = PositionCache(index);
             IVistaDBRow vistaDbRow2 = this[index2];
             table.CurrentKey = vistaDbRow2;
             if (table.CurrentKey.CompareKey(vistaDbRow2) != 0)
@@ -816,7 +816,7 @@ namespace VistaDB.Extra.Internal
             }
             catch (VistaDBException ex)
             {
-              throw new VistaDBDataTableException((Exception) ex, 2022);
+              throw new VistaDBDataTableException(ex, 2022);
             }
             finally
             {
@@ -844,14 +844,14 @@ namespace VistaDB.Extra.Internal
           table.Next();
         }
         minRowIndex = 0L;
-        maxRowIndex = (long) (Count - 1);
+        maxRowIndex = Count - 1;
         checkBOT = false;
-        tableNewRowCount = (long) Count;
+        tableNewRowCount = Count;
         return true;
       }
       catch (VistaDBException ex)
       {
-        throw new VistaDBDataTableException((Exception) ex, 2017);
+        throw new VistaDBDataTableException(ex, 2017);
       }
       catch (Exception)
             {
@@ -883,8 +883,8 @@ namespace VistaDB.Extra.Internal
             if (table.StartOfTable)
             {
               minRowIndex = 0L;
-              maxRowIndex = (long) (Count - 1);
-              return (long) num;
+              maxRowIndex = Count - 1;
+              return num;
             }
             Insert(0, table.CurrentKey);
             hashTable.Add(this[0], table.CurrentRow);
@@ -899,7 +899,7 @@ namespace VistaDB.Extra.Internal
               CalculateMinMaxRows();
               if (Count == 0)
                 throw new Exception("ERROR");
-              return minRowIndex + (long) num;
+              return minRowIndex + num;
             }
             Add(table.CurrentKey);
             hashTable.Add(this[index2], table.CurrentRow);
@@ -907,11 +907,11 @@ namespace VistaDB.Extra.Internal
           CalculateMinMaxRows();
           if (Count == 0)
             throw new Exception("ERROR");
-          return (long) num + minRowIndex;
+          return num + minRowIndex;
         }
         catch (VistaDBException ex)
         {
-          throw new VistaDBDataTableException((Exception) ex, 2018);
+          throw new VistaDBDataTableException(ex, 2018);
         }
         finally
         {

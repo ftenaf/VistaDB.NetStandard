@@ -15,33 +15,33 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object ExecuteSubProgram()
     {
-      DateTime dateTime1 = (DateTime) ((IValue) paramValues[0]).Value;
-      DateTime dateTime2 = (DateTime) ((IValue) paramValues[1]).Value;
+      DateTime dateTime1 = (DateTime)paramValues[0].Value;
+      DateTime dateTime2 = (DateTime)paramValues[1].Value;
       switch (datePart)
       {
         case DatePart.Year:
-          return (object) (dateTime2.Year - dateTime1.Year);
+          return dateTime2.Year - dateTime1.Year;
         case DatePart.Quarter:
-          return (object) ((dateTime2.Month - 1) / 3 - (dateTime1.Month - 1) / 3 + (dateTime2.Year - dateTime1.Year) * 4);
+          return (dateTime2.Month - 1) / 3 - (dateTime1.Month - 1) / 3 + (dateTime2.Year - dateTime1.Year) * 4;
         case DatePart.Month:
-          return (object) (dateTime2.Month - dateTime1.Month + 12 * (dateTime2.Year - dateTime1.Year));
+          return dateTime2.Month - dateTime1.Month + 12 * (dateTime2.Year - dateTime1.Year);
         case DatePart.DayOfYear:
         case DatePart.Day:
-          return (object) dateTime2.Date.Subtract(dateTime1.Date).Days;
+          return dateTime2.Date.Subtract(dateTime1.Date).Days;
         case DatePart.Week:
-          return (object) (dateTime2.Subtract(dateTime1).Days / 7);
+          return dateTime2.Subtract(dateTime1).Days / 7;
         case DatePart.WeekDay:
-          return (object) dateTime2.Subtract(dateTime1).Days;
+          return dateTime2.Subtract(dateTime1).Days;
         case DatePart.Hour:
-          return (object) (int) dateTime2.Subtract(dateTime1).TotalHours;
+          return (int)dateTime2.Subtract(dateTime1).TotalHours;
         case DatePart.Minute:
-          return (object) (int) dateTime2.Subtract(dateTime1).TotalMinutes;
+          return (int)dateTime2.Subtract(dateTime1).TotalMinutes;
         case DatePart.Second:
-          return (object) (int) dateTime2.Subtract(dateTime1).TotalSeconds;
+          return (int)dateTime2.Subtract(dateTime1).TotalSeconds;
         case DatePart.Millisecond:
-          return (object) (int) dateTime2.Subtract(dateTime1).TotalMilliseconds;
+          return (int)dateTime2.Subtract(dateTime1).TotalMilliseconds;
         default:
-          return (object) null;
+          return null;
       }
     }
   }

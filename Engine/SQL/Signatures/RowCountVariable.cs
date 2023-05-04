@@ -7,12 +7,12 @@ namespace VistaDB.Engine.SQL.Signatures
     internal RowCountVariable(SQLParser parser)
       : base(parser)
     {
-      parent.AlwaysPrepare((Signature) this);
+      parent.AlwaysPrepare(this);
     }
 
     protected override IColumn InternalExecute()
     {
-      ((IValue) result).Value = (object) parent.Connection.CachedAffectedRows;
+            result.Value = parent.Connection.CachedAffectedRows;
       return result;
     }
 

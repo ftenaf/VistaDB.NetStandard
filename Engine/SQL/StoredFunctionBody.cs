@@ -19,7 +19,7 @@ namespace VistaDB.Engine.SQL
         if (statement.ExecuteQuery() != null)
           throw new Exception("Select statements included within a function cannot return data to a client.");
       }
-      return (IQueryResult) null;
+      return null;
     }
 
     public override CreateTableStatement DoGetTemporaryTableName(string paramName)
@@ -29,17 +29,17 @@ namespace VistaDB.Engine.SQL
         IParameter returnParameter = parent.DoGetReturnParameter();
         if (returnParameter != null && returnParameter.DataType == VistaDBType.Unknown && returnParameter.Direction == ParameterDirection.ReturnValue)
           DoRegisterTemporaryTableName(paramName, returnParameter.Value as CreateTableStatement);
-        parent.DoSetReturnParameter((IParameter) null);
+        parent.DoSetReturnParameter(null);
       }
       if (tempTables.ContainsKey(paramName))
         return tempTables[paramName];
-      return (CreateTableStatement) null;
+      return null;
     }
 
     public override void Dispose()
     {
       base.Dispose();
-      GC.SuppressFinalize((object) this);
+      GC.SuppressFinalize(this);
     }
   }
 }

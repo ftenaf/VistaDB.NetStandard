@@ -15,7 +15,7 @@ namespace VistaDB.Engine.Core.Scripting
       PCodeUnit pcodeUnit = pcode[entry];
       int rowIndex = pcodeUnit.ResultColumn.RowIndex;
       Row.Column column = contextStorage.SatelliteRow[rowIndex];
-      pcodeUnit.ResultColumn = (Row.Column) new BitColumn(!column.Edited);
+      pcodeUnit.ResultColumn = new BitColumn(!column.Edited);
     }
   }
 }

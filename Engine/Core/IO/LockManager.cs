@@ -167,7 +167,7 @@ namespace VistaDB.Engine.Core.IO
         int num = 0;
         foreach (ulong key in rowIdCollection.Keys)
         {
-          if (rowIdCollection[key] == 0 && !userLocks.LockedStatus((ulong) (uint) key))
+          if (rowIdCollection[key] == 0 && !userLocks.LockedStatus((uint)key))
             numArray[num++] = key;
         }
         for (int index = 0; index < num; ++index)
@@ -188,16 +188,16 @@ namespace VistaDB.Engine.Core.IO
       if (isDisposed)
         return;
       isDisposed = true;
-      GC.SuppressFinalize((object) this);
+      GC.SuppressFinalize(this);
       try
       {
         if (storage != null)
           UnlockAllItems();
-        userLocks = (LockCollection) null;
+        userLocks = null;
         if (rowIdCollection != null)
           rowIdCollection.Clear();
-        rowIdCollection = (LockCollection) null;
-        storage = (DataStorage) null;
+        rowIdCollection = null;
+        storage = null;
       }
       catch (Exception)
             {

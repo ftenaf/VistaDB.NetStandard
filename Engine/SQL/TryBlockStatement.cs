@@ -40,10 +40,10 @@ namespace VistaDB.Engine.SQL
       if (Exception != null)
       {
         currentStatement = firstCatchStatementIndex;
-        Exception = (VistaDBException) null;
+        Exception = null;
       }
       if (currentStatement >= statements.Count || breakBatch)
-        return (INextQueryResult) null;
+        return null;
       connection.PrepareCLRContext(pipe);
       Statement statement;
       IQueryResult resultSet;
@@ -63,7 +63,7 @@ namespace VistaDB.Engine.SQL
             return NextResult(pipe);
           }
           parent.Exception = ex;
-          return (INextQueryResult) null;
+          return null;
         }
         if (++currentStatement == firstCatchStatementIndex)
           currentStatement = statements.Count;
@@ -72,7 +72,7 @@ namespace VistaDB.Engine.SQL
       {
         connection.UnprepareCLRContext();
       }
-      return (INextQueryResult) new ResultSetData(resultSet, resultSet == null ? (IQuerySchemaInfo) null : statement.GetSchemaInfo(), statement.AffectedRows);
+      return new ResultSetData(resultSet, resultSet == null ? null : statement.GetSchemaInfo(), statement.AffectedRows);
     }
   }
 }

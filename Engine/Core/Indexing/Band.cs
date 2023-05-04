@@ -46,7 +46,7 @@ namespace VistaDB.Engine.Core.Indexing
 
     internal static int KeyApartment(Row patternKey)
     {
-      return patternKey.GetMemoryApartment((Row) null);
+      return patternKey.GetMemoryApartment(null);
     }
 
     private void WriteToFile()
@@ -84,7 +84,7 @@ namespace VistaDB.Engine.Core.Indexing
         if (buffer == null || buffer.Length < length)
           buffer = new byte[length];
         storageHandle.DirectReadBuffer(buffer, length);
-        precedenceRow = (Row) null;
+        precedenceRow = null;
       }
       for (int index = 0; index < Capacity && readOffset < buffer.Length; ++index)
       {
@@ -100,16 +100,16 @@ namespace VistaDB.Engine.Core.Indexing
       WriteToFile();
       storageHandle.DirectSeek(0L, SeekOrigin.Begin);
       readOffset = 0;
-      precedenceRow = (Row) null;
+      precedenceRow = null;
       if (!cleanUp)
         return;
-      buffer = (byte[]) null;
+      buffer = null;
     }
 
     internal Row PeekKey()
     {
       if (keyCount == 0)
-        return (Row) null;
+        return null;
       if (Count == 0 || peekIndex == Count)
         ReadFromFile();
       return this[peekIndex];
@@ -118,12 +118,12 @@ namespace VistaDB.Engine.Core.Indexing
     internal Row PopKey()
     {
       if (keyCount == 0)
-        return (Row) null;
+        return null;
       if (Count == 0 || peekIndex == Count)
         ReadFromFile();
       --keyCount;
       Row row = this[peekIndex];
-      this[peekIndex] = (Row) null;
+      this[peekIndex] = null;
       ++peekIndex;
       return row;
     }
@@ -143,17 +143,17 @@ namespace VistaDB.Engine.Core.Indexing
     {
       if (isDisposed)
         return;
-      patternRow = (Row) null;
-      buffer = (byte[]) null;
+      patternRow = null;
+      buffer = null;
       Clear();
       if (fileManager != null)
       {
         if (storageHandle != null)
           fileManager.CloseStorage(storageHandle);
-        fileManager = (StorageManager) null;
+        fileManager = null;
       }
       isDisposed = true;
-      GC.SuppressFinalize((object) this);
+      GC.SuppressFinalize(this);
     }
   }
 }

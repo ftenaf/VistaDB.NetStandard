@@ -69,7 +69,7 @@ namespace VistaDB.Engine.Core
         {
             get
             {
-                return (int)m_RawPayload[8];
+                return m_RawPayload[8];
             }
         }
 
@@ -77,7 +77,7 @@ namespace VistaDB.Engine.Core
         {
             get
             {
-                return (int)m_RawPayload[9];
+                return m_RawPayload[9];
             }
         }
 
@@ -85,7 +85,7 @@ namespace VistaDB.Engine.Core
         {
             get
             {
-                return (int)m_RawPayload[10];
+                return m_RawPayload[10];
             }
         }
 
@@ -143,7 +143,7 @@ namespace VistaDB.Engine.Core
                 return false;
             try
             {
-                return (int)ComputeChecksum(serialNumber) == (int)serialNumber[24];
+                return ComputeChecksum(serialNumber) == serialNumber[24];
             }
             catch (ArgumentException)
             {
@@ -245,7 +245,7 @@ namespace VistaDB.Engine.Core
         public static string GenerateKey(int productCode, int applicationCode, int featureCode, byte[] uniqueKey, bool production, bool trial, bool expiring)
         {
             if (((productCode | applicationCode | featureCode) & -256) != 0)
-                return (string)null;
+                return null;
             byte[] numArray = new byte[15];
             for (int index = 7; index >= 0; --index)
                 numArray[index] = uniqueKey[index];
@@ -257,7 +257,7 @@ namespace VistaDB.Engine.Core
             int checksum = ComputeChecksum(numArray);
             for (int index = 14; index >= 12; --index)
             {
-                numArray[index] = (byte)(checksum & (int)byte.MaxValue);
+                numArray[index] = (byte)(checksum & byte.MaxValue);
                 checksum >>= 8;
             }
             return new ApplicationFeatureKey(numArray).Key;
@@ -266,7 +266,7 @@ namespace VistaDB.Engine.Core
         public static string NormalizeKey(string userKey)
         {
             if (string.IsNullOrEmpty(userKey))
-                return (string)null;
+                return null;
             return userKey.ToUpperInvariant().Trim().Replace("-", string.Empty).Replace(" ", string.Empty);
         }
 
@@ -288,14 +288,14 @@ namespace VistaDB.Engine.Core
             long chunk = 0;
             for (int index = 0; index < 15; ++index)
             {
-                chunk = chunk << 8 | (long)rawPayload[index];
+                chunk = chunk << 8 | rawPayload[index];
                 if (index % 5 == 4)
                 {
                     empty += ChunkToString(chunk);
                     chunk = 0L;
                 }
             }
-            return empty + (object)ComputeChecksum(empty);
+            return empty + ComputeChecksum(empty);
         }
 
         private static byte[] StringToRaw(string key)
@@ -314,7 +314,7 @@ namespace VistaDB.Engine.Core
                 long chunk = StringToChunk(key.Substring(startIndex, 8));
                 for (int index = 4; index >= 0; --index)
                 {
-                    numArray[num + index] = (byte)((ulong)chunk & (ulong)byte.MaxValue);
+                    numArray[num + index] = (byte)((ulong)chunk & byte.MaxValue);
                     chunk >>= 8;
                 }
                 num += 5;
@@ -330,7 +330,7 @@ namespace VistaDB.Engine.Core
             int checksum = ComputeChecksum(payload);
             int num = 0;
             for (int index = 12; index < 15; ++index)
-                num = num << 8 | (int)payload[index];
+                num = num << 8 | payload[index];
             return num == checksum;
         }
 
@@ -343,7 +343,7 @@ namespace VistaDB.Engine.Core
 
         private static long CharToBits(char chr)
         {
-            long num = (long)"ABCDEFGHJKLMNPQRSTUVWXYZ23456789".IndexOf(chr);
+            long num = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".IndexOf(chr);
             if (num < 0L || num >= 32L)
                 throw new ArgumentOutOfRangeException(nameof(chr), "Invalid Base32 character.");
             return num;
@@ -398,10 +398,10 @@ namespace VistaDB.Engine.Core
             int num2 = 0;
             for (int index = 0; index < 12; ++index)
             {
-                num1 += (int)payload[index];
+                num1 += payload[index];
                 num2 += num1;
             }
-            return (num1 & (int)byte.MaxValue) << 16 ^ (num1 & 768) << 6 ^ num2 & 16383;
+            return (num1 & byte.MaxValue) << 16 ^ (num1 & 768) << 6 ^ num2 & 16383;
         }
 
         internal static string ArrayToBase32(byte[] array)
@@ -420,7 +420,7 @@ namespace VistaDB.Engine.Core
             {
                 chunk <<= 8;
                 if (index < length)
-                    chunk |= (long)array[index];
+                    chunk |= array[index];
                 ++index;
                 if (index % 5 == 0)
                 {
@@ -435,13 +435,13 @@ namespace VistaDB.Engine.Core
         private static byte[] ShaCfbCipher(byte[] rawPayload, bool encrypting)
         {
             if (rawPayload == null)
-                return (byte[])null;
+                return null;
             int length = rawPayload.Length;
             if (length == 0)
                 return new byte[0];
             byte[] publicKey = Assembly.GetExecutingAssembly().GetName().GetPublicKey();
-            byte[] numArray1 = (byte[])null;
-            SHA1 shA1 = (SHA1)new SHA1CryptoServiceProvider();
+            byte[] numArray1 = null;
+            SHA1 shA1 = new SHA1CryptoServiceProvider();
             try
             {
                 byte[] hash1 = shA1.ComputeHash(publicKey);
@@ -452,9 +452,9 @@ namespace VistaDB.Engine.Core
                 byte[] buffer = new byte[20 + length];
                 for (int index = 0; index < 20; ++index)
                 {
-                    int num2 = (int)numArray2[index] ^ (int)"qldibnslclbmanajkrlg"[index];
-                    int num3 = (num2 ^ num2 >> 8) & (int)byte.MaxValue;
-                    buffer[index] = (byte)((index < num1 ? (int)hash1[index] : 0) ^ num3);
+                    int num2 = numArray2[index] ^ "qldibnslclbmanajkrlg"[index];
+                    int num3 = (num2 ^ num2 >> 8) & byte.MaxValue;
+                    buffer[index] = (byte)((index < num1 ? hash1[index] : 0) ^ num3);
                 }
                 numArray1 = new byte[length];
                 for (int index = 0; index < length; ++index)
@@ -462,11 +462,11 @@ namespace VistaDB.Engine.Core
                     if (!shA1.CanReuseTransform && index < length - 1)
                     {
                         //shA1.Dispose();
-                        shA1 = (SHA1)new SHA1CryptoServiceProvider();
+                        shA1 = new SHA1CryptoServiceProvider();
                     }
                     int count = 20 + index;
                     byte[] hash2 = shA1.ComputeHash(buffer, 0, count);
-                    numArray1[index] = (byte)((uint)rawPayload[index] ^ (uint)hash2[0]);
+                    numArray1[index] = (byte)(rawPayload[index] ^ (uint)hash2[0]);
                     buffer[count] = encrypting ? numArray1[index] : rawPayload[index];
                 }
             }

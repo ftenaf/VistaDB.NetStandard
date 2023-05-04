@@ -44,20 +44,20 @@ namespace VistaDB.Engine.SQL
       signatureList.RemoveAt(0);
       IColumn column2 = signatureList[0].Execute();
       signatureList.RemoveAt(0);
-      _severity = (int) (long) ((IValue) column1).Value;
-      _state = (int) (long) ((IValue) column2).Value;
+      _severity = (int) (long)column1.Value;
+      _state = (int) (long)column2.Value;
       _arguments = signatureList.ToArray();
     }
 
     protected override VistaDBType OnPrepareQuery()
     {
       if (_message.Prepare() == SignatureType.Constant && _message.SignatureType != SignatureType.Constant)
-        _message = (Signature) ConstantSignature.CreateSignature(_message.Execute(), parent);
+        _message = ConstantSignature.CreateSignature(_message.Execute(), parent);
       for (int index = 0; index < _arguments.Length; ++index)
       {
         Signature signature = _arguments[index];
         if (signature.Prepare() == SignatureType.Constant && signature.SignatureType != SignatureType.Constant)
-          _arguments[index] = (Signature) ConstantSignature.CreateSignature(signature.Execute(), parent);
+          _arguments[index] = ConstantSignature.CreateSignature(signature.Execute(), parent);
       }
       return VistaDBType.Unknown;
     }
@@ -75,10 +75,10 @@ namespace VistaDB.Engine.SQL
       string str = _message.Execute().ToString();
       int result;
       if (int.TryParse(str, out result))
-        connection.LastException = parent.Exception = (VistaDBException) new VistaDBSQLException(result, "Error #" + str, lineNo, symbolNo);
+        connection.LastException = parent.Exception = new VistaDBSQLException(result, "Error #" + str, lineNo, symbolNo);
       else
-        connection.LastException = parent.Exception = (VistaDBException) new VistaDBSQLException(50000, str, lineNo, symbolNo);
-      return (IQueryResult) null;
+        connection.LastException = parent.Exception = new VistaDBSQLException(50000, str, lineNo, symbolNo);
+      return null;
     }
   }
 }

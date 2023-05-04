@@ -18,8 +18,8 @@ namespace VistaDB.Engine.SQL.Signatures
       : base(parser)
     {
       parameters = new List<Signature>();
-      paramValues = (IColumn[]) null;
-      parameterTypes = (VistaDBType[]) null;
+      paramValues = null;
+      parameterTypes = null;
       signatureType = SignatureType.Expression;
       skipNull = true;
     }
@@ -92,7 +92,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       object resValue;
       if (PrepareExecute(out resValue) && dataType != VistaDBType.Unknown)
-        ((IValue) result).Value = resValue;
+                result.Value = resValue;
       return result;
     }
 
@@ -152,7 +152,7 @@ namespace VistaDB.Engine.SQL.Signatures
       distinct = false;
       for (int index = 0; index < parameters.Count; ++index)
       {
-        if (!(this[index] == (Signature) null) && this[index].HasAggregateFunction(out distinct))
+        if (!(this[index] == null) && this[index].HasAggregateFunction(out distinct))
         {
           if (distinct)
             return true;
@@ -173,7 +173,7 @@ namespace VistaDB.Engine.SQL.Signatures
       SignatureType signatureType = SignatureType.Constant;
       for (int index = 0; index < parameters.Count; ++index)
       {
-        if (!(this[index] == (Signature) null))
+        if (!(this[index] == null))
         {
           this[index] = ConstantSignature.PrepareAndCheckConstant(this[index], parameterTypes[index]);
           if (parameterTypes[index] != VistaDBType.Unknown && !Utils.CompatibleTypes(this[index].DataType, parameterTypes[index]))
@@ -203,7 +203,7 @@ namespace VistaDB.Engine.SQL.Signatures
           for (int index = 0; index < parameters.Count; ++index)
           {
             Signature signature = this[index];
-            if (!(signature == (Signature) null))
+            if (!(signature == null))
             {
               if (signature.SignatureType == SignatureType.MultiplyColumn)
               {
@@ -215,11 +215,11 @@ namespace VistaDB.Engine.SQL.Signatures
                   IColumn column = sourceTable.SimpleGetColumn(colIndex);
                   if (column.SystemType == typeof (string) && !column.IsNull)
                   {
-                    stringBuilder.Append(((IValue) column).Value.ToString());
+                    stringBuilder.Append(column.Value.ToString());
                     stringBuilder.Append(' ');
                   }
                 }
-                ((IValue) paramValues[index]).Value = (object) stringBuilder.ToString();
+                                paramValues[index].Value = stringBuilder.ToString();
               }
               else
               {
@@ -234,7 +234,7 @@ namespace VistaDB.Engine.SQL.Signatures
                 }
                 try
                 {
-                  Convert((IValue) signature.Result, (IValue) paramValues[index]);
+                  Convert(signature.Result, paramValues[index]);
                 }
                 catch (Exception ex)
                 {
@@ -243,13 +243,13 @@ namespace VistaDB.Engine.SQL.Signatures
               }
             }
           }
-          resValue = !flag || !skipNull ? ExecuteSubProgram() : (object) null;
+          resValue = !flag || !skipNull ? ExecuteSubProgram() : null;
         }
         else
           resValue = ExecuteSubProgram();
         return true;
       }
-      resValue = (object) null;
+      resValue = null;
       return false;
     }
 

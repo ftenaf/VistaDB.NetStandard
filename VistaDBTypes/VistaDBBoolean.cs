@@ -8,7 +8,7 @@
 
     public VistaDBBoolean(bool val)
     {
-      Value = (object) val;
+      Value = val;
     }
 
     public override object Value
@@ -19,7 +19,7 @@
       }
       set
       {
-        base.Value = value == null ? value : (object) (bool) value;
+        base.Value = value == null ? value : (bool)value;
       }
     }
 

@@ -14,7 +14,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object ExecuteSubProgram()
     {
-      return (object) ((DateTime) ((IValue) paramValues[0]).Value).Month;
+      return ((DateTime)paramValues[0].Value).Month;
     }
   }
 }

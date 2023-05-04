@@ -17,7 +17,7 @@ namespace VistaDB.Engine.SQL.Signatures
         Row.Column column = -(Row.Column) operand.Execute();
         if (result == null)
           result = CreateColumn(column.Type);
-        ((IValue) result).Value = column.Value;
+                result.Value = column.Value;
         needsEvaluation = false;
       }
       return result;

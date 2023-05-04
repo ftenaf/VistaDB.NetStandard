@@ -8,17 +8,17 @@ namespace VistaDB.Engine.Core
     public static readonly Guid maxValue = new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff");
 
     internal UniqueIdentifierColumn()
-      : base((object) null, VistaDBType.UniqueIdentifier, GuidSize)
+      : base(null, VistaDBType.UniqueIdentifier, GuidSize)
     {
     }
 
     internal UniqueIdentifierColumn(Guid val)
-      : base((object) val, VistaDBType.UniqueIdentifier, GuidSize)
+      : base(val, VistaDBType.UniqueIdentifier, GuidSize)
     {
     }
 
     internal UniqueIdentifierColumn(UniqueIdentifierColumn col)
-      : base((Row.Column) col)
+      : base(col)
     {
     }
 
@@ -26,7 +26,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (object) Guid.Empty;
+        return Guid.Empty;
       }
     }
 
@@ -34,7 +34,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (object)maxValue;
+        return maxValue;
       }
     }
 
@@ -50,26 +50,26 @@ namespace VistaDB.Engine.Core
     {
       set
       {
-        base.Value = value == null ? value : (object) (Guid) value;
+        base.Value = value == null ? value : (Guid)value;
       }
     }
 
     protected override Row.Column OnDuplicate(bool padRight)
     {
-      return (Row.Column) new UniqueIdentifierColumn(this);
+      return new UniqueIdentifierColumn(this);
     }
 
     internal override int ConvertToByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      Array.Copy((Array) ((Guid) Value).ToByteArray(), 0, (Array) buffer, offset, GuidSize);
+      Array.Copy(((Guid)Value).ToByteArray(), 0, buffer, offset, GuidSize);
       return offset + GuidSize;
     }
 
     internal override int ConvertFromByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
       byte[] b = new byte[GuidSize];
-      Array.Copy((Array) buffer, offset, (Array) b, 0, GuidSize);
-      val = (object) new Guid(b);
+      Array.Copy(buffer, offset, b, 0, GuidSize);
+      val = new Guid(b);
       return offset + GuidSize;
     }
 
@@ -81,7 +81,7 @@ namespace VistaDB.Engine.Core
       byte[] byteArray2 = guid2.ToByteArray();
       long num = 0;
       for (int index = 0; index < GuidSize && num == 0L; ++index)
-        num = (long) ((int) byteArray1[index] - (int) byteArray2[index]);
+        num = byteArray1[index] - byteArray2[index];
       return num;
     }
   }

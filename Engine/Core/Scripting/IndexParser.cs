@@ -11,7 +11,7 @@ namespace VistaDB.Engine.Core.Scripting
 
     protected override SignatureList DoCreateSignatures()
     {
-      return (SignatureList) new SqlKeySignatures();
+      return new SqlKeySignatures();
     }
 
     protected override bool OnParseOperands()
@@ -26,7 +26,7 @@ namespace VistaDB.Engine.Core.Scripting
 
     protected override EvalStack OnCreateEvalStackInstance(DirectConnection connection, DataStorage activeStorage)
     {
-      return (EvalStack) new StandardIndexEvalStack((Connection) connection, activeStorage);
+      return new StandardIndexEvalStack(connection, activeStorage);
     }
   }
 }

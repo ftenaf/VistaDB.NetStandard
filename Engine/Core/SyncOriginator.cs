@@ -10,13 +10,13 @@ namespace VistaDB.Engine.Core
     }
 
     private SyncOriginator(SyncOriginator column)
-      : base((UniqueIdentifierColumn) column)
+      : base(column)
     {
     }
 
     protected override Row.Column OnDuplicate(bool padRight)
     {
-      return (Row.Column) new SyncOriginator(this);
+      return new SyncOriginator(this);
     }
 
     internal override bool IsSync

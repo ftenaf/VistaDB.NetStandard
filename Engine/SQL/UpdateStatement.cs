@@ -20,8 +20,8 @@ namespace VistaDB.Engine.SQL
       parser.SkipToken(true);
       if (tokenValue.TokenType != TokenType.Unknown && tokenValue.TokenType != TokenType.Name && tokenValue.TokenType != TokenType.ComplexName)
         throw new VistaDBSQLException(585, tokenValue.Token, lineNo, symbolNo);
-      string tableName = parser.GetTableName((Statement) this);
-      destinationTable = (SourceTable) new NativeSourceTable((Statement) this, tableName, tableName, 0, tokenValue.RowNo, tokenValue.ColNo);
+      string tableName = parser.GetTableName(this);
+      destinationTable = new NativeSourceTable(this, tableName, tableName, 0, tokenValue.RowNo, tokenValue.ColNo);
       parser.SkipToken(true);
       parser.ExpectedExpression("SET");
       ParseColumns(parser);
@@ -43,7 +43,7 @@ namespace VistaDB.Engine.SQL
         parser.SkipToken(true);
         parser.ExpectedExpression("=");
         Signature exprValue = parser.NextSignature(true, true, 6);
-        setColumns.Add(new SetColumn((Statement) this, complexName, objectName, exprValue, rowNo, colNo));
+        setColumns.Add(new SetColumn(this, complexName, objectName, exprValue, rowNo, colNo));
       }
       while (parser.IsToken(","));
     }
@@ -127,7 +127,7 @@ namespace VistaDB.Engine.SQL
         dataType = schema.GetColumnVistaDBType(columnIndex);
         if (exprValue.Prepare() != SignatureType.Constant || exprValue.SignatureType == SignatureType.Constant)
           return;
-        exprValue = (Signature) ConstantSignature.CreateSignature(exprValue.Execute(), DataType, parent);
+        exprValue = ConstantSignature.CreateSignature(exprValue.Execute(), DataType, parent);
       }
 
       public IColumn Execute()

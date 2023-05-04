@@ -67,7 +67,7 @@ namespace VistaDB.Engine.Core.Scripting
         {
             get
             {
-                if (columnResult != (Row.Column)null && columnResult.Type == VistaDBType.Bit)
+                if (columnResult != null && columnResult.Type == VistaDBType.Bit)
                     return (bool)columnResult.Value;
                 return false;
             }
@@ -106,7 +106,7 @@ namespace VistaDB.Engine.Core.Scripting
                     if (pcodeUnit.Signature.Group == signatures.COLUMN)
                         return pcodeUnit.ResultColumn;
                 }
-                return (Row.Column)null;
+                return null;
             }
         }
 
@@ -228,7 +228,7 @@ namespace VistaDB.Engine.Core.Scripting
                 }
                 if (num1 == 0)
                 {
-                    while (signature1.Group == group && signature1.Operation == operation && (!(unit.ResultColumn == (Row.Column)null) && unit.ResultColumn.InternalType != signature1.ReturnType))
+                    while (signature1.Group == group && signature1.Operation == operation && (!(unit.ResultColumn == null) && unit.ResultColumn.InternalType != signature1.ReturnType))
                         signature1 = signatures[++entry];
                     if (signature1.Group != group || signature1.Operation != operation)
                         return -290;
@@ -358,7 +358,7 @@ namespace VistaDB.Engine.Core.Scripting
                     if (offset < length && singleQuote.CompareTo(Expression[offset]) == 0)
                     {
                         ++num;
-                        str = val + (object)singleQuote;
+                        str = val + singleQuote;
                     }
                     else
                         goto label_8;
@@ -369,12 +369,12 @@ namespace VistaDB.Engine.Core.Scripting
             return -1;
         label_8:
             Constant constant = (Constant)signatures[signatures.CONSTANT].DoCloneSignature();
-            PushCollector((Signature)constant);
+            PushCollector(constant);
             PCodeUnit pcodeUnit = PeekCollector();
             NCharColumn ncharColumn = new NCharColumn(val, 8192, activeStorage.Culture, true, NCharColumn.DefaultUnicode);
-            constant.ConstantColumn = (Row.Column)ncharColumn;
-            pcodeUnit.ResultColumn = (Row.Column)ncharColumn;
-            pcodeUnit.ActiveStorage = (DataStorage)null;
+            constant.ConstantColumn = ncharColumn;
+            pcodeUnit.ResultColumn = ncharColumn;
+            pcodeUnit.ActiveStorage = null;
             return val.Length + 2 + num;
         }
 
@@ -384,18 +384,18 @@ namespace VistaDB.Engine.Core.Scripting
             int startIndex = offset;
             while (offset < length1 && char.IsNumber(Expression[offset]))
                 ++offset;
-            bool flag1 = offset < length1 && (int)Expression[offset] == (int)FloatPunctuation;
+            bool flag1 = offset < length1 && Expression[offset] == FloatPunctuation;
             if (flag1)
             {
                 ++offset;
                 while (offset < length1 && char.IsNumber(Expression[offset]))
                     ++offset;
             }
-            bool flag2 = offset < length1 && (int)Expression[offset] == (int)DecimalPunctuation;
-            bool flag3 = offset < length1 && ((int)Expression[offset] == (int)FloatExponent || (int)Expression[offset] == (int)FloatUpperExponent);
+            bool flag2 = offset < length1 && Expression[offset] == DecimalPunctuation;
+            bool flag3 = offset < length1 && (Expression[offset] == FloatExponent || Expression[offset] == FloatUpperExponent);
             if (flag3)
             {
-                if (++offset < length1 && ((int)Expression[offset] == (int)FloatPlusSign || (int)Expression[offset] == (int)FloatMinusSign))
+                if (++offset < length1 && (Expression[offset] == FloatPlusSign || Expression[offset] == FloatMinusSign))
                     ++offset;
                 int num = offset;
                 while (offset < length1 && char.IsNumber(Expression[offset]))
@@ -406,27 +406,27 @@ namespace VistaDB.Engine.Core.Scripting
             else if (flag2)
                 ++offset;
             Constant constant = (Constant)signatures[signatures.CONSTANT].DoCloneSignature();
-            PushCollector((Signature)constant);
+            PushCollector(constant);
             PCodeUnit pcodeUnit = PeekCollector();
             int length2 = offset - startIndex;
             if (flag2)
             {
                 string str = new string(Expression, startIndex, length2);
                 Decimal val = Decimal.Parse(new string(Expression, startIndex, length2 - 1));
-                pcodeUnit.ResultColumn = (Row.Column)new DecimalColumn(val);
+                pcodeUnit.ResultColumn = new DecimalColumn(val);
             }
             else if (flag1 || flag3)
             {
                 double val = double.Parse(new string(Expression, startIndex, length2), CrossConversion.NumberFormat);
-                pcodeUnit.ResultColumn = (Row.Column)new FloatColumn(val);
+                pcodeUnit.ResultColumn = new FloatColumn(val);
             }
             else
             {
                 long val = long.Parse(new string(Expression, startIndex, length2));
-                pcodeUnit.ResultColumn = val <= (long)int.MaxValue ? (val <= (long)short.MaxValue ? (Row.Column)new SmallIntColumn((short)val) : (Row.Column)new IntColumn((int)val)) : (Row.Column)new BigIntColumn(val);
+                pcodeUnit.ResultColumn = val <= int.MaxValue ? (val <= short.MaxValue ? new SmallIntColumn((short)val) : (Row.Column)new IntColumn((int)val)) : new BigIntColumn(val);
             }
             constant.ConstantColumn = pcodeUnit.ResultColumn;
-            pcodeUnit.ActiveStorage = (DataStorage)null;
+            pcodeUnit.ActiveStorage = null;
             return length2;
         }
 
@@ -490,7 +490,7 @@ namespace VistaDB.Engine.Core.Scripting
 
         internal void Exec(Row contextRow)
         {
-            Exec(contextRow, (Row)null);
+            Exec(contextRow, null);
         }
 
         internal virtual void Exec(Row contextRow, Row targetResult)
@@ -508,7 +508,7 @@ namespace VistaDB.Engine.Core.Scripting
             columnResult = collector.ColumnResult;
             if (targetResult == null || targetResult.Count != 0 || !(columnResult != null))
                 return;
-            targetResult.AppendColumn((IColumn)columnResult);
+            targetResult.AppendColumn(columnResult);
         }
 
         internal List<Row.Column> EnumColumns()

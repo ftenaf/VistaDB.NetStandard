@@ -34,14 +34,14 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object ExecuteSubProgram()
     {
-      string columnName = (string) ((IValue) paramValues[0]).Value;
-      string name = (string) ((IValue) paramValues[1]).Value;
+      string columnName = (string)paramValues[0].Value;
+      string name = (string)paramValues[1].Value;
       int startIndex = 0;
       string namePart = SQLParser.GetNamePart(ref startIndex, name, lineNo, symbolNo);
       if (startIndex != -1)
-        throw new VistaDBSQLException(628, (string) ((IValue) paramValues[1]).Value, lineNo, symbolNo);
-      IVistaDBTableSchema schema = (IVistaDBTableSchema) null;
-      string hint = ParamCount == 2 ? "OBJECT" : (string) ((IValue) paramValues[2]).Value;
+        throw new VistaDBSQLException(628, (string)paramValues[1].Value, lineNo, symbolNo);
+      IVistaDBTableSchema schema = null;
+      string hint = ParamCount == 2 ? "OBJECT" : (string)paramValues[2].Value;
       bool flag = true;
       try
       {
@@ -61,24 +61,24 @@ namespace VistaDB.Engine.SQL.Signatures
           case "VIEW":
             string tableName = SQLParser.GetTableName(columnName, TokenType.ComplexName, lineNo, symbolNo);
             Database.ViewList viewList = (Database.ViewList) parent.Database.EnumViews();
-            Database.ViewList.View view = (Database.ViewList.View) viewList[(object) tableName];
+            Database.ViewList.View view = (Database.ViewList.View) viewList[tableName];
             if (view == null)
               throw new VistaDBSQLException(606, tableName, lineNo, symbolNo);
-            if (viewList.ContainsKey((object) namePart))
+            if (viewList.ContainsKey(namePart))
               throw new VistaDBSQLException(603, namePart, lineNo, symbolNo);
             try
             {
-              parent.Database.DeleteViewObject((IView) view);
+              parent.Database.DeleteViewObject(view);
               view.Name = namePart;
-              parent.Database.CreateViewObject((IView) view);
-              return (object) true;
+              parent.Database.CreateViewObject(view);
+              return true;
             }
             catch
             {
-              if (!parent.Database.EnumViews().Contains((object) tableName))
+              if (!parent.Database.EnumViews().Contains(tableName))
               {
                 view.Name = tableName;
-                parent.Database.CreateViewObject((IView) view);
+                parent.Database.CreateViewObject(view);
               }
               throw;
             }
@@ -98,7 +98,7 @@ namespace VistaDB.Engine.SQL.Signatures
       {
         schema?.Dispose();
       }
-      return (object) flag;
+      return flag;
     }
 
     protected override bool InternalGetIsChanged()

@@ -14,15 +14,15 @@ namespace VistaDB.Engine.SQL.Signatures
 
     internal static Signature CreateSignature(SQLParser parser)
     {
-      return (Signature) new ParameterSignature(parser);
+      return new ParameterSignature(parser);
     }
 
     internal static Signature CreateSignature(string paramName, IParameter parameter)
     {
-      ParameterSignature parameterSignature = new ParameterSignature((SQLParser) null);
+      ParameterSignature parameterSignature = new ParameterSignature(null);
       parameterSignature.paramName = paramName;
       parameterSignature.dataType = parameter.DataType;
-      return (Signature) parameterSignature;
+      return parameterSignature;
     }
 
     private ParameterSignature(SQLParser parser)
@@ -33,7 +33,7 @@ namespace VistaDB.Engine.SQL.Signatures
       signatureType = SignatureType.Parameter;
       isChanged = true;
       optimizable = true;
-      val = (object) null;
+      val = null;
     }
 
     internal static bool IsParameter(string token)
@@ -48,7 +48,7 @@ namespace VistaDB.Engine.SQL.Signatures
       IParameter parameter = parent.DoGetParam(paramName);
       val = parameter.Value;
       dataType = parameter.DataType;
-      ((IValue) result).Value = val;
+            result.Value = val;
     }
 
     protected override IColumn InternalExecute()

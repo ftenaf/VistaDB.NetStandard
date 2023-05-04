@@ -149,20 +149,20 @@ namespace VistaDB.Provider
 
         private void VistaDBRowUpdatingHandler(object sender, VistaDBRowUpdatingEventArgs ruevent)
         {
-            RowUpdatingHandler((RowUpdatingEventArgs)ruevent);
+            RowUpdatingHandler(ruevent);
         }
 
         internal static string InternalQuoteIdentifier(string unquotedIdentifier)
         {
             if (unquotedIdentifier != null)
                 return "[" + unquotedIdentifier.Replace("]", "]]") + "]";
-            return (string)null;
+            return null;
         }
 
         internal static string InternalUnquoteIdentifier(string quotedIdentifier)
         {
             if (quotedIdentifier == null)
-                return (string)null;
+                return null;
             if (!quotedIdentifier.StartsWith("[", StringComparison.OrdinalIgnoreCase) || !quotedIdentifier.EndsWith("]", StringComparison.OrdinalIgnoreCase))
                 return quotedIdentifier;
             return quotedIdentifier.Substring("[".Length, quotedIdentifier.Length - ("[".Length + "]".Length)).Replace("]]", "]");
@@ -170,7 +170,7 @@ namespace VistaDB.Provider
 
         internal static Delegate FindBuilder(MulticastDelegate mcd)
         {
-            if ((object)mcd != null)
+            if (mcd != null)
             {
                 Delegate[] invocationList = mcd.GetInvocationList();
                 for (int index = 0; index < invocationList.Length; ++index)
@@ -179,7 +179,7 @@ namespace VistaDB.Provider
                         return invocationList[index];
                 }
             }
-            return (Delegate)null;
+            return null;
         }
 
         public static void DeriveParameters(VistaDBCommand command)

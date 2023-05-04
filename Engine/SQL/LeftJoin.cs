@@ -15,7 +15,7 @@ namespace VistaDB.Engine.SQL
     {
       leftRowSet = leftRowSet.PrepareTables(tableNames, views, tableList, alwaysAllowNull, ref tableIndex);
       rightRowSet = rightRowSet.PrepareTables(tableNames, views, tableList, true, ref tableIndex);
-      return (IRowSet) this;
+      return this;
     }
 
     protected override bool OnExecuteRowset(ConstraintOperations constraints)

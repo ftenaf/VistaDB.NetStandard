@@ -61,7 +61,7 @@ namespace VistaDB.Engine.SQL
       {
         IRowSet table;
         int num2 = num1 + ParseTable(out table, parser);
-        join = join == null ? table : (IRowSet) new CrossJoin(join, table);
+        join = join == null ? table : new CrossJoin(join, table);
         num1 = num2 + ParseJoins(join, out join, parser);
         if (parser.IsToken(","))
           parser.SkipToken(true);
@@ -74,7 +74,7 @@ namespace VistaDB.Engine.SQL
 
     protected int ParseTable(out IRowSet table, SQLParser parser)
     {
-      ITableValuedFunction func = (ITableValuedFunction) null;
+      ITableValuedFunction func = null;
       int rowNo = parser.TokenValue.RowNo;
       int colNo = parser.TokenValue.ColNo;
       int symbolNo = parser.TokenValue.SymbolNo;
@@ -86,24 +86,24 @@ namespace VistaDB.Engine.SQL
         parser.SkipToken(true);
         if (!parser.IsToken("SELECT") || parser.TokenValue.TokenType != TokenType.Unknown)
         {
-          int joins = ParseJoins((IRowSet) null, out table, parser);
+          int joins = ParseJoins(null, out table, parser);
           parser.ExpectedExpression(")");
           parser.SkipToken(false);
           return joins;
         }
         Statement parent = parser.Parent;
-        statement = new SelectStatement(parser.Parent.Connection, (Statement) this, parser, 0L);
+        statement = new SelectStatement(parser.Parent.Connection, this, parser, 0L);
         parser.Parent = parent;
-        str = (string) null;
-        alias = (string) null;
+        str = null;
+        alias = null;
         parser.ExpectedExpression(")");
         parser.SkipToken(false);
       }
       else
       {
-        str = parser.GetTableName((Statement) this);
+        str = parser.GetTableName(this);
         alias = str;
-        statement = (SelectStatement) null;
+        statement = null;
         if (parser.SkipToken(false) && parser.IsToken("("))
         {
           func = parser.CreateSpecialFunction(str, rowNo, colNo, symbolNo);
@@ -124,7 +124,7 @@ namespace VistaDB.Engine.SQL
           parser.SkipToken(false);
         }
       }
-      table = statement != null ? (IRowSet) new QuerySourceTable((Statement) this, statement, alias, 0, rowNo, colNo) : (func == null ? (IRowSet) new NativeSourceTable((Statement) this, str, alias, 0, rowNo, colNo) : (IRowSet) new FuncSourceTable((Statement) this, func, alias, 0, rowNo, colNo));
+      table = statement != null ? new QuerySourceTable(this, statement, alias, 0, rowNo, colNo) : (func == null ? new NativeSourceTable(this, str, alias, 0, rowNo, colNo) : (IRowSet) new FuncSourceTable(this, func, alias, 0, rowNo, colNo));
       return 1;
     }
 
@@ -137,7 +137,7 @@ namespace VistaDB.Engine.SQL
         rowSet = leftRowSet;
       }
       else
-        rowSet = (IRowSet) null;
+        rowSet = null;
       while (true)
       {
         if (parser.IsToken("INNER"))
@@ -167,10 +167,10 @@ namespace VistaDB.Engine.SQL
     {
       parser.SkipToken(true);
       IRowSet rowSet1;
-      int joins = ParseJoins((IRowSet) null, out rowSet1, parser);
+      int joins = ParseJoins(null, out rowSet1, parser);
       parser.ExpectedExpression("ON");
       Signature signature = parser.NextSignature(true, true, 6);
-      rowSet = (IRowSet) new InnerJoin(signature, leftRowSet, rowSet1);
+      rowSet = new InnerJoin(signature, leftRowSet, rowSet1);
       return joins;
     }
 
@@ -182,10 +182,10 @@ namespace VistaDB.Engine.SQL
       parser.ExpectedExpression("JOIN");
       parser.SkipToken(true);
       IRowSet rowSet1;
-      int joins = ParseJoins((IRowSet) null, out rowSet1, parser);
+      int joins = ParseJoins(null, out rowSet1, parser);
       parser.ExpectedExpression("ON");
       Signature signature = parser.NextSignature(true, true, 6);
-      rowSet = (IRowSet) new LeftJoin(signature, leftRowSet, rowSet1);
+      rowSet = new LeftJoin(signature, leftRowSet, rowSet1);
       return joins;
     }
 
@@ -197,10 +197,10 @@ namespace VistaDB.Engine.SQL
       parser.ExpectedExpression("JOIN");
       parser.SkipToken(true);
       IRowSet rowSet1;
-      int joins = ParseJoins((IRowSet) null, out rowSet1, parser);
+      int joins = ParseJoins(null, out rowSet1, parser);
       parser.ExpectedExpression("ON");
       Signature signature = parser.NextSignature(true, true, 6);
-      rowSet = (IRowSet) new LeftJoin(signature, rowSet1, leftRowSet);
+      rowSet = new LeftJoin(signature, rowSet1, leftRowSet);
       return joins;
     }
 
@@ -211,7 +211,7 @@ namespace VistaDB.Engine.SQL
       parser.SkipToken(true);
       IRowSet table1;
       int table2 = ParseTable(out table1, parser);
-      rowSet = (IRowSet) new CrossJoin(leftRowSet, table1);
+      rowSet = new CrossJoin(leftRowSet, table1);
       return table2;
     }
 
@@ -224,7 +224,7 @@ namespace VistaDB.Engine.SQL
 
     public override SearchColumnResult GetTableByColumnName(string columnName, out SourceTable table, out int columnIndex)
     {
-      table = (SourceTable) null;
+      table = null;
       columnIndex = -1;
       foreach (SourceTable sourceTable in (List<SourceTable>) sourceTables)
       {
@@ -248,7 +248,7 @@ namespace VistaDB.Engine.SQL
           return sourceTable;
       }
       if (parent == null)
-        return (SourceTable) null;
+        return null;
       return parent.GetTableByAlias(tableAlias);
     }
 
@@ -290,7 +290,7 @@ namespace VistaDB.Engine.SQL
       if (sourceTables.Count > 0 && connection.GetOptimization())
         constraintOperations = new ConstraintOperations(Database, sourceTables);
       else
-        constraintOperations = (ConstraintOperations) null;
+        constraintOperations = null;
     }
 
     internal void Optimize()
@@ -318,7 +318,7 @@ namespace VistaDB.Engine.SQL
         constraintOperations.AddLogicalAnd();
       if (!constraintOperations.AnalyzeOptimizationLevel())
       {
-        constraintOperations = (ConstraintOperations) null;
+        constraintOperations = null;
       }
       else
       {
@@ -374,13 +374,13 @@ namespace VistaDB.Engine.SQL
 
       public WhereClause(BaseSelectStatement parent)
       {
-        signature = (Signature) null;
+        signature = null;
         this.parent = parent;
       }
 
       private bool ResultValue()
       {
-        IVistaDBValue vistaDbValue = (IVistaDBValue) signature.Execute();
+        IVistaDBValue vistaDbValue = signature.Execute();
         if (vistaDbValue != null && !vistaDbValue.IsNull && vistaDbValue.Type == VistaDBType.Bit)
           return (bool) vistaDbValue.Value;
         return false;
@@ -388,24 +388,24 @@ namespace VistaDB.Engine.SQL
 
       internal bool Execute(bool forceToCheck)
       {
-        if ((forceToCheck || parent.OptimizationLevel != OptimizationLevel.Full) && !(signature == (Signature) null))
+        if ((forceToCheck || parent.OptimizationLevel != OptimizationLevel.Full) && !(signature == null))
           return ResultValue();
         return true;
       }
 
       public void Prepare()
       {
-        if (signature == (Signature) null)
+        if (signature == null)
           return;
         if (signature.Prepare() == SignatureType.Constant && signature.SignatureType != SignatureType.Constant)
-          signature = (Signature) ConstantSignature.CreateSignature(signature.Execute(), (Statement) parent);
+          signature = ConstantSignature.CreateSignature(signature.Execute(), parent);
         if (signature.DataType != VistaDBType.Bit)
           throw new VistaDBSQLException(564, "", signature.LineNo, signature.SymbolNo);
       }
 
       public bool Optimize(ConstraintOperations constraints)
       {
-        if (!(signature == (Signature) null) && signature.SignatureType != SignatureType.Constant)
+        if (!(signature == null) && signature.SignatureType != SignatureType.Constant)
           return signature.Optimize(constraints);
         return true;
       }
@@ -417,14 +417,14 @@ namespace VistaDB.Engine.SQL
 
       public void SetChanged()
       {
-        if (!(signature != (Signature) null))
+        if (!(signature != null))
           return;
         signature.SetChanged();
       }
 
       public void ClearChanged()
       {
-        if (!(signature != (Signature) null))
+        if (!(signature != null))
           return;
         signature.ClearChanged();
       }
@@ -433,7 +433,7 @@ namespace VistaDB.Engine.SQL
       {
         get
         {
-          if (signature != (Signature) null && signature.SignatureType == SignatureType.Constant)
+          if (signature != null && signature.SignatureType == SignatureType.Constant)
             return !Execute(false);
           return false;
         }
@@ -443,7 +443,7 @@ namespace VistaDB.Engine.SQL
       {
         get
         {
-          if (signature == (Signature) null)
+          if (signature == null)
             return true;
           if (signature.SignatureType == SignatureType.Constant)
             return Execute(false);
@@ -460,7 +460,7 @@ namespace VistaDB.Engine.SQL
         set
         {
           bool distinct;
-          if (value != (Signature) null && value.HasAggregateFunction(out distinct))
+          if (value != null && value.HasAggregateFunction(out distinct))
             throw new VistaDBSQLException(565, "", value.LineNo, value.SymbolNo);
           signature = value;
         }
@@ -468,7 +468,7 @@ namespace VistaDB.Engine.SQL
 
       public bool GetIsChanged()
       {
-        if (signature != (Signature) null)
+        if (signature != null)
           return signature.GetIsChanged();
         return false;
       }

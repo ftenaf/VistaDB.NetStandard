@@ -51,41 +51,41 @@ namespace VistaDB.Engine.SQL.Signatures
 
     private void FillRow(IRow row, IVistaDBIndexInformation indexInfo, int keyColumnIndex)
     {
-      ((IValue) row[0]).Value = (object) Path.GetFileNameWithoutExtension(parent.Database.Name);
-      ((IValue) row[1]).Value = (object) (91.ToString() + "DBO" + (object) ']');
-      ((IValue) row[2]).Value = (object) tableName;
-      ((IValue) row[3]).Value = (object) (short) (indexInfo.Unique ? 0 : 1);
-      ((IValue) row[4]).Value = (object) tableName;
-      ((IValue) row[5]).Value = (object) indexInfo.Name;
-      ((IValue) row[6]).Value = (object) (short) 3;
-      ((IValue) row[7]).Value = (object) (keyColumnIndex + 1);
+            row[0].Value = Path.GetFileNameWithoutExtension(parent.Database.Name);
+            row[1].Value = 91.ToString() + "DBO" + ']';
+            row[2].Value = tableName;
+            row[3].Value = (short)(indexInfo.Unique ? 0 : 1);
+            row[4].Value = tableName;
+            row[5].Value = indexInfo.Name;
+            row[6].Value = (short)3;
+            row[7].Value = keyColumnIndex + 1;
       int rowIndex = indexInfo.KeyStructure[keyColumnIndex].RowIndex;
       bool descending = indexInfo.KeyStructure[keyColumnIndex].Descending;
       this.keyColumnIndex = ++keyColumnIndex < indexInfo.KeyStructure.Length ? keyColumnIndex : -1;
-      ((IValue) row[8]).Value = (object) schema[rowIndex].Name;
-      ((IValue) row[9]).Value = descending ? (object) "D" : (object) "A";
-      ((IValue) row[10]).Value = (object) (indexInfo.Primary ? 1 : 0);
-      ((IValue) row[11]).Value = (object) (indexInfo.FullTextSearch ? 1 : 0);
-      ((IValue) row[12]).Value = (object) indexInfo.KeyExpression;
+            row[8].Value = schema[rowIndex].Name;
+            row[9].Value = descending ? "D" : (object) "A";
+            row[10].Value = indexInfo.Primary ? 1 : 0;
+            row[11].Value = indexInfo.FullTextSearch ? 1 : 0;
+            row[12].Value = indexInfo.KeyExpression;
     }
 
     protected override object ExecuteSubProgram()
     {
-      tableName = ((IValue) paramValues[0]).Value as string;
+      tableName = paramValues[0].Value as string;
       try
       {
         schema = parent.Database.TableSchema(tableName);
       }
       catch (VistaDBException ex)
       {
-        throw new VistaDBSQLException((Exception) ex, 572, tableName, lineNo, symbolNo);
+        throw new VistaDBSQLException(ex, 572, tableName, lineNo, symbolNo);
       }
       catch
       {
         throw;
       }
-      enumerator = (IEnumerator) schema.Indexes.GetEnumerator();
-      return (object) null;
+      enumerator = schema.Indexes.GetEnumerator();
+      return null;
     }
 
     public override bool First(IRow row)

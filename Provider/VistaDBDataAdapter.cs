@@ -18,7 +18,7 @@ namespace VistaDB.Provider
     }
 
     private VistaDBDataAdapter(VistaDBDataAdapter adapter)
-      : base((DbDataAdapter) adapter)
+      : base(adapter)
     {
     }
 
@@ -91,19 +91,19 @@ namespace VistaDB.Provider
 
     protected override RowUpdatedEventArgs CreateRowUpdatedEvent(DataRow dataRow, IDbCommand command, StatementType statementType, DataTableMapping tableMapping)
     {
-      return (RowUpdatedEventArgs) new VistaDBRowUpdatedEventArgs(dataRow, command, statementType, tableMapping);
+      return new VistaDBRowUpdatedEventArgs(dataRow, command, statementType, tableMapping);
     }
 
     protected override RowUpdatingEventArgs CreateRowUpdatingEvent(DataRow dataRow, IDbCommand command, StatementType statementType, DataTableMapping tableMapping)
     {
-      return (RowUpdatingEventArgs) new VistaDBRowUpdatingEventArgs(dataRow, command, statementType, tableMapping);
+      return new VistaDBRowUpdatingEventArgs(dataRow, command, statementType, tableMapping);
     }
 
     protected override void OnRowUpdated(RowUpdatedEventArgs value)
     {
       VistaDBRowUpdatedEventHandler updatedEventHandler = (VistaDBRowUpdatedEventHandler) Events[EventRowUpdated];
       if (updatedEventHandler != null && value is VistaDBRowUpdatedEventArgs)
-        updatedEventHandler((object) this, (VistaDBRowUpdatedEventArgs) value);
+        updatedEventHandler(this, (VistaDBRowUpdatedEventArgs) value);
       base.OnRowUpdated(value);
     }
 
@@ -111,7 +111,7 @@ namespace VistaDB.Provider
     {
       VistaDBRowUpdatingEventHandler updatingEventHandler = (VistaDBRowUpdatingEventHandler) Events[EventRowUpdating];
       if (updatingEventHandler != null && value is VistaDBRowUpdatingEventArgs)
-        updatingEventHandler((object) this, (VistaDBRowUpdatingEventArgs) value);
+        updatingEventHandler(this, (VistaDBRowUpdatingEventArgs) value);
       base.OnRowUpdating(value);
     }
 
@@ -122,15 +122,15 @@ namespace VistaDB.Provider
         VistaDBRowUpdatingEventHandler updatingEventHandler = (VistaDBRowUpdatingEventHandler) Events[EventRowUpdating];
         if (updatingEventHandler != null && value.Target is DbCommandBuilder)
         {
-          VistaDBRowUpdatingEventHandler builder = (VistaDBRowUpdatingEventHandler) VistaDBCommandBuilder.FindBuilder((MulticastDelegate) updatingEventHandler);
+          VistaDBRowUpdatingEventHandler builder = (VistaDBRowUpdatingEventHandler) VistaDBCommandBuilder.FindBuilder(updatingEventHandler);
           if (builder != null)
-            Events.RemoveHandler(EventRowUpdating, (Delegate) builder);
+            Events.RemoveHandler(EventRowUpdating, builder);
         }
-        Events.AddHandler(EventRowUpdating, (Delegate) value);
+        Events.AddHandler(EventRowUpdating, value);
       }
       remove
       {
-        Events.RemoveHandler(EventRowUpdating, (Delegate) value);
+        Events.RemoveHandler(EventRowUpdating, value);
       }
     }
 
@@ -138,11 +138,11 @@ namespace VistaDB.Provider
     {
       add
       {
-        Events.AddHandler(EventRowUpdated, (Delegate) value);
+        Events.AddHandler(EventRowUpdated, value);
       }
       remove
       {
-        Events.RemoveHandler(EventRowUpdated, (Delegate) value);
+        Events.RemoveHandler(EventRowUpdated, value);
       }
     }
 
@@ -150,7 +150,7 @@ namespace VistaDB.Provider
     {
       get
       {
-        return (IDbCommand) cmdDelete;
+        return cmdDelete;
       }
       set
       {
@@ -162,7 +162,7 @@ namespace VistaDB.Provider
     {
       get
       {
-        return (IDbCommand) cmdInsert;
+        return cmdInsert;
       }
       set
       {
@@ -174,7 +174,7 @@ namespace VistaDB.Provider
     {
       get
       {
-        return (IDbCommand) cmdSelect;
+        return cmdSelect;
       }
       set
       {
@@ -186,7 +186,7 @@ namespace VistaDB.Provider
     {
       get
       {
-        return (IDbCommand) cmdUpdate;
+        return cmdUpdate;
       }
       set
       {
@@ -196,7 +196,7 @@ namespace VistaDB.Provider
 
     object ICloneable.Clone()
     {
-      return (object) new VistaDBDataAdapter(this);
+      return new VistaDBDataAdapter(this);
     }
   }
 }

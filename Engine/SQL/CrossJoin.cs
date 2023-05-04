@@ -5,7 +5,7 @@ namespace VistaDB.Engine.SQL
   internal class CrossJoin : Join
   {
     public CrossJoin(IRowSet leftRowSet, IRowSet rightRowSet)
-      : base((Signature) null, leftRowSet, rightRowSet)
+      : base(null, leftRowSet, rightRowSet)
     {
     }
 

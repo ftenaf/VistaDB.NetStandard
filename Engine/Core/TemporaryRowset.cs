@@ -14,7 +14,7 @@ namespace VistaDB.Engine.Core
     }
 
     protected TemporaryRowset(string tableName, Database parentDatabase, Row parentTableSchema)
-      : base(tableName, tableName, parentDatabase, parentDatabase.ParentConnection, parentDatabase.Parser, parentDatabase.Encryption, (ClusteredRowset) null, Table.TableType.Default)
+      : base(tableName, tableName, parentDatabase, parentDatabase.ParentConnection, parentDatabase.Parser, parentDatabase.Encryption, null, Table.TableType.Default)
     {
       this.parentTableSchema = parentTableSchema;
     }
@@ -26,7 +26,7 @@ namespace VistaDB.Engine.Core
 
     internal override TransactionLogRowset DoCreateTpLog(bool commit)
     {
-      return (TransactionLogRowset) null;
+      return null;
     }
 
     protected override ulong OnGetFreeCluster(int pageCount)
@@ -86,7 +86,7 @@ namespace VistaDB.Engine.Core
 
     protected override StorageHandle OnAttachLockStorage(ulong headerPosition)
     {
-      return (StorageHandle) null;
+      return null;
     }
 
     protected override void OnCreateHeader(ulong position)

@@ -13,10 +13,10 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object ExecuteSubProgram()
     {
-      string str = (string) ((IValue) paramValues[0]).Value;
+      string str = (string)paramValues[0].Value;
       if (str.Length == 0)
-        return (object) null;
-      return (object) (int) str[0];
+        return null;
+      return (int)str[0];
     }
   }
 }

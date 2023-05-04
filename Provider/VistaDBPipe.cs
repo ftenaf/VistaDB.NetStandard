@@ -11,7 +11,7 @@ namespace VistaDB.Provider
 
     internal VistaDBPipe()
     {
-      _table = (TemporaryResultSet) null;
+      _table = null;
     }
 
     internal VistaDBDataReader DequeueReader()
@@ -28,17 +28,17 @@ namespace VistaDB.Provider
 
     public void Send(string message)
     {
-      Send(new VistaDBDataReader(VistaDBContext.SQLChannel.CurrentConnection.CreateMessageQuery(message), (VistaDBConnection) null, CommandBehavior.SingleRow));
+      Send(new VistaDBDataReader(VistaDBContext.SQLChannel.CurrentConnection.CreateMessageQuery(message), null, CommandBehavior.SingleRow));
     }
 
     internal void Send(TemporaryResultSet table)
     {
-      Send(new VistaDBDataReader(VistaDBContext.SQLChannel.CurrentConnection.CreateResultQuery(table), (VistaDBConnection) null, CommandBehavior.SingleResult));
+      Send(new VistaDBDataReader(VistaDBContext.SQLChannel.CurrentConnection.CreateResultQuery(table), null, CommandBehavior.SingleResult));
     }
 
     public void Send(SqlDataRecord record)
     {
-      Send(new VistaDBDataReader(VistaDBContext.SQLChannel.CurrentConnection.CreateResultQuery(record.DataTable), (VistaDBConnection) null, CommandBehavior.SingleResult));
+      Send(new VistaDBDataReader(VistaDBContext.SQLChannel.CurrentConnection.CreateResultQuery(record.DataTable), null, CommandBehavior.SingleResult));
     }
 
     public void SendResultsStart(SqlDataRecord record)
@@ -51,7 +51,7 @@ namespace VistaDB.Provider
     public void SendResultsEnd()
     {
       Send(_table);
-      _table = (TemporaryResultSet) null;
+      _table = null;
     }
 
     public void SendResultsRow(SqlDataRecord record)

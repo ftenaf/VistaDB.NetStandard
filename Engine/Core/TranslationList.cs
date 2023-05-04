@@ -13,33 +13,33 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        if (!Contains((object) srcColumn.Name))
-          return (Rule) null;
-        return (Rule) this[(object) srcColumn.Name];
+        if (!Contains(srcColumn.Name))
+          return null;
+        return (Rule) this[srcColumn.Name];
       }
     }
 
     internal void AddTranslationRule(Row.Column srcColumn, Row.Column dstColumn)
     {
-      Add((object) srcColumn.Name, (object) new Rule(srcColumn, dstColumn, CrossConversion.Method(srcColumn.InternalType, dstColumn.InternalType)));
+      Add(srcColumn.Name, new Rule(srcColumn, dstColumn, CrossConversion.Method(srcColumn.InternalType, dstColumn.InternalType)));
     }
 
     internal void AddTranslationRule(DefaultValue dstDefaults, Row.Column dstColumn)
     {
-      Add((object) ("New_" + dstColumn.Name), (object) new Rule(dstDefaults, dstColumn, (CrossConversion.ConversionMethod) null));
+      Add("New_" + dstColumn.Name, new Rule(dstDefaults, dstColumn, null));
     }
 
     internal void DropTranslationRule(Row.Column srcColumn)
     {
       string name = srcColumn.Name;
-      if (!Contains((object) name))
+      if (!Contains(name))
         return;
-      Remove((object) name);
+      Remove(name);
     }
 
     internal bool IsColumnTranslated(Row.Column srcColumn)
     {
-      return Contains((object) srcColumn.Name);
+      return Contains(srcColumn.Name);
     }
 
     protected virtual void Destroy()
@@ -85,7 +85,7 @@ namespace VistaDB.Engine.Core
 
       internal void Convert(Row srcRow, Row dstRow, CultureInfo culture)
       {
-        if (srcValue != null && srcColumn == (Row.Column) null)
+        if (srcValue != null && srcColumn == null)
           srcValue.GetValidRowStatus(dstRow);
         else if (srcColumn.InternalType == dstColumn.InternalType)
         {
@@ -95,7 +95,7 @@ namespace VistaDB.Engine.Core
         {
           if (method == null)
             return;
-          method((IValue) srcRow[srcColumn.RowIndex], (IValue) dstRow[dstColumn.RowIndex], culture);
+          method(srcRow[srcColumn.RowIndex], dstRow[dstColumn.RowIndex], culture);
         }
       }
     }

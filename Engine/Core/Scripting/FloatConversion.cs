@@ -13,7 +13,7 @@ namespace VistaDB.Engine.Core.Scripting
     protected override void OnExecute(ProcedureCode pcode, int entry, Connection connection, DataStorage contextStorage, Row contextRow, ref bool bypassNextGroup, Row rowResult)
     {
       PCodeUnit pcodeUnit = pcode[entry];
-      pcodeUnit.ResultColumn = pcodeUnit.ResultColumn.IsNull ? (Row.Column) new RealColumn() : (Row.Column) new RealColumn(float.Parse(pcodeUnit.ResultColumn.Value.ToString(), CrossConversion.NumberFormat));
+      pcodeUnit.ResultColumn = pcodeUnit.ResultColumn.IsNull ? new RealColumn() : (Row.Column) new RealColumn(float.Parse(pcodeUnit.ResultColumn.Value.ToString(), CrossConversion.NumberFormat));
     }
   }
 }

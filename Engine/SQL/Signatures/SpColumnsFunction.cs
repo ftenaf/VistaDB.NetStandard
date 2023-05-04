@@ -100,22 +100,22 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object ExecuteSubProgram()
     {
-      string str = ((IValue) paramValues[0]).Value as string;
-      schema = (IVistaDBTableSchema) null;
+      string str = paramValues[0].Value as string;
+      schema = null;
       try
       {
         schema = parent.Database.TableSchema(str);
       }
       catch (VistaDBException ex)
       {
-        throw new VistaDBSQLException((Exception) ex, 572, str, lineNo, symbolNo);
+        throw new VistaDBSQLException(ex, 572, str, lineNo, symbolNo);
       }
       catch
       {
         throw;
       }
-      enumerator = (IEnumerator) schema.GetEnumerator();
-      return (object) null;
+      enumerator = schema.GetEnumerator();
+      return null;
     }
 
     public override bool First(IRow row)
@@ -204,29 +204,29 @@ namespace VistaDB.Engine.SQL.Signatures
       IVistaDBColumnAttributes current = enumerator.Current as IVistaDBColumnAttributes;
       if (current == null)
         return;
-      ((IValue) row[0]).Value = (object) Path.GetFileNameWithoutExtension(parent.Database.Name);
-      ((IValue) row[1]).Value = (object) (91.ToString() + "DBO" + (object) ']');
-      ((IValue) row[2]).Value = (object) schema.Name;
-      ((IValue) row[3]).Value = (object) current.Name;
-      ((IValue) row[4]).Value = (object) (short) current.Type;
-      ((IValue) row[5]).Value = (object) current.Type.ToString();
-      ((IValue) row[6]).Value = (object)GetVistaDBTypePrecision(current.Type, current.MaxLength);
-      ((IValue) row[7]).Value = (object) current.MaxLength;
+            row[0].Value = Path.GetFileNameWithoutExtension(parent.Database.Name);
+            row[1].Value = 91.ToString() + "DBO" + ']';
+            row[2].Value = schema.Name;
+            row[3].Value = current.Name;
+            row[4].Value = (short)current.Type;
+            row[5].Value = current.Type.ToString();
+            row[6].Value = GetVistaDBTypePrecision(current.Type, current.MaxLength);
+            row[7].Value = current.MaxLength;
       short vistaDbTypeScale = GetVistaDBTypeScale(current.Type);
-      ((IValue) row[8]).Value = vistaDbTypeScale < (short) 0 ? (object) null : (object) vistaDbTypeScale;
+            row[8].Value = vistaDbTypeScale < 0 ? null : (object) vistaDbTypeScale;
       short vistaDbTypeRadix = GetVistaDBTypeRadix(current.Type);
-      ((IValue) row[9]).Value = vistaDbTypeRadix < (short) 0 ? (object) null : (object) vistaDbTypeRadix;
-      ((IValue) row[10]).Value = (object) current.AllowNull;
-      ((IValue) row[11]).Value = (object) current.Description;
+            row[9].Value = vistaDbTypeRadix < 0 ? null : (object) vistaDbTypeRadix;
+            row[10].Value = current.AllowNull;
+            row[11].Value = current.Description;
       IVistaDBDefaultValueInformation defaultValue = schema.DefaultValues[current.Name];
-      ((IValue) row[12]).Value = defaultValue == null ? (object) (string) null : (object) defaultValue.Expression;
-      ((IValue) row[13]).Value = (object) (short) current.Type;
+            row[12].Value = defaultValue == null ? null : (object) defaultValue.Expression;
+            row[13].Value = (short)current.Type;
       short dateTimeSub = GetDateTimeSub(current.Type);
-      ((IValue) row[14]).Value = dateTimeSub < (short) 0 ? (object) null : (object) dateTimeSub;
+            row[14].Value = dateTimeSub < 0 ? null : (object) dateTimeSub;
       int charOctetLength = GetCharOctetLength(current.Type, current.MaxLength);
-      ((IValue) row[15]).Value = charOctetLength < 0 ? (object) null : (object) charOctetLength;
-      ((IValue) row[16]).Value = (object) (current.RowIndex + 1);
-      ((IValue) row[17]).Value = current.SystemType == typeof (string) ? (object) "YES" : (object) "NO";
+            row[15].Value = charOctetLength < 0 ? null : (object) charOctetLength;
+            row[16].Value = current.RowIndex + 1;
+            row[17].Value = current.SystemType == typeof (string) ? "YES" : (object) "NO";
     }
   }
 }

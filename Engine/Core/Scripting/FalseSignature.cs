@@ -4,7 +4,7 @@ namespace VistaDB.Engine.Core.Scripting
 {
   internal class FalseSignature : Signature
   {
-    internal static readonly Row.Column False = (Row.Column) new BitColumn(false);
+    internal static readonly Row.Column False = new BitColumn(false);
 
     internal FalseSignature(string name, int groupId)
       : base(name, groupId, Operations.False, Priorities.Generator, VistaDBType.Bit)

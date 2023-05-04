@@ -13,7 +13,7 @@ namespace VistaDB.Engine.Core.Scripting
     {
       PCodeUnit pcodeUnit1 = pcode[entry];
       PCodeUnit pcodeUnit2 = pcode[entry + 1];
-      pcodeUnit1.ResultColumn = (Row.Column) new BitColumn(ImplicitCompare(pcodeUnit1.ResultColumn, pcodeUnit2.ResultColumn, contextStorage) <= 0L);
+      pcodeUnit1.ResultColumn = new BitColumn(ImplicitCompare(pcodeUnit1.ResultColumn, pcodeUnit2.ResultColumn, contextStorage) <= 0L);
     }
   }
 }

@@ -18,9 +18,9 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public override void SwitchToTempTable(SourceRow sourceRow, int columnIndex, SelectStatement.ResultColumn resultColumn)
     {
-      if (leftOperand.Equals((object) resultColumn.Signature))
+      if (leftOperand.Equals(resultColumn.Signature))
         leftOperand.SwitchToTempTable(sourceRow, columnIndex);
-      if (!rightOperand.Equals((object) resultColumn.Signature))
+      if (!rightOperand.Equals(resultColumn.Signature))
         return;
       rightOperand.SwitchToTempTable(sourceRow, columnIndex);
     }
@@ -57,7 +57,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       if (!GetIsChanged())
         return result;
-      ((IValue) result).Value = (object) null;
+            result.Value = null;
       needsEvaluation = false;
       if (leftOperand.AlwaysNull || rightOperand.AlwaysNull)
         return result;
@@ -73,16 +73,16 @@ namespace VistaDB.Engine.SQL.Signatures
         IColumn column2 = rightOperand.Execute();
         if (column2.IsNull)
           return result;
-        Convert((IValue) column1, (IValue) leftValue);
-        Convert((IValue) column2, (IValue) rightValue);
+        Convert(column1, leftValue);
+        Convert(column2, rightValue);
       }
       if (Utils.IsCharacterDataType(operandType))
       {
-        ((IValue) leftValue).Value = (object) ((string) ((IValue) leftValue).Value).TrimEnd();
+                leftValue.Value = ((string)leftValue.Value).TrimEnd();
         if (!rightOperandIsSubQuery)
-          ((IValue) rightValue).Value = (object) ((string) ((IValue) rightValue).Value).TrimEnd();
+                    rightValue.Value = ((string)rightValue.Value).TrimEnd();
       }
-      ((IValue) result).Value = (object) CompareOperands();
+            result.Value = CompareOperands();
       return result;
     }
 

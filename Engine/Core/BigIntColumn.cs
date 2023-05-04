@@ -15,28 +15,28 @@ namespace VistaDB.Engine.Core
         case VistaDBType.NChar:
           return long.Parse((string) col.Value);
         case VistaDBType.TinyInt:
-          return (long) (byte) col.Value;
+          return (byte)col.Value;
         case VistaDBType.SmallInt:
-          return (long) (short) col.Value;
+          return (short)col.Value;
         case VistaDBType.Int:
-          return (long) (int) col.Value;
+          return (int)col.Value;
         default:
           return (long) col.Value;
       }
     }
 
     internal BigIntColumn()
-      : base((object) null, VistaDBType.BigInt, LongSize)
+      : base(null, VistaDBType.BigInt, LongSize)
     {
     }
 
     internal BigIntColumn(long val)
-      : base((object) val, VistaDBType.BigInt, LongSize)
+      : base(val, VistaDBType.BigInt, LongSize)
     {
     }
 
     internal BigIntColumn(BigIntColumn col)
-      : base((Row.Column) col)
+      : base(col)
     {
     }
 
@@ -44,7 +44,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (object) long.MinValue;
+        return long.MinValue;
       }
     }
 
@@ -52,7 +52,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (object) long.MaxValue;
+        return long.MaxValue;
       }
     }
 
@@ -68,20 +68,20 @@ namespace VistaDB.Engine.Core
     {
       set
       {
-        base.Value = value == null ? value : (object) (long) value;
+        base.Value = value == null ? value : (long)value;
       }
     }
 
     protected override Row.Column OnDuplicate(bool padRight)
     {
-      return (Row.Column) new BigIntColumn(this);
+      return new BigIntColumn(this);
     }
 
     internal override int ConvertToByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
       ulong difference;
       int len;
-      if (precedenceColumn != (Row.Column) null)
+      if (precedenceColumn != null)
       {
         bool inverted;
         len = CalcPackedLength((long) val - (long) precedenceColumn.Value, out inverted, out difference);
@@ -95,7 +95,7 @@ namespace VistaDB.Engine.Core
           ulong num = difference << 5;
           if (inverted)
             num |= 16UL;
-          difference = num | (ulong) (uint) (len - 1);
+          difference = num | (uint)(len - 1);
         }
       }
       else
@@ -108,32 +108,32 @@ namespace VistaDB.Engine.Core
 
     internal override int ConvertFromByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      if (precedenceColumn == (Row.Column) null)
+      if (precedenceColumn == null)
       {
-        val = (object) BitConverter.ToInt64(buffer, offset);
+        val = BitConverter.ToInt64(buffer, offset);
         return offset + LongSize;
       }
-      int length = ((int) buffer[offset] & 15) + 1;
+      int length = (buffer[offset] & 15) + 1;
       if (length > LongSize)
       {
-        val = (object) ((long) precedenceColumn.Value + BitConverter.ToInt64(buffer, ++offset));
+        val = (long)precedenceColumn.Value + BitConverter.ToInt64(buffer, ++offset);
         return offset + LongSize;
       }
       if (this.compressingArray == null)
         this.compressingArray = new byte[LongSize];
       byte[] compressingArray = this.compressingArray;
-      Array.Clear((Array) compressingArray, 0, LongSize);
-      Array.Copy((Array) buffer, offset, (Array) compressingArray, 0, length);
+      Array.Clear(compressingArray, 0, LongSize);
+      Array.Copy(buffer, offset, compressingArray, 0, length);
       ulong num = BitConverter.ToUInt64(compressingArray, 0) >> 5;
-      if (((int) buffer[offset] & 16) == 16)
+      if ((buffer[offset] & 16) == 16)
         num = ~num;
-      val = (object) ((long) precedenceColumn.Value + (long) num);
+      val = (long)precedenceColumn.Value + (long)num;
       return offset + length;
     }
 
     internal override int GetBufferLength(Row.Column precedenceColumn)
     {
-      if (precedenceColumn == (Row.Column) null || precedenceColumn.IsNull)
+      if (precedenceColumn == null || precedenceColumn.IsNull)
         return base.GetBufferLength(precedenceColumn);
       if (!IsNull)
       {
@@ -146,13 +146,13 @@ namespace VistaDB.Engine.Core
 
     internal override int GetLengthCounterWidth(Row.Column precedenceColumn)
     {
-      return !(precedenceColumn == (Row.Column) null) && !precedenceColumn.IsNull ? 1 : 0;
+      return !(precedenceColumn == null) && !precedenceColumn.IsNull ? 1 : 0;
     }
 
     internal override int ReadVarLength(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      if (!(precedenceColumn == (Row.Column) null) && !precedenceColumn.IsNull)
-        return (int) buffer[offset] & 15;
+      if (!(precedenceColumn == null) && !precedenceColumn.IsNull)
+        return buffer[offset] & 15;
       return 0;
     }
 
@@ -165,74 +165,74 @@ namespace VistaDB.Engine.Core
 
     protected override Row.Column DoUnaryMinus()
     {
-      Value = (object) -(long) Value;
-      return (Row.Column) this;
+      Value = -(long)Value;
+      return this;
     }
 
     protected override Row.Column DoMinus(Row.Column col)
     {
-      Value = (object) ((long) Value - CustValue(col));
-      return (Row.Column) this;
+      Value = (long)Value - CustValue(col);
+      return this;
     }
 
     protected override Row.Column DoPlus(Row.Column col)
     {
-      Value = (object) ((long) Value + CustValue(col));
-      return (Row.Column) this;
+      Value = (long)Value + CustValue(col);
+      return this;
     }
 
     protected override Row.Column DoMultiplyBy(Row.Column col)
     {
-      Value = (object) ((long) Value * CustValue(col));
-      return (Row.Column) this;
+      Value = (long)Value * CustValue(col);
+      return this;
     }
 
     protected override Row.Column DoDivideBy(Row.Column denominator)
     {
-      Value = (object) ((long) Value / CustValue(denominator));
-      return (Row.Column) this;
+      Value = (long)Value / CustValue(denominator);
+      return this;
     }
 
     protected override Row.Column DoGetDividedBy(Row.Column numerator)
     {
-      Value = (object) (CustValue(numerator) / (long) Value);
-      return (Row.Column) this;
+      Value = CustValue(numerator) / (long)Value;
+      return this;
     }
 
     protected override Row.Column DoModBy(Row.Column denominator)
     {
-      Value = (object) ((long) Value % CustValue(denominator));
-      return (Row.Column) this;
+      Value = (long)Value % CustValue(denominator);
+      return this;
     }
 
     protected override Row.Column DoGetModBy(Row.Column numerator)
     {
-      Value = (object) (CustValue(numerator) % (long) Value);
-      return (Row.Column) this;
+      Value = CustValue(numerator) % (long)Value;
+      return this;
     }
 
     protected override Row.Column DoBitwiseNot()
     {
-      Value = (object) ~(long) Value;
-      return (Row.Column) this;
+      Value = ~(long)Value;
+      return this;
     }
 
     protected override Row.Column DoBitwiseAnd(Row.Column denominator)
     {
-      Value = (object) ((long) Value & CustValue(denominator));
-      return (Row.Column) this;
+      Value = (long)Value & CustValue(denominator);
+      return this;
     }
 
     protected override Row.Column DoBitwiseOr(Row.Column denominator)
     {
-      Value = (object) ((long) Value | CustValue(denominator));
-      return (Row.Column) this;
+      Value = (long)Value | CustValue(denominator);
+      return this;
     }
 
     protected override Row.Column DoBitwiseXor(Row.Column denominator)
     {
-      Value = (object) ((long) Value ^ CustValue(denominator));
-      return (Row.Column) this;
+      Value = (long)Value ^ CustValue(denominator);
+      return this;
     }
 
     private int CalcPackedLength(long diff, out bool inverted, out ulong difference)

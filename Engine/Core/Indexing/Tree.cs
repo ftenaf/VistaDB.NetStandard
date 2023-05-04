@@ -132,7 +132,7 @@ namespace VistaDB.Engine.Core.Indexing
             node.SetModified(false);
             for (int keyIndex = 0; keyIndex < node.KeyCount; ++keyIndex)
             {
-                node[keyIndex].FreeExtensionSpace((DataStorage)ParentIndex);
+                node[keyIndex].FreeExtensionSpace(ParentIndex);
                 CleanUpNodeSpace(node.GetChildNode(keyIndex), true);
             }
             if (!cleanCurrent)
@@ -155,7 +155,7 @@ namespace VistaDB.Engine.Core.Indexing
             if (level < parentNodeChain.Count)
                 return parentNodeChain[level];
             if (level != parentNodeChain.Count)
-                return (Node)null;
+                return null;
             Node node = CreateNode(level == 0 ? Node.NodeType.Leaf : Node.NodeType.None, level);
             parentNodeChain.Add(node);
             return node;
@@ -244,7 +244,7 @@ namespace VistaDB.Engine.Core.Indexing
                 return;
             while (base.Count > 0)
             {
-                foreach (Node node in new List<Node>((IEnumerable<Node>)Values))
+                foreach (Node node in new List<Node>(Values))
                 {
                     if (node.Modified)
                         node.Flush(false);
@@ -313,7 +313,7 @@ namespace VistaDB.Engine.Core.Indexing
             int index;
             if ((int)oldKey.RowId != (int)Row.MinRowId && (int)oldKey.RowId != (int)Row.MaxRowId)
             {
-                node1 = GoKey(oldKey, (Node)null);
+                node1 = GoKey(oldKey, null);
                 flag = node1.KeyRank == Node.KeyPosition.Equal;
                 index = node1.KeyIndex;
                 if (transactionId != 0U && flag && ((int)oldKey.TransactionId != (int)transactionId || oldKey.OutdatedStatus))
@@ -327,11 +327,11 @@ namespace VistaDB.Engine.Core.Indexing
             }
             else
             {
-                node1 = (Node)null;
+                node1 = null;
                 flag = false;
                 index = -1;
             }
-            Node node2 = GoKey(newKey, (Node)null);
+            Node node2 = GoKey(newKey, null);
             int keyIndex = node2.KeyIndex;
             try
             {
@@ -353,7 +353,7 @@ namespace VistaDB.Engine.Core.Indexing
 
         internal bool DeleteKey(Row oldKey, uint transactionId)
         {
-            Node node = GoKey(oldKey, (Node)null);
+            Node node = GoKey(oldKey, null);
             if (node.KeyRank != Node.KeyPosition.Equal)
                 return false;
             if (transactionId != 0U && ((int)oldKey.TransactionId != (int)transactionId || oldKey.OutdatedStatus))
@@ -428,7 +428,7 @@ namespace VistaDB.Engine.Core.Indexing
             Row key1 = key.CopyInstance();
             key1.RowVersion = 0U;
             key1.RowId = 0U;
-            Node node = GoKey(key1, (Node)null);
+            Node node = GoKey(key1, null);
             Row currentKey = node[node.KeyIndex];
             bool isClustered = ParentIndex.IsClustered;
             bool flag1 = key.EqualColumns(currentKey, isClustered);
@@ -442,26 +442,26 @@ namespace VistaDB.Engine.Core.Indexing
             uint transactionId1 = ParentIndex.TransactionId;
             bool flag2 = ParentIndex.PassTransaction(currentKey, transactionId1);
             if (flag1 && flag2)
-                return (ulong)currentKey.RowId;
+                return currentKey.RowId;
             for (; flag1 && !flag2; flag2 = ParentIndex.PassTransaction(currentKey, transactionId1))
             {
                 uint transactionId2 = currentKey.TransactionId;
                 if ((int)transactionId2 != (int)transactionId1 && (ParentIndex.DoGettingAnotherTransactionStatus(transactionId2) != TpStatus.Rollback && ParentIndex.PassTransaction(currentKey, transactionId2)))
-                    return (ulong)currentKey.RowId;
+                    return currentKey.RowId;
                 GoNextKey();
                 currentKey = CurrentKey;
                 flag1 = (int)currentKey.RowId != (int)Row.MaxRowId && key.EqualColumns(currentKey, isClustered);
                 if (!flag1)
-                    return (ulong)Row.MaxRowId;
+                    return Row.MaxRowId;
             }
-            return !flag1 || !flag2 ? (ulong)Row.MaxRowId : (ulong)currentKey.RowId;
+            return !flag1 || !flag2 ? Row.MaxRowId : currentKey.RowId;
         }
 
         internal Node GetNodeAtPosition(ulong position)
         {
             if ((long)position != (long)Row.EmptyReference)
                 return OnGetNodeAtPosition(position);
-            return (Node)null;
+            return null;
         }
 
         internal void RemoveNode(ulong id)
@@ -561,10 +561,10 @@ namespace VistaDB.Engine.Core.Indexing
             else
             {
                 isDisposed = true;
-                GC.SuppressFinalize((object)this);
+                GC.SuppressFinalize(this);
                 foreach (Node node in Values)
                     node.Dispose();
-                parentIndex = (Index)null;
+                parentIndex = null;
                 Clear();
             }
         }

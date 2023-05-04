@@ -27,21 +27,21 @@ namespace VistaDB.Engine.SQL.Signatures
         IColumn column1 = leftOperand.Execute();
         if (column1.IsNull)
         {
-          ((IValue) result).Value = (object) null;
+                    result.Value = null;
           return result;
         }
         IColumn column2 = rightOperand.Execute();
         if (column2.IsNull)
         {
-          ((IValue) result).Value = (object) null;
+                    result.Value = null;
           return result;
         }
-        Convert((IValue) column1, (IValue) leftValue);
-        Convert((IValue) column2, (IValue) rightValue);
+        Convert(column1, leftValue);
+        Convert(column2, rightValue);
         if (dateOperands)
-          ((IValue) result).Value = GetDateResult();
+                    result.Value = GetDateResult();
         else
-          ((IValue) result).Value = ((Row.Column) leftValue + (Row.Column) rightValue).Value;
+                    result.Value = ((Row.Column) leftValue + (Row.Column) rightValue).Value;
       }
       return result;
     }
@@ -74,8 +74,8 @@ namespace VistaDB.Engine.SQL.Signatures
     private object GetDateResult()
     {
       if (Utils.IsDateDataType(leftValue.Type))
-        return (object) ((DateTime) ((IValue) leftValue).Value).AddDays((double) ((IValue) rightValue).Value);
-      return (object) ((DateTime) ((IValue) rightValue).Value).AddDays((double) ((IValue) leftValue).Value);
+        return ((DateTime)leftValue.Value).AddDays((double)rightValue.Value);
+      return ((DateTime)rightValue.Value).AddDays((double)leftValue.Value);
     }
   }
 }

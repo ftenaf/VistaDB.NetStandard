@@ -23,7 +23,7 @@ namespace VistaDB.Engine.SQL
       parser.SkipToken(true);
       if (ftsIndex && parser.IsToken("ON"))
       {
-        indexName = (string) null;
+        indexName = null;
       }
       else
       {
@@ -32,7 +32,7 @@ namespace VistaDB.Engine.SQL
       }
       parser.ExpectedExpression("ON");
       parser.SkipToken(true);
-      tableName = parser.GetTableName((Statement) this);
+      tableName = parser.GetTableName(this);
       parser.SkipToken(false);
     }
 
@@ -46,7 +46,7 @@ namespace VistaDB.Engine.SQL
         else
           table.DropIndex(indexName);
       }
-      return (IQueryResult) null;
+      return null;
     }
   }
 }

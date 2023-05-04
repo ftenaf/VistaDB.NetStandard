@@ -13,7 +13,7 @@ namespace VistaDB.Engine.Core
     private static readonly int clusterCounterSize = 2;
     private static readonly int maxClusterCount = 4;
     private static readonly int maxReferencing = maxClusterCount * clusterReferenceSize;
-    private static readonly int maxPagesInCluster = (int) short.MaxValue;
+    private static readonly int maxPagesInCluster = short.MaxValue;
     private static readonly int maxBytesPerCluster = maxPagesInCluster * StorageHandle.DEFAULT_SIZE_OF_PAGE;
     private static readonly int maxSize = maxBytesPerCluster * maxClusterCount;
     private static Lzh lzhCoding = new Lzh(new Lzh.LzhStreaming(ReadCompressStreaming), new Lzh.LzhStreaming(WriteCompressStreaming));
@@ -43,7 +43,7 @@ namespace VistaDB.Engine.Core
     }
 
     protected ExtendedColumn(ExtendedColumn col)
-      : base((BinaryColumn) col)
+      : base(col)
     {
       extendedValue = col.extendedValue;
       clusterLength = col.clusterLength;
@@ -74,7 +74,7 @@ namespace VistaDB.Engine.Core
 
     internal override int GetBufferLength(Row.Column precedenceColumn)
     {
-      return base.GetBufferLength(precedenceColumn) + (int) InheritedSize;
+      return base.GetBufferLength(precedenceColumn) + InheritedSize;
     }
 
     public override bool Edited
@@ -136,10 +136,10 @@ namespace VistaDB.Engine.Core
       if (dataLength != buffer.Length)
       {
         byte[] numArray = new byte[dataLength];
-        Array.Copy((Array) buffer, (Array) numArray, dataLength);
+        Array.Copy(buffer, numArray, dataLength);
         buffer = numArray;
       }
-      return (object) buffer;
+      return buffer;
     }
 
     internal override int ConvertToByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
@@ -163,7 +163,7 @@ namespace VistaDB.Engine.Core
       offset += dataReferenceSize;
       extraCust = buffer[offset];
       offset += dataCustSize;
-      extensionOptimized = buffer[offset] == (byte) 1;
+      extensionOptimized = buffer[offset] == 1;
       offset += dataCustSize;
       packedDifference = (int) BitConverter.ToUInt32(buffer, offset);
       offset += dataReferenceSize;
@@ -214,13 +214,13 @@ namespace VistaDB.Engine.Core
       byte[] readBuffer = OnFormatExtendedBuffer();
       if (readBuffer == null)
       {
-        clusterCount = (ushort) 0;
-        clusterLength = (ushort) 1;
+        clusterCount = 0;
+        clusterLength = 1;
         clustersFreed = false;
         this.packedDifference = 0;
         extensionOptimized = false;
         toWriteLength = 0;
-        return (byte[]) null;
+        return null;
       }
       int packedDifference = 0;
       toWriteLength = readBuffer.Length;
@@ -246,30 +246,30 @@ namespace VistaDB.Engine.Core
       if (extensionOptimized)
       {
         extendedBufferLength = 0;
-        extraCust = (byte) 0;
+        extraCust = 0;
         this.packedDifference = packedDifference;
         ResetMetaValue();
         if (toWriteLength != readBuffer.Length)
         {
           byte[] numArray = new byte[toWriteLength];
-          Buffer.BlockCopy((Array) readBuffer, 0, (Array) numArray, 0, toWriteLength);
+          Buffer.BlockCopy(readBuffer, 0, numArray, 0, toWriteLength);
           readBuffer = numArray;
         }
-        base.Value = (object) readBuffer;
-        return (byte[]) null;
+        base.Value = readBuffer;
+        return null;
       }
       if (encryption != null)
       {
         extraCust = (byte) ((encryption.Step - toWriteLength % encryption.Step) % encryption.Step);
-        int length = toWriteLength + (int) extraCust;
+        int length = toWriteLength + extraCust;
         byte[] numArray = new byte[length];
-        Buffer.BlockCopy((Array) readBuffer, 0, (Array) numArray, 0, toWriteLength);
+        Buffer.BlockCopy(readBuffer, 0, numArray, 0, toWriteLength);
         toWriteLength = length;
         encryption.Encrypt(numArray, numArray, toWriteLength);
         readBuffer = numArray;
       }
       else
-        extraCust = (byte) 0;
+        extraCust = 0;
       PrepareExternalPageList(toWriteLength, packedDifference, pageSize);
       return readBuffer;
     }
@@ -280,7 +280,7 @@ namespace VistaDB.Engine.Core
       if (encryption != null && !extensionOptimized)
       {
         encryption.Decrypt(buffer, buffer, buffer.Length);
-        dataLength = buffer.Length - (int) extraCust;
+        dataLength = buffer.Length - extraCust;
       }
       if (Packed && packedDifference != 0 && !updateMode)
       {
@@ -308,7 +308,7 @@ namespace VistaDB.Engine.Core
         throw new VistaDBException(304, Name);
       clustersFreed = false;
       clusterLength = (ushort) num2;
-      clusterCount = (ushort) ((uint) (num1 + ((int) clusterLength - num1 % (int) clusterLength) % (int) clusterLength) / (uint) clusterLength);
+      clusterCount = (ushort) ((uint) (num1 + (clusterLength - num1 % clusterLength) % clusterLength) / clusterLength);
       extensionOptimized = false;
     }
 
@@ -317,7 +317,7 @@ namespace VistaDB.Engine.Core
       extendedBufferLength = bufferLength;
       this.packedDifference = packedDifference;
       SetMetaValues(bufferLength, pageSize);
-      base.Value = (object) new byte[(int) clusterCount * clusterReferenceSize];
+      base.Value = (new byte[clusterCount * clusterReferenceSize]);
     }
 
     private void SetCluster(int index, ulong clusterId)
@@ -340,8 +340,8 @@ namespace VistaDB.Engine.Core
 
     internal void ResetMetaValue()
     {
-      clusterCount = (ushort) 0;
-      clusterLength = (ushort) 1;
+      clusterCount = 0;
+      clusterLength = 1;
       clustersFreed = false;
     }
 
@@ -353,7 +353,7 @@ namespace VistaDB.Engine.Core
           return;
         if (extensionOptimized && !updateMode)
         {
-          UnformatExtendedBuffer((byte[]) base.Value, Encrypted ? storage.Encryption : (Encryption) null, updateMode);
+          UnformatExtendedBuffer((byte[]) base.Value, Encrypted ? storage.Encryption : null, updateMode);
         }
         else
         {
@@ -371,11 +371,11 @@ namespace VistaDB.Engine.Core
               int extendedBufferLength = this.extendedBufferLength;
               int pageSize = storage.PageSize;
               int offset = 0;
-              for (int index = 0; index < (int) clusterCount; ++index)
+              for (int index = 0; index < clusterCount; ++index)
               {
                 ulong cluster = GetCluster(index);
                 int num = 0;
-                while (num < (int) clusterLength && extendedBufferLength > 0)
+                while (num < clusterLength && extendedBufferLength > 0)
                 {
                   offset = storage.Handle.ReadPage(storage, cluster, buffer, offset, ref extendedBufferLength);
                   ++num;
@@ -385,7 +385,7 @@ namespace VistaDB.Engine.Core
             }
             finally
             {
-              UnformatExtendedBuffer(buffer, Encrypted ? storage.Encryption : (Encryption) null, updateMode);
+              UnformatExtendedBuffer(buffer, Encrypted ? storage.Encryption : null, updateMode);
             }
           }
         }
@@ -399,18 +399,18 @@ namespace VistaDB.Engine.Core
       int pageSize = storage.PageSize;
       FreeSpace(storage);
       int num1 = 0;
-      byte[] buffer = FormatExtendedBuffer(pageSize, Encrypted ? storage.Encryption : (Encryption) null, ref num1, allowOptimization);
+      byte[] buffer = FormatExtendedBuffer(pageSize, Encrypted ? storage.Encryption : null, ref num1, allowOptimization);
       try
       {
         if (buffer == null)
           return;
         int offset = 0;
-        for (int index = 0; index < (int) clusterCount; ++index)
+        for (int index = 0; index < clusterCount; ++index)
         {
-          ulong freeCluster = storage.GetFreeCluster((int) clusterLength);
+          ulong freeCluster = storage.GetFreeCluster(clusterLength);
           SetCluster(index, freeCluster);
           int num2 = 0;
-          while (num2 < (int) clusterLength && num1 > 0)
+          while (num2 < clusterLength && num1 > 0)
           {
             offset = storage.Handle.WritePage(storage, freeCluster, buffer, offset, ref num1);
             ++num2;
@@ -435,10 +435,10 @@ namespace VistaDB.Engine.Core
         if (clustersFreed)
           return;
         int num = extendedBufferLength;
-        for (int index = 0; index < (int) clusterCount; ++index)
+        for (int index = 0; index < clusterCount; ++index)
         {
-          num -= (int) this.clusterLength * parentStorage.PageSize;
-          int clusterLength = (int) this.clusterLength;
+          num -= this.clusterLength * parentStorage.PageSize;
+          int clusterLength = this.clusterLength;
           if (num < 0)
           {
             num = -num;
@@ -453,7 +453,7 @@ namespace VistaDB.Engine.Core
     internal int TestReferenceLength(int expandedDataLen, int pageSize)
     {
       SetMetaValues(expandedDataLen, pageSize);
-      int num = (int) clusterCount * clusterReferenceSize + GetLengthCounterWidth((Row.Column) null) + (int) InheritedSize;
+      int num = clusterCount * clusterReferenceSize + GetLengthCounterWidth(null) + InheritedSize;
       ResetMetaValue();
       return num;
     }
@@ -483,11 +483,11 @@ namespace VistaDB.Engine.Core
             object obj = Monitor.Read(this);
             if (postponingMonitor != null && postponingMonitor.StayIndirect)
             {
-              extendedValue = (object) null;
+              extendedValue = null;
               return obj;
             }
             extendedValue = obj;
-            Monitor = (PostponeReadingMonitor) null;
+            Monitor = null;
           }
           return extendedValue;
         }
@@ -499,7 +499,7 @@ namespace VistaDB.Engine.Core
           extendedValue = value;
           Edited = true;
           ResetMetaValue();
-          Monitor = (PostponeReadingMonitor) null;
+          Monitor = null;
         }
       }
     }
@@ -537,7 +537,7 @@ namespace VistaDB.Engine.Core
           }
           postponedUnformatStorage.RereadExtendedColumn(column, rowKey);
           object extendedValue = column.extendedValue;
-          cachedValue = (WeakReference) null;
+          cachedValue = null;
           return extendedValue;
         }
       }

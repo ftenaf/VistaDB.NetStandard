@@ -31,7 +31,7 @@ namespace VistaDB.Engine.SQL
         parser.SkipToken(true);
       if (tokenValue.TokenType != TokenType.Unknown && tokenValue.TokenType != TokenType.Name && tokenValue.TokenType != TokenType.ComplexName)
         throw new VistaDBSQLException(585, tokenValue.Token, tokenValue.RowNo, tokenValue.ColNo);
-      tableName = parser.GetTableName((Statement) this);
+      tableName = parser.GetTableName(this);
       tableLineNo = tokenValue.RowNo;
       tableSymbolNo = tokenValue.ColNo;
       parser.SkipToken(true);
@@ -52,8 +52,8 @@ namespace VistaDB.Engine.SQL
         }
         if (flag)
         {
-          select = new SelectStatement(connection, (Statement) this, parser, 0L);
-          parser.Parent = (Statement) this;
+          select = new SelectStatement(connection, this, parser, 0L);
+          parser.Parent = this;
           parser.ExpectedExpression(")");
         }
         else
@@ -89,14 +89,14 @@ namespace VistaDB.Engine.SQL
       if (parser.IsToken("("))
       {
         parser.SkipToken(true);
-        select = new SelectStatement(connection, (Statement) this, parser, 0L);
-        parser.Parent = (Statement) this;
+        select = new SelectStatement(connection, this, parser, 0L);
+        parser.Parent = this;
         parser.ExpectedExpression(")");
       }
       else if (tokenValue.TokenType == TokenType.Unknown && parser.IsToken("SELECT"))
       {
-        select = new SelectStatement(connection, (Statement) this, parser, 0L);
-        parser.Parent = (Statement) this;
+        select = new SelectStatement(connection, this, parser, 0L);
+        parser.Parent = this;
       }
       else
       {
@@ -117,8 +117,8 @@ namespace VistaDB.Engine.SQL
     protected override VistaDBType OnPrepareQuery()
     {
       int tableIndex = 0;
-      table = (SourceTable) new NativeSourceTable((Statement) this, tableName, tableName, 0, tableLineNo, tableSymbolNo);
-      table = (SourceTable) table.PrepareTables((IVistaDBTableNameCollection) null, (IViewList) null, (TableCollection) null, false, ref tableIndex);
+      table = new NativeSourceTable(this, tableName, tableName, 0, tableLineNo, tableSymbolNo);
+      table = (SourceTable) table.PrepareTables(null, null, null, false, ref tableIndex);
       table.ReadOnly = false;
       table.Prepare();
       PrepareColumns();
@@ -166,7 +166,7 @@ namespace VistaDB.Engine.SQL
         throw;
       }
       table.FreeTable();
-      return (IQueryResult) null;
+      return null;
     }
 
     private void PrepareColumns()
@@ -199,7 +199,7 @@ namespace VistaDB.Engine.SQL
         {
           Signature signature = values[index];
           if (signature.Prepare() == SignatureType.Constant && signature.SignatureType != SignatureType.Constant)
-            values[index] = (Signature) ConstantSignature.CreateSignature(signature.Execute(), columns[index].DataType, (Statement) this);
+            values[index] = ConstantSignature.CreateSignature(signature.Execute(), columns[index].DataType, this);
         }
       }
       else
@@ -286,7 +286,7 @@ namespace VistaDB.Engine.SQL
       public Column(InsertStatement parent, int columnIndex, VistaDBType dataType)
       {
         this.parent = parent;
-        columnName = (string) null;
+        columnName = null;
         this.columnIndex = columnIndex;
         this.dataType = dataType;
         lineNo = -1;

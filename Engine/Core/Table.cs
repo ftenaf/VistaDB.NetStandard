@@ -2554,7 +2554,7 @@ namespace VistaDB.Engine.Core
                 return column1;
             }
 
-            IVistaDBColumnAttributes IVistaDBTableSchema.DefineColumnAttributes(string columnName, bool allowNull, bool readOnly, bool encrypted, bool packed, string caption, string description)
+            IVistaDBColumnAttributes IVistaDBTableSchema.DefineColumnAttributes(string columnName, bool allowNull, bool readOnly, bool encrypted, bool packed, string description)
             {
                 columnName = Row.Column.FixName(columnName);
                 IVistaDBColumnAttributes columnAttributes = ((IVistaDBTableSchema)this)[columnName];
@@ -2563,7 +2563,6 @@ namespace VistaDB.Engine.Core
                 if (columnAttributes.IsSystem)
                     return columnAttributes;
                 ((Row.Column)columnAttributes).AssignAttributes(columnName, allowNull, readOnly, encrypted, packed);
-                columnAttributes.Caption = caption;
                 columnAttributes.Description = description;
                 return columnAttributes;
             }

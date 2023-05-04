@@ -11,13 +11,13 @@ namespace VistaDB.Engine.Core
     }
 
     internal VarcharColumn(VarcharColumn col)
-      : base((CharColumn) col)
+      : base(col)
     {
     }
 
     protected override Row.Column OnDuplicate(bool padRight)
     {
-      return (Row.Column) new VarcharColumn(this);
+      return new VarcharColumn(this);
     }
 
     public override string ToString()

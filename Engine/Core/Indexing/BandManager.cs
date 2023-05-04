@@ -23,14 +23,14 @@ namespace VistaDB.Engine.Core.Indexing
     {
       if (isDisposed)
         return;
-      activeBand = (Band) null;
-      patternRow = (Row) null;
-      fileManager = (StorageManager) null;
+      activeBand = null;
+      patternRow = null;
+      fileManager = null;
       for (int index = 0; index < Count; ++index)
         this[index].Dispose();
       Clear();
       isDisposed = true;
-      GC.SuppressFinalize((object) this);
+      GC.SuppressFinalize(this);
     }
 
     internal Band ActiveBand

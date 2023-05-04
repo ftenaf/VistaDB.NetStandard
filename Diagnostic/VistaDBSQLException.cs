@@ -35,8 +35,8 @@ namespace VistaDB.Diagnostic
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       base.GetObjectData(info, context);
-      info.AddValue("VistaDBLineNo", (object) lineNo, typeof (int));
-      info.AddValue("VistaDBSymbolNo", (object) symbolNo, typeof (int));
+      info.AddValue("VistaDBLineNo", lineNo, typeof (int));
+      info.AddValue("VistaDBSymbolNo", symbolNo, typeof (int));
     }
 
     private static string CreateMessage(string hint, int lineNo, int symbolNo)

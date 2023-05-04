@@ -4,7 +4,7 @@
   {
     public static void BeginLogging()
     {
-            BeginLogging((string) null);
+            BeginLogging(null);
     }
 
     public static void BeginLogging(string message)
@@ -17,7 +17,7 @@
 
     public static void EndLogging()
     {
-            EndLogging((string) null);
+            EndLogging(null);
     }
 
     public static void EndLogging(string message)

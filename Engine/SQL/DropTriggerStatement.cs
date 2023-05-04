@@ -13,7 +13,7 @@ namespace VistaDB.Engine.SQL
     {
       foreach (string tableName in tableNames)
         Database.UnregisterClrTrigger(tableName);
-      return (IQueryResult) null;
+      return null;
     }
   }
 }

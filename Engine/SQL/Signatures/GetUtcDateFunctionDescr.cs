@@ -4,7 +4,7 @@
   {
     public override Signature CreateSignature(SQLParser parser)
     {
-      return (Signature) new GetUtcDateFunction(parser);
+      return new GetUtcDateFunction(parser);
     }
   }
 }

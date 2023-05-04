@@ -7,12 +7,12 @@ namespace VistaDB.Compatibility.SqlServer
     public SqlFunctionAttribute()
     {
       DataAccess = DataAccessKind.None;
-      FillRowMethodName = (string) null;
+      FillRowMethodName = null;
       IsDeterministic = false;
       IsPrecise = false;
-      Name = (string) null;
+      Name = null;
       SystemDataAccess = SystemDataAccessKind.None;
-      TableDefinition = (string) null;
+      TableDefinition = null;
     }
 
     public DataAccessKind DataAccess { get; set; }

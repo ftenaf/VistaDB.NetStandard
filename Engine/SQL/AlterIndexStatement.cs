@@ -16,11 +16,11 @@ namespace VistaDB.Engine.SQL
     protected override void OnParse(LocalSQLConnection connection, SQLParser parser)
     {
       parser.SkipToken(true);
-      indexName = !parser.IsToken("ALL") || parser.TokenValue.TokenType != TokenType.Unknown ? parser.TokenValue.Token : (string) null;
+      indexName = !parser.IsToken("ALL") || parser.TokenValue.TokenType != TokenType.Unknown ? parser.TokenValue.Token : null;
       parser.SkipToken(true);
       parser.ExpectedExpression("ON");
       parser.SkipToken(true);
-      tableName = parser.GetTableName((Statement) this);
+      tableName = parser.GetTableName(this);
       parser.SkipToken(true);
       if (parser.IsToken("REBUILD"))
         throw new VistaDBSQLException(509, "Rebuilding Indexes is not supported. Packing a database rebuilds them automatically.", lineNo, symbolNo);

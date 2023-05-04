@@ -7,10 +7,10 @@ namespace VistaDB.Engine.Core
     internal RowIdFilter GetFilter(Row lowConstant, Row highConstant, bool excludeNulls)
     {
       if (!ContainsKey(lowConstant.RowId))
-        return (RowIdFilter) null;
+        return null;
             FilterItem filterItem = this[lowConstant.RowId];
       if (!excludeNulls || !filterItem.Nulls || highConstant - filterItem.High != 0)
-        return (RowIdFilter) null;
+        return null;
       return filterItem.Filter.Clone();
     }
 

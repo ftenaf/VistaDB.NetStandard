@@ -30,14 +30,14 @@ namespace VistaDB.Engine.SQL
     {
       rows = new List<Row>(capacity);
       rowCount = 0;
-      patternRow = Row.CreateInstance(0U, true, (Encryption) null, (int[]) null);
+      patternRow = Row.CreateInstance(0U, true, null, null);
       curRowIndex = -1;
-      curRow = (Row) null;
+      curRow = null;
       this.database = database;
       eof = true;
-      currentOrder = (QueryResultKey[]) null;
+      currentOrder = null;
       sparseIndex = false;
-      patternKey = (Row) null;
+      patternKey = null;
     }
 
     public void AddColumn(string name, VistaDBType dataType)
@@ -66,7 +66,7 @@ namespace VistaDB.Engine.SQL
       }
       Row.Column rowColumn = DataStorage.CreateRowColumn(dataType, !flag, culture);
       rowColumn.AssignAttributes(name, allowNull, false, false, false);
-      patternRow.AppendColumn((IColumn) rowColumn);
+      patternRow.AppendColumn(rowColumn);
     }
 
     public void AddColumn(string name, VistaDBType dataType, bool allowNull, int maxLength)
@@ -85,7 +85,7 @@ namespace VistaDB.Engine.SQL
       }
       Row.Column rowColumn = DataStorage.CreateRowColumn(dataType, maxLength, !flag, culture);
       rowColumn.AssignAttributes(name, allowNull, false, false, false);
-      patternRow.AppendColumn((IColumn) rowColumn);
+      patternRow.AppendColumn(rowColumn);
     }
 
     public void FinalizeCreate()
@@ -97,7 +97,7 @@ namespace VistaDB.Engine.SQL
     {
       Row row1 = rows[curRowIndex];
       if (patternKey == patternRow)
-        return row1.Equals((object) curRow);
+        return row1.Equals(curRow);
       if (curRowIndex == 1)
       {
         int index = 0;
@@ -108,7 +108,7 @@ namespace VistaDB.Engine.SQL
       int index1 = 0;
       for (int length = currentOrder.Length; index1 < length; ++index1)
         row2[index1].Value = row1[currentOrder[index1].ColumnIndex].Value;
-      if (row2.Equals((object) patternKey))
+      if (row2.Equals(patternKey))
         return true;
       patternKey = row2;
       return false;
@@ -131,7 +131,7 @@ namespace VistaDB.Engine.SQL
       eof = rowCount == 0;
       if (eof)
       {
-        curRow = (Row) null;
+        curRow = null;
       }
       else
       {
@@ -146,9 +146,9 @@ namespace VistaDB.Engine.SQL
       if (rowCount == 0)
         return;
       if (column.InternalType != curRow[index].InternalType)
-        database.Conversion.Convert((IValue) column, (IValue) curRow[index]);
+        database.Conversion.Convert(column, curRow[index]);
       else
-        curRow[index].Value = ((IValue) column).Value;
+        curRow[index].Value = column.Value;
     }
 
     public void Post()
@@ -158,26 +158,26 @@ namespace VistaDB.Engine.SQL
     public IRow GetCurrentKeyClone()
     {
       if (sparseIndex)
-        return (IRow) patternKey;
+        return patternKey;
       if (patternKey == patternRow)
-        return (IRow) curRow;
+        return curRow;
       Row row = patternKey.CopyInstance();
       int index = 0;
       for (int length = currentOrder.Length; index < length; ++index)
         row[index].Value = curRow[currentOrder[index].ColumnIndex].Value;
-      return (IRow) row;
+      return row;
     }
 
     public IRow GetCurrentRowClone()
     {
       if (curRow != null)
-        return (IRow) curRow.CopyInstance();
-      return (IRow) null;
+        return curRow.CopyInstance();
+      return null;
     }
 
     public void Truncate(long rowLimit)
     {
-      if ((long) rowCount <= rowLimit)
+      if (rowCount <= rowLimit)
         return;
       rows.RemoveRange((int) rowLimit, rowCount - (int) rowLimit);
       rowCount = (int) rowLimit;
@@ -206,7 +206,7 @@ namespace VistaDB.Engine.SQL
         int length1 = sortOrder.Length;
         for (int count = patternRow.Count; length1 < count; ++length1)
           comparingMask[length1] = 0;
-        patternKey = Row.CreateInstance(0U, true, (Encryption) null, (int[]) null);
+        patternKey = Row.CreateInstance(0U, true, null, null);
         int index2 = 0;
         for (int length2 = sortOrder.Length; index2 < length2; ++index2)
           patternKey.AppendColumn(database.CreateEmptyColumn(patternRow[sortOrder[index2].ColumnIndex].Type));
@@ -223,7 +223,7 @@ namespace VistaDB.Engine.SQL
         for (int index2 = 0; index2 < rowCount; ++index2)
         {
           Row row = sortSpool.PopKey();
-          if (index2 == 0 || !row.Equals((object) rows[index1 - 1]))
+          if (index2 == 0 || !row.Equals(rows[index1 - 1]))
           {
             rows[index1] = row;
             ++index1;
@@ -263,7 +263,7 @@ namespace VistaDB.Engine.SQL
       if (!eof)
         curRow = rows[curRowIndex];
       else
-        curRow = (Row) null;
+        curRow = null;
     }
 
     public void NextRow()
@@ -302,20 +302,20 @@ namespace VistaDB.Engine.SQL
     public object GetValue(int index, VistaDBType dataType)
     {
       if (rowCount == 0)
-        return (object) null;
-      IColumn column = (IColumn) curRow[index];
+        return null;
+      IColumn column = curRow[index];
       if (dataType == VistaDBType.Unknown || column.InternalType == dataType)
-        return ((IValue) column).Value;
+        return column.Value;
       IColumn emptyColumn = database.CreateEmptyColumn(dataType);
-      database.Conversion.Convert((IValue) column, (IValue) emptyColumn);
-      return ((IValue) emptyColumn).Value;
+      database.Conversion.Convert(column, emptyColumn);
+      return emptyColumn.Value;
     }
 
     public IColumn GetColumn(int index)
     {
       if (rowCount != 0)
-        return (IColumn) curRow[index];
-      return (IColumn) null;
+        return curRow[index];
+      return null;
     }
 
     public bool IsNull(int index)
@@ -342,7 +342,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return (long) rowCount;
+        return rowCount;
       }
     }
   }

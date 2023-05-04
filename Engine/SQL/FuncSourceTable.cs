@@ -22,9 +22,9 @@ namespace VistaDB.Engine.SQL
     {
       opened = false;
       this.func = func;
-      row = (Row) null;
+      row = null;
       eof = true;
-      resultColumnNames = (string[]) null;
+      resultColumnNames = null;
     }
 
     private void PrepareFirstOpen()
@@ -32,7 +32,7 @@ namespace VistaDB.Engine.SQL
       IDatabase database = parent.Database;
       VistaDBType[] resultColumnTypes = func.GetResultColumnTypes();
       resultColumnNames = func.GetResultColumnNames();
-      row = Row.CreateInstance(0U, true, (Encryption) null, (int[]) null);
+      row = Row.CreateInstance(0U, true, null, null);
       int index = 0;
       for (int length = resultColumnTypes.Length; index < length; ++index)
         row.AppendColumn(database.CreateEmptyColumn(resultColumnTypes[index]));
@@ -40,7 +40,7 @@ namespace VistaDB.Engine.SQL
 
     public override IColumn SimpleGetColumn(int colIndex)
     {
-      return (IColumn) row[colIndex];
+      return row[colIndex];
     }
 
     public override void Post()
@@ -64,17 +64,17 @@ namespace VistaDB.Engine.SQL
 
     public override IVistaDBTableSchema GetTableSchema()
     {
-      return (IVistaDBTableSchema) null;
+      return null;
     }
 
     public override IColumn GetLastIdentity(string columnName)
     {
-      return (IColumn) null;
+      return null;
     }
 
     public override string CreateIndex(string expression, bool instantly)
     {
-      return (string) null;
+      return null;
     }
 
     public override int GetColumnCount()
@@ -90,13 +90,13 @@ namespace VistaDB.Engine.SQL
 
     protected override bool OnFirst()
     {
-      eof = !opened || !func.First((IRow) row);
+      eof = !opened || !func.First(row);
       return !eof;
     }
 
     protected override bool OnNext()
     {
-      eof = !func.GetNextResult((IRow) row);
+      eof = !func.GetNextResult(row);
       return !eof;
     }
 
@@ -104,7 +104,7 @@ namespace VistaDB.Engine.SQL
     {
       int num = (int) func.Prepare();
       PrepareFirstOpen();
-      return (IQuerySchemaInfo) this;
+      return this;
     }
 
     protected override void InternalInsert()
@@ -188,7 +188,7 @@ namespace VistaDB.Engine.SQL
 
     public string GetTableName(int ordinal)
     {
-      return (string) null;
+      return null;
     }
 
     public Type GetColumnType(int ordinal)
@@ -238,17 +238,17 @@ namespace VistaDB.Engine.SQL
 
     public DataTable GetSchemaTable()
     {
-      return (DataTable) null;
+      return null;
     }
 
     public string GetColumnDescription(int ordinal)
     {
-      return (string) null;
+      return null;
     }
 
     public string GetColumnCaption(int ordinal)
     {
-      return (string) null;
+      return null;
     }
 
     public bool GetIsEncrypted(int ordinal)
@@ -263,15 +263,15 @@ namespace VistaDB.Engine.SQL
 
     public string GetIdentity(int ordinal, out string step, out string seed)
     {
-      step = (string) null;
-      seed = (string) null;
-      return (string) null;
+      step = null;
+      seed = null;
+      return null;
     }
 
     public string GetDefaultValue(int ordinal, out bool useInUpdate)
     {
       useInUpdate = false;
-      return (string) null;
+      return null;
     }
 
     public int ColumnCount

@@ -56,7 +56,7 @@ namespace VistaDB.Extra
       cache.SetFilter(expression, optimize);
       if (ListChanged == null)
         return;
-      ListChanged((object) this, new ListChangedEventArgs(ListChangedType.Reset, 0));
+      ListChanged(this, new ListChangedEventArgs(ListChangedType.Reset, 0));
     }
 
     public bool Find(string keyExpr, string idxName, bool partMach, bool softPos)
@@ -69,7 +69,7 @@ namespace VistaDB.Extra
 
     public void ClearFilter()
     {
-      cache.SetFilter((string) null, true);
+      cache.SetFilter(null, true);
       RefreshList();
     }
 
@@ -89,12 +89,12 @@ namespace VistaDB.Extra
     {
       try
       {
-        long num = cache.ChangeActiveIndex((long) selectedRow, indexName);
+        long num = cache.ChangeActiveIndex(selectedRow, indexName);
         if (ListChanged == null)
           return false;
         if (num > -1L && num < cache.TableRowCount)
-          ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemMoved, selectedRow, (int) num));
-        ListChanged((object) this, new ListChangedEventArgs(ListChangedType.Reset, -1));
+          ListChanged(this, new ListChangedEventArgs(ListChangedType.ItemMoved, selectedRow, (int) num));
+        ListChanged(this, new ListChangedEventArgs(ListChangedType.Reset, -1));
       }
       catch (VistaDBDataTableException ex)
       {
@@ -138,12 +138,12 @@ namespace VistaDB.Extra
         allowRemove = true;
         cache.CancelInsert();
         if (ListChanged != null)
-          ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemDeleted, Count));
+          ListChanged(this, new ListChangedEventArgs(ListChangedType.ItemDeleted, Count));
       }
       if (state == TypeOfOperation.Update)
       {
         cache.ResetInsertedRow();
-        ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemChanged, (int) curentRowNumber));
+        ListChanged(this, new ListChangedEventArgs(ListChangedType.ItemChanged, (int) curentRowNumber));
       }
       state = TypeOfOperation.Nothing;
       return true;
@@ -157,9 +157,9 @@ namespace VistaDB.Extra
           return false;
         cache.FillInsertedRow(rowPos);
         if (cache.CheckRowCount() != 0)
-          ListChanged((object) this, new ListChangedEventArgs(ListChangedType.Reset, 0));
-        if (rowPos < (long) Count)
-          ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemChanged, (int) rowPos));
+          ListChanged(this, new ListChangedEventArgs(ListChangedType.Reset, 0));
+        if (rowPos < Count)
+          ListChanged(this, new ListChangedEventArgs(ListChangedType.ItemChanged, (int) rowPos));
         return true;
       }
       catch (Exception)
@@ -188,9 +188,9 @@ namespace VistaDB.Extra
       if (ListChanged == null)
         return;
       if (state == TypeOfOperation.Update)
-        ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemChanged, (int) curentRowNumber));
+        ListChanged(this, new ListChangedEventArgs(ListChangedType.ItemChanged, (int) curentRowNumber));
       else
-        ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemAdded, (int) curentRowNumber));
+        ListChanged(this, new ListChangedEventArgs(ListChangedType.ItemAdded, (int) curentRowNumber));
       cache.IsInserting = false;
       allowRemove = true;
     }
@@ -199,7 +199,7 @@ namespace VistaDB.Extra
     {
       if (ListChanged == null)
         return;
-      ListChanged((object) this, new ListChangedEventArgs(ListChangedType.Reset, 0));
+      ListChanged(this, new ListChangedEventArgs(ListChangedType.Reset, 0));
     }
 
     void IBindingList.AddIndex(PropertyDescriptor property)
@@ -212,23 +212,23 @@ namespace VistaDB.Extra
       try
       {
         if (state == TypeOfOperation.Insert)
-          return (object) currentRow;
+          return currentRow;
         state = TypeOfOperation.Insert;
         if (ListChanged == null)
-          return (object) null;
+          return null;
         cache.InsertRow();
-        ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemAdded, Count - 1));
+        ListChanged(this, new ListChangedEventArgs(ListChangedType.ItemAdded, Count - 1));
         allowRemove = false;
-        return (object) new EditableRow(this, Count - 1);
+        return new EditableRow(this, Count - 1);
       }
       catch (VistaDBDataTableException)
             {
-        ListChanged((object) this, new ListChangedEventArgs(ListChangedType.Reset, 0));
+        ListChanged(this, new ListChangedEventArgs(ListChangedType.Reset, 0));
       }
       catch (Exception)
             {
       }
-      return (object) null;
+      return null;
     }
 
     bool IBindingList.AllowEdit
@@ -328,7 +328,7 @@ namespace VistaDB.Extra
     int IList.Add(object value)
     {
       if (ListChanged != null)
-        ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemAdded, Count - 1));
+        ListChanged(this, new ListChangedEventArgs(ListChangedType.ItemAdded, Count - 1));
       return 0;
     }
 
@@ -382,15 +382,15 @@ namespace VistaDB.Extra
       state = TypeOfOperation.Delete;
       try
       {
-        cache.DeleteRow((long) index);
+        cache.DeleteRow(index);
         if (ListChanged == null)
           return;
-        ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemDeleted, index));
+        ListChanged(this, new ListChangedEventArgs(ListChangedType.ItemDeleted, index));
       }
       catch (VistaDBException)
             {
         if (ListChanged != null)
-          ListChanged((object) this, new ListChangedEventArgs(ListChangedType.Reset, 0));
+          ListChanged(this, new ListChangedEventArgs(ListChangedType.Reset, 0));
         throw;
       }
       catch (Exception)
@@ -398,7 +398,7 @@ namespace VistaDB.Extra
         cache.Clear();
         if (ListChanged == null)
           return;
-        ListChanged((object) this, new ListChangedEventArgs(ListChangedType.Reset, 0));
+        ListChanged(this, new ListChangedEventArgs(ListChangedType.Reset, 0));
       }
       finally
       {
@@ -411,8 +411,8 @@ namespace VistaDB.Extra
       get
       {
         currentRow = new EditableRow(this, index);
-        curentRowNumber = (long) index;
-        return (object) currentRow;
+        curentRowNumber = index;
+        return currentRow;
       }
       set
       {
@@ -437,7 +437,7 @@ namespace VistaDB.Extra
       get
       {
         if (extendedColumns.Count == 0)
-          return (IVistaDBColumnAttributes[]) null;
+          return null;
         IVistaDBColumnAttributes[] columnAttributesArray = new IVistaDBColumnAttributes[extendedColumns.Count];
         for (int index = 0; index < columnAttributesArray.Length; ++index)
           columnAttributesArray[index] = extendedColumns[index];
@@ -493,20 +493,20 @@ namespace VistaDB.Extra
     {
       get
       {
-        return (object) this;
+        return this;
       }
     }
 
     IEnumerator IEnumerable.GetEnumerator()
     {
-      return (IEnumerator) new DataTableEnumerator(this);
+      return new DataTableEnumerator(this);
     }
 
     PropertyDescriptorCollection ITypedList.GetItemProperties(PropertyDescriptor[] listAccessors)
     {
       try
       {
-        PropertyDescriptorCollection descriptorCollection = new PropertyDescriptorCollection((PropertyDescriptor[]) null);
+        PropertyDescriptorCollection descriptorCollection = new PropertyDescriptorCollection(null);
         IVistaDBTableSchema vistaDbTableSchema = db.TableSchema(tableName);
         List<string> stringList = new List<string>(vistaDbTableSchema.Identities.Count);
         foreach (IVistaDBIdentityInformation identityInformation in (IEnumerable<IVistaDBIdentityInformation>) vistaDbTableSchema.Identities.Values)
@@ -516,13 +516,13 @@ namespace VistaDB.Extra
         {
           if (columnAttributes.ExtendedType || columnAttributes.Type == VistaDBType.VarBinary)
             extendedColumns.Add(columnAttributes);
-          descriptorCollection.Add((PropertyDescriptor) new DataTablePropertyDescriptor(columnAttributes.Name, columnAttributes.SystemType, columnAttributes.RowIndex, columnAttributes.Type, stringList.Contains(columnAttributes.Name)));
+          descriptorCollection.Add(new DataTablePropertyDescriptor(columnAttributes.Name, columnAttributes.SystemType, columnAttributes.RowIndex, columnAttributes.Type, stringList.Contains(columnAttributes.Name)));
         }
         return descriptorCollection;
       }
       catch (VistaDBException ex)
       {
-        throw new VistaDBDataTableException((Exception) ex, 2040);
+        throw new VistaDBDataTableException(ex, 2040);
       }
     }
 

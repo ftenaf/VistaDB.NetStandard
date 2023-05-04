@@ -36,7 +36,7 @@ namespace VistaDB.Engine.SQL
     protected override IQueryResult OnExecuteQuery()
     {
       connection.SetCheckView(checkView);
-      return (IQueryResult) null;
+      return null;
     }
   }
 }

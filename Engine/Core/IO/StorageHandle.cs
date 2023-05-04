@@ -143,7 +143,7 @@ namespace VistaDB.Engine.Core.IO
       {
         if (IsolatedStorage)
         {
-          fileStream = (FileStream) new IsolatedStorageFileStream(fileName, storageMode.Mode, storageMode.Access, storageMode.Share);
+          fileStream = new IsolatedStorageFileStream(fileName, storageMode.Mode, storageMode.Access, storageMode.Share);
         }
         else
         {
@@ -173,7 +173,7 @@ namespace VistaDB.Engine.Core.IO
         if (cache != null)
         {
           cache.Clear();
-          cache = (CacheSystem) null;
+          cache = null;
         }
         fileStream.Close();
       }
@@ -385,7 +385,7 @@ namespace VistaDB.Engine.Core.IO
       {
         if (!fileStream.CanWrite && Mode.Share != FileShare.ReadWrite)
           throw new VistaDBException(337, Name);
-        fileStream.Lock((long) pos, (long) count);
+        fileStream.Lock((long) pos, count);
       }
     }
 
@@ -397,7 +397,7 @@ namespace VistaDB.Engine.Core.IO
       {
         if (!fileStream.CanWrite && Mode.Share != FileShare.ReadWrite)
           throw new VistaDBException(337, Name);
-        fileStream.Unlock((long) pos, (long) count);
+        fileStream.Unlock((long) pos, count);
       }
     }
 
@@ -405,7 +405,7 @@ namespace VistaDB.Engine.Core.IO
     {
       lock (syncObject)
       {
-                FreeSpaceCache.Cluster[] clusterArray = (FreeSpaceCache.Cluster[]) null;
+                FreeSpaceCache.Cluster[] clusterArray = null;
         if (freeCache != null)
           clusterArray = freeCache.CommitRelease();
         if (cache == null)
@@ -490,21 +490,21 @@ namespace VistaDB.Engine.Core.IO
         if (freeCache != null)
         {
           freeCache.Clear();
-          freeCache = (FreeSpaceCache) null;
+          freeCache = null;
         }
         if (cache != null)
         {
           cache.Clear();
-          cache = (CacheSystem) null;
+          cache = null;
         }
         if (fileStream != null)
         {
           fileStream.Dispose();
-          fileStream = (FileStream) null;
+          fileStream = null;
         }
-        lockTables = (StreamLocksDictionary) null;
+        lockTables = null;
         isDisposed = true;
-        GC.SuppressFinalize((object) this);
+        GC.SuppressFinalize(this);
       }
     }
 

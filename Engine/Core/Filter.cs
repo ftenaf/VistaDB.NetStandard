@@ -71,7 +71,7 @@ namespace VistaDB.Engine.Core
       {
         if (evaluation != null)
           return new string(evaluation.Expression);
-        return (string) null;
+        return null;
       }
     }
 
@@ -80,7 +80,7 @@ namespace VistaDB.Engine.Core
       get
       {
         if (evaluation == null)
-          return (Row.Column) null;
+          return null;
         return evaluation.FirstColumn;
       }
     }

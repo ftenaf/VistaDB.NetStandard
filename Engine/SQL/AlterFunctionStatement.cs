@@ -14,7 +14,7 @@ namespace VistaDB.Engine.SQL
     {
       bool flag1 = false;
       bool flag2 = Database.NestedTransactionLevel == 0;
-      IStoredProcedureInformation sp = (IStoredProcedureInformation) null;
+      IStoredProcedureInformation sp = null;
       if (Database.GetUserDefinedFunctions()[functionName] == null)
         throw new VistaDBSQLException(607, functionName, lineNo, symbolNo);
       try
@@ -22,7 +22,7 @@ namespace VistaDB.Engine.SQL
         if (flag2)
           Database.BeginTransaction();
         else
-          sp = (IStoredProcedureInformation) Database.GetUserDefinedFunctions()[functionName];
+          sp = Database.GetUserDefinedFunctions()[functionName];
         Database.DeleteUserDefinedFunctionObject(functionName);
         Database.CreateUserDefinedFunctionObject(function);
         flag1 = true;
@@ -39,7 +39,7 @@ namespace VistaDB.Engine.SQL
         else if (!flag1)
           Database.CreateStoredProcedureObject(sp);
       }
-      return (IQueryResult) null;
+      return null;
     }
   }
 }

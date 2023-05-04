@@ -31,7 +31,7 @@ namespace VistaDB.Engine.Core
     private Table.TableSchema.ConstraintCollection newConstraints;
 
     internal AlterList(Table.TableSchema oldSchema, Table.TableSchema newSchema)
-      : base((IEqualityComparer<string>) StringComparer.OrdinalIgnoreCase)
+      : base(StringComparer.OrdinalIgnoreCase)
     {
       this.oldSchema = oldSchema;
       this.newSchema = newSchema;
@@ -42,7 +42,7 @@ namespace VistaDB.Engine.Core
       get
       {
         if (!ContainsKey(name))
-          return (AlterInformation) null;
+          return null;
         return base[name];
       }
     }
@@ -219,7 +219,7 @@ namespace VistaDB.Engine.Core
     {
       if (primaryKeyAffected)
       {
-        string relation = (string) null;
+        string relation = null;
         if (db.IsReferencedPK(oldSchema.Name, ref relation))
           throw new VistaDBException(321, oldSchema.Name);
       }
@@ -233,14 +233,14 @@ namespace VistaDB.Engine.Core
     internal IVistaDBColumnAttributes GetNewColumn(string oldColumnName)
     {
       if (!ContainsKey(oldColumnName))
-        return (IVistaDBColumnAttributes) null;
+        return null;
       return this[oldColumnName].NewColumn;
     }
 
     internal IVistaDBColumnAttributes GetOldColumn(string oldColumnName)
     {
       if (!ContainsKey(oldColumnName))
-        return (IVistaDBColumnAttributes) null;
+        return null;
       return this[oldColumnName].OldColumn;
     }
 
@@ -250,12 +250,12 @@ namespace VistaDB.Engine.Core
       foreach (IVistaDBColumnAttributes columnAttributes in (List<Row.Column>) newSchema)
       {
         ((Table.TableSchema) temporary).AddColumn(columnAttributes.Name, columnAttributes.Type, columnAttributes.MaxLength, columnAttributes.CodePage, ((Row.Column) columnAttributes).IsSync);
-        temporary.DefineColumnAttributes(columnAttributes.Name, columnAttributes.AllowNull, columnAttributes.ReadOnly, columnAttributes.Encrypted, columnAttributes.Packed, columnAttributes.Caption, columnAttributes.Description);
+        temporary.DefineColumnAttributes(columnAttributes.Name, columnAttributes.AllowNull, columnAttributes.ReadOnly, columnAttributes.Encrypted, columnAttributes.Packed, columnAttributes.Description);
       }
       foreach (Table.TableSchema.ConstraintCollection.ConstraintInformation constraintInformation in newSchema.Constraints.Values)
       {
         if (!droppedConstraints.ContainsKey(constraintInformation.Name))
-          ((Dictionary<string, IVistaDBConstraintInformation>) temporary.Constraints).Add(constraintInformation.Name, (IVistaDBConstraintInformation) constraintInformation);
+          ((Dictionary<string, IVistaDBConstraintInformation>) temporary.Constraints).Add(constraintInformation.Name, constraintInformation);
       }
       foreach (IVistaDBDefaultValueInformation valueInformation in newSchema.Defaults.Values)
       {
@@ -281,7 +281,7 @@ namespace VistaDB.Engine.Core
       foreach (string index in droppedColumns.Values)
       {
         Row.Column column = oldSchema[index];
-        Add(column.Name, new AlterInformation((IVistaDBColumnAttributes) column, (IVistaDBColumnAttributes) null));
+        Add(column.Name, new AlterInformation(column, null));
       }
       Dictionary<int, string> renamedColumns = newSchema.RenamedColumns;
       foreach (Row.Column column1 in (List<Row.Column>) newSchema)
@@ -290,7 +290,7 @@ namespace VistaDB.Engine.Core
         if (renamedColumns.TryGetValue(column1.UniqueID, out key))
         {
           Row.Column column2 = oldSchema[key];
-          Add(key, new AlterInformation((IVistaDBColumnAttributes) column2, (IVistaDBColumnAttributes) column1));
+          Add(key, new AlterInformation(column2, column1));
         }
         else if (ContainsKey(column1.Name))
         {
@@ -299,10 +299,10 @@ namespace VistaDB.Engine.Core
         else
         {
           Row.Column column2 = oldSchema[column1.Name];
-          if (column2 == (Row.Column) null)
+          if (column2 == null)
             newColumns.Add(column1);
           else
-            Add(column2.Name, new AlterInformation((IVistaDBColumnAttributes) column2, (IVistaDBColumnAttributes) column1));
+            Add(column2.Name, new AlterInformation(column2, column1));
         }
       }
       primaryKeyAffected = false;
@@ -311,7 +311,7 @@ namespace VistaDB.Engine.Core
       bool flag = false;
       foreach (AlterInformation alterInformation in Values)
       {
-        alterInformation.AnalyzePropertiesChanges((IVistaDBIndexCollection) oldSchema.Indexes);
+        alterInformation.AnalyzePropertiesChanges(oldSchema.Indexes);
         hardChanges = hardChanges || alterInformation.HardChanges;
         primaryKeyAffected = primaryKeyAffected || alterInformation.PrimaryKeyAffected;
         foreignKeyAffected = foreignKeyAffected || alterInformation.ForeignKeyAffected;
@@ -321,7 +321,7 @@ namespace VistaDB.Engine.Core
       {
         IVistaDBDefaultValueInformation toDefaults;
         if (newSchema.Defaults.TryGetValue(newColumn.Name, out toDefaults))
-          Add("New_" + newColumn.Name, new AlterInformation(toDefaults, (IVistaDBColumnAttributes) newColumn));
+          Add("New_" + newColumn.Name, new AlterInformation(toDefaults, newColumn));
       }
       if (!hardChanges && !primaryKeyAffected && !foreignKeyAffected)
         return flag;
@@ -344,16 +344,16 @@ namespace VistaDB.Engine.Core
         string name = indexInformation1.Name;
         Table.TableSchema.IndexCollection.IndexInformation indexInformation2 = (Table.TableSchema.IndexCollection.IndexInformation) newList[name];
         if (indexInformation2 == null)
-          droppedItems.Add(name, (IVistaDBIndexInformation) indexInformation1);
-        else if (!indexInformation1.Equals((object) indexInformation2))
-          updatedItems.Add(name, (IVistaDBIndexInformation) indexInformation2);
+          droppedItems.Add(name, indexInformation1);
+        else if (!indexInformation1.Equals(indexInformation2))
+          updatedItems.Add(name, indexInformation2);
         else
-          persistentItems.Add(name, (IVistaDBIndexInformation) indexInformation2);
+          persistentItems.Add(name, indexInformation2);
       }
       foreach (Table.TableSchema.IndexCollection.IndexInformation indexInformation in (IEnumerable<IVistaDBIndexInformation>) newList.Values)
       {
         if (!oldList.ContainsKey(indexInformation.Name))
-          newItems.Add(indexInformation.Name, (IVistaDBIndexInformation) indexInformation);
+          newItems.Add(indexInformation.Name, indexInformation);
       }
     }
 
@@ -368,16 +368,16 @@ namespace VistaDB.Engine.Core
         string name = constraintInformation1.Name;
         Table.TableSchema.ConstraintCollection.ConstraintInformation constraintInformation2 = (Table.TableSchema.ConstraintCollection.ConstraintInformation) newList[name];
         if (constraintInformation2 == null)
-          droppedItems.Add(name, (IVistaDBConstraintInformation) constraintInformation1);
-        else if (!constraintInformation1.Equals((object) constraintInformation2))
-          updatedItems.Add(name, (IVistaDBConstraintInformation) constraintInformation2);
+          droppedItems.Add(name, constraintInformation1);
+        else if (!constraintInformation1.Equals(constraintInformation2))
+          updatedItems.Add(name, constraintInformation2);
         else
-          persistentItems.Add(name, (IVistaDBConstraintInformation) constraintInformation2);
+          persistentItems.Add(name, constraintInformation2);
       }
       foreach (Table.TableSchema.ConstraintCollection.ConstraintInformation constraintInformation in (IEnumerable<IVistaDBConstraintInformation>) newList.Values)
       {
         if (!oldList.ContainsKey(constraintInformation.Name))
-          newItems.Add(constraintInformation.Name, (IVistaDBConstraintInformation) constraintInformation);
+          newItems.Add(constraintInformation.Name, constraintInformation);
       }
     }
 
@@ -393,24 +393,24 @@ namespace VistaDB.Engine.Core
                 AlterInformation alterInformation = this[name1];
         if (alterInformation.NewColumn == null)
         {
-          droppedItems.Add(name1, (IVistaDBDefaultValueInformation) valueInformation1);
+          droppedItems.Add(name1, valueInformation1);
         }
         else
         {
           string name2 = alterInformation.NewColumn.Name;
           Table.TableSchema.DefaultValueCollection.DefaultValueInformation valueInformation2 = (Table.TableSchema.DefaultValueCollection.DefaultValueInformation) newList[name2];
           if (valueInformation2 == null)
-            droppedItems.Add(name1, (IVistaDBDefaultValueInformation) valueInformation1);
-          else if (!valueInformation1.Equals((object) valueInformation2))
-            updatedItems.Add(name1, (IVistaDBDefaultValueInformation) valueInformation2);
+            droppedItems.Add(name1, valueInformation1);
+          else if (!valueInformation1.Equals(valueInformation2))
+            updatedItems.Add(name1, valueInformation2);
           else
-            persistentItems.Add(name1, (IVistaDBDefaultValueInformation) valueInformation2);
+            persistentItems.Add(name1, valueInformation2);
         }
       }
       foreach (Table.TableSchema.DefaultValueCollection.DefaultValueInformation valueInformation in (IEnumerable<IVistaDBDefaultValueInformation>) newList.Values)
       {
-        if (!updatedItems.ContainsValue((IVistaDBDefaultValueInformation) valueInformation) && !persistentItems.ContainsValue((IVistaDBDefaultValueInformation) valueInformation))
-          newItems.Add(valueInformation.Name, (IVistaDBDefaultValueInformation) valueInformation);
+        if (!updatedItems.ContainsValue(valueInformation) && !persistentItems.ContainsValue(valueInformation))
+          newItems.Add(valueInformation.Name, valueInformation);
       }
     }
 
@@ -426,41 +426,41 @@ namespace VistaDB.Engine.Core
                 AlterInformation alterInformation = this[name1];
         if (alterInformation.NewColumn == null)
         {
-          droppedItems.Add(name1, (IVistaDBIdentityInformation) originalIdentity);
+          droppedItems.Add(name1, originalIdentity);
         }
         else
         {
           string name2 = alterInformation.NewColumn.Name;
           Table.TableSchema.IdentityCollection.IdentityInformation identityInformation = (Table.TableSchema.IdentityCollection.IdentityInformation) newList[name2];
           if (identityInformation == null)
-            droppedItems.Add(name1, (IVistaDBIdentityInformation) originalIdentity);
-          else if (!originalIdentity.Equals((object) identityInformation))
+            droppedItems.Add(name1, originalIdentity);
+          else if (!originalIdentity.Equals(identityInformation))
           {
-            if (!ReferenceEquals((object) originalIdentity, (object) identityInformation))
+            if (!ReferenceEquals(originalIdentity, identityInformation))
               identityInformation.CopySeedValue(originalIdentity);
-            updatedItems.Add(name1, (IVistaDBIdentityInformation) identityInformation);
+            updatedItems.Add(name1, identityInformation);
           }
           else
-            persistentItems.Add(name1, (IVistaDBIdentityInformation) identityInformation);
+            persistentItems.Add(name1, identityInformation);
         }
       }
       foreach (Table.TableSchema.IdentityCollection.IdentityInformation identityInformation in (IEnumerable<IVistaDBIdentityInformation>) newList.Values)
       {
-        if (!updatedItems.ContainsValue((IVistaDBIdentityInformation) identityInformation) && !persistentItems.ContainsValue((IVistaDBIdentityInformation) identityInformation))
-          newItems.Add(identityInformation.Name, (IVistaDBIdentityInformation) identityInformation);
+        if (!updatedItems.ContainsValue(identityInformation) && !persistentItems.ContainsValue(identityInformation))
+          newItems.Add(identityInformation.Name, identityInformation);
       }
     }
 
     private bool AnalyzeMetaObjects()
     {
       bool flag1 = false;
-      ProcessDefaultsChanges((IVistaDBDefaultValueCollection) oldSchema.Defaults, (IVistaDBDefaultValueCollection) newSchema.Defaults, out droppedDefaults, out updatedDefaults, out persistentDefaults, out newDefaults);
+      ProcessDefaultsChanges(oldSchema.Defaults, newSchema.Defaults, out droppedDefaults, out updatedDefaults, out persistentDefaults, out newDefaults);
       bool flag2 = flag1 || updatedDefaults.Count > 0 || newDefaults.Count > 0;
-      ProcessIdentitiesChanges((IVistaDBIdentityCollection) oldSchema.Identities, (IVistaDBIdentityCollection) newSchema.Identities, out droppedIdentities, out updatedIdentities, out persistentIdentities, out newIdentities);
+      ProcessIdentitiesChanges(oldSchema.Identities, newSchema.Identities, out droppedIdentities, out updatedIdentities, out persistentIdentities, out newIdentities);
       bool flag3 = flag2 || updatedIdentities.Count > 0 || newIdentities.Count > 0;
-      ProcessIndexChanges((IVistaDBIndexCollection) oldSchema.Indexes, (IVistaDBIndexCollection) newSchema.Indexes, out droppedIndexes, out updatedIndexes, out persistentIndexes, out newIndexes);
+      ProcessIndexChanges(oldSchema.Indexes, newSchema.Indexes, out droppedIndexes, out updatedIndexes, out persistentIndexes, out newIndexes);
       bool flag4 = flag3 || updatedIndexes.Count > 0 || newIndexes.Count > 0;
-      ProcessConstraintChanges((IVistaDBConstraintCollection) oldSchema.Constraints, (IVistaDBConstraintCollection) newSchema.Constraints, out droppedConstraints, out updatedConstraints, out persistentConstraints, out newConstraints);
+      ProcessConstraintChanges(oldSchema.Constraints, newSchema.Constraints, out droppedConstraints, out updatedConstraints, out persistentConstraints, out newConstraints);
       return DecideAboutForeignKeyChanges() || (flag4 || updatedConstraints.Count > 0 || newConstraints.Count > 0);
     }
 
@@ -481,7 +481,7 @@ namespace VistaDB.Engine.Core
         oldColumn = fromColumn;
         newColumn = toColumn;
         deleted = toColumn == null;
-        difference = deleted ? (IVistaDBColumnAttributesDifference) null : fromColumn.Compare(toColumn);
+        difference = deleted ? null : fromColumn.Compare(toColumn);
       }
 
       internal AlterInformation(IVistaDBDefaultValueInformation toDefaults, IVistaDBColumnAttributes toColumn)
@@ -489,7 +489,7 @@ namespace VistaDB.Engine.Core
         newDefaults = toDefaults;
         newColumn = toColumn;
         deleted = false;
-        difference = (IVistaDBColumnAttributesDifference) null;
+        difference = null;
       }
 
       internal void AnalyzePropertiesChanges(IVistaDBIndexCollection indexes)

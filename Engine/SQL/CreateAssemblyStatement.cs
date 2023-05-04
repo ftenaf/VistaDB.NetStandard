@@ -25,7 +25,7 @@ namespace VistaDB.Engine.SQL
         parser.SkipToken(true);
       }
       else
-        description = (string) null;
+        description = null;
       parser.ExpectedExpression("FROM");
       parser.SkipToken(true);
       fileName = parser.TokenValue.Token;
@@ -35,7 +35,7 @@ namespace VistaDB.Engine.SQL
     protected override IQueryResult OnExecuteQuery()
     {
       Database.AddAssembly(name, fileName, description);
-      return (IQueryResult) null;
+      return null;
     }
   }
 }

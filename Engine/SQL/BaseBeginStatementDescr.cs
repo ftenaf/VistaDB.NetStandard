@@ -7,12 +7,12 @@ namespace VistaDB.Engine.SQL
   {
     public BaseBeginStatementDescr()
     {
-      IStatementDescr statementDescr = (IStatementDescr) new BeginTransactionStatementDescr();
+      IStatementDescr statementDescr = new BeginTransactionStatementDescr();
       statements = new Hashtable();
-      statements.Add((object) "TRANS", (object) statementDescr);
-      statements.Add((object) "TRANSACTION", (object) statementDescr);
-      statements.Add((object) "TRY", (object) new BeginTryBlockStatementDescr());
-      elseStatementDescr = (IStatementDescr) new BeginBlockStatementDescr();
+      statements.Add("TRANS", statementDescr);
+      statements.Add("TRANSACTION", statementDescr);
+      statements.Add("TRY", new BeginTryBlockStatementDescr());
+      elseStatementDescr = new BeginBlockStatementDescr();
     }
 
     private class BeginBlockStatementDescr : IStatementDescr
@@ -23,10 +23,10 @@ namespace VistaDB.Engine.SQL
         switch (parser.Context.ContextType)
         {
           case CurrentTokenContext.TokenContext.StoredProcedure:
-            batchStatement = (BatchStatement) new StoredProcedureBody(conn, parent, parser, id);
+            batchStatement = new StoredProcedureBody(conn, parent, parser, id);
             break;
           case CurrentTokenContext.TokenContext.StoredFunction:
-            batchStatement = (BatchStatement) new StoredFunctionBody(conn, parent, parser, id);
+            batchStatement = new StoredFunctionBody(conn, parent, parser, id);
             break;
           default:
             batchStatement = new BatchStatement(conn, parent, parser, id);
@@ -38,7 +38,7 @@ namespace VistaDB.Engine.SQL
           while (!parser.SkipSemicolons())
           {
             if (!parser.IsToken("END"))
-              batchStatement.Add(conn.ParseStatement((Statement) batchStatement, id));
+              batchStatement.Add(conn.ParseStatement(batchStatement, id));
             else
               break;
           }
@@ -49,7 +49,7 @@ namespace VistaDB.Engine.SQL
         }
         parser.ExpectedExpression("END");
         parser.SkipToken(false);
-        return (Statement) batchStatement;
+        return batchStatement;
       }
     }
 
@@ -57,7 +57,7 @@ namespace VistaDB.Engine.SQL
     {
       public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
       {
-        return (Statement) new BeginTransactionStatement(conn, parent, parser, id);
+        return new BeginTransactionStatement(conn, parent, parser, id);
       }
     }
 
@@ -68,7 +68,7 @@ namespace VistaDB.Engine.SQL
         TryBlockStatement tryBlockStatement = new TryBlockStatement(conn, parent, parser, id);
         parser.SkipToken(true);
         while (!parser.SkipSemicolons() && !parser.IsToken("END"))
-          tryBlockStatement.Add(conn.ParseStatement((Statement) tryBlockStatement, id));
+          tryBlockStatement.Add(conn.ParseStatement(tryBlockStatement, id));
         parser.ExpectedExpression("END");
         parser.SkipToken(true);
         parser.ExpectedExpression("TRY");
@@ -79,12 +79,12 @@ namespace VistaDB.Engine.SQL
         parser.SkipToken(true);
         tryBlockStatement.SetFirstCatchStatement(tryBlockStatement.SubQueryCount);
         while (!parser.SkipSemicolons() && !parser.IsToken("END"))
-          tryBlockStatement.Add(conn.ParseStatement((Statement) tryBlockStatement, id));
+          tryBlockStatement.Add(conn.ParseStatement(tryBlockStatement, id));
         parser.ExpectedExpression("END");
         parser.SkipToken(true);
         parser.ExpectedExpression("CATCH");
         parser.SkipToken(false);
-        return (Statement) tryBlockStatement;
+        return tryBlockStatement;
       }
     }
   }

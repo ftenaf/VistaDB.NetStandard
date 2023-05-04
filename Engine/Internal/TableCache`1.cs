@@ -36,7 +36,7 @@ namespace VistaDB.Engine.Internal
       if (database != null)
         m_ColumnCacheList = new List<ColumnCache>();
       else
-        m_ColumnCacheList = (List<ColumnCache>) null;
+        m_ColumnCacheList = null;
     }
 
     public ColumnCache GetColumnCache(string resultColumnName)
@@ -47,7 +47,7 @@ namespace VistaDB.Engine.Internal
           return columnCache;
       }
       int count = m_ColumnCacheList.Count;
-      ColumnCache columnCache1 = new ColumnCache((ITableCache) this, resultColumnName, count);
+      ColumnCache columnCache1 = new ColumnCache(this, resultColumnName, count);
       m_ColumnCacheList.Add(columnCache1);
       return columnCache1;
     }
@@ -58,8 +58,8 @@ namespace VistaDB.Engine.Internal
         return;
       if (columnIndex < 0)
       {
-        m_RegisteredColumns = (uint[]) null;
-        m_RegisteredColumnsList = (List<int>) null;
+        m_RegisteredColumns = null;
+        m_RegisteredColumnsList = null;
         Clear();
       }
       else
@@ -77,7 +77,7 @@ namespace VistaDB.Engine.Internal
         if (((int) m_RegisteredColumns[index1] & (int) num2) != 0)
           return;
         m_RegisteredColumns[index1] |= num2;
-        m_RegisteredColumnsList = (List<int>) null;
+        m_RegisteredColumnsList = null;
         Clear();
       }
     }
@@ -96,7 +96,7 @@ namespace VistaDB.Engine.Internal
     public IEnumerable<int> GetRegisteredColumns()
     {
       if (m_RegisteredColumns == null)
-        return (IEnumerable<int>) null;
+        return null;
       if (m_RegisteredColumnsList == null)
       {
         List<int> intList = new List<int>();
@@ -114,13 +114,13 @@ namespace VistaDB.Engine.Internal
         }
         m_RegisteredColumnsList = intList;
       }
-      return (IEnumerable<int>) m_RegisteredColumnsList;
+      return m_RegisteredColumnsList;
     }
 
     public object[] GetValues(object key)
     {
       if (key == null)
-        return (object[]) null;
+        return null;
       return this[(TKey) key];
     }
 
@@ -134,11 +134,11 @@ namespace VistaDB.Engine.Internal
     public override object[] FetchValue(TKey key)
     {
       if (m_Database == null)
-        return (object[]) null;
+        return null;
       if (m_Table == null)
         m_Table = m_Database.OpenTable(m_TableName, false, true);
       m_Table.ResetFilter();
-      m_Table.SetFilter(typeof (TKey) == typeof (string) ? string.Format(FilterFormatString, (object) key.ToString().Replace("'", "''")) : string.Format(FilterFormatString, (object) key), true);
+      m_Table.SetFilter(typeof (TKey) == typeof (string) ? string.Format(FilterFormatString, key.ToString().Replace("'", "''")) : string.Format(FilterFormatString, key), true);
       m_Table.First();
       if (m_Table.EndOfTable)
         return new object[0];
@@ -146,7 +146,7 @@ namespace VistaDB.Engine.Internal
       for (int index = 0; index < m_ColumnCacheList.Count; ++index)
       {
         IVistaDBValue vistaDbValue = m_Table.Get(m_ColumnCacheList[index].ResultColumnName);
-        objArray[index] = vistaDbValue == null ? (object) null : vistaDbValue.Value;
+        objArray[index] = vistaDbValue == null ? null : vistaDbValue.Value;
       }
       return objArray;
     }
@@ -156,8 +156,8 @@ namespace VistaDB.Engine.Internal
       if (m_Table == null)
         return;
       m_Table.Close();
-      m_Database = (IVistaDBDatabase) null;
-      m_Table = (IVistaDBTable) null;
+      m_Database = null;
+      m_Table = null;
     }
   }
 }

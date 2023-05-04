@@ -55,14 +55,14 @@ namespace VistaDB.Engine.Internal
       {
         if (disposing)
         {
-          GC.SuppressFinalize((object) this);
+          GC.SuppressFinalize(this);
           if (environment != null)
             environment.Clear();
           if (parentEngine != null)
             parentEngine.Remove(Id);
         }
-        environment = (Environment) null;
-        parentEngine = (VistaDBEngine) null;
+        environment = null;
+        parentEngine = null;
       }
     }
 
@@ -86,7 +86,7 @@ namespace VistaDB.Engine.Internal
           value = Environment.DEFAULT_LOCK_TIMEOUT;
         if (value > 3600)
           value = 3600;
-        environment.Set(Settings.LOCKTIMEOUT, (object) value);
+        environment.Set(Settings.LOCKTIMEOUT, value);
       }
     }
 
@@ -98,7 +98,7 @@ namespace VistaDB.Engine.Internal
       }
       set
       {
-        environment.Set(Settings.PAGESIZE, (object) (value <= 0 ? Environment.DEFAULT_PAGELEN : value));
+        environment.Set(Settings.PAGESIZE, value <= 0 ? Environment.DEFAULT_PAGELEN : value);
       }
     }
 
@@ -110,7 +110,7 @@ namespace VistaDB.Engine.Internal
       }
       set
       {
-        environment.Set(Settings.PERSISTENTLOCKS, (object) value);
+        environment.Set(Settings.PERSISTENTLOCKS, value);
       }
     }
 
@@ -122,7 +122,7 @@ namespace VistaDB.Engine.Internal
       }
       set
       {
-        environment.Set(Settings.LCID, (object) (value <= 0 ? Environment.DEFAULT_LCID : value));
+        environment.Set(Settings.LCID, value <= 0 ? Environment.DEFAULT_LCID : value);
       }
     }
 
@@ -177,15 +177,15 @@ namespace VistaDB.Engine.Internal
 
       private string ConvertToString(Settings variable)
       {
-        return (string) null;
+        return null;
       }
 
       private void InitDefault()
       {
-        Add(Settings.LOCKTIMEOUT, (object)DEFAULT_LOCK_TIMEOUT);
-        Add(Settings.PAGESIZE, (object)DEFAULT_PAGELEN);
-        Add(Settings.LCID, (object)DEFAULT_LCID);
-        Add(Settings.PERSISTENTLOCKS, (object)DEFAULT_PERSISTENTLOCKS);
+        Add(Settings.LOCKTIMEOUT, DEFAULT_LOCK_TIMEOUT);
+        Add(Settings.PAGESIZE, DEFAULT_PAGELEN);
+        Add(Settings.LCID, DEFAULT_LCID);
+        Add(Settings.PERSISTENTLOCKS, DEFAULT_PERSISTENTLOCKS);
       }
 
       internal void AddNotification(DataStorage storage)

@@ -4,7 +4,7 @@ namespace VistaDB.Engine.Core.Scripting
 {
   internal class TrueSignature : Signature
   {
-    internal static readonly Row.Column True = (Row.Column) new BitColumn(true);
+    internal static readonly Row.Column True = new BitColumn(true);
 
     internal TrueSignature(string name, int groupId)
       : base(name, groupId, Operations.True, Priorities.Generator, VistaDBType.Bit)

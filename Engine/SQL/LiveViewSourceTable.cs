@@ -15,8 +15,8 @@ namespace VistaDB.Engine.SQL
     public LiveViewSourceTable(Statement parent, IView view, List<string> columnNames, SelectStatement statement, string alias, int index, int lineNo, int symbolNo)
       : base(parent, view, columnNames, statement, alias, index, lineNo, symbolNo)
     {
-      signatures = (Signatures.Signature[]) null;
-      patternRow = (Row) null;
+      signatures = null;
+      patternRow = null;
       opened = false;
       eof = false;
     }
@@ -24,9 +24,9 @@ namespace VistaDB.Engine.SQL
     private void PrepareFirstOpen()
     {
       IDatabase database = this.statement.Database;
-      IQuerySchemaInfo statement = (IQuerySchemaInfo) this.statement;
+      IQuerySchemaInfo statement = this.statement;
       signatures = new Signatures.Signature[statement.ColumnCount];
-      patternRow = Row.CreateInstance(0U, true, (Encryption) null, (int[]) null);
+      patternRow = Row.CreateInstance(0U, true, null, null);
       int ordinal = 0;
       for (int columnCount = statement.ColumnCount; ordinal < columnCount; ++ordinal)
         patternRow.AppendColumn(database.CreateEmptyColumn(statement.GetColumnVistaDBType(ordinal)));
@@ -42,14 +42,14 @@ namespace VistaDB.Engine.SQL
       if (!opened)
         return;
       opened = false;
-      updateTable = (SourceTable) null;
+      updateTable = null;
       statement.Close();
     }
 
     public override void FreeTable()
     {
       opened = false;
-      updateTable = (SourceTable) null;
+      updateTable = null;
       statement.FreeTables();
     }
 

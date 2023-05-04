@@ -15,8 +15,8 @@ namespace VistaDB.Engine.SQL.Signatures
     public StDevFunction(SQLParser parser)
       : base(parser, false)
     {
-      srcValue = (IColumn) null;
-      dstValue = (IColumn) null;
+      srcValue = null;
+      dstValue = null;
       squareSum = 0.0;
       sum = 0.0;
       count = 0L;
@@ -39,7 +39,7 @@ namespace VistaDB.Engine.SQL.Signatures
       if (serObj == null)
       {
         serializedValue = new SerializedValue();
-        serObj = (object) serializedValue;
+        serObj = serializedValue;
       }
       else
         serializedValue = (SerializedValue) serObj;
@@ -58,7 +58,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object InternalCreateEmptyResult()
     {
-      return (object) null;
+      return null;
     }
 
     protected override object InternalCreateNewGroup(object newVal)
@@ -68,34 +68,34 @@ namespace VistaDB.Engine.SQL.Signatures
         count = 0L;
         sum = 0.0;
         squareSum = 0.0;
-        return (object) null;
+        return null;
       }
       count = 1L;
-      ((IValue) srcValue).Value = newVal;
-      Convert((IValue) srcValue, (IValue) dstValue);
-      sum = (double) ((IValue) dstValue).Value;
+            srcValue.Value = newVal;
+      Convert(srcValue, dstValue);
+      sum = (double)dstValue.Value;
       squareSum = sum * sum;
-      return (object) null;
+      return null;
     }
 
     protected override object InternalAddRowToGroup(object newVal)
     {
       if (newVal == null)
-        return (object) null;
+        return null;
       ++count;
-      ((IValue) srcValue).Value = newVal;
-      Convert((IValue) srcValue, (IValue) dstValue);
-      double num = (double) ((IValue) dstValue).Value;
+            srcValue.Value = newVal;
+      Convert(srcValue, dstValue);
+      double num = (double)dstValue.Value;
       sum += num;
       squareSum += num * num;
-      return (object) null;
+      return null;
     }
 
     protected override object InternalFinishGroup()
     {
       if (count == 0L)
-        return (object) null;
-      return (object) Math.Sqrt((squareSum - sum * sum / (double) count) / (double) (count - 1L));
+        return null;
+      return Math.Sqrt((squareSum - sum * sum / count) / (count - 1L));
     }
 
     private class SerializedValue

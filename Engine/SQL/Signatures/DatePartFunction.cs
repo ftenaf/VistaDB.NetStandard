@@ -14,7 +14,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       parameterTypes[0] = VistaDBType.DateTime;
       dataType = VistaDBType.Int;
-      dateFormatInfo = (DateTimeFormatInfo) null;
+      dateFormatInfo = null;
       weekDelta = 0;
     }
 
@@ -27,35 +27,35 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object ExecuteSubProgram()
     {
-      DateTime dateTime = (DateTime) ((IValue) paramValues[0]).Value;
+      DateTime dateTime = (DateTime)paramValues[0].Value;
       switch (datePart)
       {
         case DatePart.Year:
-          return (object) dateTime.Year;
+          return dateTime.Year;
         case DatePart.Quarter:
-          return (object) ((dateTime.Month - 1) / 3 + 1);
+          return (dateTime.Month - 1) / 3 + 1;
         case DatePart.Month:
-          return (object) dateTime.Month;
+          return dateTime.Month;
         case DatePart.DayOfYear:
-          return (object) dateTime.DayOfYear;
+          return dateTime.DayOfYear;
         case DatePart.Day:
-          return (object) dateTime.Day;
+          return dateTime.Day;
         case DatePart.Week:
-          return (object) ((dateTime.DayOfYear - 1) / 7 + 1);
+          return (dateTime.DayOfYear - 1) / 7 + 1;
         case DatePart.WeekDay:
           if (dateTime.DayOfWeek < dateFormatInfo.FirstDayOfWeek)
-            return (object) (weekDelta + dateTime.DayOfWeek);
-          return (object) (dateTime.DayOfWeek - dateFormatInfo.FirstDayOfWeek + 1);
+            return weekDelta + dateTime.DayOfWeek;
+          return dateTime.DayOfWeek - dateFormatInfo.FirstDayOfWeek + 1;
         case DatePart.Hour:
-          return (object) dateTime.Hour;
+          return dateTime.Hour;
         case DatePart.Minute:
-          return (object) dateTime.Minute;
+          return dateTime.Minute;
         case DatePart.Second:
-          return (object) dateTime.Second;
+          return dateTime.Second;
         case DatePart.Millisecond:
-          return (object) dateTime.Millisecond;
+          return dateTime.Millisecond;
         default:
-          return (object) null;
+          return null;
       }
     }
   }

@@ -9,9 +9,9 @@ namespace VistaDB.Engine.SQL
     private bool messageSent;
 
     internal SelectMessageStringStatement(LocalSQLConnection connection, SQLParser parser, long queryId, string message)
-      : base(connection, (Statement) null, parser, queryId)
+      : base(connection, null, parser, queryId)
     {
-      messageResult = new MessageString((IDatabase) null, message);
+      messageResult = new MessageString(null, message);
     }
 
     protected override void OnParse(LocalSQLConnection connection, SQLParser parser)
@@ -26,9 +26,9 @@ namespace VistaDB.Engine.SQL
     public override INextQueryResult NextResult(VistaDBPipe pipe)
     {
       if (messageSent)
-        return (INextQueryResult) null;
+        return null;
       messageSent = true;
-      return (INextQueryResult) new BatchStatement.ResultSetData((IQueryResult) messageResult, GetSchemaInfo(), 1L);
+      return new BatchStatement.ResultSetData(messageResult, GetSchemaInfo(), 1L);
     }
 
     protected override bool AcceptRow()
@@ -42,7 +42,7 @@ namespace VistaDB.Engine.SQL
 
     public override IQuerySchemaInfo GetSchemaInfo()
     {
-      return (IQuerySchemaInfo) messageResult;
+      return messageResult;
     }
 
     protected override VistaDBType OnPrepareQuery()
@@ -52,7 +52,7 @@ namespace VistaDB.Engine.SQL
 
     protected override IQueryResult OnExecuteQuery()
     {
-      return (IQueryResult) null;
+      return null;
     }
   }
 }

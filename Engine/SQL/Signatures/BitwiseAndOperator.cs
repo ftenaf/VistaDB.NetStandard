@@ -19,13 +19,13 @@ namespace VistaDB.Engine.SQL.Signatures
         IColumn column2 = rightOperand.Execute();
         if (column1.IsNull && column2.IsNull)
         {
-          ((IValue) result).Value = (object) null;
+                    result.Value = null;
         }
         else
         {
-          Convert((IValue) column1, (IValue) leftValue);
-          Convert((IValue) column2, (IValue) rightValue);
-          ((IValue) result).Value = GetResult();
+          Convert(column1, leftValue);
+          Convert(column2, rightValue);
+                    result.Value = GetResult();
         }
         needsEvaluation = false;
       }

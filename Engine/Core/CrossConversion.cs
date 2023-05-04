@@ -8,7 +8,7 @@ namespace VistaDB.Engine.Core
 {
   internal class CrossConversion : IConversion
   {
-    private static readonly IFormatProvider numberFormat = (IFormatProvider) CultureInfo.InvariantCulture.NumberFormat;
+    private static readonly IFormatProvider numberFormat = CultureInfo.InvariantCulture.NumberFormat;
     private static readonly ConversionMethod[] methods = new ConversionMethod[CreateEntry(VistaDBType.Unknown, VistaDBType.Unknown) + 1];
     private CultureInfo culture;
 
@@ -116,15 +116,15 @@ namespace VistaDB.Engine.Core
     {
       if (srcValue.Value == null)
       {
-        dstValue.Value = (object) null;
+        dstValue.Value = null;
       }
       else
       {
         string s = ((string) srcValue.Value).TrimEnd();
         if (s.Length > 0)
-          dstValue.Value = (object) byte.Parse(s);
+          dstValue.Value = byte.Parse(s);
         else
-          dstValue.Value = (object) (byte) 0;
+          dstValue.Value = (byte)0;
       }
     }
 
@@ -132,15 +132,15 @@ namespace VistaDB.Engine.Core
     {
       if (srcValue.Value == null)
       {
-        dstValue.Value = (object) null;
+        dstValue.Value = null;
       }
       else
       {
         string s = ((string) srcValue.Value).TrimEnd();
         if (s.Length > 0)
-          dstValue.Value = (object) short.Parse(s, NumberStyles.Integer, numberFormat);
+          dstValue.Value = short.Parse(s, NumberStyles.Integer, numberFormat);
         else
-          dstValue.Value = (object) (short) 0;
+          dstValue.Value = (short)0;
       }
     }
 
@@ -148,15 +148,15 @@ namespace VistaDB.Engine.Core
     {
       if (srcValue.Value == null)
       {
-        dstValue.Value = (object) null;
+        dstValue.Value = null;
       }
       else
       {
         string s = ((string) srcValue.Value).TrimEnd();
         if (s.Length > 0)
-          dstValue.Value = (object) int.Parse(s, numberFormat);
+          dstValue.Value = int.Parse(s, numberFormat);
         else
-          dstValue.Value = (object) 0;
+          dstValue.Value = 0;
       }
     }
 
@@ -164,15 +164,15 @@ namespace VistaDB.Engine.Core
     {
       if (srcValue.Value == null)
       {
-        dstValue.Value = (object) null;
+        dstValue.Value = null;
       }
       else
       {
         string s = ((string) srcValue.Value).TrimEnd();
         if (s.Length > 0)
-          dstValue.Value = (object) long.Parse(s, NumberStyles.Integer, numberFormat);
+          dstValue.Value = long.Parse(s, NumberStyles.Integer, numberFormat);
         else
-          dstValue.Value = (object) 0L;
+          dstValue.Value = 0L;
       }
     }
 
@@ -180,15 +180,15 @@ namespace VistaDB.Engine.Core
     {
       if (srcValue.Value == null)
       {
-        dstValue.Value = (object) null;
+        dstValue.Value = null;
       }
       else
       {
         string s = ((string) srcValue.Value).TrimEnd();
         if (s.Length > 0)
-          dstValue.Value = (object) float.Parse(s, numberFormat);
+          dstValue.Value = float.Parse(s, numberFormat);
         else
-          dstValue.Value = (object) 0.0f;
+          dstValue.Value = 0.0f;
       }
     }
 
@@ -196,7 +196,7 @@ namespace VistaDB.Engine.Core
     {
       if (srcValue.Value == null)
       {
-        dstValue.Value = (object) null;
+        dstValue.Value = null;
       }
       else
       {
@@ -206,10 +206,10 @@ namespace VistaDB.Engine.Core
           double result;
           if (!double.TryParse(s, NumberStyles.Any, numberFormat, out result))
             throw new VistaDBException(302, srcValue.Type.ToString() + " to " + dstValue.Type.ToString());
-          dstValue.Value = (object) result;
+          dstValue.Value = result;
         }
         else
-          dstValue.Value = (object) 0.0;
+          dstValue.Value = 0.0;
       }
     }
 
@@ -217,7 +217,7 @@ namespace VistaDB.Engine.Core
     {
       if (srcValue.Value == null)
       {
-        dstValue.Value = (object) null;
+        dstValue.Value = null;
       }
       else
       {
@@ -227,7 +227,7 @@ namespace VistaDB.Engine.Core
         Decimal result;
         if (!Decimal.TryParse(s, NumberStyles.Any, numberFormat, out result))
           throw new VistaDBException(302, srcValue.Type.ToString() + " to " + dstValue.Type.ToString());
-        dstValue.Value = (object) result;
+        dstValue.Value = result;
       }
     }
 
@@ -235,414 +235,414 @@ namespace VistaDB.Engine.Core
     {
       if (srcValue.Value == null)
       {
-        dstValue.Value = (object) null;
+        dstValue.Value = null;
       }
       else
       {
         string s = ((string) srcValue.Value).TrimEnd();
         if (s.Length > 0)
-          dstValue.Value = (object) DateTime.Parse(s, (IFormatProvider) culture.DateTimeFormat);
+          dstValue.Value = DateTime.Parse(s, culture.DateTimeFormat);
         else
-          dstValue.Value = (object) new DateTime(1900, 1, 1);
+          dstValue.Value = new DateTime(1900, 1, 1);
       }
     }
 
     private static void NCharToGuid(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) new Guid((string) obj);
+      dstValue.Value = obj == null ? obj : new Guid((string)obj);
     }
 
     private static void NCharToVarBinary(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
-      dstValue.Value = (object) Encoding.GetEncoding(((Row.Column) srcValue).CodePage).GetBytes((string) srcValue.Value);
+      dstValue.Value = Encoding.GetEncoding(((Row.Column)srcValue).CodePage).GetBytes((string)srcValue.Value);
     }
 
     private static void NCharToBit(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       if (srcValue.Value == null)
       {
-        dstValue.Value = (object) null;
+        dstValue.Value = null;
       }
       else
       {
         string s = ((string) srcValue.Value).TrimEnd();
         if (s.Length > 0)
-          dstValue.Value = (object) (long.Parse(s, NumberStyles.Integer, numberFormat) > 0L);
+          dstValue.Value = long.Parse(s, NumberStyles.Integer, numberFormat) > 0L;
         else
-          dstValue.Value = (object) false;
+          dstValue.Value = false;
       }
     }
 
     private static void ByteToNChar(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) ((byte) obj).ToString();
+      dstValue.Value = obj == null ? obj : ((byte)obj).ToString();
     }
 
     private static void ByteToInt16(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (short) (byte) obj;
+      dstValue.Value = obj == null ? obj : (short)(byte)obj;
     }
 
     private static void ByteToInt32(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (int) (byte) obj;
+      dstValue.Value = obj == null ? obj : (int)(byte)obj;
     }
 
     private static void ByteToInt64(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (long) (byte) obj;
+      dstValue.Value = obj == null ? obj : (long)(byte)obj;
     }
 
     private static void ByteToSingle(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (float) (byte) obj;
+      dstValue.Value = obj == null ? obj : (float)(byte)obj;
     }
 
     private static void ByteToDouble(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (double) (byte) obj;
+      dstValue.Value = obj == null ? obj : (double)(byte)obj;
     }
 
     private static void ByteToDecimal(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (Decimal) ((byte) obj);
+      dstValue.Value = obj == null ? obj : (Decimal)((byte)obj);
     }
 
     private static void ByteToBoolean(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) ((byte) obj != (byte) 0);
+      dstValue.Value = obj == null ? obj : (byte)obj != 0;
     }
 
     private static void Int16ToNChar(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) ((short) obj).ToString(numberFormat);
+      dstValue.Value = obj == null ? obj : ((short)obj).ToString(numberFormat);
     }
 
     private static void Int16ToByte(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (byte) (short) obj;
+      dstValue.Value = obj == null ? obj : (byte)(short)obj;
     }
 
     private static void Int16ToInt32(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (int) (short) obj;
+      dstValue.Value = obj == null ? obj : (int)(short)obj;
     }
 
     private static void Int16ToInt64(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (long) (short) obj;
+      dstValue.Value = obj == null ? obj : (long)(short)obj;
     }
 
     private static void Int16ToSingle(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (float) (short) obj;
+      dstValue.Value = obj == null ? obj : (float)(short)obj;
     }
 
     private static void Int16ToDouble(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (double) (short) obj;
+      dstValue.Value = obj == null ? obj : (double)(short)obj;
     }
 
     private static void Int16ToDecimal(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (Decimal) ((short) obj);
+      dstValue.Value = obj == null ? obj : (Decimal)((short)obj);
     }
 
     private static void Int16ToBoolean(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) ((short) obj != (short) 0);
+      dstValue.Value = obj == null ? obj : (short)obj != 0;
     }
 
     private static void Int32ToNChar(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) ((int) obj).ToString(numberFormat);
+      dstValue.Value = obj == null ? obj : ((int)obj).ToString(numberFormat);
     }
 
     private static void Int32ToByte(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (byte) (int) obj;
+      dstValue.Value = obj == null ? obj : (byte)(int)obj;
     }
 
     private static void Int32ToInt16(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (short) (int) obj;
+      dstValue.Value = obj == null ? obj : (short)(int)obj;
     }
 
     private static void Int32ToInt64(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (long) (int) obj;
+      dstValue.Value = obj == null ? obj : (long)(int)obj;
     }
 
     private static void Int32ToSingle(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (float) (int) obj;
+      dstValue.Value = obj == null ? obj : (float)(int)obj;
     }
 
     private static void Int32ToDouble(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (double) (int) obj;
+      dstValue.Value = obj == null ? obj : (double)(int)obj;
     }
 
     private static void Int32ToDecimal(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (Decimal) ((int) obj);
+      dstValue.Value = obj == null ? obj : (Decimal)((int)obj);
     }
 
     private static void Int32ToBoolean(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) ((int) obj != 0);
+      dstValue.Value = obj == null ? obj : (int)obj != 0;
     }
 
     private static void Int64ToNChar(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) ((long) obj).ToString(numberFormat);
+      dstValue.Value = obj == null ? obj : ((long)obj).ToString(numberFormat);
     }
 
     private static void Int64ToByte(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (byte) (long) obj;
+      dstValue.Value = obj == null ? obj : (byte)(long)obj;
     }
 
     private static void Int64ToInt16(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (short) (long) obj;
+      dstValue.Value = obj == null ? obj : (short)(long)obj;
     }
 
     private static void Int64ToInt32(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (int) (long) obj;
+      dstValue.Value = obj == null ? obj : (int)(long)obj;
     }
 
     private static void Int64ToSingle(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (float) (long) obj;
+      dstValue.Value = obj == null ? obj : (float)(long)obj;
     }
 
     private static void Int64ToDouble(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (double) (long) obj;
+      dstValue.Value = obj == null ? obj : (double)(long)obj;
     }
 
     private static void Int64ToDecimal(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (Decimal) ((long) obj);
+      dstValue.Value = obj == null ? obj : (Decimal)((long)obj);
     }
 
     private static void Int64ToBoolean(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) ((long) obj != 0L);
+      dstValue.Value = obj == null ? obj : (long)obj != 0L;
     }
 
     private static void SingleToNChar(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) ((float) obj).ToString(numberFormat);
+      dstValue.Value = obj == null ? obj : ((float)obj).ToString(numberFormat);
     }
 
     private static void SingleToByte(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (byte) (float) obj;
+      dstValue.Value = obj == null ? obj : (byte)(float)obj;
     }
 
     private static void SingleToInt16(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (short) (float) obj;
+      dstValue.Value = obj == null ? obj : (short)(float)obj;
     }
 
     private static void SingleToInt32(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (int) (float) obj;
+      dstValue.Value = obj == null ? obj : (int)(float)obj;
     }
 
     private static void SingleToInt64(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (long) (float) obj;
+      dstValue.Value = obj == null ? obj : (long)(float)obj;
     }
 
     private static void SingleToDouble(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (double) (float) obj;
+      dstValue.Value = obj == null ? obj : (double)(float)obj;
     }
 
     private static void SingleToDecimal(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (Decimal) ((float) obj);
+      dstValue.Value = obj == null ? obj : (Decimal)((float)obj);
     }
 
     private static void DoubleToNChar(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) ((double) obj).ToString(numberFormat);
+      dstValue.Value = obj == null ? obj : ((double)obj).ToString(numberFormat);
     }
 
     private static void DoubleToByte(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (byte) (double) obj;
+      dstValue.Value = obj == null ? obj : (byte)(double)obj;
     }
 
     private static void DoubleToInt16(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (short) (double) obj;
+      dstValue.Value = obj == null ? obj : (short)(double)obj;
     }
 
     private static void DoubleToInt32(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (int) (double) obj;
+      dstValue.Value = obj == null ? obj : (int)(double)obj;
     }
 
     private static void DoubleToInt64(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (long) (double) obj;
+      dstValue.Value = obj == null ? obj : (long)(double)obj;
     }
 
     private static void DoubleToSingle(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (float) (double) obj;
+      dstValue.Value = obj == null ? obj : (float)(double)obj;
     }
 
     private static void DoubleToDecimal(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (Decimal) ((double) obj);
+      dstValue.Value = obj == null ? obj : (Decimal)((double)obj);
     }
 
     private static void DecimalToNChar(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) ((Decimal) obj).ToString(numberFormat);
+      dstValue.Value = obj == null ? obj : ((Decimal)obj).ToString(numberFormat);
     }
 
     private static void DecimalToByte(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (byte) ((Decimal) obj);
+      dstValue.Value = obj == null ? obj : (byte)((Decimal)obj);
     }
 
     private static void DecimalToInt16(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (short) ((Decimal) obj);
+      dstValue.Value = obj == null ? obj : (short)((Decimal)obj);
     }
 
     private static void DecimalToInt32(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (int) ((Decimal) obj);
+      dstValue.Value = obj == null ? obj : (int)((Decimal)obj);
     }
 
     private static void DecimalToInt64(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (long) ((Decimal) obj);
+      dstValue.Value = obj == null ? obj : (long)((Decimal)obj);
     }
 
     private static void DecimalToSingle(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (float) ((Decimal) obj);
+      dstValue.Value = obj == null ? obj : (float)((Decimal)obj);
     }
 
     private static void DecimalToDouble(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (double) ((Decimal) obj);
+      dstValue.Value = obj == null ? obj : (double)((Decimal)obj);
     }
 
     private static void BooleanToNChar(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : ((bool) srcValue.Value ? (object) "true" : (object) "false");
+      dstValue.Value = obj == null ? obj : ((bool) srcValue.Value ? "true" : (object) "false");
     }
 
     private static void BooleanToByte(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (byte) ((bool) srcValue.Value ? 1 : 0);
+      dstValue.Value = obj == null ? obj : (byte)((bool)srcValue.Value ? 1 : 0);
     }
 
     private static void BooleanToInt16(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) (short) ((bool) srcValue.Value ? 1 : 0);
+      dstValue.Value = obj == null ? obj : (short)((bool)srcValue.Value ? 1 : 0);
     }
 
     private static void BooleanToInt32(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) ((bool) srcValue.Value ? 1 : 0);
+      dstValue.Value = obj == null ? obj : (bool)srcValue.Value ? 1 : 0;
     }
 
     private static void BooleanToInt64(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) ((bool) srcValue.Value ? 1L : 0L);
+      dstValue.Value = obj == null ? obj : (bool)srcValue.Value ? 1L : 0L;
     }
 
     private static void DateTimeToNChar(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) ((DateTime) obj).ToString((IFormatProvider) culture.DateTimeFormat);
+      dstValue.Value = obj == null ? obj : ((DateTime)obj).ToString(culture.DateTimeFormat);
     }
 
     private static void GuidToNChar(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) obj.ToString();
+      dstValue.Value = obj == null ? obj : obj.ToString();
     }
 
     private static void VarBinaryToBigInt(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       byte[] numArray = (byte[]) srcValue.Value;
-      dstValue.Value = numArray == null || numArray.Length != 8 ? (object) null : (object) BitConverter.ToInt64(numArray, 0);
+      dstValue.Value = numArray == null || numArray.Length != 8 ? null : (object) BitConverter.ToInt64(numArray, 0);
     }
 
     private static void BigIntToVarBinary(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
-      dstValue.Value = (object) BitConverter.GetBytes((long) srcValue.Value);
+      dstValue.Value = BitConverter.GetBytes((long)srcValue.Value);
     }
 
     internal static ConversionMethod Method(VistaDBType srcType, VistaDBType dstType)
@@ -661,7 +661,7 @@ namespace VistaDB.Engine.Core
         dstValue.Value = srcValue.Value;
       else if (srcValue.IsNull)
       {
-        dstValue.Value = (object) null;
+        dstValue.Value = null;
       }
       else
       {

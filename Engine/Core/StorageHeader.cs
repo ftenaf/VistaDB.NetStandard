@@ -19,14 +19,14 @@ namespace VistaDB.Engine.Core
     protected StorageHeader(DataStorage parentStorage, HeaderId id, ulong dataReference, int signature, int pageSize, CultureInfo culture)
       : base(parentStorage, id, dataReference, signature, pageSize)
     {
-      pageSizeEntry = AppendColumn((IColumn) new SmallIntColumn((short) (pageSize / StorageHandle.DEFAULT_SIZE_OF_PAGE)));
-      localeEntry = AppendColumn((IColumn) new IntColumn(culture.LCID));
+      pageSizeEntry = AppendColumn(new SmallIntColumn((short)(pageSize / StorageHandle.DEFAULT_SIZE_OF_PAGE)));
+      localeEntry = AppendColumn(new IntColumn(culture.LCID));
       defaultCulture = culture;
-      idCounterEntry = AppendColumn((IColumn) new IntColumn(0));
-      timestampEntry = AppendColumn((IColumn) new BigIntColumn(0L));
-      AppendColumn((IColumn) new BitColumn(false));
-      schemaVersion = AppendColumn((IColumn) new IntColumn(0));
-      transactionLogTableId = AppendColumn((IColumn) new BigIntColumn(0L));
+      idCounterEntry = AppendColumn(new IntColumn(0));
+      timestampEntry = AppendColumn(new BigIntColumn(0L));
+      AppendColumn(new BitColumn(false));
+      schemaVersion = AppendColumn(new IntColumn(0));
+      transactionLogTableId = AppendColumn(new BigIntColumn(0L));
     }
 
     internal CultureInfo Culture
@@ -43,7 +43,7 @@ namespace VistaDB.Engine.Core
       {
         uint num1 = (uint) (int) this[idCounterEntry].Value;
         uint num2;
-        this[idCounterEntry].Value = (object) (int) (num2 = num1 + 1U);
+        this[idCounterEntry].Value = (int)(num2 = num1 + 1U);
         Modified = true;
         return num2;
       }
@@ -71,7 +71,7 @@ namespace VistaDB.Engine.Core
       {
         ulong currentTimestampId = CurrentTimestampId;
         ulong num;
-        this[timestampEntry].Value = (object) (long) (num = currentTimestampId + 1UL);
+        this[timestampEntry].Value = (long)(num = currentTimestampId + 1UL);
         Modified = true;
         return num;
       }
@@ -79,7 +79,7 @@ namespace VistaDB.Engine.Core
 
     internal void InitTimestamp(ulong timestamp)
     {
-      this[timestampEntry].Value = (object) (long) timestamp;
+      this[timestampEntry].Value = (long)timestamp;
     }
 
     internal new ulong RefPosition
@@ -104,7 +104,7 @@ namespace VistaDB.Engine.Core
       set
       {
         Modified = SchemaVersion != value;
-        this[schemaVersion].Value = (object) value;
+        this[schemaVersion].Value = value;
       }
     }
 
@@ -117,22 +117,22 @@ namespace VistaDB.Engine.Core
       set
       {
         Modified = (long) TransactionLogPosition != (long) value;
-        this[transactionLogTableId].Value = (object) (long) value;
+        this[transactionLogTableId].Value = (long)value;
       }
     }
 
     protected override void OnUpdate()
     {
-      long schemaVersion = (long) SchemaVersion;
+      long schemaVersion = SchemaVersion;
       base.OnUpdate();
-      if (schemaVersion != (long) SchemaVersion)
+      if (schemaVersion != SchemaVersion)
         throw new VistaDBException(140, ParentStorage.Name);
     }
 
     protected override void OnAfterRead(int pageSize, bool justVersion)
     {
       if (!justVersion)
-        base.OnAfterRead((int) (short) this[pageSizeEntry].Value * StorageHandle.DEFAULT_SIZE_OF_PAGE, justVersion);
+        base.OnAfterRead((short)this[pageSizeEntry].Value * StorageHandle.DEFAULT_SIZE_OF_PAGE, justVersion);
       lastDataSchemaVersionOnDisk = SchemaVersion;
     }
 

@@ -334,7 +334,7 @@ namespace VistaDB.Engine.Internal
 		{
 			CreateParser();
 			parser.SetText(text);
-			BatchStatement batchStatement = new BatchStatement(this, (Statement)null, parser, 0L);
+			BatchStatement batchStatement = new BatchStatement(this, null, parser, 0L);
 			try
 			{
 				parser.NextSignature(true, true, 6);
@@ -564,8 +564,8 @@ namespace VistaDB.Engine.Internal
 
 		internal void PrepareCLRContext(VistaDBPipe pipe)
 		{
-			VistaDBContext.SQLChannel.ActivateContext((ILocalSQLConnection)this, pipe);
-			VistaDBContext.DDAChannel.ActivateContext((IVistaDBDatabase)Database, (IVistaDBPipe)null);
+			VistaDBContext.SQLChannel.ActivateContext(this, pipe);
+			VistaDBContext.DDAChannel.ActivateContext(Database, null);
 		}
 
 		internal void UnprepareCLRContext()

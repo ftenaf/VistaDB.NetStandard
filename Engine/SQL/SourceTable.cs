@@ -34,7 +34,7 @@ namespace VistaDB.Engine.SQL
       tableAlias = alias == null ? "" : alias;
       rowAvailable = true;
       dataVersion = 0L;
-      schema = (IQuerySchemaInfo) null;
+      schema = null;
       this.parent = parent;
       this.collectionOrder = collectionOrder;
       this.lineNo = lineNo;
@@ -42,8 +42,8 @@ namespace VistaDB.Engine.SQL
       stopNext = false;
       rowUpdated = true;
       readOnly = true;
-      nextTable = (SourceTable) null;
-      joinedTables = (List<SourceTable>) null;
+      nextTable = null;
+      joinedTables = null;
       alwaysAllowNull = false;
     }
 
@@ -87,7 +87,7 @@ namespace VistaDB.Engine.SQL
 
     internal virtual IRow DoGetIndexStructure(string indexName)
     {
-      return (IRow) null;
+      return null;
     }
 
     protected virtual SourceTable CreateSourceTableByName(IVistaDBTableNameCollection tableNames, IViewList views)
@@ -128,13 +128,13 @@ namespace VistaDB.Engine.SQL
     public object GetValue(int colIndex)
     {
       if (rowAvailable && !Eof)
-        return ((IValue) SimpleGetColumn(colIndex)).Value;
-      return (object) null;
+        return SimpleGetColumn(colIndex).Value;
+      return null;
     }
 
     public void Unprepare()
     {
-      schema = (IQuerySchemaInfo) null;
+      schema = null;
     }
 
     public void Open()
@@ -186,9 +186,9 @@ namespace VistaDB.Engine.SQL
 
     internal void SetJoinOptimizationColumns(ColumnSignature leftColumn, ColumnSignature rightColumn, string indexName, bool useCache)
     {
-      optimizedIndexColumn = (ColumnSignature) null;
-      optimizedKeyColumn = (ColumnSignature) null;
-      optimizedIndexName = (string) null;
+      optimizedIndexColumn = null;
+      optimizedKeyColumn = null;
+      optimizedIndexName = null;
       if (string.IsNullOrEmpty(tableAlias))
         return;
       bool flag1 = !string.IsNullOrEmpty(leftColumn.TableAlias) && leftColumn.TableAlias == tableAlias;
@@ -212,9 +212,9 @@ namespace VistaDB.Engine.SQL
 
     internal void ClearJoinOptimizationColumns()
     {
-      optimizedIndexColumn = (ColumnSignature) null;
-      optimizedKeyColumn = (ColumnSignature) null;
-      optimizedIndexName = (string) null;
+      optimizedIndexColumn = null;
+      optimizedKeyColumn = null;
+      optimizedIndexName = null;
       optimizedCaching = false;
     }
 
@@ -442,7 +442,7 @@ namespace VistaDB.Engine.SQL
         tableIndex = tableList.Count;
       }
       this.alwaysAllowNull = alwaysAllowNull;
-      return (IRowSet) sourceTableByName;
+      return sourceTableByName;
     }
 
     internal virtual void PushTemporaryTableCache(TriggerAction triggerAction)
@@ -463,7 +463,7 @@ namespace VistaDB.Engine.SQL
 
     internal virtual IOptimizedFilter BuildFilterMap(string indexName, IRow lowScopeValue, IRow highScopeValue, bool excludeNulls)
     {
-      return (IOptimizedFilter) null;
+      return null;
     }
 
     internal virtual bool BeginOptimizedFiltering(IOptimizedFilter filter, string pivotIndex)
@@ -489,14 +489,14 @@ namespace VistaDB.Engine.SQL
 
     internal virtual void ResetOptimization()
     {
-      ActiveIndex = (string) null;
+      ActiveIndex = null;
     }
 
     internal virtual IVistaDBIndexCollection TemporaryIndexes
     {
       get
       {
-        return (IVistaDBIndexCollection) null;
+        return null;
       }
     }
 

@@ -6,7 +6,7 @@ namespace VistaDB.Engine.Core.Cryptography
 {
   internal struct EncryptionKey
   {
-    private static EncryptionKey nullEncryptionKey = new EncryptionKey((string) null, Cypher.None);
+    private static EncryptionKey nullEncryptionKey = new EncryptionKey(null, Cypher.None);
     private string userKeyString;
     private Cypher cypher;
 
@@ -58,7 +58,7 @@ namespace VistaDB.Engine.Core.Cryptography
         byte[] bytes = Encoding.Unicode.GetBytes(Key);
         byte[] array = new byte[bytes.Length + 1];
         array[0] = (byte) Type;
-        Array.Copy((Array) bytes, 0, (Array) array, 1, bytes.Length);
+        Array.Copy(bytes, 0, array, 1, bytes.Length);
         return new Md5().DigByteArray(array);
       }
     }

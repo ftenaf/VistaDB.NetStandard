@@ -32,10 +32,10 @@ namespace VistaDB.Engine.SQL
         parser.SkipToken(true);
       }
       else
-        description = (string) null;
+        description = null;
       parser.ExpectedExpression("ON");
       parser.SkipToken(true);
-      tableName = parser.GetTableName((Statement) this);
+      tableName = parser.GetTableName(this);
       parser.SkipToken(true);
       string token1 = parser.TokenValue.Token;
       if (token1 == null)
@@ -75,7 +75,7 @@ namespace VistaDB.Engine.SQL
             onDelete = true;
             break;
           default:
-            throw new VistaDBSQLException(632, string.Format("{0}{1}{0}", (object) '\'', (object) tokenValue.Token), tokenValue.RowNo, tokenValue.ColNo);
+            throw new VistaDBSQLException(632, string.Format("{0}{1}{0}", '\'', tokenValue.Token), tokenValue.RowNo, tokenValue.ColNo);
         }
         parser.SkipToken(true);
         if (parser.IsToken(","))
@@ -100,13 +100,13 @@ namespace VistaDB.Engine.SQL
           return;
         }
       }
-      throw new VistaDBSQLException(632, string.Format("{0}{1}{0}", (object) '\'', (object) tokenValue.Token), tokenValue.RowNo, tokenValue.ColNo);
+      throw new VistaDBSQLException(632, string.Format("{0}{1}{0}", '\'', tokenValue.Token), tokenValue.RowNo, tokenValue.ColNo);
     }
 
     protected override IQueryResult OnExecuteQuery()
     {
       base.OnExecuteQuery();
-      TriggerAction triggerAction = (TriggerAction) 0;
+      TriggerAction triggerAction = 0;
       if (!insteadOf)
       {
         if (onInsert)
@@ -117,7 +117,7 @@ namespace VistaDB.Engine.SQL
           triggerAction |= TriggerAction.AfterDelete;
       }
       Database.RegisterClrTrigger(triggerName, methodName, assemblyName, tableName, triggerAction, description);
-      return (IQueryResult) null;
+      return null;
     }
   }
 }

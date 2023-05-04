@@ -39,7 +39,7 @@ namespace VistaDB.Engine.SQL
 
     public override SourceTable GetSourceTable(int index)
     {
-      return (SourceTable) null;
+      return null;
     }
 
     protected override VistaDBType OnPrepareQuery()
@@ -75,12 +75,12 @@ namespace VistaDB.Engine.SQL
       }
       else
       {
-        destinationTable = (SourceTable) destinationTable.PrepareTables(tableNames, views, (TableCollection) null, false, ref tableIndex);
+        destinationTable = (SourceTable) destinationTable.PrepareTables(tableNames, views, null, false, ref tableIndex);
         destinationTable.Prepare();
         if (sourceTables.Count == 0)
         {
           sourceTables.AddTable(destinationTable);
-          join = (IRowSet) destinationTable;
+          join = destinationTable;
         }
       }
       sourceTables.Prepare();
@@ -130,7 +130,7 @@ namespace VistaDB.Engine.SQL
       sourceTables.Free();
       destinationTable.FreeTable();
       SetChanged();
-      return (IQueryResult) null;
+      return null;
     }
 
     protected virtual void PrepareSetColumns()

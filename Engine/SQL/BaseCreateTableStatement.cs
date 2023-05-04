@@ -26,10 +26,10 @@ namespace VistaDB.Engine.SQL
         protected override void DoBeforeParse()
         {
             base.DoBeforeParse();
-            columns = new ColumnDescrList((Statement)this);
+            columns = new ColumnDescrList(this);
             uniqueColumns = new UniqueColumnList(this);
             foreignKeys = new ForeignKeyList(this);
-            checks = new CheckList((Statement)this);
+            checks = new CheckList(this);
         }
 
         protected override void OnParse(LocalSQLConnection connection, SQLParser parser)
@@ -37,7 +37,7 @@ namespace VistaDB.Engine.SQL
             if (id < 0L)
                 return;
             parser.SkipToken(true);
-            tableName = parser.GetTableName((Statement)this);
+            tableName = parser.GetTableName(this);
             parser.SkipToken(true);
         }
 
@@ -90,7 +90,7 @@ namespace VistaDB.Engine.SQL
             SQLParser.TokenValueClass tokenValue = parser.TokenValue;
             int lineNo = 0;
             int symbolNo = 0;
-            columnName = (string)null;
+            columnName = null;
             dataType = VistaDBType.Unknown;
             width = 30;
             codePage = 0;
@@ -98,12 +98,12 @@ namespace VistaDB.Engine.SQL
             readOnly = false;
             encrypted = false;
             packed = false;
-            defaultValue = (string)null;
+            defaultValue = null;
             setIdentity = false;
-            identitySeed = (string)null;
-            identityStep = (string)null;
-            caption = (string)null;
-            description = (string)null;
+            identitySeed = null;
+            identityStep = null;
+            caption = null;
+            description = null;
             columnName = tokenValue.Token;
             parser.SkipToken(true);
             dataType = parser.ReadDataType(out width);
@@ -200,7 +200,7 @@ namespace VistaDB.Engine.SQL
             SQLParser.TokenValueClass tokenValue = parser.TokenValue;
             int rowNo = tokenValue.RowNo;
             int colNo = tokenValue.ColNo;
-            string constraintName = (string)null;
+            string constraintName = null;
             if (parser.IsToken("CONSTRAINT"))
             {
                 parser.SkipToken(true);
@@ -230,7 +230,7 @@ namespace VistaDB.Engine.SQL
                 if (!asc)
                     columnName = "DESC(" + columnName + ")";
                 uniqueColumns.Add(new UniqueColumn(this, rowNo, colNo, constraintName, columnName, clustered));
-                constraintName = (string)null;
+                constraintName = null;
             }
             bool flag = parser.IsToken("FOREIGN");
             if (flag)
@@ -249,7 +249,7 @@ namespace VistaDB.Engine.SQL
                 return true;
             }
             parser.SkipToken(true);
-            string primaryTableName = SQLParser.TreatTemporaryTableName(tokenValue.Token, (Statement)this);
+            string primaryTableName = SQLParser.TreatTemporaryTableName(tokenValue.Token, this);
             parser.SkipToken(true);
             List<string> foreignKeyNames;
             if (!ParseForeignKeyColumns(out foreignKeyNames, parser))
@@ -380,7 +380,7 @@ namespace VistaDB.Engine.SQL
                     parser.SkipToken(true);
                 }
                 else
-                    str = (string)null;
+                    str = null;
                 bool clustered;
                 string names;
                 if (parser.IsToken("PRIMARY"))
@@ -417,7 +417,7 @@ namespace VistaDB.Engine.SQL
                     ParseForeignKeyColumns(out foreignKeyNames1, parser);
                     parser.ExpectedExpression("REFERENCES");
                     parser.SkipToken(true);
-                    string primaryTableName = SQLParser.TreatTemporaryTableName(tokenValue.Token, (Statement)this);
+                    string primaryTableName = SQLParser.TreatTemporaryTableName(tokenValue.Token, this);
                     parser.SkipToken(true);
                     List<string> foreignKeyNames2;
                     ParseForeignKeyColumns(out foreignKeyNames2, parser);
@@ -567,7 +567,7 @@ namespace VistaDB.Engine.SQL
                         ++num;
                         if (num == 1)
                             format += "{3}";
-                        str = string.Format(format, (object)prefix, (object)tableName, (object)target, (object)num);
+                        str = string.Format(format, prefix, tableName, target, num);
                     }
                     while (primaryKey != null && connection.CompareString(primaryKey.ConstraintName, str, true) == 0);
                     flag2 = false;
@@ -613,7 +613,7 @@ namespace VistaDB.Engine.SQL
                     tableSchema.AddColumn(column.ColumnName, column.DataType, column.Width, column.CodePage);
                 else
                     tableSchema.AddColumn(column.ColumnName, column.DataType);
-                tableSchema.DefineColumnAttributes(column.ColumnName, column.AllowNull, column.ReadOnly, column.Encrypted, column.Packed, column.Caption, column.Description);
+                tableSchema.DefineColumnAttributes(column.ColumnName, column.AllowNull, column.ReadOnly, column.Encrypted, column.Packed, column.Description);
                 if (column.SetIdentity)
                     tableSchema.DefineIdentity(column.ColumnName, column.IdentitySeed, column.IdentityStep);
                 else if (column.DefaultValue != null)
@@ -681,7 +681,7 @@ namespace VistaDB.Engine.SQL
                 this.caption = caption;
                 this.description = description;
                 defaultValueUseInUpdate = false;
-                defaultValueDescription = (string)null;
+                defaultValueDescription = null;
             }
 
             public int LineNo
@@ -880,7 +880,7 @@ namespace VistaDB.Engine.SQL
             public void Prepare()
             {
                 IVistaDBTableSchema vistaDbTableSchema = parent.Database.TableSchema(primaryTableName);
-                IVistaDBKeyColumn[] vistaDbKeyColumnArray = (IVistaDBKeyColumn[])null;
+                IVistaDBKeyColumn[] vistaDbKeyColumnArray = null;
                 IRow rowStructure = parent.Database.GetRowStructure(primaryTableName);
                 foreach (IVistaDBIndexInformation indexInformation in (IEnumerable<IVistaDBIndexInformation>)vistaDbTableSchema.Indexes.Values)
                 {
@@ -984,7 +984,7 @@ namespace VistaDB.Engine.SQL
             {
                 get
                 {
-                    return (string)null;
+                    return null;
                 }
             }
         }
@@ -994,7 +994,7 @@ namespace VistaDB.Engine.SQL
             private BaseCreateTableStatement parent;
 
             public ForeignKeyList(BaseCreateTableStatement parent)
-              : base((IEqualityComparer<string>)StringComparer.OrdinalIgnoreCase)
+              : base(StringComparer.OrdinalIgnoreCase)
             {
                 this.parent = parent;
             }
@@ -1048,7 +1048,7 @@ namespace VistaDB.Engine.SQL
             {
                 if (constraintName != null)
                     return;
-                constraintName = parent.GenerateKeyName("PK", (string)null);
+                constraintName = parent.GenerateKeyName("PK", null);
             }
 
             public string PrimaryKeyNames
@@ -1099,7 +1099,7 @@ namespace VistaDB.Engine.SQL
             {
                 if (constraintName != null)
                     return;
-                constraintName = parent.GenerateKeyName("UN", (string)null);
+                constraintName = parent.GenerateKeyName("UN", null);
             }
 
             public int LineNo
@@ -1204,7 +1204,7 @@ namespace VistaDB.Engine.SQL
             {
                 if (constraintName != null)
                     return;
-                constraintName = parent.GenerateKeyName("CK", (string)null);
+                constraintName = parent.GenerateKeyName("CK", null);
             }
 
             public int LineNo
@@ -1243,7 +1243,7 @@ namespace VistaDB.Engine.SQL
             {
                 get
                 {
-                    return (string)null;
+                    return null;
                 }
             }
 

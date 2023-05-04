@@ -13,7 +13,7 @@ namespace VistaDB.Engine.SQL
 
     protected override void CheckView(IViewList views, string name)
     {
-      if (!views.Contains((object) name))
+      if (!views.Contains(name))
         throw new VistaDBSQLException(606, name, lineNo, symbolNo);
     }
   }

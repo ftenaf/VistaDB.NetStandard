@@ -490,7 +490,7 @@ namespace VistaDB.Provider
 		object ICloneable.Clone()
 		{
 			lock (SyncRoot)
-				return (object)new VistaDBCommand(this);
+				return new VistaDBCommand(this);
 		}
 	}
 }

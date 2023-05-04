@@ -12,7 +12,7 @@ namespace VistaDB.Engine.SQL
     protected override void OnParse(LocalSQLConnection connection, SQLParser parser)
     {
       parser.SkipToken(true);
-      parser.ExpectedExpression("TABLE", (string[]) null);
+      parser.ExpectedExpression("TABLE", null);
       base.OnParse(connection, parser);
     }
   }

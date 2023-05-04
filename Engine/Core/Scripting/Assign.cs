@@ -18,7 +18,7 @@ namespace VistaDB.Engine.Core.Scripting
       PCodeUnit pcodeUnit2 = pcode[entry + 1];
       Row.Column column = contextRow[pcodeUnit1.ResultColumn.RowIndex];
       Row.Column resultColumn = pcodeUnit2.ResultColumn;
-      contextStorage.Conversion.Convert((IValue) resultColumn, (IValue) column);
+      contextStorage.Conversion.Convert(resultColumn, column);
       pcodeUnit1.ResultColumn = TrueSignature.True;
     }
   }

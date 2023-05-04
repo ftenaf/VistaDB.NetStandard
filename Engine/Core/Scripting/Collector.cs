@@ -38,7 +38,7 @@ namespace VistaDB.Engine.Core.Scripting
       Iterator -= pcodeUnit1.ParametersCount;
       Signature signature = pcodeUnit1.Signature;
       int iterator = Iterator;
-      signature.Execute((ProcedureCode) this, Iterator, connection, contextStorage, contextRow, ref bypassNextGoup, rowResult);
+      signature.Execute(this, Iterator, connection, contextStorage, contextRow, ref bypassNextGoup, rowResult);
       Iterator = iterator;
     }
   }

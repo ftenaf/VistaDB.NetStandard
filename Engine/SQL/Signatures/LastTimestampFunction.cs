@@ -13,7 +13,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object ExecuteSubProgram()
     {
-      return parent.Database.GetLastTimestamp((string) ((IValue) paramValues[0]).Value)?.Value;
+      return parent.Database.GetLastTimestamp((string)paramValues[0].Value)?.Value;
     }
 
     protected override bool InternalGetIsChanged()

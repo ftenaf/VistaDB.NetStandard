@@ -48,10 +48,10 @@ namespace VistaDB.Engine.Internal
     private object[] InternalExecute()
     {
       if (!m_KeyColumn.Table.Opened)
-        return (object[]) null;
+        return null;
       if (GetIsChanged())
       {
-        m_CurrentKeyValue = ((IValue) m_KeyColumn.Execute()).Value;
+        m_CurrentKeyValue = m_KeyColumn.Execute().Value;
         m_CurrentKeyTableVersion = m_KeyColumn.TableVersion;
         if (m_LoadedKeyValue == null || !m_LoadedKeyValue.Equals(m_CurrentKeyValue))
         {
@@ -66,7 +66,7 @@ namespace VistaDB.Engine.Internal
     {
       InternalExecute();
       if (m_CurrentDataValues == null || m_CurrentDataValues.Length <= dataIndex)
-        return (object) null;
+        return null;
       return m_CurrentDataValues[dataIndex];
     }
 
@@ -85,7 +85,7 @@ namespace VistaDB.Engine.Internal
     internal void SetValues(object[] values)
     {
       InternalExecute();
-      if (ReferenceEquals((object) values, (object) m_CurrentDataValues))
+      if (ReferenceEquals(values, m_CurrentDataValues))
         return;
       m_LookupTable.SetValues(m_CurrentKeyValue, values);
       m_CurrentDataValues = values;

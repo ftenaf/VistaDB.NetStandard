@@ -42,7 +42,7 @@ namespace VistaDB.Engine.SQL.Signatures
             long result1;
             double result2;
             Decimal result3;
-            flag = long.TryParse(((IValue) column).Value.ToString(), NumberStyles.Integer, CrossConversion.NumberFormat, out result1) || double.TryParse(((IValue) column).Value.ToString(), NumberStyles.Float, CrossConversion.NumberFormat, out result2) || Decimal.TryParse(((IValue) column).Value.ToString(), NumberStyles.Number, CrossConversion.NumberFormat, out result3);
+            flag = long.TryParse(column.Value.ToString(), NumberStyles.Integer, CrossConversion.NumberFormat, out result1) || double.TryParse(column.Value.ToString(), NumberStyles.Float, CrossConversion.NumberFormat, out result2) || Decimal.TryParse(column.Value.ToString(), NumberStyles.Number, CrossConversion.NumberFormat, out result3);
             break;
           case VistaDBType.TinyInt:
           case VistaDBType.SmallInt:
@@ -60,8 +60,8 @@ namespace VistaDB.Engine.SQL.Signatures
             break;
         }
       }
-      ((IValue) result).Value = (object) (flag ? 1 : 0);
-      return ((IValue) result).Value;
+            result.Value = flag ? 1 : 0;
+      return result.Value;
     }
   }
 }

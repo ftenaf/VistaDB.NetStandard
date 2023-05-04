@@ -17,7 +17,7 @@ namespace VistaDB.Engine.SQL
       do
       {
         parser.SkipToken(true);
-        tableNames.Add(parser.GetTableName((Statement) this));
+        tableNames.Add(parser.GetTableName(this));
         parser.SkipToken(false);
       }
       while (parser.IsToken(","));
@@ -28,7 +28,7 @@ namespace VistaDB.Engine.SQL
       base.OnExecuteQuery();
       foreach (string tableName in tableNames)
         Database.DropTable(tableName);
-      return (IQueryResult) null;
+      return null;
     }
   }
 }

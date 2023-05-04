@@ -6,7 +6,7 @@ namespace VistaDB.Engine.SQL
   {
     public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
     {
-      return (Statement) new TruncateTableStatement(conn, parent, parser, id);
+      return new TruncateTableStatement(conn, parent, parser, id);
     }
   }
 }

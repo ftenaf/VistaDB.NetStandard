@@ -8,7 +8,7 @@ namespace VistaDB.Engine.Core
     internal static string ReplaceStringEx(string original, string pattern, string replacement, StringComparison comparisonType, int stringBuilderInitialSize)
     {
       if (original == null)
-        return (string) null;
+        return null;
       if (string.IsNullOrEmpty(pattern))
         return original;
       int startIndex = 0;

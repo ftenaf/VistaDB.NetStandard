@@ -21,7 +21,7 @@ namespace VistaDB.Engine.Core
     private static string AlignLeft(string val, int maxLength)
     {
       if (val == null)
-        return (string) null;
+        return null;
       if (val.Length > maxLength)
         return val.Remove(maxLength, val.Length - maxLength);
       return val;
@@ -30,24 +30,24 @@ namespace VistaDB.Engine.Core
     protected virtual string TrimData(string val, int max)
     {
       if (val == null)
-        return (string) null;
+        return null;
       if (val.Length > max)
       {
         VistaDBException vistaDbException = new VistaDBException(301, Name + "(" + maxLength.ToString() + ")");
-        vistaDbException.Data.Add((object) "Column", (object) Name);
-        vistaDbException.Data.Add((object) "Value", (object) val);
-        vistaDbException.Data.Add((object) "SqlRow", (object) RowIndex);
+        vistaDbException.Data.Add("Column", Name);
+        vistaDbException.Data.Add("Value", val);
+        vistaDbException.Data.Add("SqlRow", RowIndex);
         throw vistaDbException;
       }
       return val.TrimEnd(' ');
     }
 
     internal CharColumn(string val, int maxLength, int codePage, CultureInfo culture, bool caseInsensitive)
-      : base((object) val, VistaDBType.Char, maxLength)
+      : base(val, VistaDBType.Char, maxLength)
     {
       encoding = Encoding.GetEncoding(codePage);
       this.maxLength = maxLength;
-      Value = (object) val;
+      Value = val;
       TestMaxSize(maxLength);
       actualLen = val == null ? 0 : val.Length;
       if (actualLen > maxLength)
@@ -63,7 +63,7 @@ namespace VistaDB.Engine.Core
     }
 
     internal CharColumn(CharColumn col)
-      : base((Row.Column) col)
+      : base(col)
     {
       encoding = col.encoding;
       maxLength = col.maxLength;
@@ -76,7 +76,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (object) string.Empty;
+        return string.Empty;
       }
     }
 
@@ -84,7 +84,7 @@ namespace VistaDB.Engine.Core
     {
       set
       {
-        base.Value = (object)AlignLeft(TrimData((string) value, maxLength), maxLength);
+        base.Value = AlignLeft(TrimData((string)value, maxLength), maxLength);
         actualLen = IsNull ? 0 : ((string) value).Length;
       }
     }
@@ -93,7 +93,7 @@ namespace VistaDB.Engine.Core
     {
       set
       {
-        base.Value = (object)AlignLeft((string) value, maxLength);
+        base.Value = AlignLeft((string)value, maxLength);
       }
     }
 
@@ -108,11 +108,11 @@ namespace VistaDB.Engine.Core
       ushort length1 = (ushort) str1.Length;
       string str2 = (string) Value;
       ushort length2 = (ushort) str2.Length;
-      ushort num = (int) length2 <= (int) length1 ? length2 : length1;
-      equalLen = (ushort) 0;
-      while ((int) equalLen < (int) num && (int) str2[(int) equalLen] == (int) str1[(int) equalLen])
+      ushort num = length2 <= length1 ? length2 : length1;
+      equalLen = 0;
+      while (equalLen < num && str2[equalLen] == str1[equalLen])
         ++equalLen;
-      return str2.Substring((int) equalLen);
+      return str2.Substring(equalLen);
     }
 
     internal override int GetBufferLength(Row.Column precedenceColumn)
@@ -120,7 +120,7 @@ namespace VistaDB.Engine.Core
       if (IsNull)
         return 0;
       int lengthCounterSize = LengthCounterSize;
-      if (precedenceColumn == (Row.Column) null || precedenceColumn.IsNull || maxLength <= 2)
+      if (precedenceColumn == null || precedenceColumn.IsNull || maxLength <= 2)
         return encoding.GetByteCount((string) Value) + lengthCounterSize;
       ushort equalLen = 0;
       return encoding.GetByteCount(GetTailSubvalue(precedenceColumn, ref equalLen)) + lengthCounterSize + lengthCounterSize;
@@ -136,8 +136,8 @@ namespace VistaDB.Engine.Core
       get
       {
         if (MaxLength <= 0)
-          return (object)topZeroString;
-        return (object)topString;
+          return topZeroString;
+        return topString;
       }
     }
 
@@ -181,7 +181,7 @@ namespace VistaDB.Engine.Core
       }
       set
       {
-        Value = (object) value;
+        Value = value;
       }
     }
 
@@ -190,8 +190,8 @@ namespace VistaDB.Engine.Core
       get
       {
         if (!IsNull)
-          return (object) PaddedStringValue;
-        return (object) null;
+          return PaddedStringValue;
+        return null;
       }
     }
 
@@ -207,14 +207,14 @@ namespace VistaDB.Engine.Core
     {
       string strA = (string) Value;
       string strB = (string) col.Value;
-      return strA.Length <= 0 || strA[0] != char.MaxValue ? (strB.Length <= 0 || strB[0] != char.MaxValue ? (long) string.Compare(strA, strB, caseInsensitive, culture) : -1L) : (strB.Length <= 0 || strB[0] != char.MaxValue ? 1L : 0L);
+      return strA.Length <= 0 || strA[0] != char.MaxValue ? (strB.Length <= 0 || strB[0] != char.MaxValue ? string.Compare(strA, strB, caseInsensitive, culture) : -1L) : (strB.Length <= 0 || strB[0] != char.MaxValue ? 1L : 0L);
     }
 
     protected override long CollateTrimmed(Row.Column col)
     {
       string strA = ((string) Value).TrimEnd();
       string strB = ((string) col.Value).TrimEnd();
-      return strA.Length <= 0 || strA[0] != char.MaxValue ? (strB.Length <= 0 || strB[0] != char.MaxValue ? (long) string.Compare(strA, strB, caseInsensitive, culture) : -1L) : (strB.Length <= 0 || strB[0] != char.MaxValue ? 1L : 0L);
+      return strA.Length <= 0 || strA[0] != char.MaxValue ? (strB.Length <= 0 || strB[0] != char.MaxValue ? string.Compare(strA, strB, caseInsensitive, culture) : -1L) : (strB.Length <= 0 || strB[0] != char.MaxValue ? 1L : 0L);
     }
 
     protected override Row.Column OnDuplicate(bool padRight)
@@ -222,19 +222,19 @@ namespace VistaDB.Engine.Core
       CharColumn charColumn = new CharColumn(this);
       if (padRight)
         charColumn.PadBySpaces();
-      return (Row.Column) charColumn;
+      return charColumn;
     }
 
     internal override int ConvertToByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
       byte[] bytes;
       ushort length;
-      if (precedenceColumn != (Row.Column) null && maxLength > 2)
+      if (precedenceColumn != null && maxLength > 2)
       {
         ushort equalLen = 0;
         bytes = encoding.GetBytes(GetTailSubvalue(precedenceColumn, ref equalLen));
         length = (ushort) bytes.Length;
-        offset = VdbBitConverter.GetBytes((ushort) ((uint) length + (uint)LengthCounterSize), buffer, offset, LengthCounterSize);
+        offset = VdbBitConverter.GetBytes((ushort) (length + (uint)LengthCounterSize), buffer, offset, LengthCounterSize);
         offset = VdbBitConverter.GetBytes(equalLen, buffer, offset, LengthCounterSize);
       }
       else
@@ -243,31 +243,31 @@ namespace VistaDB.Engine.Core
         length = (ushort) bytes.Length;
         offset = VdbBitConverter.GetBytes(length, buffer, offset, LengthCounterSize);
       }
-      Array.Copy((Array) bytes, 0, (Array) buffer, offset, (int) length);
-      return offset + (int) length;
+      Array.Copy(bytes, 0, buffer, offset, length);
+      return offset + length;
     }
 
     internal override int ConvertFromByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      int int16_1 = (int) BitConverter.ToInt16(buffer, offset);
+      int int16_1 = BitConverter.ToInt16(buffer, offset);
       offset += LengthCounterSize;
-      if (precedenceColumn != (Row.Column) null && maxLength > 2)
+      if (precedenceColumn != null && maxLength > 2)
       {
         short int16_2 = BitConverter.ToInt16(buffer, offset);
         offset += LengthCounterSize;
         int16_1 -= LengthCounterSize;
-        val = (object) encoding.GetString(buffer, offset, int16_1);
-        if (int16_2 > (short) 0)
-          val = (object) (((string) precedenceColumn.Value).Substring(0, (int) int16_2) + val);
+        val = encoding.GetString(buffer, offset, int16_1);
+        if (int16_2 > 0)
+          val = ((string)precedenceColumn.Value).Substring(0, int16_2) + val;
       }
       else
-        val = (object) encoding.GetString(buffer, offset, int16_1);
+        val = encoding.GetString(buffer, offset, int16_1);
       return offset + int16_1;
     }
 
     internal override int ReadVarLength(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      return (int) BitConverter.ToUInt16(buffer, offset);
+      return BitConverter.ToUInt16(buffer, offset);
     }
 
     public override string ToString()
@@ -280,26 +280,26 @@ namespace VistaDB.Engine.Core
     protected override Row.Column DoUnaryMinus()
     {
       PaddedStringValue = PaddedStringValue.TrimStart();
-      return (Row.Column) this;
+      return this;
     }
 
     protected override Row.Column DoMinus(Row.Column col)
     {
       PaddedStringValue += col.PaddedStringValue.TrimStart();
-      return (Row.Column) this;
+      return this;
     }
 
     protected override Row.Column DoPlus(Row.Column col)
     {
       PaddedStringValue += col.PaddedStringValue;
-      return (Row.Column) this;
+      return this;
     }
 
     protected void PadBySpaces()
     {
       if (val == null)
         return;
-      val = (object) ((string) val).PadRight(maxLength, ' ');
+      val = ((string)val).PadRight(maxLength, ' ');
     }
   }
 }

@@ -16,21 +16,21 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       VistaDBType resultType;
       CreateTableStatement resultTableStatement;
-      curentProcStatement = (Statement) parent.Connection.CreateStoredFunctionStatement(parent, procStatement, out resultType, out paramsList, out resultTableStatement);
+      curentProcStatement = parent.Connection.CreateStoredFunctionStatement(parent, procStatement, out resultType, out paramsList, out resultTableStatement);
       currentParamPos = 0;
       return (int) resultType;
     }
 
     protected override object ExecuteSubProgram()
     {
-      enumerator = (IEnumerator) Parent.Database.GetUserDefinedFunctions().GetEnumerator();
-      return (object) null;
+      enumerator = Parent.Database.GetUserDefinedFunctions().GetEnumerator();
+      return null;
     }
 
     protected override void FillRow(IRow row, IStoredProcedureInformation sp)
     {
       base.FillRow(row, sp);
-      ((IValue) row[8]).Value = (object) resultType;
+            row[8].Value = resultType;
     }
   }
 }

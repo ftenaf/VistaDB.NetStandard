@@ -13,7 +13,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object ExecuteSubProgram()
     {
-      return ((IValue) parent.Database.GetTableAnchor((string) ((IValue) paramValues[0]).Value))?.Value;
+      return ((IValue) parent.Database.GetTableAnchor((string)paramValues[0].Value))?.Value;
     }
   }
 }

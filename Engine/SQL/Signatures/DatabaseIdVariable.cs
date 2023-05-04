@@ -12,7 +12,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override IColumn InternalExecute()
     {
-      ((IValue) result).Value = (object) parent.Database.VersionGuid;
+            result.Value = parent.Database.VersionGuid;
       return result;
     }
 

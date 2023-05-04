@@ -27,8 +27,8 @@ namespace VistaDB.Engine.SQL.Signatures
       : base(parent)
     {
       this.result = CreateColumn(dataType);
-      Convert((IValue) result, (IValue) this.result);
-      val = ((IValue) this.result).Value;
+      Convert(result, this.result);
+      val = this.result.Value;
       isAllowNull = val == null;
       signatureType = SignatureType.Constant;
       this.dataType = dataType;
@@ -40,7 +40,7 @@ namespace VistaDB.Engine.SQL.Signatures
       : base(parent)
     {
       this.result = result;
-      val = ((IValue) this.result).Value;
+      val = this.result.Value;
       isAllowNull = val == null;
       signatureType = SignatureType.Constant;
       dataType = result.Type;
@@ -55,22 +55,22 @@ namespace VistaDB.Engine.SQL.Signatures
       {
         case TokenType.Unknown:
           if (string.Compare(token, "NULL", StringComparison.OrdinalIgnoreCase) == 0)
-            return new ConstantSignature((object) null, VistaDBType.NChar, parser);
+            return new ConstantSignature(null, VistaDBType.NChar, parser);
           if (string.Compare(token, "TRUE", StringComparison.OrdinalIgnoreCase) == 0 || string.Compare(token, "YES", StringComparison.OrdinalIgnoreCase) == 0)
-            return new ConstantSignature((object) true, VistaDBType.Bit, parser);
+            return new ConstantSignature(true, VistaDBType.Bit, parser);
           if (string.Compare(token, "FALSE", StringComparison.OrdinalIgnoreCase) == 0 || string.Compare(token, "NO", StringComparison.OrdinalIgnoreCase) == 0)
-            return new ConstantSignature((object) false, VistaDBType.Bit, parser);
+            return new ConstantSignature(false, VistaDBType.Bit, parser);
           break;
         case TokenType.String:
-          return new ConstantSignature((object) token, VistaDBType.NChar, parser);
+          return new ConstantSignature(token, VistaDBType.NChar, parser);
         case TokenType.Integer:
-          return new ConstantSignature((object) long.Parse(token, NumberStyles.Integer, CrossConversion.NumberFormat), VistaDBType.BigInt, parser);
+          return new ConstantSignature(long.Parse(token, NumberStyles.Integer, CrossConversion.NumberFormat), VistaDBType.BigInt, parser);
         case TokenType.Float:
-          return new ConstantSignature((object) double.Parse(token, NumberStyles.Float, CrossConversion.NumberFormat), VistaDBType.Float, parser);
+          return new ConstantSignature(double.Parse(token, NumberStyles.Float, CrossConversion.NumberFormat), VistaDBType.Float, parser);
         case TokenType.Binary:
-          return new ConstantSignature((object) Utils.StringToBinary(token), VistaDBType.VarBinary, parser);
+          return new ConstantSignature(Utils.StringToBinary(token), VistaDBType.VarBinary, parser);
       }
-      return (ConstantSignature) null;
+      return null;
     }
 
     internal static ConstantSignature CreateSignature(IColumn column, Statement parent)
@@ -85,14 +85,14 @@ namespace VistaDB.Engine.SQL.Signatures
 
     internal static ConstantSignature CreateSignature(string val, VistaDBType vistaDBType, SQLParser parser)
     {
-      return new ConstantSignature((object) val, vistaDBType, parser);
+      return new ConstantSignature(val, vistaDBType, parser);
     }
 
     protected override IColumn InternalExecute()
     {
       if (isChanged)
       {
-        ((IValue) result).Value = val;
+                result.Value = val;
         isChanged = false;
       }
       return result;
@@ -102,13 +102,13 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       if (!isChanged)
         return;
-      ((IValue) result).Value = val;
+            result.Value = val;
     }
 
     protected override bool OnOptimize(ConstraintOperations constrainOperations)
     {
       if (dataType == VistaDBType.Bit)
-        return constrainOperations.AddLogicalExpression((Signature) this);
+        return constrainOperations.AddLogicalExpression(this);
       return false;
     }
 
@@ -165,8 +165,8 @@ namespace VistaDB.Engine.SQL.Signatures
       if (signature.OnPrepare() != SignatureType.Constant || signature.SignatureType == SignatureType.Constant && (preferenceType == VistaDBType.Unknown || signature.DataType == preferenceType))
         return signature;
       if (preferenceType == VistaDBType.Unknown)
-        return (Signature) new ConstantSignature(signature.Execute(), signature.Parent);
-      return (Signature) new ConstantSignature(signature.Execute(), preferenceType, signature.Parent);
+        return new ConstantSignature(signature.Execute(), signature.Parent);
+      return new ConstantSignature(signature.Execute(), preferenceType, signature.Parent);
     }
 
     public static SignatureType PrepareBinaryOperator(ref Signature leftOperand, ref Signature rightOperand, out VistaDBType dataType, bool mustBeNumeric, bool maxNumeric, string text, int lineNo, int symbolNo)
@@ -184,9 +184,9 @@ namespace VistaDB.Engine.SQL.Signatures
       if (rightOperand.DataType != VistaDBType.Unknown && !Utils.CompatibleTypes(rightOperand.DataType, dataType))
         throw new VistaDBSQLException(558, text, lineNo, symbolNo);
       if (signatureType1 == SignatureType.Constant && (leftOperand.SignatureType != SignatureType.Constant || leftOperand.DataType != dataType))
-        leftOperand = (Signature) new ConstantSignature(leftOperand.Execute(), dataType, leftOperand.Parent);
+        leftOperand = new ConstantSignature(leftOperand.Execute(), dataType, leftOperand.Parent);
       if (signatureType2 == SignatureType.Constant && (rightOperand.SignatureType != SignatureType.Constant || rightOperand.DataType != dataType))
-        rightOperand = (Signature) new ConstantSignature(rightOperand.Execute(), dataType, rightOperand.Parent);
+        rightOperand = new ConstantSignature(rightOperand.Execute(), dataType, rightOperand.Parent);
       return signatureType1 == SignatureType.Constant && signatureType2 == SignatureType.Constant ? SignatureType.Constant : SignatureType.Expression;
     }
 
@@ -198,8 +198,8 @@ namespace VistaDB.Engine.SQL.Signatures
       {
         dateOperands = false;
         dataType = leftOperand.DataType;
-        leftValue = (IColumn) null;
-        rightValue = (IColumn) null;
+        leftValue = null;
+        rightValue = null;
         return SignatureType.Constant;
       }
       int num = Utils.CompareRank(leftOperand.DataType, rightOperand.DataType);
@@ -233,9 +233,9 @@ namespace VistaDB.Engine.SQL.Signatures
         dataType2 = dataType;
       }
       if (signatureType1 == SignatureType.Constant && (leftOperand.SignatureType != SignatureType.Constant || leftOperand.DataType != dataType1))
-        leftOperand = (Signature) new ConstantSignature(leftOperand.Execute(), dataType1, leftOperand.Parent);
+        leftOperand = new ConstantSignature(leftOperand.Execute(), dataType1, leftOperand.Parent);
       if (signatureType2 == SignatureType.Constant && (rightOperand.SignatureType != SignatureType.Constant || rightOperand.DataType != dataType2))
-        rightOperand = (Signature) new ConstantSignature(rightOperand.Execute(), dataType2, rightOperand.Parent);
+        rightOperand = new ConstantSignature(rightOperand.Execute(), dataType2, rightOperand.Parent);
       leftValue = leftOperand.CreateColumn(dataType1);
       rightValue = leftOperand.CreateColumn(dataType2);
       return leftOperand.SignatureType == SignatureType.Constant && rightOperand.SignatureType == SignatureType.Constant ? SignatureType.Constant : SignatureType.Expression;

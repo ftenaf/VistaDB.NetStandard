@@ -61,31 +61,31 @@ namespace VistaDB.Engine.SQL.Signatures
       resultColumnNames[17] = "IDENTITY_SEED";
       resultColumnNames[18] = "DEFAULT_VALUE";
       resultColumnNames[19] = "USE_DEFVAL_IN_UPDATE";
-      enumerator = (IEnumerator) null;
-      schema = (IQuerySchemaInfo) null;
+      enumerator = null;
+      schema = null;
       columnIndex = -1;
-      viewName = (string) null;
-      columnNames = (List<string>) null;
-      searchedView = (IView) null;
+      viewName = null;
+      columnNames = null;
+      searchedView = null;
     }
 
     protected override object ExecuteSubProgram()
     {
-      schema = (IQuerySchemaInfo) null;
+      schema = null;
       columnIndex = -1;
-      viewName = (string) null;
-      columnNames = (List<string>) null;
+      viewName = null;
+      columnNames = null;
       if (ParamCount == 1)
       {
-        enumerator = (IEnumerator) null;
-        searchedView = (IView) parent.Database.EnumViews()[((IValue) paramValues[0]).Value];
+        enumerator = null;
+        searchedView = (IView) parent.Database.EnumViews()[paramValues[0].Value];
       }
       else
       {
-        enumerator = (IEnumerator) parent.Database.EnumViews().GetEnumerator();
-        searchedView = (IView) null;
+        enumerator = parent.Database.EnumViews().GetEnumerator();
+        searchedView = null;
       }
-      return (object) null;
+      return null;
     }
 
     public override int GetWidth()
@@ -95,7 +95,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     private bool RetrieveSelectCommand()
     {
-      schema = (IQuerySchemaInfo) null;
+      schema = null;
       IView view;
       if (enumerator == null)
       {
@@ -105,7 +105,7 @@ namespace VistaDB.Engine.SQL.Signatures
       }
       else
         view = (IView) enumerator.Current;
-      CreateViewStatement createViewStatement = (CreateViewStatement) null;
+      CreateViewStatement createViewStatement = null;
       try
       {
         Statement statement = (Statement) parent.Connection.CreateBatchStatement(view.Expression, 0L).SubQuery(0);
@@ -113,7 +113,7 @@ namespace VistaDB.Engine.SQL.Signatures
         if (createViewStatement != null)
         {
           int num = (int) statement.PrepareQuery();
-          schema = (IQuerySchemaInfo) ((CreateViewStatement) statement).SelectStatement;
+          schema = ((CreateViewStatement)statement).SelectStatement;
           columnIndex = 0;
           viewName = view.Name;
           columnNames = ((CreateViewStatement) statement).ColumnNames;
@@ -133,29 +133,29 @@ namespace VistaDB.Engine.SQL.Signatures
     private void FillRow(IRow row)
     {
       string aliasName = schema.GetAliasName(columnIndex);
-      ((IValue) row[0]).Value = (object) viewName;
-      ((IValue) row[1]).Value = columnNames == null ? (object) aliasName : (object) columnNames[columnIndex];
-      ((IValue) row[2]).Value = (object) aliasName;
-      ((IValue) row[3]).Value = (object) columnIndex;
-      ((IValue) row[4]).Value = (object) (byte) schema.GetColumnVistaDBType(columnIndex);
-      ((IValue) row[5]).Value = (object) schema.GetColumnVistaDBType(columnIndex).ToString();
-      ((IValue) row[6]).Value = (object) schema.GetIsLong(columnIndex);
-      ((IValue) row[7]).Value = (object) schema.GetWidth(columnIndex);
-      ((IValue) row[8]).Value = (object) schema.GetCodePage(columnIndex);
-      ((IValue) row[9]).Value = (object) schema.GetIsEncrypted(columnIndex);
-      ((IValue) row[10]).Value = (object) schema.GetColumnCaption(columnIndex);
-      ((IValue) row[11]).Value = (object) schema.GetColumnDescription(columnIndex);
-      ((IValue) row[12]).Value = (object) schema.GetIsKey(columnIndex);
-      ((IValue) row[13]).Value = ((IValue) row[12]).Value;
-      ((IValue) row[14]).Value = (object) schema.GetIsAllowNull(columnIndex);
+            row[0].Value = viewName;
+            row[1].Value = columnNames == null ? aliasName : (object) columnNames[columnIndex];
+            row[2].Value = aliasName;
+            row[3].Value = columnIndex;
+            row[4].Value = (byte)schema.GetColumnVistaDBType(columnIndex);
+            row[5].Value = schema.GetColumnVistaDBType(columnIndex).ToString();
+            row[6].Value = schema.GetIsLong(columnIndex);
+            row[7].Value = schema.GetWidth(columnIndex);
+            row[8].Value = schema.GetCodePage(columnIndex);
+            row[9].Value = schema.GetIsEncrypted(columnIndex);
+            row[10].Value = schema.GetColumnCaption(columnIndex);
+            row[11].Value = schema.GetColumnDescription(columnIndex);
+            row[12].Value = schema.GetIsKey(columnIndex);
+            row[13].Value = row[12].Value;
+            row[14].Value = schema.GetIsAllowNull(columnIndex);
       string step;
       string seed;
-      ((IValue) row[15]).Value = (object) schema.GetIdentity(columnIndex, out step, out seed);
-      ((IValue) row[16]).Value = (object) step;
-      ((IValue) row[17]).Value = (object) seed;
+            row[15].Value = schema.GetIdentity(columnIndex, out step, out seed);
+            row[16].Value = step;
+            row[17].Value = seed;
       bool useInUpdate;
-      ((IValue) row[18]).Value = (object) schema.GetDefaultValue(columnIndex, out useInUpdate);
-      ((IValue) row[19]).Value = (object) useInUpdate;
+            row[18].Value = schema.GetDefaultValue(columnIndex, out useInUpdate);
+            row[19].Value = useInUpdate;
     }
 
     public override bool First(IRow row)
@@ -201,12 +201,12 @@ label_6:
 
     public override void Close()
     {
-      enumerator = (IEnumerator) null;
-      schema = (IQuerySchemaInfo) null;
+      enumerator = null;
+      schema = null;
       columnIndex = -1;
-      viewName = (string) null;
-      columnNames = (List<string>) null;
-      searchedView = (IView) null;
+      viewName = null;
+      columnNames = null;
+      searchedView = null;
     }
   }
 }

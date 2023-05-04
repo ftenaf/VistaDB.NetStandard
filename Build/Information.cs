@@ -31,7 +31,7 @@ namespace VistaDB.Build
     {
       if (_AssemblyFileVersionString == null)
       {
-        Assembly assembly = (Assembly) null;
+        Assembly assembly = null;
         try
         {
           assembly = Assembly.GetExecutingAssembly();

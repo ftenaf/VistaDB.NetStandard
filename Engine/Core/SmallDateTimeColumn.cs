@@ -11,17 +11,17 @@ namespace VistaDB.Engine.Core
     internal static readonly DateTime MaxDate = new DateTime((1342177279L + (long)originDateMinutes) * 600000000L);
 
         internal SmallDateTimeColumn()
-      : base((object) null, VistaDBType.SmallDateTime, 4)
+      : base(null, VistaDBType.SmallDateTime, 4)
     {
     }
 
     internal SmallDateTimeColumn(DateTime val)
-      : base((object) val, VistaDBType.SmallDateTime, 4)
+      : base(val, VistaDBType.SmallDateTime, 4)
     {
     }
 
     internal SmallDateTimeColumn(SmallDateTimeColumn col)
-      : base((Row.Column) col)
+      : base(col)
     {
     }
 
@@ -29,7 +29,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (object)MinDate;
+        return MinDate;
       }
     }
 
@@ -37,7 +37,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (object)MaxDate;
+        return MaxDate;
       }
     }
 
@@ -45,7 +45,7 @@ namespace VistaDB.Engine.Core
     {
       set
       {
-        base.Value = value == null ? value : (object) TestDynamicRange((DateTime) value);
+        base.Value = value == null ? value : TestDynamicRange((DateTime)value);
       }
     }
 
@@ -67,7 +67,7 @@ namespace VistaDB.Engine.Core
 
     protected override Row.Column OnDuplicate(bool padRight)
     {
-      return (Row.Column) new SmallDateTimeColumn(this);
+      return new SmallDateTimeColumn(this);
     }
 
     internal override int ConvertToByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
@@ -77,13 +77,13 @@ namespace VistaDB.Engine.Core
 
     internal override int ConvertFromByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      val = (object) new DateTime((long) (((ulong) BitConverter.ToUInt32(buffer, offset) + originDateMinutes) * 600000000UL));
+      val = new DateTime((long)((BitConverter.ToUInt32(buffer, offset) + originDateMinutes) * 600000000UL));
       return offset + 4;
     }
 
     protected override long Collate(Row.Column col)
     {
-      return (long) DateTime.Compare((DateTime) Value, (DateTime) col.Value);
+      return DateTime.Compare((DateTime)Value, (DateTime)col.Value);
     }
 
     private DateTime TestDynamicRange(DateTime date)

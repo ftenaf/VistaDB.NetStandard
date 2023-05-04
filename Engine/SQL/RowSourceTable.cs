@@ -24,7 +24,7 @@ namespace VistaDB.Engine.SQL
 
     public override IColumn SimpleGetColumn(int colIndex)
     {
-      return (IColumn) row[colIndex];
+      return row[colIndex];
     }
 
     public override void Post()
@@ -41,17 +41,17 @@ namespace VistaDB.Engine.SQL
 
     public override IVistaDBTableSchema GetTableSchema()
     {
-      return (IVistaDBTableSchema) null;
+      return null;
     }
 
     public override IColumn GetLastIdentity(string columnName)
     {
-      return (IColumn) null;
+      return null;
     }
 
     public override string CreateIndex(string expression, bool instantly)
     {
-      return (string) null;
+      return null;
     }
 
     public override int GetColumnCount()
@@ -75,7 +75,7 @@ namespace VistaDB.Engine.SQL
 
     protected override IQuerySchemaInfo InternalPrepare()
     {
-      return (IQuerySchemaInfo) this;
+      return this;
     }
 
     protected override void InternalInsert()
@@ -130,7 +130,7 @@ namespace VistaDB.Engine.SQL
     public int GetColumnOrdinal(string name)
     {
       Row.Column column = (Row.Column) ((IVistaDBRow) row)[name];
-      if (!(column == (Row.Column) null))
+      if (!(column == null))
         return column.RowIndex;
       return -1;
     }
@@ -204,17 +204,17 @@ namespace VistaDB.Engine.SQL
 
     public DataTable GetSchemaTable()
     {
-      return (DataTable) null;
+      return null;
     }
 
     public string GetColumnDescription(int ordinal)
     {
-      return (string) null;
+      return null;
     }
 
     public string GetColumnCaption(int ordinal)
     {
-      return (string) null;
+      return null;
     }
 
     public bool GetIsEncrypted(int ordinal)
@@ -229,15 +229,15 @@ namespace VistaDB.Engine.SQL
 
     public string GetIdentity(int ordinal, out string step, out string seed)
     {
-      step = (string) null;
-      seed = (string) null;
-      return (string) null;
+      step = null;
+      seed = null;
+      return null;
     }
 
     public string GetDefaultValue(int ordinal, out bool useInUpdate)
     {
       useInUpdate = false;
-      return (string) null;
+      return null;
     }
 
     public int ColumnCount

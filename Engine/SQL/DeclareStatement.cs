@@ -25,7 +25,7 @@ namespace VistaDB.Engine.SQL
       {
         if (DoGetParam(variable.Name) != null)
           throw new VistaDBSQLException(620, 64.ToString() + variable.Name, lineNo, symbolNo);
-        DoSetParam(variable.Name, (object) null, variable.DataType, ParameterDirection.Input);
+        DoSetParam(variable.Name, null, variable.DataType, ParameterDirection.Input);
       }
     }
 
@@ -33,7 +33,7 @@ namespace VistaDB.Engine.SQL
     {
       foreach (SQLParser.VariableDeclaration variable in variables)
       {
-        if (variable.Signature != (Signature) null)
+        if (variable.Signature != null)
         {
           int num = (int) variable.Signature.Prepare();
         }
@@ -46,22 +46,22 @@ namespace VistaDB.Engine.SQL
     protected override IQueryResult OnExecuteQuery()
     {
       if (variables == null)
-        return (IQueryResult) null;
+        return null;
       foreach (SQLParser.VariableDeclaration variable in variables)
       {
         Signature signature = variable.Signature;
-        if (signature != (Signature) null)
+        if (signature != null)
         {
           if (variable.Default == null)
-            variable.Default = (IValue) Database.CreateEmptyColumn(variable.DataType);
-          Database.Conversion.Convert((IValue) signature.Execute(), variable.Default);
+            variable.Default = Database.CreateEmptyColumn(variable.DataType);
+          Database.Conversion.Convert(signature.Execute(), variable.Default);
           signature.SetChanged();
           DoSetParam(variable.Name, variable.Default.Value, variable.DataType, ParameterDirection.Input);
         }
         else
-          DoSetParam(variable.Name, (object) null, variable.DataType, ParameterDirection.Input);
+          DoSetParam(variable.Name, null, variable.DataType, ParameterDirection.Input);
       }
-      return (IQueryResult) null;
+      return null;
     }
   }
 }

@@ -10,11 +10,11 @@ namespace VistaDB.Engine.SQL.Signatures
       parser.SkipToken(true);
       string token = parser.TokenValue.Token;
       if (string.Compare("IN", token, StringComparison.OrdinalIgnoreCase) == 0)
-        return (Signature) new NotInOperator(leftSignature, parser);
+        return new NotInOperator(leftSignature, parser);
       if (string.Compare("LIKE", token, StringComparison.OrdinalIgnoreCase) == 0)
-        return (Signature) new NotLikeOperator(leftSignature, parser);
+        return new NotLikeOperator(leftSignature, parser);
       if (string.Compare("BETWEEN", token, StringComparison.OrdinalIgnoreCase) == 0)
-        return (Signature) new NotBetweenOperator(leftSignature, parser);
+        return new NotBetweenOperator(leftSignature, parser);
       throw new VistaDBSQLException(507, "LIKE, IN, BETWEEN", parser.TokenValue.RowNo, parser.TokenValue.ColNo);
     }
   }

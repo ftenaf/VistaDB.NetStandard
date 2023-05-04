@@ -23,7 +23,7 @@ namespace VistaDB.Engine.SQL
             this.groupColumns = groupColumns;
             this.aggColumns = aggColumns;
             this.havingClause = havingClause;
-            hashRows = new Hashtable((IEqualityComparer)this);
+            hashRows = new Hashtable(this);
         }
 
         public int GetHashCode(object obj)
@@ -47,7 +47,7 @@ namespace VistaDB.Engine.SQL
             int index = 0;
             for (int count = groupColumns.Count; index < count; ++index)
             {
-                int num = columnArray1[index].Compare((IVistaDBColumn)columnArray2[index]);
+                int num = columnArray1[index].Compare(columnArray2[index]);
                 if (num != 0)
                     return num;
             }
@@ -66,8 +66,8 @@ namespace VistaDB.Engine.SQL
             for (int count = aggColumns.Count; index1 < count; ++index1)
             {
                 SelectStatement.AggregateExpression aggColumn = aggColumns[index1];
-                object newVal = aggColumn.Expression == (Signature)null ? (object)null : ((IValue)aggColumn.Expression.Execute()).Value;
-                objArray[index1] = (object)null;
+                object newVal = aggColumn.Expression == null ? null : aggColumn.Expression.Execute().Value;
+                objArray[index1] = null;
                 aggColumn.Function.CreateNewGroupAndSerialize(newVal, ref objArray[index1]);
             }
             Signature signature = groupColumns[0].Signature;
@@ -75,10 +75,10 @@ namespace VistaDB.Engine.SQL
             for (int length = key.Length; index2 < length; ++index2)
             {
                 IColumn column = signature.CreateColumn(key[index2].Type);
-                ((IValue)column).Value = ((IValue)key[index2]).Value;
+                column.Value = key[index2].Value;
                 key[index2] = column;
             }
-            hashRows.Add((object)key, (object)objArray);
+            hashRows.Add(key, objArray);
         }
 
         private void UpdateAggregateRow(object[] data)
@@ -87,7 +87,7 @@ namespace VistaDB.Engine.SQL
             for (int count = aggColumns.Count; index < count; ++index)
             {
                 SelectStatement.AggregateExpression aggColumn = aggColumns[index];
-                object newVal = aggColumn.Expression == (Signature)null ? (object)null : ((IValue)aggColumn.Expression.Execute()).Value;
+                object newVal = aggColumn.Expression == null ? null : aggColumn.Expression.Execute().Value;
                 aggColumn.Function.AddRowToGroupAndSerialize(newVal, ref data[index]);
             }
         }
@@ -110,7 +110,7 @@ namespace VistaDB.Engine.SQL
             curRow = patternRow.CopyInstance();
             int index = 0;
             for (int visibleColumnCount = resultColumns.VisibleColumnCount; index < visibleColumnCount; ++index)
-                curRow[index].Value = ((IValue)resultColumns[index].Signature.Execute()).Value;
+                curRow[index].Value = resultColumns[index].Signature.Execute().Value;
             rows.Add(curRow);
         }
 
@@ -120,7 +120,7 @@ namespace VistaDB.Engine.SQL
             int index = 0;
             for (int length = key.Length; index < length; ++index)
                 key[index] = groupColumns[index].Signature.Execute();
-            object hashRow = hashRows[(object)key];
+            object hashRow = hashRows[key];
             if (hashRow == null)
                 CreateAggregateRow(key);
             else
@@ -164,7 +164,7 @@ namespace VistaDB.Engine.SQL
                             int index2 = 0;
                             for (int visibleColumnCount = resultColumns.VisibleColumnCount; index2 < visibleColumnCount; ++index2)
                                 resultColumns[index2].Signature.Execute();
-                            int num = addRowMethod(DataRowType.ResultColumnList, (object)resultColumns, true) ? 1 : 0;
+                            int num = addRowMethod(DataRowType.ResultColumnList, resultColumns, true) ? 1 : 0;
                         }
                     }
                 }

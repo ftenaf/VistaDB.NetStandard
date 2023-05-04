@@ -67,7 +67,7 @@ namespace VistaDB.Engine.Core
       : this(row.RowId, row.RowVersion, row.RefPosition, row.ascending, row.encryption, row.activeCompareMask, row.Count)
     {
       foreach (Column column in (List<Column>) row)
-        AppendColumn((IColumn) column.Duplicate(false));
+        AppendColumn(column.Duplicate(false));
       lastRefresh = row.lastRefresh;
       lastVersion = row.lastVersion;
     }
@@ -83,7 +83,7 @@ namespace VistaDB.Engine.Core
 
     private int GetHeadLength(Row precedenceRow)
     {
-      int num1 = CounterSize + metaInfo.GetBufferLength(precedenceRow == null ? (Column) null : (Column) precedenceRow.metaInfo);
+      int num1 = CounterSize + metaInfo.GetBufferLength(precedenceRow == null ? null : (Column) precedenceRow.metaInfo);
       int num2 = Count - 1;
       int num3 = num2 + (8 - num2 % 8);
       return num1 + num3 / 8;
@@ -145,7 +145,7 @@ namespace VistaDB.Engine.Core
       get
       {
         if (!HasTimestamp)
-          return (Column) null;
+          return null;
         return this[timestampIndex];
       }
     }
@@ -158,7 +158,7 @@ namespace VistaDB.Engine.Core
       }
       set
       {
-        metaInfo.rowID.Value = (object) (int) value;
+        metaInfo.rowID.Value = (int)value;
       }
     }
 
@@ -170,7 +170,7 @@ namespace VistaDB.Engine.Core
       }
       set
       {
-        metaInfo.Value = (object) (int) value;
+        metaInfo.Value = (int)value;
       }
     }
 
@@ -185,7 +185,7 @@ namespace VistaDB.Engine.Core
         if (value)
           RowVersion |= 2147483648U;
         else
-          RowVersion &= (uint) int.MaxValue;
+          RowVersion &= int.MaxValue;
       }
     }
 
@@ -193,7 +193,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return RowVersion & (uint) int.MaxValue;
+        return RowVersion & int.MaxValue;
       }
     }
 
@@ -391,9 +391,9 @@ namespace VistaDB.Engine.Core
       {
         int num = index % 8;
         if (num == 0)
-          buffer[++offset] = (byte) 0;
+          buffer[++offset] = 0;
         if (this[index].IsNull)
-          buffer[offset] = (byte) ((uint) buffer[offset] | (uint) (byte) (1 << num));
+          buffer[offset] = (byte) (buffer[offset] | (uint) (byte) (1 << num));
       }
       return ++offset;
     }
@@ -406,7 +406,7 @@ namespace VistaDB.Engine.Core
         int num = column.RowIndex % 8;
         if (num == 0)
           ++offset;
-        column.Value = ((int) buffer[offset] & (int) (byte) (1 << num)) == 0 ? column.DummyNull : (object) null;
+        column.Value = (buffer[offset] & (byte)(1 << num)) == 0 ? column.DummyNull : null;
       }
       return ++offset;
     }
@@ -418,31 +418,31 @@ namespace VistaDB.Engine.Core
 
     private int FormatHeader()
     {
-      return FormatHeader(buffer, 0, (Row) null);
+      return FormatHeader(buffer, 0, null);
     }
 
     private int FormatHeader(byte[] buffer, int offset, Row precedenceRow)
     {
       int dstOffset = offset;
       offset += CounterSize;
-      offset = metaInfo.ConvertToByteArray(buffer, offset, precedenceRow == null ? (Column) null : (Column) precedenceRow.metaInfo);
+      offset = metaInfo.ConvertToByteArray(buffer, offset, precedenceRow == null ? null : (Column) precedenceRow.metaInfo);
       int num = (Count - 1) / 8;
       offset = ConvertNullsToBuffer(buffer, offset);
-      System.Buffer.BlockCopy((Array) BitConverter.GetBytes(offset - dstOffset), 0, (Array) buffer, dstOffset, CounterSize);
+      System.Buffer.BlockCopy(BitConverter.GetBytes(offset - dstOffset), 0, buffer, dstOffset, CounterSize);
       IncrementVersion();
       return offset;
     }
 
     private void UnformatHeader()
     {
-      UnformatHeader(buffer, 0, true, (Row) null);
+      UnformatHeader(buffer, 0, true, null);
     }
 
     private int UnformatHeader(byte[] buffer, int offset, bool bypassNulls, Row precedenceRow)
     {
       int num = BitConverter.ToInt32(buffer, offset) + offset;
       offset += CounterSize;
-      offset = metaInfo.ConvertFromByteArray(buffer, offset, precedenceRow == null ? (Column) null : (Column) precedenceRow.metaInfo);
+      offset = metaInfo.ConvertFromByteArray(buffer, offset, precedenceRow == null ? null : (Column) precedenceRow.metaInfo);
       if (bypassNulls)
         return offset;
       offset = ConvertNullsFromBuffer(buffer, offset);
@@ -545,11 +545,11 @@ namespace VistaDB.Engine.Core
     private Column GetPrecedenceColumn(Row precedenceRow, int index)
     {
       if (precedenceRow == null)
-        return (Column) null;
+        return null;
             Column column = precedenceRow[index];
       if (!column.IsNull)
         return column;
-      return (Column) null;
+      return null;
     }
 
     protected void AllocateBuffer(int length)
@@ -574,7 +574,7 @@ namespace VistaDB.Engine.Core
 
     protected int UnformatRowBuffer()
     {
-      return UnformatRowBuffer(buffer, 0, (Row) null);
+      return UnformatRowBuffer(buffer, 0, null);
     }
 
     internal void SyncPartialRow()
@@ -625,7 +625,7 @@ namespace VistaDB.Engine.Core
             return column;
         }
       }
-      return (Column) null;
+      return null;
     }
 
     internal Column LookForColumn(string name)
@@ -635,7 +635,7 @@ namespace VistaDB.Engine.Core
         if (Database.DatabaseObject.EqualNames(name, column.Name))
           return column;
       }
-      return (Column) null;
+      return null;
     }
 
     public void InitTop()
@@ -739,7 +739,7 @@ namespace VistaDB.Engine.Core
       bool force = scope == RowScope.Head;
       try
       {
-        storage.Handle.ReadRow(storage, this, force ? GetHeadLength((Row) null) : formatLength, force);
+        storage.Handle.ReadRow(storage, this, force ? GetHeadLength(null) : formatLength, force);
       }
       catch (Exception ex)
       {
@@ -760,7 +760,7 @@ namespace VistaDB.Engine.Core
     {
       try
       {
-        int num = scope == RowScope.Head ? FormatHeader() : WriteExtensions(storage, false, false) + FormatRowBuffer((Row) null);
+        int num = scope == RowScope.Head ? FormatHeader() : WriteExtensions(storage, false, false) + FormatRowBuffer(null);
         storage.Handle.WriteRow(storage, this, !alignment || scope == RowScope.Head ? num : formatLength);
       }
       catch (Exception ex)
@@ -809,7 +809,7 @@ namespace VistaDB.Engine.Core
     internal void SetTimestamp(ulong val, int index)
     {
             Column column = this[index];
-      column.Value = (object) (long) val;
+      column.Value = (long)val;
       column.Edited = false;
     }
 
@@ -817,7 +817,7 @@ namespace VistaDB.Engine.Core
     {
             Column column = this[index];
       if (useAutoValue)
-        column.Value = (object) val;
+        column.Value = val;
       column.Edited = false;
     }
 
@@ -889,7 +889,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (IColumn) this[index];
+        return this[index];
       }
     }
 
@@ -907,14 +907,14 @@ namespace VistaDB.Engine.Core
 
     IRow IRow.CopyInstance()
     {
-      return (IRow) CopyInstance();
+      return CopyInstance();
     }
 
     IVistaDBColumn IVistaDBRow.this[int index]
     {
       get
       {
-        return (IVistaDBColumn) this[index];
+        return this[index];
       }
     }
 
@@ -922,7 +922,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (IVistaDBColumn) LookForColumn(name);
+        return LookForColumn(name);
       }
     }
 
@@ -930,7 +930,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (long) RowId;
+        return RowId;
       }
     }
 
@@ -1186,7 +1186,7 @@ namespace VistaDB.Engine.Core
       {
         get
         {
-          return (object) null;
+          return null;
         }
       }
 
@@ -1440,7 +1440,7 @@ namespace VistaDB.Engine.Core
         if (a.IsNull || b.IsNull)
         {
                     Column column = a.ArithmeticalRank >= b.ArithmeticalRank ? a : b;
-          column.Value = (object) null;
+          column.Value = null;
           return column;
         }
         if (a.ArithmeticalRank < b.ArithmeticalRank)
@@ -1453,7 +1453,7 @@ namespace VistaDB.Engine.Core
         if (a.IsNull || b.IsNull)
         {
                     Column column = a.ArithmeticalRank >= b.ArithmeticalRank ? a : b;
-          column.Value = (object) null;
+          column.Value = null;
           return column;
         }
         if (a.ArithmeticalRank < b.ArithmeticalRank)
@@ -1466,7 +1466,7 @@ namespace VistaDB.Engine.Core
         if (a.IsNull || b.IsNull)
         {
                     Column column = a.ArithmeticalRank >= b.ArithmeticalRank ? a : b;
-          column.Value = (object) null;
+          column.Value = null;
           return column;
         }
         if (a.ArithmeticalRank < b.ArithmeticalRank)
@@ -1479,7 +1479,7 @@ namespace VistaDB.Engine.Core
         if (a.IsNull || b.IsNull)
         {
                     Column column = a.ArithmeticalRank >= b.ArithmeticalRank ? a : b;
-          column.Value = (object) null;
+          column.Value = null;
           return column;
         }
         if (a.ArithmeticalRank < b.ArithmeticalRank)
@@ -1492,7 +1492,7 @@ namespace VistaDB.Engine.Core
         if (a.IsNull || b.IsNull)
         {
                     Column column = a.ArithmeticalRank >= b.ArithmeticalRank ? a : b;
-          column.Value = (object) null;
+          column.Value = null;
           return column;
         }
         if (a.ArithmeticalRank < b.ArithmeticalRank)
@@ -1512,7 +1512,7 @@ namespace VistaDB.Engine.Core
         if (a.IsNull || b.IsNull)
         {
                     Column column = a.ArithmeticalRank >= b.ArithmeticalRank ? a : b;
-          column.Value = (object) null;
+          column.Value = null;
           return column;
         }
         if (a.ArithmeticalRank < b.ArithmeticalRank)
@@ -1525,7 +1525,7 @@ namespace VistaDB.Engine.Core
         if (a.IsNull || b.IsNull)
         {
                     Column column = a.ArithmeticalRank >= b.ArithmeticalRank ? a : b;
-          column.Value = (object) null;
+          column.Value = null;
           return column;
         }
         if (a.ArithmeticalRank < b.ArithmeticalRank)
@@ -1538,7 +1538,7 @@ namespace VistaDB.Engine.Core
         if (a.IsNull || b.IsNull)
         {
                     Column column = a.ArithmeticalRank >= b.ArithmeticalRank ? a : b;
-          column.Value = (object) null;
+          column.Value = null;
           return column;
         }
         if (a.ArithmeticalRank < b.ArithmeticalRank)
@@ -1548,9 +1548,9 @@ namespace VistaDB.Engine.Core
 
       public static bool operator ==(Column a, Column b)
       {
-        if (Equals((object) a, (object) b))
+        if (Equals(a, b))
           return true;
-        if (!Equals((object) a, (object) null) && !Equals((object) b, (object) null))
+        if (!Equals(a, null) && !Equals(b, null))
           return a.MinusColumn(b) == 0;
         return false;
       }
@@ -1635,7 +1635,7 @@ namespace VistaDB.Engine.Core
 
       IColumn IColumn.Clone()
       {
-        return (IColumn) Duplicate(false);
+        return Duplicate(false);
       }
 
       public string Name
@@ -1644,7 +1644,7 @@ namespace VistaDB.Engine.Core
         {
           if (attributes != null)
             return attributes.Name;
-          return (string) null;
+          return null;
         }
       }
 
@@ -1689,7 +1689,7 @@ namespace VistaDB.Engine.Core
       {
         get
         {
-          return (object) null;
+          return null;
         }
       }
 
@@ -1747,7 +1747,7 @@ namespace VistaDB.Engine.Core
         {
           if (attributes != null)
             return attributes.Caption;
-          return (string) null;
+          return null;
         }
         set
         {
@@ -1763,7 +1763,7 @@ namespace VistaDB.Engine.Core
         {
           if (attributes != null)
             return attributes.Description;
-          return (string) null;
+          return null;
         }
         set
         {
@@ -1812,7 +1812,7 @@ namespace VistaDB.Engine.Core
 
       IVistaDBColumnAttributesDifference IVistaDBColumnAttributes.Compare(IVistaDBColumnAttributes columnAttr)
       {
-        return (IVistaDBColumnAttributesDifference) new AttributeDifference(!Database.DatabaseObject.EqualNames(Name, columnAttr.Name), Type != columnAttr.Type, !ExtendedType && !FixedType && MaxLength != columnAttr.MaxLength, RowIndex != columnAttr.RowIndex, Encrypted != columnAttr.Encrypted, Packed != columnAttr.Packed, CodePage != columnAttr.CodePage, string.Compare(((IVistaDBColumnAttributes) this).Description, columnAttr.Description, StringComparison.Ordinal) != 0, string.Compare(((IVistaDBColumnAttributes) this).Description, columnAttr.Description, StringComparison.Ordinal) != 0, AllowNull != columnAttr.AllowNull, ReadOnly != columnAttr.ReadOnly);
+        return new AttributeDifference(!Database.DatabaseObject.EqualNames(Name, columnAttr.Name), Type != columnAttr.Type, !ExtendedType && !FixedType && MaxLength != columnAttr.MaxLength, RowIndex != columnAttr.RowIndex, Encrypted != columnAttr.Encrypted, Packed != columnAttr.Packed, CodePage != columnAttr.CodePage, string.Compare(((IVistaDBColumnAttributes)this).Description, columnAttr.Description, StringComparison.Ordinal) != 0, string.Compare(((IVistaDBColumnAttributes)this).Description, columnAttr.Description, StringComparison.Ordinal) != 0, AllowNull != columnAttr.AllowNull, ReadOnly != columnAttr.ReadOnly);
       }
 
       bool IVistaDBColumn.Modified
@@ -1878,7 +1878,7 @@ namespace VistaDB.Engine.Core
           }
           set
           {
-            caption = value == null || value.Length == 0 ? (string) null : value;
+            caption = value == null || value.Length == 0 ? null : value;
           }
         }
 
@@ -1890,7 +1890,7 @@ namespace VistaDB.Engine.Core
           }
           set
           {
-            description = value == null || value.Length == 0 ? (string) null : value;
+            description = value == null || value.Length == 0 ? null : value;
           }
         }
       }
@@ -2023,21 +2023,21 @@ namespace VistaDB.Engine.Core
       internal MetaData(uint rowId, uint version, ulong referencedPosition)
         : base((int) version)
       {
-        rowID.Value = (object) (int) rowId;
+        rowID.Value = (int)rowId;
         this.referencedPosition = referencedPosition;
       }
 
       internal override int GetBufferLength(Column precedenceColumn)
       {
-        return rowID.GetBufferLength(precedenceColumn == (Column) null ? (Column) null : (Column) ((MetaData) precedenceColumn).rowID) + ((long) referencedPosition == (long)EmptyReference ? 1 : rowReferenceSize) + base.GetBufferLength(precedenceColumn);
+        return rowID.GetBufferLength(precedenceColumn == null ? null : (Column) ((MetaData) precedenceColumn).rowID) + ((long) referencedPosition == (long)EmptyReference ? 1 : rowReferenceSize) + base.GetBufferLength(precedenceColumn);
       }
 
       internal override int ConvertToByteArray(byte[] buffer, int offset, Column precedenceColumn)
       {
-        offset = rowID.ConvertToByteArray(buffer, offset, precedenceColumn == (Column) null ? (Column) null : (Column) ((MetaData) precedenceColumn).rowID);
+        offset = rowID.ConvertToByteArray(buffer, offset, precedenceColumn == null ? null : (Column) ((MetaData) precedenceColumn).rowID);
         if ((long) referencedPosition == (long)EmptyReference)
         {
-          buffer[offset] = (byte) 1;
+          buffer[offset] = 1;
           ++offset;
         }
         else
@@ -2047,8 +2047,8 @@ namespace VistaDB.Engine.Core
 
       internal override int ConvertFromByteArray(byte[] buffer, int offset, Column precedenceMetainfo)
       {
-        offset = rowID.ConvertFromByteArray(buffer, offset, precedenceMetainfo == (Column) null ? (Column) null : (Column) ((MetaData) precedenceMetainfo).rowID);
-        if (buffer[offset] == (byte) 0)
+        offset = rowID.ConvertFromByteArray(buffer, offset, precedenceMetainfo == null ? null : (Column) ((MetaData) precedenceMetainfo).rowID);
+        if (buffer[offset] == 0)
         {
           referencedPosition = BitConverter.ToUInt64(buffer, offset);
           offset += rowReferenceSize;

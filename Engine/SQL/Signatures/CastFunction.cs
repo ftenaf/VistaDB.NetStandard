@@ -48,7 +48,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object ExecuteSubProgram()
     {
-      return ((IValue) paramValues[0]).Value;
+      return paramValues[0].Value;
     }
 
     public override int GetWidth()

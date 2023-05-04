@@ -113,13 +113,13 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override IColumn InternalExecute()
     {
-      ((IValue) result).Value = cache.GetValue(((IValue) this[3].Execute()).Value);
+            result.Value = cache.GetValue(this[3].Execute().Value);
       return result;
     }
 
     protected override object ExecuteSubProgram()
     {
-      return ((IValue) result).Value;
+      return result.Value;
     }
   }
 }

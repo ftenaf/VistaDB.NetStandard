@@ -24,13 +24,13 @@ namespace VistaDB.Engine.SQL.Signatures
       resultColumnNames[4] = "COLUMN_NAMES";
       resultColumnNames[5] = "IS_UPDATABLE";
       resultColumnNames[6] = "IS_CORRECT";
-      enumerator = (IEnumerator) null;
+      enumerator = null;
     }
 
     protected override object ExecuteSubProgram()
     {
-      enumerator = (IEnumerator) parent.Database.EnumViews().GetEnumerator();
-      return (object) null;
+      enumerator = parent.Database.EnumViews().GetEnumerator();
+      return null;
     }
 
     public override int GetWidth()
@@ -40,9 +40,9 @@ namespace VistaDB.Engine.SQL.Signatures
 
     private void FillRow(IRow row)
     {
-      CreateViewStatement createViewStatement = (CreateViewStatement) null;
-      string str1 = (string) null;
-      string str2 = (string) null;
+      CreateViewStatement createViewStatement = null;
+      string str1 = null;
+      string str2 = null;
       string empty = string.Empty;
       IView current = (IView) enumerator.Current;
       Statement statement;
@@ -72,20 +72,20 @@ namespace VistaDB.Engine.SQL.Signatures
       }
       catch (Exception)
             {
-        statement = (Statement) null;
+        statement = null;
         flag = false;
       }
       finally
       {
         createViewStatement?.DropTemporaryTables();
       }
-      ((IValue) row[0]).Value = (object) current.Name;
-      ((IValue) row[1]).Value = (object) current.Expression;
-      ((IValue) row[2]).Value = (object) str2;
-      ((IValue) row[3]).Value = (object) str1;
-      ((IValue) row[4]).Value = (object) empty;
-      ((IValue) row[5]).Value = !flag ? false : (((CreateViewStatement)statement).SelectStatement.IsLiveQuery() ? true : false);
-      ((IValue) row[6]).Value = (object) flag;
+            row[0].Value = current.Name;
+            row[1].Value = current.Expression;
+            row[2].Value = str2;
+            row[3].Value = str1;
+            row[4].Value = empty;
+            row[5].Value = !flag ? false : (((CreateViewStatement)statement).SelectStatement.IsLiveQuery() ? true : false);
+            row[6].Value = flag;
     }
 
     public override bool First(IRow row)
@@ -107,7 +107,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public override void Close()
     {
-      enumerator = (IEnumerator) null;
+      enumerator = null;
     }
   }
 }

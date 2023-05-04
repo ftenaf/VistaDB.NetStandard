@@ -20,12 +20,12 @@ namespace VistaDB.Provider
     {
       BaseSelectStatement query1 = query as BaseSelectStatement;
       if (query1 != null)
-        return (VistaDBPlanBlock) new VistaDBPlanResultBlock(query, new VistaDBPlanBlock[1]
+        return new VistaDBPlanResultBlock(query, new VistaDBPlanBlock[1]
         {
           CreateQueryBlock(query1)
         });
       if (query.SubQueryCount == 1)
-        return (VistaDBPlanBlock) new VistaDBPlanResultBlock(query, (VistaDBPlanBlock[]) null);
+        return new VistaDBPlanResultBlock(query, null);
       VistaDBPlanBlock[] childs = new VistaDBPlanBlock[query.SubQueryCount];
       int index = 0;
       for (int subQueryCount = query.SubQueryCount; index < subQueryCount; ++index)
@@ -65,7 +65,7 @@ namespace VistaDB.Provider
         vistaDbPlanBlock = new VistaDBPlanBlock(BlockType.Union, new VistaDBPlanBlock[2]
         {
           vistaDbPlanBlock,
-          CreateQueryBlock((BaseSelectStatement) selectStatement.UnionQuery)
+          CreateQueryBlock( selectStatement.UnionQuery)
         });
         if (selectStatement.UnionAll && !selectStatement.Distinct)
           vistaDbPlanBlock = new VistaDBPlanBlock(BlockType.DistinctSort, new VistaDBPlanBlock[1]
@@ -79,7 +79,7 @@ namespace VistaDB.Provider
     private static VistaDBPlanBlock CreateRowSetBlock(IRowSet rowSet, ConstraintOperations optTable, int rowIndex)
     {
       if (rowSet == null)
-        return new VistaDBPlanBlock(BlockType.Scalar, (VistaDBPlanBlock[]) null);
+        return new VistaDBPlanBlock(BlockType.Scalar, null);
       if (rowSet is SourceTable)
         return CreateSourceTableBlock((SourceTable) rowSet, optTable, rowIndex);
             BlockType blockType = rowSet is LeftJoin ? BlockType.LeftJoin : BlockType.InnerJoin;
@@ -101,21 +101,21 @@ namespace VistaDB.Provider
         string joinedTable;
         if (constraintOperations == null)
         {
-          indexName = (string) null;
-          joinedTable = (string) null;
+          indexName = null;
+          joinedTable = null;
         }
         else
         {
           indexName = constraintOperations.GetIndexName(rowIndex, table.CollectionOrder);
           joinedTable = constraintOperations.GetJoinedTable(rowIndex, table);
         }
-        return (VistaDBPlanBlock) new VistaDBPlanTableBlock(table.Alias, indexName, joinedTable);
+        return new VistaDBPlanTableBlock(table.Alias, indexName, joinedTable);
       }
       if (table is QuerySourceTable)
-        return CreateQueryBlock((BaseSelectStatement) ((QuerySourceTable) table).Statement);
+        return CreateQueryBlock(((QuerySourceTable)table).Statement);
       if (table is BaseViewSourceTable)
-        return CreateQueryBlock((BaseSelectStatement) ((BaseViewSourceTable) table).Statement);
-      return (VistaDBPlanBlock) new VistaDBPlanFunctionBlock(table.Alias);
+        return CreateQueryBlock(((BaseViewSourceTable)table).Statement);
+      return new VistaDBPlanFunctionBlock(table.Alias);
     }
 
     public BlockType PlanBlockType

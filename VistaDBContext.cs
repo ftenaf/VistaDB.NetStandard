@@ -43,7 +43,7 @@ namespace VistaDB
         {
                     SQLContextData currentContext = (SQLContextData)sqlContext.CurrentContext;
           if (currentContext == null || currentContext.LocalConnection == null)
-            return (VistaDBTransaction) null;
+            return null;
           return currentContext.LocalConnection.CurrentTransaction;
         }
       }
@@ -58,7 +58,7 @@ namespace VistaDB
 
       internal static void ActivateContext(ILocalSQLConnection connection, VistaDBPipe pipe)
       {
-                sqlContext.PushContext((IDisposable) new SQLContextData(connection, pipe, TriggerContext));
+                sqlContext.PushContext(new SQLContextData(connection, pipe, TriggerContext));
       }
 
       internal static void DeactivateContext()
@@ -147,7 +147,7 @@ namespace VistaDB
         public void Dispose()
         {
           triggerStack.Clear();
-          GC.SuppressFinalize((object) this);
+          GC.SuppressFinalize(this);
         }
       }
     }
@@ -182,7 +182,7 @@ namespace VistaDB
 
       internal static void ActivateContext(IVistaDBDatabase database, IVistaDBPipe pipe)
       {
-                ddaContext.PushContext((IDisposable) new DDAContextData(database, pipe));
+                ddaContext.PushContext(new DDAContextData(database, pipe));
       }
 
       internal static void DeactivateContext()
@@ -219,9 +219,9 @@ namespace VistaDB
 
         public void Dispose()
         {
-          database = (IVistaDBDatabase) null;
-          pipe = (IVistaDBPipe) null;
-          GC.SuppressFinalize((object) this);
+          database = null;
+          pipe = null;
+          GC.SuppressFinalize(this);
         }
       }
     }

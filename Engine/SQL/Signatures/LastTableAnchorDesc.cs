@@ -4,7 +4,7 @@
   {
     public override Signature CreateSignature(SQLParser parser)
     {
-      return (Signature) new LastTableAnchor(parser);
+      return new LastTableAnchor(parser);
     }
   }
 }

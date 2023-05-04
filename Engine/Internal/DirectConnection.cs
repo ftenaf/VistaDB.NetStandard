@@ -35,7 +35,7 @@ namespace VistaDB.Engine.Internal
     {
       if (databases.Count == 0)
         return;
-      foreach (DatabaseMetaTable databaseMetaTable in new List<DatabaseMetaTable>((IEnumerable<DatabaseMetaTable>) databases.Values))
+      foreach (DatabaseMetaTable databaseMetaTable in new List<DatabaseMetaTable>(databases.Values))
         databaseMetaTable?.Dispose();
     }
 
@@ -52,7 +52,7 @@ namespace VistaDB.Engine.Internal
         if (path1 == null)
           path1 = "";
         int length = "|DataDirectory|".Length;
-        while ((int) fileName[length] == (int) Path.DirectorySeparatorChar && length < fileName.Length)
+        while (fileName[length] == Path.DirectorySeparatorChar && length < fileName.Length)
           ++length;
         fileName = Path.Combine(path1, fileName.Substring(length));
       }
@@ -69,12 +69,12 @@ namespace VistaDB.Engine.Internal
 
     internal DataStorage LookForTable(char[] buffer, int offset, bool containSpaces)
     {
-      return (DataStorage) null;
+      return null;
     }
 
     internal DataStorage LookForTable(string name)
     {
-      return (DataStorage) null;
+      return null;
     }
 
     internal static bool IsCorrectAlias(string name)
@@ -128,7 +128,7 @@ namespace VistaDB.Engine.Internal
         DatabaseMetaTable instance = DatabaseMetaTable.CreateInstance(fileName, this, cryptoKey, pageSize, LCID, caseSensitive, false);
         instance.Create(stayExclusive, inMemory, isolated);
         databases.Add(instance.Id, instance);
-        return (IVistaDBDatabase) instance;
+        return instance;
       }
       catch (Exception ex)
       {
@@ -188,7 +188,7 @@ namespace VistaDB.Engine.Internal
       try
       {
         EncryptionKey cryptoKey = EncryptionKey.Create(cryptoKeyString);
-        DatabaseMetaTable instance = DatabaseMetaTable.CreateInstance(fileName, this, cryptoKey, 1, (int) sbyte.MaxValue, false, toPack);
+        DatabaseMetaTable instance = DatabaseMetaTable.CreateInstance(fileName, this, cryptoKey, 1, sbyte.MaxValue, false, toPack);
         bool exclusive = mode == VistaDBDatabaseOpenMode.ExclusiveReadWrite || mode == VistaDBDatabaseOpenMode.ExclusiveReadOnly;
         bool readOnly = mode == VistaDBDatabaseOpenMode.ExclusiveReadOnly || mode == VistaDBDatabaseOpenMode.NonexclusiveReadOnly || mode == VistaDBDatabaseOpenMode.SharedReadOnly;
         bool readOnlyShared = mode == VistaDBDatabaseOpenMode.SharedReadOnly;
@@ -198,7 +198,7 @@ namespace VistaDB.Engine.Internal
           int num = instance.Rowset.PageSize / StorageHandle.DEFAULT_SIZE_OF_PAGE;
         }
         databases.Add(instance.Id, instance);
-        return (IVistaDBDatabase) instance;
+        return instance;
       }
       catch (Exception ex)
       {
@@ -277,12 +277,12 @@ namespace VistaDB.Engine.Internal
 
     void IVistaDBDDA.PackDatabase(string fileName)
     {
-      PackDatabaseInternal(fileName, (string) null, false, (OperationCallbackDelegate) null, false);
+      PackDatabaseInternal(fileName, null, false, null, false);
     }
 
     void IVistaDBDDA.PackDatabase(string fileName, OperationCallbackDelegate operationCallback)
     {
-      PackDatabaseInternal(fileName, (string) null, false, operationCallback, false);
+      PackDatabaseInternal(fileName, null, false, operationCallback, false);
     }
 
     void IVistaDBDDA.PackDatabase(string fileName, string currentcryptoKeyString, string newcryptoKeyString, int newPageSize, int newLCID, bool newCaseSensitive, bool backup, OperationCallbackDelegate operationCallback)
@@ -297,12 +297,12 @@ namespace VistaDB.Engine.Internal
 
     void IVistaDBDDA.RepairDatabase(string fileName, OperationCallbackDelegate operationCallback)
     {
-      Repair(fileName, (string) null, operationCallback);
+      Repair(fileName, null, operationCallback);
     }
 
     void IVistaDBDDA.RepairDatabase(string fileName)
     {
-      Repair(fileName, (string) null, (OperationCallbackDelegate) null);
+      Repair(fileName, null, null);
     }
 
     protected override void Dispose(bool disposing)

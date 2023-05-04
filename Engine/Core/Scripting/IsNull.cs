@@ -16,8 +16,8 @@ namespace VistaDB.Engine.Core.Scripting
     {
       PCodeUnit pcodeUnit1 = pcode[entry];
       PCodeUnit pcodeUnit2 = pcode[entry + 1];
-      Row.Column column1 = (Row.Column) new BitColumn(true);
-      Row.Column column2 = !pcodeUnit2.ResultColumn.IsNull ? ((bool) pcodeUnit2.ResultColumn.Value ? (Row.Column) new BitColumn() : (Row.Column) new BitColumn(!pcodeUnit1.ResultColumn.IsNull)) : (Row.Column) new BitColumn(pcodeUnit1.ResultColumn.IsNull);
+      Row.Column column1 = new BitColumn(true);
+      Row.Column column2 = !pcodeUnit2.ResultColumn.IsNull ? ((bool) pcodeUnit2.ResultColumn.Value ? new BitColumn() : (Row.Column) new BitColumn(!pcodeUnit1.ResultColumn.IsNull)) : new BitColumn(pcodeUnit1.ResultColumn.IsNull);
       pcodeUnit1.ResultColumn = column2;
     }
   }

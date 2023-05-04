@@ -16,10 +16,10 @@ namespace VistaDB.Engine.Core.Scripting
     {
       CrossConversion conversion = contextStorage.Conversion;
       if (column1.Type == column2.Type)
-        return (long) column1.MinusColumn(column2);
+        return column1.MinusColumn(column2);
       Row.Column b = column1.Duplicate(false);
-      conversion.Convert((IValue) column2, (IValue) b);
-      return (long) column1.MinusColumn(b);
+      conversion.Convert(column2, b);
+      return column1.MinusColumn(b);
     }
   }
 }

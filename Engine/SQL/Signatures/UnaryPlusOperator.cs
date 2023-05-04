@@ -13,7 +13,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       if (GetIsChanged())
       {
-        ((IValue) result).Value = ((IValue) operand.Execute()).Value;
+                result.Value = operand.Execute().Value;
         needsEvaluation = false;
       }
       return result;

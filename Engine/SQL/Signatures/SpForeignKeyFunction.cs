@@ -48,12 +48,12 @@ namespace VistaDB.Engine.SQL.Signatures
 
     private void FillRow(IRow row, IVistaDBRelationshipInformation relationShipInfo, int keyColumnIndex)
     {
-      ((IValue) row[0]).Value = (object) relationShipInfo.PrimaryTable;
-      ((IValue) row[2]).Value = (object) relationShipInfo.ForeignTable;
-      ((IValue) row[3]).Value = (object) relationShipInfo.ForeignKey;
-      ((IValue) row[5]).Value = (object) (short) relationShipInfo.UpdateIntegrity;
-      ((IValue) row[6]).Value = (object) (short) relationShipInfo.DeleteIntegrity;
-      ((IValue) row[7]).Value = (object) relationShipInfo.Name;
+            row[0].Value = relationShipInfo.PrimaryTable;
+            row[2].Value = relationShipInfo.ForeignTable;
+            row[3].Value = relationShipInfo.ForeignKey;
+            row[5].Value = (short)relationShipInfo.UpdateIntegrity;
+            row[6].Value = (short)relationShipInfo.DeleteIntegrity;
+            row[7].Value = relationShipInfo.Name;
     }
 
     public override bool GetNextResult(IRow row)
@@ -72,8 +72,8 @@ namespace VistaDB.Engine.SQL.Signatures
     protected override object ExecuteSubProgram()
     {
       relationships = parent.Database.Relationships;
-      enumerator = (IEnumerator) relationships.GetEnumerator();
-      return (object) null;
+      enumerator = relationships.GetEnumerator();
+      return null;
     }
   }
 }

@@ -8,13 +8,13 @@
     }
 
     private SyncTimestamp(SyncTimestamp column)
-      : base((Timestamp) column)
+      : base(column)
     {
     }
 
     protected override Row.Column OnDuplicate(bool padRight)
     {
-      return (Row.Column) new SyncTimestamp(this);
+      return new SyncTimestamp(this);
     }
 
     internal override bool IsSync

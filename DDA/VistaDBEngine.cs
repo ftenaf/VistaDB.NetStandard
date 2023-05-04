@@ -10,7 +10,7 @@ namespace VistaDB.DDA
   public sealed class VistaDBEngine : IDictionary<long, IVistaDBDDA>, ICollection<KeyValuePair<long, IVistaDBDDA>>, IEnumerable<KeyValuePair<long, IVistaDBDDA>>, IEnumerable
   {
     public static readonly VistaDBEngine Connections = new VistaDBEngine();
-    private IDictionary<long, IVistaDBDDA> engines = (IDictionary<long, IVistaDBDDA>) new Dictionary<long, IVistaDBDDA>();
+    private IDictionary<long, IVistaDBDDA> engines = new Dictionary<long, IVistaDBDDA>();
     private long nextEngineId;
 
     private VistaDBEngine()
@@ -25,7 +25,7 @@ namespace VistaDB.DDA
         {
           IVistaDBDDA vistaDbdda;
           if (!engines.TryGetValue(id, out vistaDbdda))
-            return (IVistaDBDDA) null;
+            return null;
           return vistaDbdda;
         }
       }
@@ -38,8 +38,8 @@ namespace VistaDB.DDA
         try
         {
           DirectConnection instance = DirectConnection.CreateInstance(this, ++nextEngineId);
-          engines.Add(instance.Id, (IVistaDBDDA) instance);
-          return (IVistaDBDDA) instance;
+          engines.Add(instance.Id, instance);
+          return instance;
         }
         catch (Exception ex)
         {
@@ -54,7 +54,7 @@ namespace VistaDB.DDA
       {
         try
         {
-          return (ILocalSQLConnection) LocalSQLConnection.CreateInstance(this, ++nextEngineId, parentConnection, database);
+          return LocalSQLConnection.CreateInstance(this, ++nextEngineId, parentConnection, database);
         }
         catch (Exception ex)
         {
@@ -83,7 +83,7 @@ namespace VistaDB.DDA
       List<IVistaDBDDA> vistaDbddaList;
       lock (engines)
       {
-        vistaDbddaList = new List<IVistaDBDDA>((IEnumerable<IVistaDBDDA>) engines.Values);
+        vistaDbddaList = new List<IVistaDBDDA>(engines.Values);
         engines.Clear();
       }
       foreach (IDisposable disposable in vistaDbddaList)
@@ -180,7 +180,7 @@ namespace VistaDB.DDA
 
     IEnumerator IEnumerable.GetEnumerator()
     {
-      return (IEnumerator) GetEnumerator();
+      return GetEnumerator();
     }
   }
 }

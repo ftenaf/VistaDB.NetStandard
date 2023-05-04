@@ -8,7 +8,7 @@
 
     public VistaDBString(string val)
     {
-      Value = (object) val;
+      Value = val;
     }
 
     public override object Value
@@ -19,7 +19,7 @@
       }
       set
       {
-        base.Value = value == null ? (object) (string) null : (object) value.ToString();
+        base.Value = value == null ? null : (object) value.ToString();
       }
     }
 

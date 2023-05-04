@@ -11,18 +11,18 @@ namespace VistaDB.Engine.SQL
     public BaseSetStatementDescr()
     {
       statements = new Hashtable();
-      statements.Add((object) "OPTIMIZATION", (object) new SetOptimizationStatementDescr());
-      statements.Add((object) "CHECK", (object) new SetCheckViewStatementDescr());
-      statements.Add((object) "GROUP", (object) new SetGroupOptimizationStatementDescr());
-      statements.Add((object) "SYNCHRONIZATION", (object) new SetGroupSynchronizationStatementDescr());
+      statements.Add("OPTIMIZATION", new SetOptimizationStatementDescr());
+      statements.Add("CHECK", new SetCheckViewStatementDescr());
+      statements.Add("GROUP", new SetGroupOptimizationStatementDescr());
+      statements.Add("SYNCHRONIZATION", new SetGroupSynchronizationStatementDescr());
     }
 
     public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
     {
       parser.SkipToken(true);
-      IStatementDescr statement = (IStatementDescr) statements[(object) parser.TokenValue.Token.ToUpper(CultureInfo.InvariantCulture)];
+      IStatementDescr statement = (IStatementDescr) statements[parser.TokenValue.Token.ToUpper(CultureInfo.InvariantCulture)];
       if (statement == null)
-        return (Statement) new SetVariableStatement(conn, parent, parser, id);
+        return new SetVariableStatement(conn, parent, parser, id);
       return statement.CreateStatement(conn, parent, parser, id);
     }
 
@@ -30,7 +30,7 @@ namespace VistaDB.Engine.SQL
     {
       public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
       {
-        return (Statement) new SetOptimizationStatement(conn, parent, parser, id);
+        return new SetOptimizationStatement(conn, parent, parser, id);
       }
     }
 
@@ -38,7 +38,7 @@ namespace VistaDB.Engine.SQL
     {
       public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
       {
-        return (Statement) new SetCheckViewStatement(conn, parent, parser, id);
+        return new SetCheckViewStatement(conn, parent, parser, id);
       }
     }
 
@@ -46,7 +46,7 @@ namespace VistaDB.Engine.SQL
     {
       public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
       {
-        return (Statement) new SetGroupOptimizationStatement(conn, parent, parser, id);
+        return new SetGroupOptimizationStatement(conn, parent, parser, id);
       }
     }
 
@@ -54,7 +54,7 @@ namespace VistaDB.Engine.SQL
     {
       public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
       {
-        return (Statement) new SetGroupSynchronizationStatement(conn, parent, parser, id);
+        return new SetGroupSynchronizationStatement(conn, parent, parser, id);
       }
     }
   }

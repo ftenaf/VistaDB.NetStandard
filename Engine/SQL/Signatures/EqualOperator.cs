@@ -21,7 +21,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       if (rightOperandIsSubQuery)
         return ((SubQuerySignature) rightOperand).IsValuePresent(leftValue, checkAll, CompareOperation.Equal);
-      return leftValue.Compare((IVistaDBColumn) rightValue) == 0;
+      return leftValue.Compare(rightValue) == 0;
     }
 
     protected override CompareOperation GetCompareOperation()
@@ -36,14 +36,14 @@ namespace VistaDB.Engine.SQL.Signatures
 
     internal bool GetJoinEqualityColumns(out ColumnSignature leftColumn, out ColumnSignature rightColumn)
     {
-      leftColumn = (ColumnSignature) null;
-      rightColumn = (ColumnSignature) null;
+      leftColumn = null;
+      rightColumn = null;
       if (GetCompareOperation() != CompareOperation.Equal)
         return false;
       leftColumn = leftOperand as ColumnSignature;
       rightColumn = rightOperand as ColumnSignature;
-      if ((Signature) leftColumn != (Signature) null)
-        return (Signature) rightColumn != (Signature) null;
+      if (leftColumn != null)
+        return rightColumn != null;
       return false;
     }
   }

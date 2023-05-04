@@ -72,7 +72,7 @@ namespace VistaDB.Engine.Core
     {
       if (!HasLicensingFolder)
         return false;
-      string path2 = string.Format("Feature_{0}_{1}_{2:000}.glk", (object)VistaDBProductCode, (object) applicationCode, (object) featureCode);
+      string path2 = string.Format("Feature_{0}_{1}_{2:000}.glk", VistaDBProductCode, applicationCode, featureCode);
       string path = Path.Combine(g_LicensingBasePath, path2);
       if (!File.Exists(path))
         return false;
@@ -96,7 +96,7 @@ namespace VistaDB.Engine.Core
     [StrongNameIdentityPermission(SecurityAction.LinkDemand, PublicKey = "0024000004800000940000000602000000240000525341310004000001000100252242ea001093a5f468db7756d556ace963806e5564832f9346305d47a4dd81a896a485617cf8006e37e4a25048df0bdcac004cf5f339e22aa77aa243a0f67f41732f85ef47d151768807623973f2980a0f91ea8926c80bbc1d5fa662ad795ee6b62293c503fef640eee09b1c13bc0d7068d03904e69b86f5f653a8fa1fe2b1")]
     internal static void FixOwnerPermissions(CspKeyContainerInfo containerInfo, bool poison, bool persisting)
     {
-            FixKeyPermissions(containerInfo.UniqueKeyContainerName, poison, (string) null, persisting);
+            FixKeyPermissions(containerInfo.UniqueKeyContainerName, poison, null, persisting);
     }
 
     [StrongNameIdentityPermission(SecurityAction.LinkDemand, PublicKey = "0024000004800000940000000602000000240000525341310004000001000100252242ea001093a5f468db7756d556ace963806e5564832f9346305d47a4dd81a896a485617cf8006e37e4a25048df0bdcac004cf5f339e22aa77aa243a0f67f41732f85ef47d151768807623973f2980a0f91ea8926c80bbc1d5fa662ad795ee6b62293c503fef640eee09b1c13bc0d7068d03904e69b86f5f653a8fa1fe2b1")]
@@ -122,12 +122,12 @@ namespace VistaDB.Engine.Core
         string[] files = Directory.GetFiles(path1, uniqueKeyName);
         if (files.Length != 1)
           return;
-        SecurityIdentifier securityIdentifier1 = new SecurityIdentifier(WellKnownSidType.BuiltinUsersSid, (SecurityIdentifier) null);
-        SecurityIdentifier securityIdentifier2 = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, (SecurityIdentifier) null);
-        SecurityIdentifier securityIdentifier3 = new SecurityIdentifier(WellKnownSidType.CreatorOwnerSid, (SecurityIdentifier) null);
-        FileSystemAccessRule rule1 = new FileSystemAccessRule((IdentityReference) securityIdentifier1, FileSystemRights.Modify, AccessControlType.Allow);
-        FileSystemAccessRule rule2 = new FileSystemAccessRule((IdentityReference) securityIdentifier2, FileSystemRights.Modify, AccessControlType.Allow);
-        FileSystemAccessRule rule3 = new FileSystemAccessRule((IdentityReference) securityIdentifier3, FileSystemRights.FullControl, AccessControlType.Allow);
+        SecurityIdentifier securityIdentifier1 = new SecurityIdentifier(WellKnownSidType.BuiltinUsersSid, null);
+        SecurityIdentifier securityIdentifier2 = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null);
+        SecurityIdentifier securityIdentifier3 = new SecurityIdentifier(WellKnownSidType.CreatorOwnerSid, null);
+        FileSystemAccessRule rule1 = new FileSystemAccessRule(securityIdentifier1, FileSystemRights.Modify, AccessControlType.Allow);
+        FileSystemAccessRule rule2 = new FileSystemAccessRule(securityIdentifier2, FileSystemRights.Modify, AccessControlType.Allow);
+        FileSystemAccessRule rule3 = new FileSystemAccessRule(securityIdentifier3, FileSystemRights.FullControl, AccessControlType.Allow);
         foreach (string path2 in files)
         {
           try
@@ -149,9 +149,9 @@ namespace VistaDB.Engine.Core
                 FileSystemAccessRule systemAccessRule = accessRule as FileSystemAccessRule;
                 if (systemAccessRule != null && systemAccessRule.AccessControlType == AccessControlType.Allow && (systemAccessRule.FileSystemRights & FileSystemRights.Modify) == FileSystemRights.Modify)
                 {
-                  if (systemAccessRule.IdentityReference == (IdentityReference) securityIdentifier1)
+                  if (systemAccessRule.IdentityReference == securityIdentifier1)
                     flag1 = false;
-                  else if (systemAccessRule.IdentityReference == (IdentityReference) securityIdentifier2)
+                  else if (systemAccessRule.IdentityReference == securityIdentifier2)
                     flag2 = false;
                 }
               }
@@ -197,7 +197,7 @@ namespace VistaDB.Engine.Core
             throw new VistaDBLicenseException("Invalid call stack: Public key did not match: " + ToBase16Transform(name.GetPublicKey()));
           if (skipFrames >= frameCount)
           {
-            foreach (StrongNameIdentityPermissionAttribute permissionAttribute in Attribute.GetCustomAttributes((MemberInfo) method, typeof (StrongNameIdentityPermissionAttribute)) ?? new Attribute[0])
+            foreach (StrongNameIdentityPermissionAttribute permissionAttribute in Attribute.GetCustomAttributes(method, typeof (StrongNameIdentityPermissionAttribute)) ?? new Attribute[0])
             {
               if (permissionAttribute != null && permissionAttribute.Action == SecurityAction.LinkDemand && (permissionAttribute.PublicKey == "0024000004800000940000000602000000240000525341310004000001000100252242ea001093a5f468db7756d556ace963806e5564832f9346305d47a4dd81a896a485617cf8006e37e4a25048df0bdcac004cf5f339e22aa77aa243a0f67f41732f85ef47d151768807623973f2980a0f91ea8926c80bbc1d5fa662ad795ee6b62293c503fef640eee09b1c13bc0d7068d03904e69b86f5f653a8fa1fe2b1" || permissionAttribute.PublicKey == "00240000048000009400000006020000002400005253413100040000010001000fb2ab13e9db180c89e558e0ac32d517f34ddd626fa40293275378577e4a202d2c8095b2327eaac86dc884333d41b1763cfaad61c7bc7e9e959739f08854d71024feff627e8ef86945f430062c4d959bc50da3d27198db758498f406899ab06f1e32fcb6b213525d751e97ec0aa06776bfd21cc9992775a627c317e231d6adc7"))
               {
@@ -210,7 +210,7 @@ namespace VistaDB.Engine.Core
       }
       catch (VistaDBLicenseException ex)
       {
-        GC.KeepAlive((object) ex);
+        GC.KeepAlive(ex);
         throw;
       }
       catch (Exception ex)
@@ -228,7 +228,7 @@ namespace VistaDB.Engine.Core
     internal static RSACryptoServiceProvider GetLocalKey()
     {
             ValidateCallStack(2);
-      RSACryptoServiceProvider cryptoServiceProvider = (RSACryptoServiceProvider) null;
+      RSACryptoServiceProvider cryptoServiceProvider = null;
       CspParameters parameters = new CspParameters();
       parameters.KeyContainerName = "Gibraltar_Activation_Enc_Key";
       parameters.Flags = CspProviderFlags.UseMachineKeyStore | CspProviderFlags.UseExistingKey;
@@ -254,7 +254,7 @@ namespace VistaDB.Engine.Core
         if (flag1)
         {
           //cryptoServiceProvider.Dispose();
-          cryptoServiceProvider = (RSACryptoServiceProvider) null;
+          cryptoServiceProvider = null;
         }
       }
       catch (Exception)
@@ -262,7 +262,7 @@ namespace VistaDB.Engine.Core
         if (cryptoServiceProvider != null)
         {
           //cryptoServiceProvider.Dispose();
-          cryptoServiceProvider = (RSACryptoServiceProvider) null;
+          cryptoServiceProvider = null;
         }
       }
       return cryptoServiceProvider;

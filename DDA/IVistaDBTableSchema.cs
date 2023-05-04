@@ -20,7 +20,7 @@ namespace VistaDB.DDA
 
     void DropColumn(string name);
 
-    IVistaDBColumnAttributes DefineColumnAttributes(string name, bool allowNull, bool readOnly, bool encrypted, bool packed, string caption, string description);
+    IVistaDBColumnAttributes DefineColumnAttributes(string name, bool allowNull, bool readOnly, bool encrypted, bool packed, string description);
 
     IVistaDBColumnAttributes AlterColumnName(string oldName, string newName);
 

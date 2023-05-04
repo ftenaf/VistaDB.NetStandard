@@ -14,7 +14,7 @@
     }
 
     internal Timestamp(Timestamp col)
-      : base((BigIntColumn) col)
+      : base(col)
     {
     }
 
@@ -50,7 +50,7 @@
 
     protected override Row.Column OnDuplicate(bool padRight)
     {
-      return (Row.Column) new Timestamp(this);
+      return new Timestamp(this);
     }
   }
 }

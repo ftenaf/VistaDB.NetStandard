@@ -46,7 +46,7 @@ namespace VistaDB.Extra.Internal
 
     void IEditableObject.BeginEdit()
     {
-      parent.ChangeRowValues((long) index);
+      parent.ChangeRowValues(index);
     }
 
     void IEditableObject.CancelEdit()
@@ -71,7 +71,7 @@ namespace VistaDB.Extra.Internal
       }
       catch (VistaDBDataTableException ex)
       {
-        long errorId = (long) ex.ErrorId;
+        long errorId = ex.ErrorId;
         switch (errorId)
         {
           case 2019:

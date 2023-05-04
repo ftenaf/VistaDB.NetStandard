@@ -13,7 +13,7 @@ namespace VistaDB.Engine.SQL
     public CheckStatement(LocalSQLConnection connection, Statement parent, SQLParser parser, long id, string tableName, Row row)
       : base(connection, parent, parser, id)
     {
-      table = new RowSourceTable((Statement) this, tableName, row);
+      table = new RowSourceTable(this, tableName, row);
     }
 
     protected override void OnParse(LocalSQLConnection connection, SQLParser parser)
@@ -26,27 +26,27 @@ namespace VistaDB.Engine.SQL
     public override SourceTable GetTableByAlias(string tableAlias)
     {
       if (connection.CompareString(table.Alias, tableAlias, true) != 0)
-        return (SourceTable) null;
-      return (SourceTable) table;
+        return null;
+      return table;
     }
 
     public override SearchColumnResult GetTableByColumnName(string columnName, out SourceTable table, out int columnIndex)
     {
-      table = (SourceTable) this.table;
+      table = this.table;
       columnIndex = this.table.Schema.GetColumnOrdinal(columnName);
       return columnIndex < 0 ? SearchColumnResult.NotFound : SearchColumnResult.Found;
     }
 
     public override SourceTable GetSourceTable(int index)
     {
-      return (SourceTable) table;
+      return table;
     }
 
     protected override VistaDBType OnPrepareQuery()
     {
       table.Prepare();
       if (signature.Prepare() == SignatureType.Constant && signature.SignatureType != SignatureType.Constant)
-        signature = (Signature) ConstantSignature.CreateSignature(signature.Execute(), (Statement) this);
+        signature = ConstantSignature.CreateSignature(signature.Execute(), this);
       if (signature.DataType != VistaDBType.Bit)
         throw new VistaDBSQLException(564, "", signature.LineNo, signature.SymbolNo);
       table.Unprepare();
@@ -55,7 +55,7 @@ namespace VistaDB.Engine.SQL
 
     protected override IQueryResult OnExecuteQuery()
     {
-      return (IQueryResult) null;
+      return null;
     }
 
     public bool Evaluate(Row row)
@@ -63,7 +63,7 @@ namespace VistaDB.Engine.SQL
       table.SetRow(row);
       IColumn column = signature.Execute();
       if (!signature.IsNull)
-        return (bool) ((IValue) column).Value;
+        return (bool)column.Value;
       return true;
     }
   }

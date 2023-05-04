@@ -11,14 +11,14 @@ namespace VistaDB.Engine.Internal
     private ColumnsProperties()
     {
       for (int index = 0; index < 32; ++index)
-        Add((object) index, (object) DataStorage.CreateRowColumn((VistaDBType) index, false, CultureInfo.InvariantCulture));
+        Add(index, DataStorage.CreateRowColumn((VistaDBType)index, false, CultureInfo.InvariantCulture));
     }
 
     internal static int GetMaxLength(VistaDBType type)
     {
-      if (!properties.Contains((object) type))
+      if (!properties.Contains(type))
         return -1;
-      return ((Row.Column)properties[(object) type]).MaxLength;
+      return ((Row.Column)properties[type]).MaxLength;
     }
   }
 }

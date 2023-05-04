@@ -48,8 +48,8 @@ namespace VistaDB.Engine.SQL
         private static int[] typesWithScale = new int[26] { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, int.MaxValue, int.MaxValue, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -2 };
         private static VistaDBType[] typesWithMaxLen = new VistaDBType[27] { VistaDBType.Unknown, VistaDBType.Unknown, VistaDBType.Text, VistaDBType.NText, VistaDBType.Unknown, VistaDBType.Unknown, VistaDBType.Unknown, VistaDBType.Unknown, VistaDBType.Unknown, VistaDBType.Unknown, VistaDBType.Unknown, VistaDBType.Unknown, VistaDBType.Unknown, VistaDBType.Unknown, VistaDBType.Unknown, VistaDBType.Unknown, VistaDBType.Unknown, VistaDBType.Unknown, VistaDBType.Unknown, VistaDBType.Unknown, VistaDBType.Image, VistaDBType.Unknown, VistaDBType.Unknown, VistaDBType.Unknown, VistaDBType.Unknown, VistaDBType.Unknown, VistaDBType.Unknown };
         private static VistaDBType[] sqlToNativeDataType = new VistaDBType[27] { VistaDBType.Char, VistaDBType.NChar, VistaDBType.VarChar, VistaDBType.NVarChar, VistaDBType.Text, VistaDBType.NText, VistaDBType.TinyInt, VistaDBType.SmallInt, VistaDBType.Int, VistaDBType.BigInt, VistaDBType.Real, VistaDBType.Float, VistaDBType.Decimal, VistaDBType.Decimal, VistaDBType.Money, VistaDBType.SmallMoney, VistaDBType.Bit, VistaDBType.SmallDateTime, VistaDBType.DateTime, VistaDBType.Image, VistaDBType.VarBinary, VistaDBType.VarBinary, VistaDBType.UniqueIdentifier, VistaDBType.Unknown, VistaDBType.Timestamp, VistaDBType.Float, VistaDBType.Unknown };
-        private static Dictionary<string, int> reservedWords = new Dictionary<string, int>((IEqualityComparer<string>)StringComparer.OrdinalIgnoreCase);
-        private static Dictionary<string, SqlDataType> typeNames = new Dictionary<string, SqlDataType>((IEqualityComparer<string>)StringComparer.OrdinalIgnoreCase);
+        private static Dictionary<string, int> reservedWords = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        private static Dictionary<string, SqlDataType> typeNames = new Dictionary<string, SqlDataType>(StringComparer.OrdinalIgnoreCase);
         public const string UNARY_SUFFIX = " UNARY";
         public const string COMMA_KEYWORD = ",";
         public const string LEFT_BRACKET_KEYWORD = "(";
@@ -438,138 +438,138 @@ namespace VistaDB.Engine.SQL
             typeNames.Add("TABLE", SqlDataType.Table);
             InitReservedWords();
             specialFunctions = new SpecialFunctionCollection();
-            FunctionDescr functionDescr1 = (FunctionDescr)new GetViewsFunctionDescr();
+            FunctionDescr functionDescr1 = new GetViewsFunctionDescr();
             specialFunctions.Add("GETVIEWS", functionDescr1);
             specialFunctions.Add("SP_VIEWS", functionDescr1);
-            FunctionDescr functionDescr2 = (FunctionDescr)new GetViewColumnsFunctionDescr();
+            FunctionDescr functionDescr2 = new GetViewColumnsFunctionDescr();
             specialFunctions.Add("GETVIEWCOLUMNS", functionDescr2);
             specialFunctions.Add("SP_VIEWCOLUMNS", functionDescr2);
-            FunctionDescr functionDescr3 = (FunctionDescr)new SpColumnsFunctionDescr();
+            FunctionDescr functionDescr3 = new SpColumnsFunctionDescr();
             specialFunctions.Add("SP_COLUMNS", functionDescr3);
-            FunctionDescr functionDescr4 = (FunctionDescr)new SpIndexesFunctionDescr();
+            FunctionDescr functionDescr4 = new SpIndexesFunctionDescr();
             specialFunctions.Add("SP_INDEXES", functionDescr4);
-            FunctionDescr functionDescr5 = (FunctionDescr)new SpStoredProceduresDescr();
+            FunctionDescr functionDescr5 = new SpStoredProceduresDescr();
             specialFunctions.Add(nameof(SP_STORED_PROCEDURES), functionDescr5);
-            FunctionDescr functionDescr6 = (FunctionDescr)new SpStoredFunctionDesr();
+            FunctionDescr functionDescr6 = new SpStoredFunctionDesr();
             specialFunctions.Add("SP_UDF", functionDescr6);
-            FunctionDescr functionDescr7 = (FunctionDescr)new SpForeignKeysFunctionDescr();
+            FunctionDescr functionDescr7 = new SpForeignKeysFunctionDescr();
             specialFunctions.Add("SP_FOREIGNKEYS", functionDescr7);
             builtInFunctions = new FunctionCollection();
             foreach (string key in specialFunctions.Keys)
                 builtInFunctions.Add(key, specialFunctions[key]);
-            builtInFunctions.Add("LOWER", (FunctionDescr)new LowerFunctionDescr());
-            builtInFunctions.Add("UPPER", (FunctionDescr)new UpperFunctionDescr());
-            builtInFunctions.Add("ASCII", (FunctionDescr)new ASCIIFunctionDescr());
-            builtInFunctions.Add("UNICODE", (FunctionDescr)new UnicodeFunctionDescr());
-            builtInFunctions.Add("CHAR", (FunctionDescr)new CharFunctionDescr());
-            builtInFunctions.Add("NCHAR", (FunctionDescr)new NCharFunctionDescr());
-            builtInFunctions.Add("CHARINDEX", (FunctionDescr)new CharIndexFunctionDescr());
-            builtInFunctions.Add("LEN", (FunctionDescr)new LenFunctionDescr());
-            builtInFunctions.Add("LTRIM", (FunctionDescr)new LTrimFunctionDescr());
-            builtInFunctions.Add("RTRIM", (FunctionDescr)new RTrimFunctionDescr());
-            builtInFunctions.Add("REVERSE", (FunctionDescr)new ReverseFunctionDescr());
-            builtInFunctions.Add("SPACE", (FunctionDescr)new SpaceFunctionDescr());
-            builtInFunctions.Add("LEFT", (FunctionDescr)new LeftFunctionDescr());
-            builtInFunctions.Add("RIGHT", (FunctionDescr)new RightFunctionDescr());
-            builtInFunctions.Add("REPLACE", (FunctionDescr)new ReplaceFunctionDescr());
-            builtInFunctions.Add("REPLICATE", (FunctionDescr)new ReplicateFunctionDescr());
-            builtInFunctions.Add("STR", (FunctionDescr)new StrFunctionDescr());
-            builtInFunctions.Add("STUFF", (FunctionDescr)new StuffFunctionDescr());
-            builtInFunctions.Add("SUBSTRING", (FunctionDescr)new SubStringFunctionDescr());
-            builtInFunctions.Add("PATINDEX", (FunctionDescr)new PAtIndexFunctionDescr());
-            builtInFunctions.Add("ABS", (FunctionDescr)new AbsFunctionDescr());
-            builtInFunctions.Add("ACOS", (FunctionDescr)new ACosFunctionDescr());
-            builtInFunctions.Add("ASIN", (FunctionDescr)new ASinFunctionDescr());
-            builtInFunctions.Add("ATAN", (FunctionDescr)new ATanFunctionDescr());
-            builtInFunctions.Add("ATN2", (FunctionDescr)new ATN2FunctionDescr());
-            builtInFunctions.Add("CEILING", (FunctionDescr)new CeilingFunctionDescr());
-            builtInFunctions.Add("COS", (FunctionDescr)new CosFunctionDescr());
-            builtInFunctions.Add("COT", (FunctionDescr)new CotFunctionDescr());
-            builtInFunctions.Add("DEGREES", (FunctionDescr)new DegreesFunctionDescr());
-            builtInFunctions.Add("EXP", (FunctionDescr)new ExpFunctionDescr());
-            builtInFunctions.Add("FLOOR", (FunctionDescr)new FloorFunctionDescr());
-            builtInFunctions.Add("FRAC", (FunctionDescr)new FracFunctionDescr());
-            builtInFunctions.Add("INT", (FunctionDescr)new IntFunctionDescr());
-            builtInFunctions.Add("LOG", (FunctionDescr)new LogFunctionDescr());
-            builtInFunctions.Add("LOG10", (FunctionDescr)new Log10FunctionDescr());
-            builtInFunctions.Add("MAXOF", (FunctionDescr)new MaxOfFunctionDescr());
-            builtInFunctions.Add("MINOF", (FunctionDescr)new MinOfFunctionDescr());
-            builtInFunctions.Add("PI", (FunctionDescr)new PIFunctionDescr());
-            builtInFunctions.Add("POWER", (FunctionDescr)new PowerFunctionDescr());
-            builtInFunctions.Add("RADIANS", (FunctionDescr)new RadiansFunctionDescr());
-            builtInFunctions.Add("RAND", (FunctionDescr)new RandFunctionDescr());
-            builtInFunctions.Add("ROUND", (FunctionDescr)new RoundFunctionDescr());
-            builtInFunctions.Add("SIGN", (FunctionDescr)new SignFunctionDescr());
-            builtInFunctions.Add("SIN", (FunctionDescr)new SinFunctionDescr());
-            builtInFunctions.Add("SQRT", (FunctionDescr)new SqrtFunctionDescr());
-            builtInFunctions.Add("SQUARE", (FunctionDescr)new SquareFunctionDescr());
-            builtInFunctions.Add("TAN", (FunctionDescr)new TanFunctionDescr());
-            builtInFunctions.Add("SUM", (FunctionDescr)new SumFunctionDescr());
-            builtInFunctions.Add("COUNT", (FunctionDescr)new CountFunctionDescr());
-            builtInFunctions.Add("COUNT_BIG", (FunctionDescr)new CountBigFunctionDescr());
-            builtInFunctions.Add("AVG", (FunctionDescr)new AvgFunctionDescr());
-            builtInFunctions.Add("MIN", (FunctionDescr)new MinFunctionDescr());
-            builtInFunctions.Add("MAX", (FunctionDescr)new MaxFunctionDescr());
-            builtInFunctions.Add("STDEV", (FunctionDescr)new StDevFunctionDescr());
-            builtInFunctions.Add("CAST", (FunctionDescr)new CastFunctionDescr());
-            builtInFunctions.Add("ISNULL", (FunctionDescr)new IsNullFunctionDescr());
-            builtInFunctions.Add("LOOKUP", (FunctionDescr)new LookupFunctionDescr());
-            builtInFunctions.Add("NULLIF", (FunctionDescr)new NullIfFunctionDescr());
-            builtInFunctions.Add("ISNUMERIC", (FunctionDescr)new IsNumericFunctionDescr());
-            builtInFunctions.Add("CONVERT", (FunctionDescr)new ConvertFunctionDescr());
-            builtInFunctions.Add("CASE", (FunctionDescr)new CaseFunctionDescr());
-            builtInFunctions.Add("LASTIDENTITY", (FunctionDescr)new LastIdentityFunctionDescr());
-            builtInFunctions.Add("CONTAINS", (FunctionDescr)new ContainsFunctionDescr());
-            builtInFunctions.Add("COALESCE", (FunctionDescr)new CoalesceFunctionDescr());
-            builtInFunctions.Add("NEWID", (FunctionDescr)new NewIDFunctionDescr());
-            builtInFunctions.Add("SP_RENAME", (FunctionDescr)new RenameFunctionDescr());
-            builtInFunctions.Add("IIF", (FunctionDescr)new IIFFunctionDescr());
-            builtInFunctions.Add("LASTTIMESTAMP", (FunctionDescr)new LastTimestampFunctionDescr());
-            builtInFunctions.Add(nameof(LASTTABLEANCHOR), (FunctionDescr)new LastTableAnchorDesc());
-            builtInFunctions.Add("DATEADD", (FunctionDescr)new DateAddFunctionDescr());
-            builtInFunctions.Add("DATEDIFF", (FunctionDescr)new DateDiffFunctionDescr());
-            builtInFunctions.Add("DATENAME", (FunctionDescr)new DateNameFunctionDescr());
-            builtInFunctions.Add("DATEPART", (FunctionDescr)new DatePartFunctionDescr());
-            builtInFunctions.Add("DAY", (FunctionDescr)new DayFunctionDescr());
-            builtInFunctions.Add("GETDATE", (FunctionDescr)new GetDateFunctionDescr());
-            builtInFunctions.Add("GETUTCDATE", (FunctionDescr)new GetUtcDateFunctionDescr());
-            builtInFunctions.Add("MONTH", (FunctionDescr)new MonthFunctionDescr());
-            builtInFunctions.Add("YEAR", (FunctionDescr)new YearFunctionDescr());
-            builtInFunctions.Add("@@IDENTITY", (FunctionDescr)new IdentityVariableDescr());
-            builtInFunctions.Add("@@VERSION", (FunctionDescr)new VistaDBVersionDescr());
-            builtInFunctions.Add("@@ERROR", (FunctionDescr)new VistaDBErrorVariableDescription());
-            builtInFunctions.Add("@@DATABASEID", (FunctionDescr)new VistaDBDatabaseIdVariableDescriptor());
-            builtInFunctions.Add("@@ROWCOUNT", (FunctionDescr)new VistaDBRowCountVariableDescription());
-            builtInFunctions.Add("@@TRANCOUNT", (FunctionDescr)new VistaDBTranCountVariableDescription());
+            builtInFunctions.Add("LOWER", new LowerFunctionDescr());
+            builtInFunctions.Add("UPPER", new UpperFunctionDescr());
+            builtInFunctions.Add("ASCII", new ASCIIFunctionDescr());
+            builtInFunctions.Add("UNICODE", new UnicodeFunctionDescr());
+            builtInFunctions.Add("CHAR", new CharFunctionDescr());
+            builtInFunctions.Add("NCHAR", new NCharFunctionDescr());
+            builtInFunctions.Add("CHARINDEX", new CharIndexFunctionDescr());
+            builtInFunctions.Add("LEN", new LenFunctionDescr());
+            builtInFunctions.Add("LTRIM", new LTrimFunctionDescr());
+            builtInFunctions.Add("RTRIM", new RTrimFunctionDescr());
+            builtInFunctions.Add("REVERSE", new ReverseFunctionDescr());
+            builtInFunctions.Add("SPACE", new SpaceFunctionDescr());
+            builtInFunctions.Add("LEFT", new LeftFunctionDescr());
+            builtInFunctions.Add("RIGHT", new RightFunctionDescr());
+            builtInFunctions.Add("REPLACE", new ReplaceFunctionDescr());
+            builtInFunctions.Add("REPLICATE", new ReplicateFunctionDescr());
+            builtInFunctions.Add("STR", new StrFunctionDescr());
+            builtInFunctions.Add("STUFF", new StuffFunctionDescr());
+            builtInFunctions.Add("SUBSTRING", new SubStringFunctionDescr());
+            builtInFunctions.Add("PATINDEX", new PAtIndexFunctionDescr());
+            builtInFunctions.Add("ABS", new AbsFunctionDescr());
+            builtInFunctions.Add("ACOS", new ACosFunctionDescr());
+            builtInFunctions.Add("ASIN", new ASinFunctionDescr());
+            builtInFunctions.Add("ATAN", new ATanFunctionDescr());
+            builtInFunctions.Add("ATN2", new ATN2FunctionDescr());
+            builtInFunctions.Add("CEILING", new CeilingFunctionDescr());
+            builtInFunctions.Add("COS", new CosFunctionDescr());
+            builtInFunctions.Add("COT", new CotFunctionDescr());
+            builtInFunctions.Add("DEGREES", new DegreesFunctionDescr());
+            builtInFunctions.Add("EXP", new ExpFunctionDescr());
+            builtInFunctions.Add("FLOOR", new FloorFunctionDescr());
+            builtInFunctions.Add("FRAC", new FracFunctionDescr());
+            builtInFunctions.Add("INT", new IntFunctionDescr());
+            builtInFunctions.Add("LOG", new LogFunctionDescr());
+            builtInFunctions.Add("LOG10", new Log10FunctionDescr());
+            builtInFunctions.Add("MAXOF", new MaxOfFunctionDescr());
+            builtInFunctions.Add("MINOF", new MinOfFunctionDescr());
+            builtInFunctions.Add("PI", new PIFunctionDescr());
+            builtInFunctions.Add("POWER", new PowerFunctionDescr());
+            builtInFunctions.Add("RADIANS", new RadiansFunctionDescr());
+            builtInFunctions.Add("RAND", new RandFunctionDescr());
+            builtInFunctions.Add("ROUND", new RoundFunctionDescr());
+            builtInFunctions.Add("SIGN", new SignFunctionDescr());
+            builtInFunctions.Add("SIN", new SinFunctionDescr());
+            builtInFunctions.Add("SQRT", new SqrtFunctionDescr());
+            builtInFunctions.Add("SQUARE", new SquareFunctionDescr());
+            builtInFunctions.Add("TAN", new TanFunctionDescr());
+            builtInFunctions.Add("SUM", new SumFunctionDescr());
+            builtInFunctions.Add("COUNT", new CountFunctionDescr());
+            builtInFunctions.Add("COUNT_BIG", new CountBigFunctionDescr());
+            builtInFunctions.Add("AVG", new AvgFunctionDescr());
+            builtInFunctions.Add("MIN", new MinFunctionDescr());
+            builtInFunctions.Add("MAX", new MaxFunctionDescr());
+            builtInFunctions.Add("STDEV", new StDevFunctionDescr());
+            builtInFunctions.Add("CAST", new CastFunctionDescr());
+            builtInFunctions.Add("ISNULL", new IsNullFunctionDescr());
+            builtInFunctions.Add("LOOKUP", new LookupFunctionDescr());
+            builtInFunctions.Add("NULLIF", new NullIfFunctionDescr());
+            builtInFunctions.Add("ISNUMERIC", new IsNumericFunctionDescr());
+            builtInFunctions.Add("CONVERT", new ConvertFunctionDescr());
+            builtInFunctions.Add("CASE", new CaseFunctionDescr());
+            builtInFunctions.Add("LASTIDENTITY", new LastIdentityFunctionDescr());
+            builtInFunctions.Add("CONTAINS", new ContainsFunctionDescr());
+            builtInFunctions.Add("COALESCE", new CoalesceFunctionDescr());
+            builtInFunctions.Add("NEWID", new NewIDFunctionDescr());
+            builtInFunctions.Add("SP_RENAME", new RenameFunctionDescr());
+            builtInFunctions.Add("IIF", new IIFFunctionDescr());
+            builtInFunctions.Add("LASTTIMESTAMP", new LastTimestampFunctionDescr());
+            builtInFunctions.Add(nameof(LASTTABLEANCHOR), new LastTableAnchorDesc());
+            builtInFunctions.Add("DATEADD", new DateAddFunctionDescr());
+            builtInFunctions.Add("DATEDIFF", new DateDiffFunctionDescr());
+            builtInFunctions.Add("DATENAME", new DateNameFunctionDescr());
+            builtInFunctions.Add("DATEPART", new DatePartFunctionDescr());
+            builtInFunctions.Add("DAY", new DayFunctionDescr());
+            builtInFunctions.Add("GETDATE", new GetDateFunctionDescr());
+            builtInFunctions.Add("GETUTCDATE", new GetUtcDateFunctionDescr());
+            builtInFunctions.Add("MONTH", new MonthFunctionDescr());
+            builtInFunctions.Add("YEAR", new YearFunctionDescr());
+            builtInFunctions.Add("@@IDENTITY", new IdentityVariableDescr());
+            builtInFunctions.Add("@@VERSION", new VistaDBVersionDescr());
+            builtInFunctions.Add("@@ERROR", new VistaDBErrorVariableDescription());
+            builtInFunctions.Add("@@DATABASEID", new VistaDBDatabaseIdVariableDescriptor());
+            builtInFunctions.Add("@@ROWCOUNT", new VistaDBRowCountVariableDescription());
+            builtInFunctions.Add("@@TRANCOUNT", new VistaDBTranCountVariableDescription());
             operators = new OperatorCollection();
-            operators.Add("EXISTS UNARY", (IOperatorDescr)new ExistsOperatorDescr());
-            operators.Add("~ UNARY", (IOperatorDescr)new BitwiseNotOperatorDescr());
-            operators.Add("*", (IOperatorDescr)new MultiplyOperatorDescr());
-            operators.Add("/", (IOperatorDescr)new DivideOperatorDescr());
-            operators.Add("%", (IOperatorDescr)new ModOperatorDescr());
-            operators.Add("- UNARY", (IOperatorDescr)new UnaryMinusOperatorDescr());
-            operators.Add("+ UNARY", (IOperatorDescr)new UnaryPlusOperatorDescr());
-            operators.Add("+", (IOperatorDescr)new PlusOperatorDescr());
-            operators.Add("-", (IOperatorDescr)new MinusOperatorDescr());
-            operators.Add("&", (IOperatorDescr)new BitwiseAndOperatorDescr());
-            operators.Add("|", (IOperatorDescr)new BitwiseOrOperatorDescr());
-            operators.Add("^", (IOperatorDescr)new BitwiseXorOperatorDescr());
-            operators.Add("=", (IOperatorDescr)new EqualOperatorDescr());
-            IOperatorDescr operatorDescr = (IOperatorDescr)new NotEqualOperatorDescr();
+            operators.Add("EXISTS UNARY", new ExistsOperatorDescr());
+            operators.Add("~ UNARY", new BitwiseNotOperatorDescr());
+            operators.Add("*", new MultiplyOperatorDescr());
+            operators.Add("/", new DivideOperatorDescr());
+            operators.Add("%", new ModOperatorDescr());
+            operators.Add("- UNARY", new UnaryMinusOperatorDescr());
+            operators.Add("+ UNARY", new UnaryPlusOperatorDescr());
+            operators.Add("+", new PlusOperatorDescr());
+            operators.Add("-", new MinusOperatorDescr());
+            operators.Add("&", new BitwiseAndOperatorDescr());
+            operators.Add("|", new BitwiseOrOperatorDescr());
+            operators.Add("^", new BitwiseXorOperatorDescr());
+            operators.Add("=", new EqualOperatorDescr());
+            IOperatorDescr operatorDescr = new NotEqualOperatorDescr();
             operators.Add("!=", operatorDescr);
             operators.Add("<>", operatorDescr);
-            operators.Add("<", (IOperatorDescr)new LessThanOperatorDescr());
-            operators.Add("<=", (IOperatorDescr)new LessOrEqualOperatorDescr());
-            operators.Add(">", (IOperatorDescr)new GreaterThanOperatorDescr());
-            operators.Add(">=", (IOperatorDescr)new GreaterOrEqualOperatorDescr());
-            operators.Add("IN", (IOperatorDescr)new InOperatorDescr());
-            operators.Add("LIKE", (IOperatorDescr)new LikeOperatorDescr());
-            operators.Add("BETWEEN", (IOperatorDescr)new BetweenOperatorDescr());
-            operators.Add("IS", (IOperatorDescr)new IsNullOperatorDescr());
-            operators.Add("NOT", (IOperatorDescr)new NotBaseOperatorDescr());
-            operators.Add("NOT UNARY", (IOperatorDescr)new NotOperatorDescr());
-            operators.Add("AND", (IOperatorDescr)new AndOperatorDescr());
-            operators.Add("OR", (IOperatorDescr)new OrOperatorDescr());
+            operators.Add("<", new LessThanOperatorDescr());
+            operators.Add("<=", new LessOrEqualOperatorDescr());
+            operators.Add(">", new GreaterThanOperatorDescr());
+            operators.Add(">=", new GreaterOrEqualOperatorDescr());
+            operators.Add("IN", new InOperatorDescr());
+            operators.Add("LIKE", new LikeOperatorDescr());
+            operators.Add("BETWEEN", new BetweenOperatorDescr());
+            operators.Add("IS", new IsNullOperatorDescr());
+            operators.Add("NOT", new NotBaseOperatorDescr());
+            operators.Add("NOT UNARY", new NotOperatorDescr());
+            operators.Add("AND", new AndOperatorDescr());
+            operators.Add("OR", new OrOperatorDescr());
         }
 
         internal static SQLParser CreateInstance(string text, CultureInfo culture)
@@ -579,7 +579,7 @@ namespace VistaDB.Engine.SQL
 
         private SQLParser(string text, CultureInfo culture)
         {
-            parent = (Statement)null;
+            parent = null;
             tokenValue = new TokenValueClass();
             currentContext = new Stack();
             this.culture = culture;
@@ -653,7 +653,7 @@ namespace VistaDB.Engine.SQL
 
         internal void PushContext(CurrentTokenContext context)
         {
-            currentContext.Push((object)context);
+            currentContext.Push(context);
         }
 
         internal void PopContext()
@@ -674,9 +674,9 @@ namespace VistaDB.Engine.SQL
         internal Signature NextSignature(bool needSkip, bool raiseException, int priority)
         {
             if (needSkip && !SkipToken(raiseException))
-                return (Signature)null;
+                return null;
             Signature signature = priority == -1 ? ParseExpressions() : ParsePriority(priority);
-            if (raiseException && signature == (Signature)null)
+            if (raiseException && signature == null)
                 throw new VistaDBSQLException(502, "end of text", rowNo, symbolNo + 1);
             return signature;
         }
@@ -732,10 +732,10 @@ namespace VistaDB.Engine.SQL
                 return (ITableValuedFunction)specialFunction.CreateSignature(this);
             IUserDefinedFunctionInformation userDefinedFunction = parent.Database.GetUserDefinedFunctions()[name];
             if (userDefinedFunction == null)
-                return (ITableValuedFunction)new CLRResultSetFunction(this, name);
+                return new CLRResultSetFunction(this, name);
             if (userDefinedFunction.ScalarValued)
                 throw new Exception("Scalar-valued function can't be executed from exec");
-            return (ITableValuedFunction)new TableValuedFunction(this, userDefinedFunction);
+            return new TableValuedFunction(this, userDefinedFunction);
         }
 
         internal void CheckVariableName()
@@ -777,7 +777,7 @@ namespace VistaDB.Engine.SQL
 
             if (textLength == symbolNo)
             {
-                tokenValue.SetToken(0, 0, 0, (string)null, TokenType.Unknown);
+                tokenValue.SetToken(0, 0, 0, null, TokenType.Unknown);
                 if (raiseException)
                     throw new VistaDBSQLException(502, "end of text", this.rowNo, symbolNo + 1);
                 return false;
@@ -836,14 +836,14 @@ namespace VistaDB.Engine.SQL
             if (text[this.symbolNo] == '\'')
             {
                 if (!SkipToken(false))
-                    return (string)null;
+                    return null;
                 return tokenValue.Token;
             }
             int symbolNo = this.symbolNo;
-            while (textLength > this.symbolNo && (int)text[this.symbolNo] != (int)stopChar)
+            while (textLength > this.symbolNo && text[this.symbolNo] != stopChar)
                 IncrementSymbolNo(true);
             if (symbolNo == this.symbolNo)
-                return (string)null;
+                return null;
             return text.Substring(symbolNo, this.symbolNo - symbolNo);
         }
 
@@ -976,7 +976,7 @@ namespace VistaDB.Engine.SQL
             while (IncrementSymbolNo(false))
             {
                 c = text[symbolNo];
-                if ((int)c == (int)ch1)
+                if (c == ch1)
                 {
                     doNotCheckAlias = true;
                     if (!IncrementSymbolNo(false) || text[symbolNo] != '.')
@@ -990,7 +990,7 @@ namespace VistaDB.Engine.SQL
                         while (IncrementSymbolNo(false))
                         {
                             c = text[symbolNo];
-                            if ((int)c == (int)ch2)
+                            if (c == ch2)
                             {
                                 IncrementSymbolNo(false);
                                 goto label_15;
@@ -1130,7 +1130,7 @@ namespace VistaDB.Engine.SQL
             }
             else
             {
-                leftSignature = (Signature)null;
+                leftSignature = null;
                 index = tokenValue.Token + " UNARY";
             }
             int num = 0;
@@ -1139,7 +1139,7 @@ namespace VistaDB.Engine.SQL
                 IOperatorDescr operatorDescr = operators[index];
                 if (operatorDescr == null || operatorDescr.Priority < num || operatorDescr.Priority > priority)
                 {
-                    if (leftSignature != (Signature)null)
+                    if (leftSignature != null)
                         return leftSignature;
                     leftSignature = ParseExpressions();
                 }
@@ -1156,8 +1156,8 @@ namespace VistaDB.Engine.SQL
         private Signature ParseExpressions()
         {
             bool flag = true;
-            Signature signature = (Signature)ConstantSignature.CreateSignature(this);
-            if (signature == (Signature)null)
+            Signature signature = ConstantSignature.CreateSignature(this);
+            if (signature == null)
             {
                 switch (tokenValue.TokenType)
                 {
@@ -1175,9 +1175,9 @@ namespace VistaDB.Engine.SQL
                             break;
                         }
                         signature = ParseFunctions(true);
-                        if (signature == (Signature)null)
+                        if (signature == null)
                         {
-                            signature = (Signature)ColumnSignature.CreateSignature(this);
+                            signature = ColumnSignature.CreateSignature(this);
                             break;
                         }
                         break;
@@ -1189,14 +1189,14 @@ namespace VistaDB.Engine.SQL
                     case TokenType.Name:
                     case TokenType.ComplexName:
                         signature = ParseFunctions(false);
-                        if (!(signature != (Signature)null))
+                        if (!(signature != null))
                         {
-                            signature = (Signature)ColumnSignature.CreateSignature(this);
+                            signature = ColumnSignature.CreateSignature(this);
                             break;
                         }
                         break;
                     default:
-                        signature = (Signature)null;
+                        signature = null;
                         break;
                 }
             }
@@ -1208,7 +1208,7 @@ namespace VistaDB.Engine.SQL
         private Signature ParseFunctions(bool includeSystem)
         {
             string token = tokenValue.Token;
-            FunctionDescr functionDescr = includeSystem ? builtInFunctions[token] : (FunctionDescr)null;
+            FunctionDescr functionDescr = includeSystem ? builtInFunctions[token] : null;
             int symbolNo1 = symbolNo;
             int rowNo1 = rowNo;
             int colNo1 = colNo;
@@ -1236,7 +1236,7 @@ namespace VistaDB.Engine.SQL
                 {
                     IUserDefinedFunctionCollection definedFunctions = parent.Connection.Database.GetUserDefinedFunctions();
                     if (definedFunctions.ContainsKey(index))
-                        functionDescr = (FunctionDescr)new StoredFunctionDescr(definedFunctions[index]);
+                        functionDescr = new StoredFunctionDescr(definedFunctions[index]);
                     else if (CheckUdfContext(index))
                     {
                         SkipQuotes();
@@ -1247,12 +1247,12 @@ namespace VistaDB.Engine.SQL
                 {
                     IStoredProcedureCollection storedProcedures = parent.Connection.Database.GetStoredProcedures();
                     if (storedProcedures.ContainsKey(index))
-                        functionDescr = (FunctionDescr)new StoredProcedureDescr(storedProcedures[index]);
+                        functionDescr = new StoredProcedureDescr(storedProcedures[index]);
                 }
                 if (parent.Connection.Database.TryGetProcedure(index, out ClrHosting.ClrProcedure procedure))
-                    return (Signature)new CLRStoredProcedure(this, index);
+                    return new CLRStoredProcedure(this, index);
                 if (parent.Connection.Database.GetClrProcedures().ContainsKey(index))
-                    return (Signature)new CLRStoredProcedure(this, index);
+                    return new CLRStoredProcedure(this, index);
             }
             SetPosition(rowNo1, colNo1, symbolNo1, rowNo2, colNo2, symbolNo2, token, tokenType, !validateName);
             return functionDescr?.CreateSignature(this);
@@ -1288,7 +1288,7 @@ namespace VistaDB.Engine.SQL
 
         private SqlDataType ReadSqlDataType()
         {
-            temporaryTable = (CreateTableStatement)null;
+            temporaryTable = null;
             string token = tokenValue.Token;
             if (!typeNames.ContainsKey(token))
                 throw new VistaDBSQLException(624, "Expected to find Sql Data Type", tokenValue.RowNo, tokenValue.ColNo);
@@ -1403,7 +1403,7 @@ namespace VistaDB.Engine.SQL
                 return TreatTemporaryTableName(columnAndTableName, Parent);
             if (columnAndTableName != null)
                 return "#" + columnAndTableName;
-            return (string)null;
+            return null;
         }
 
         public string GetTableName(Statement statement)
@@ -1444,7 +1444,7 @@ namespace VistaDB.Engine.SQL
             string name;
             if (tokenType == TokenType.Name)
             {
-                name = (string)null;
+                name = null;
                 columnName = token;
             }
             else
@@ -1468,7 +1468,7 @@ namespace VistaDB.Engine.SQL
                 else
                 {
                     columnName = name;
-                    name = (string)null;
+                    name = null;
                 }
             }
             if (name != null)
@@ -1555,14 +1555,14 @@ namespace VistaDB.Engine.SQL
         internal List<VariableDeclaration> ParseVariables()
         {
             if (!ParameterSignature.IsParameter(TokenValue.Token))
-                return (List<VariableDeclaration>)null;
+                return null;
             List<VariableDeclaration> variableDeclarationList = new List<VariableDeclaration>();
             while (!EndOfText && ParameterSignature.IsParameter(TokenValue.Token))
             {
                 CheckVariableName();
                 string token = TokenValue.Token;
-                IValue defaultValue = (IValue)null;
-                Signature signature = (Signature)null;
+                IValue defaultValue = null;
+                Signature signature = null;
                 ParameterDirection direction = ParameterDirection.Input;
                 SkipToken(true);
                 if (IsToken("AS"))
@@ -1572,14 +1572,14 @@ namespace VistaDB.Engine.SQL
                 if (dataType == VistaDBType.Unknown && temporaryTable != null)
                 {
                     parent.DoRegisterTemporaryTableName(token.Substring(1), temporaryTable);
-                    temporaryTable = (CreateTableStatement)null;
+                    temporaryTable = null;
                 }
                 if (IsToken("="))
                 {
                     if (parent is DeclareStatement)
                         signature = NextSignature(true, true, 6);
                     else
-                        defaultValue = (IValue)NextSignature(true, true, 6).Execute();
+                        defaultValue = NextSignature(true, true, 6).Execute();
                 }
                 if (IsToken("OUT"))
                 {
@@ -1681,7 +1681,7 @@ namespace VistaDB.Engine.SQL
         internal class FunctionCollection : Dictionary<string, FunctionDescr>
         {
             internal FunctionCollection()
-              : base((IEqualityComparer<string>)StringComparer.OrdinalIgnoreCase)
+              : base(StringComparer.OrdinalIgnoreCase)
             {
             }
 
@@ -1691,7 +1691,7 @@ namespace VistaDB.Engine.SQL
                 {
                     if (ContainsKey(token))
                         return base[token];
-                    return (FunctionDescr)null;
+                    return null;
                 }
             }
         }
@@ -1703,7 +1703,7 @@ namespace VistaDB.Engine.SQL
         internal class OperatorCollection : Dictionary<string, IOperatorDescr>
         {
             internal OperatorCollection()
-              : base((IEqualityComparer<string>)StringComparer.OrdinalIgnoreCase)
+              : base(StringComparer.OrdinalIgnoreCase)
             {
             }
 
@@ -1713,7 +1713,7 @@ namespace VistaDB.Engine.SQL
                 {
                     if (ContainsKey(token))
                         return base[token];
-                    return (IOperatorDescr)null;
+                    return null;
                 }
             }
         }

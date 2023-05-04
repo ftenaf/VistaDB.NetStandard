@@ -44,7 +44,7 @@ namespace VistaDB
     public bool IsUpdatedColumn(int columnOrdinal)
     {
       if (ordinalsCollection != null)
-        return ordinalsCollection[columnOrdinal] != (byte) 0;
+        return ordinalsCollection[columnOrdinal] != 0;
       return false;
     }
 
@@ -52,7 +52,7 @@ namespace VistaDB
     {
       if (ordinalsCollection == null)
         return;
-      ordinalsCollection[columnOrdinal] = (byte) 1;
+      ordinalsCollection[columnOrdinal] = 1;
     }
   }
 }

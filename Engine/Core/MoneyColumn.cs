@@ -7,8 +7,8 @@ namespace VistaDB.Engine.Core
   internal class MoneyColumn : DecimalColumn
   {
     public static readonly int ScaleFactor = 10000;
-    private static readonly Decimal MaxCurrency = new Decimal(long.MaxValue) / (Decimal)ScaleFactor;
-    private static readonly Decimal MinCurrency = new Decimal(long.MinValue) / (Decimal)ScaleFactor;
+    private static readonly Decimal MaxCurrency = new Decimal(long.MaxValue) / ScaleFactor;
+    private static readonly Decimal MinCurrency = new Decimal(long.MinValue) / ScaleFactor;
     private static readonly int MoneySize = 8;
 
     internal MoneyColumn()
@@ -19,11 +19,11 @@ namespace VistaDB.Engine.Core
     internal MoneyColumn(Decimal val)
       : this()
     {
-      Value = (object) val;
+      Value = val;
     }
 
     internal MoneyColumn(MoneyColumn column)
-      : base((DecimalColumn) column)
+      : base(column)
     {
     }
 
@@ -31,7 +31,7 @@ namespace VistaDB.Engine.Core
     {
       set
       {
-        base.Value = value == null ? value : (object) TestDynamicRange(Truncate((Decimal) value));
+        base.Value = value == null ? value : TestDynamicRange(Truncate((Decimal)value));
       }
     }
 
@@ -39,7 +39,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (object)MaxCurrency;
+        return MaxCurrency;
       }
     }
 
@@ -47,31 +47,31 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (object)MinCurrency;
+        return MinCurrency;
       }
     }
 
     internal override int ConvertToByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      return VdbBitConverter.GetBytes((ulong) Decimal.ToInt64((Decimal) Value * (Decimal)ScaleFactor), buffer, offset, MoneySize);
+      return VdbBitConverter.GetBytes((ulong) Decimal.ToInt64((Decimal) Value * ScaleFactor), buffer, offset, MoneySize);
     }
 
     internal override int ConvertFromByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
       long int64 = BitConverter.ToInt64(buffer, offset);
       offset += MoneySize;
-      val = (object) (new Decimal(int64) / (Decimal)ScaleFactor);
+      val = new Decimal(int64) / ScaleFactor;
       return offset;
     }
 
     protected override Row.Column OnDuplicate(bool padRight)
     {
-      return (Row.Column) new MoneyColumn(this);
+      return new MoneyColumn(this);
     }
 
     private Decimal Truncate(Decimal currency)
     {
-      return new Decimal(Decimal.ToInt64(currency * (Decimal)ScaleFactor)) / (Decimal)ScaleFactor;
+      return new Decimal(Decimal.ToInt64(currency * ScaleFactor)) / ScaleFactor;
     }
 
     private Decimal TestDynamicRange(Decimal currency)

@@ -48,7 +48,7 @@ namespace VistaDB.Engine.Core
         }
 
         protected ClusteredRowset(string tableName, string alias, Database parentDatabase, DirectConnection connection, Parser parser, Encryption encryption, ClusteredRowset clonedOrigin, Table.TableType type)
-          : base(tableName, alias, parser, connection, parentDatabase, encryption, (Index)clonedOrigin)
+          : base(tableName, alias, parser, connection, parentDatabase, encryption, clonedOrigin)
         {
             triggeredRowsets = new TriggeredRowsets(this);
             eventDelegates = new EventDelegateList();
@@ -183,7 +183,7 @@ namespace VistaDB.Engine.Core
             {
                 if (DefaultRow != null)
                     return DefaultRow.ComparingMask;
-                return (int[])null;
+                return null;
             }
         }
 
@@ -230,8 +230,8 @@ namespace VistaDB.Engine.Core
                 return;
             ClusteredRowset rowset = triggeredTable.Rowset;
             rowset.SatelliteRow.Copy(oldRow);
-            rowset.SatelliteRow[rowset.updateTimestampIndex].Value = (object)(long)Header.NextTimestampId;
-            rowset.SatelliteRow[rowset.originatorIndex].Value = (object)Originator;
+            rowset.SatelliteRow[rowset.updateTimestampIndex].Value = (long)Header.NextTimestampId;
+            rowset.SatelliteRow[rowset.originatorIndex].Value = Originator;
             rowset.CreateRow(false, false);
             if (WrapperDatabase == null)
                 return;
@@ -255,11 +255,11 @@ namespace VistaDB.Engine.Core
 
         internal void ActivateIdentity(Row.Column column, string step)
         {
-            EvalStack evaluation = Parser.Compile(Identity.SystemName + "(" + column.Name + "," + step + ")", (DataStorage)this, true);
+            EvalStack evaluation = Parser.Compile(Identity.SystemName + "(" + column.Name + "," + step + ")", this, true);
             DeactivateIdentity(column);
             DeactivateDefaultValue(column);
             lastIdentity.AddColumn(column);
-            AttachFilter((Filter)new Identity(evaluation));
+            AttachFilter(new Identity(evaluation));
             ActivateReadOnly(column);
             WrapperDatabase.ActivateLastIdentity(Name, column);
         }
@@ -284,7 +284,7 @@ namespace VistaDB.Engine.Core
                 try
                 {
                     Row.Column column1 = LookForColumn(columnName);
-                    if (column1 == (Row.Column)null)
+                    if (column1 == null)
                         throw new VistaDBException(181, columnName);
                     switch (column1.Type)
                     {
@@ -302,7 +302,7 @@ namespace VistaDB.Engine.Core
                                 switch (column1.Type)
                                 {
                                     case VistaDBType.SmallInt:
-                                        int num = (int)short.Parse(stepExpression);
+                                        int num = short.Parse(stepExpression);
                                         break;
                                     case VistaDBType.Int:
                                         int.Parse(stepExpression);
@@ -316,7 +316,7 @@ namespace VistaDB.Engine.Core
                             {
                                 throw new VistaDBException(ex, 190, stepExpression);
                             }
-                            Conversion.Convert((IValue)column2, (IValue)DefaultRow[column1.RowIndex]);
+                            Conversion.Convert(column2, DefaultRow[column1.RowIndex]);
                             ++DefaultRow.RowVersion;
                             ActivateIdentity(column1, column3.Value.ToString());
                             WrapperDatabase.RegisterIdentity(this, column1.Name, stepExpression);
@@ -360,9 +360,9 @@ namespace VistaDB.Engine.Core
                 try
                 {
                     Row.Column column = LookForColumn(columnName);
-                    if (column == (Row.Column)null)
+                    if (column == null)
                         throw new VistaDBException(181, columnName);
-                    DefaultRow[column.RowIndex].Value = (object)null;
+                    DefaultRow[column.RowIndex].Value = null;
                     ++DefaultRow.RowVersion;
                     WrapperDatabase.UnregisterIdentity(this, column.Name, true);
                     DeactivateIdentity(column);
@@ -390,11 +390,11 @@ namespace VistaDB.Engine.Core
             scriptExpression = column.Name + ":" + scriptExpression;
             try
             {
-                EvalStack evaluation = Parser.Compile(scriptExpression, (DataStorage)this, true);
+                EvalStack evaluation = Parser.Compile(scriptExpression, this, true);
                 DeactivateDefaultValue(column);
                 if (useInUpdate)
-                    AttachFilter((Filter)new DefaultValue(evaluation, Filter.FilterType.DefaultValueUpdateGenerator, false));
-                AttachFilter((Filter)new DefaultValue(evaluation, Filter.FilterType.DefaultValueInsertGenerator, true));
+                    AttachFilter(new DefaultValue(evaluation, Filter.FilterType.DefaultValueUpdateGenerator, false));
+                AttachFilter(new DefaultValue(evaluation, Filter.FilterType.DefaultValueInsertGenerator, true));
             }
             catch (VistaDBException)
             {
@@ -421,7 +421,7 @@ namespace VistaDB.Engine.Core
                 try
                 {
                     Row.Column column = LookForColumn(columnName);
-                    if (column == (Row.Column)null)
+                    if (column == null)
                         throw new VistaDBException(181, columnName);
                     switch (column.Type)
                     {
@@ -438,10 +438,10 @@ namespace VistaDB.Engine.Core
                                 if (strB.Length > 1 && strB[0] != '\'' && (strB[strB.Length - 1] != '\'' && string.Compare("NULL", strB, StringComparison.OrdinalIgnoreCase) != 0))
                                     scriptExpression = "'" + strB.Replace("'", "''") + "'";
                             }
-                            EvalStack evalStack = useInUpdate ? Parser.Compile(scriptExpression, (DataStorage)this, false) : (EvalStack)null;
+                            EvalStack evalStack = useInUpdate ? Parser.Compile(scriptExpression, this, false) : null;
                             if (evalStack != null && evalStack.IsConstantResult)
                             {
-                                Conversion.Convert((IValue)CompileRow(scriptExpression, true)[0], (IValue)DefaultRow[column.RowIndex]);
+                                Conversion.Convert(CompileRow(scriptExpression, true)[0], DefaultRow[column.RowIndex]);
                                 ++DefaultRow.RowVersion;
                                 if (WrapperDatabase.IsDefaultValueRegistered(this, column.Name))
                                 {
@@ -451,7 +451,7 @@ namespace VistaDB.Engine.Core
                             }
                             else
                             {
-                                DefaultRow[column.RowIndex].Value = (object)null;
+                                DefaultRow[column.RowIndex].Value = null;
                                 ++DefaultRow.RowVersion;
                                 ActivateDefaultValue(column, scriptExpression, useInUpdate);
                                 WrapperDatabase.RegisterDefaultValue(this, column.Name, scriptExpression, useInUpdate, description);
@@ -494,9 +494,9 @@ namespace VistaDB.Engine.Core
                 try
                 {
                     Row.Column column = LookForColumn(columnName);
-                    if (column == (Row.Column)null)
+                    if (column == null)
                         throw new VistaDBException(181, columnName);
-                    DefaultRow[column.RowIndex].Value = (object)null;
+                    DefaultRow[column.RowIndex].Value = null;
                     ++DefaultRow.RowVersion;
                     WrapperDatabase.UnregisterDefaultValue(this, column.Name, true);
                     DeactivateDefaultValue(column);
@@ -524,19 +524,19 @@ namespace VistaDB.Engine.Core
             if (options == 0)
                 return;
             DeactivateConstraint(name);
-            CheckStatement checkConstraint = (CheckStatement)null;
+            CheckStatement checkConstraint = null;
             if (!foreignKeyConstraint)
             {
                 checkConstraint = WrapperDatabase.SQLContext.CreateCheckConstraint(expression, Name, DefaultRow);
                 int num = (int)checkConstraint.PrepareQuery();
             }
             if (Constraint.InsertionActivity(options))
-                AttachFilter(foreignKeyConstraint ? (Filter)new FKConstraint(name, Parser.Compile(expression, activeOrder, true), Filter.FilterType.ConstraintAppend) : (Filter)new SQLConstraint(name, Filter.FilterType.ConstraintAppend, checkConstraint, expression));
+                AttachFilter(foreignKeyConstraint ? new FKConstraint(name, Parser.Compile(expression, activeOrder, true), Filter.FilterType.ConstraintAppend) : (Filter)new SQLConstraint(name, Filter.FilterType.ConstraintAppend, checkConstraint, expression));
             if (Constraint.UpdateActivity(options))
-                AttachFilter(foreignKeyConstraint ? (Filter)new FKConstraint(name, Parser.Compile(expression, activeOrder, true), Filter.FilterType.ConstraintUpdate) : (Filter)new SQLConstraint(name, Filter.FilterType.ConstraintUpdate, checkConstraint, expression));
+                AttachFilter(foreignKeyConstraint ? new FKConstraint(name, Parser.Compile(expression, activeOrder, true), Filter.FilterType.ConstraintUpdate) : (Filter)new SQLConstraint(name, Filter.FilterType.ConstraintUpdate, checkConstraint, expression));
             if (!Constraint.DeleteActivity(options))
                 return;
-            AttachFilter(foreignKeyConstraint ? (Filter)new FKConstraint(name, Parser.Compile(expression, activeOrder, true), Filter.FilterType.ConstraintDelete) : (Filter)new SQLConstraint(name, Filter.FilterType.ConstraintDelete, checkConstraint, expression));
+            AttachFilter(foreignKeyConstraint ? new FKConstraint(name, Parser.Compile(expression, activeOrder, true), Filter.FilterType.ConstraintDelete) : (Filter)new SQLConstraint(name, Filter.FilterType.ConstraintDelete, checkConstraint, expression));
         }
 
         internal void DeactivateConstraint(string name)
@@ -548,7 +548,7 @@ namespace VistaDB.Engine.Core
         {
             WrapperDatabase.LockStorage();
             bool commit = false;
-            Exception exception = (Exception)null;
+            Exception exception = null;
             try
             {
                 LockStorage();
@@ -557,7 +557,7 @@ namespace VistaDB.Engine.Core
                 try
                 {
                     int options = Constraint.MakeStatus(insertion, update, delete);
-                    ActivateConstraint(name, scriptExpression, options, (DataStorage)this, false);
+                    ActivateConstraint(name, scriptExpression, options, this, false);
                     WrapperDatabase.RegisterConstraint(this, name, scriptExpression, options, description);
                     commit = true;
                 }
@@ -720,9 +720,9 @@ namespace VistaDB.Engine.Core
 
         internal void ActivateReadOnly(Row.Column column)
         {
-            EvalStack evaluation = Parser.Compile(Readonly.SystemName + "(" + column.Name + ")", (DataStorage)this, true);
+            EvalStack evaluation = Parser.Compile(Readonly.SystemName + "(" + column.Name + ")", this, true);
             DeactivateReadOnly(column);
-            AttachFilter((Filter)new Readonly(column.Name, evaluation));
+            AttachFilter(new Readonly(column.Name, evaluation));
         }
 
         internal void DeactivateReadOnly(Row.Column column)
@@ -732,7 +732,7 @@ namespace VistaDB.Engine.Core
 
         internal void CreateForeignKey(Table parentFkTable, string constraintName, string foreignKey, string primaryTable, VistaDBReferentialIntegrity updateIntegrity, VistaDBReferentialIntegrity deleteIntegrity, string description)
         {
-            Table table = (Table)null;
+            Table table = null;
             WrapperDatabase.LockStorage();
             bool commit = false;
             try
@@ -744,7 +744,7 @@ namespace VistaDB.Engine.Core
                 {
                     if (!WrapperDatabase.ContainsPrimaryKey(primaryTable))
                         throw new VistaDBException(202, primaryTable);
-                    EvalStack fkEvaluator = Parser.Compile(foreignKey, (DataStorage)this, false);
+                    EvalStack fkEvaluator = Parser.Compile(foreignKey, this, false);
                     ClusteredRowset rowset = parentFkTable.Rowset;
                     table = (Table)WrapperDatabase.OpenClone(primaryTable, rowset.IsReadOnly);
                     foreach (Index index in table.Values)
@@ -762,7 +762,7 @@ namespace VistaDB.Engine.Core
                             break;
                         }
                     }
-                    parentFkTable.CreateIndex(constraintName, foreignKey, (string)null, false, false, false, false, true, false, false);
+                    parentFkTable.CreateIndex(constraintName, foreignKey, null, false, false, false, false, true, false, false);
                     WrapperDatabase.RegisterForeignKey(constraintName, this, table.Rowset, foreignKey, updateIntegrity, deleteIntegrity, description);
                     ActivateForeignKey(parentFkTable, constraintName, table.Rowset.Name);
                     commit = true;
@@ -781,7 +781,7 @@ namespace VistaDB.Engine.Core
             {
                 WrapperDatabase.UnlockStorage(false);
                 WrapperDatabase.FinalizeChanges(!commit, commit);
-                WrapperDatabase.ReleaseClone((ITable)table);
+                WrapperDatabase.ReleaseClone(table);
             }
         }
 
@@ -823,7 +823,7 @@ namespace VistaDB.Engine.Core
         {
             Index indexOrder = fkTable.GetIndexOrder(fkIndexName, true);
             string keyExpression = ((RowsetIndex)indexOrder).KeyExpression;
-            ActivateConstraint(fkTable.Rowset.Name + "." + fkIndexName, ForeignKeyConstraint.ReferencedKey + "( '" + pkTableName + "' )", Constraint.MakeStatus(true, true, false), (DataStorage)indexOrder, true);
+            ActivateConstraint(fkTable.Rowset.Name + "." + fkIndexName, ForeignKeyConstraint.ReferencedKey + "( '" + pkTableName + "' )", Constraint.MakeStatus(true, true, false), indexOrder, true);
         }
 
         internal void DeactivateForeignKey(Table fkTable, string fkIndexName)
@@ -834,8 +834,8 @@ namespace VistaDB.Engine.Core
         internal void ActivatePrimaryKeyReference(Table pkTable, string fkTableName, string fkIndexName, VistaDBReferentialIntegrity updateIntegrity, VistaDBReferentialIntegrity deleteIntegrity)
         {
             Index indexOrder = pkTable.GetIndexOrder(pkTable.PKIndex, true);
-            ActivateConstraint(pkTable.Rowset.Name + ".update." + fkIndexName, NonreferencedPrimaryKey.NonReferencedKey + "('" + fkTableName + "','" + fkIndexName + "'," + ((int)updateIntegrity).ToString() + ")", Constraint.MakeStatus(false, true, false), (DataStorage)indexOrder, true);
-            ActivateConstraint(pkTable.Rowset.Name + ".delete." + fkIndexName, NonreferencedPrimaryKey.NonReferencedKey + "('" + fkTableName + "','" + fkIndexName + "'," + ((int)deleteIntegrity).ToString() + ")", Constraint.MakeStatus(false, false, true), (DataStorage)indexOrder, true);
+            ActivateConstraint(pkTable.Rowset.Name + ".update." + fkIndexName, NonreferencedPrimaryKey.NonReferencedKey + "('" + fkTableName + "','" + fkIndexName + "'," + ((int)updateIntegrity).ToString() + ")", Constraint.MakeStatus(false, true, false), indexOrder, true);
+            ActivateConstraint(pkTable.Rowset.Name + ".delete." + fkIndexName, NonreferencedPrimaryKey.NonReferencedKey + "('" + fkTableName + "','" + fkIndexName + "'," + ((int)deleteIntegrity).ToString() + ")", Constraint.MakeStatus(false, false, true), indexOrder, true);
         }
 
         internal void DeactivatePrimaryKeyReference(Table pkTable, string fkIndexName)
@@ -868,9 +868,9 @@ namespace VistaDB.Engine.Core
         {
             if (selfRelations == null)
                 selfRelations = new InsensitiveHashtable();
-            if (selfRelations.ContainsKey((object)relationship.Name))
+            if (selfRelations.ContainsKey(relationship.Name))
                 return;
-            selfRelations.Add((object)relationship.Name, (object)relationship);
+            selfRelations.Add(relationship.Name, relationship);
         }
 
         internal void FreezeSelfRelationships(Table table)
@@ -927,13 +927,13 @@ namespace VistaDB.Engine.Core
         {
             if (triggersAfterInsert != null)
                 triggersAfterInsert.Clear();
-            triggersAfterInsert = (Database.ClrTriggerCollection)null;
+            triggersAfterInsert = null;
             if (triggersAfterUpdate != null)
                 triggersAfterUpdate.Clear();
-            triggersAfterUpdate = (Database.ClrTriggerCollection)null;
+            triggersAfterUpdate = null;
             if (triggersAfterDelete != null)
                 triggersAfterDelete.Clear();
-            triggersAfterDelete = (Database.ClrTriggerCollection)null;
+            triggersAfterDelete = null;
         }
 
         protected virtual void DoCopyNonEdited(Row sourceRow, Row destinRow)
@@ -999,14 +999,14 @@ namespace VistaDB.Engine.Core
 
         protected virtual bool DoAllocateExtensions(Row newRow, bool fresh)
         {
-            newRow.WriteExtensions((DataStorage)this, fresh, true);
+            newRow.WriteExtensions(this, fresh, true);
             return true;
         }
 
         protected virtual bool DoDeallocateExtensions(Row oldRow)
         {
             if (!IsTransaction)
-                return oldRow.FreeExtensionSpace((DataStorage)this);
+                return oldRow.FreeExtensionSpace(this);
             return true;
         }
 
@@ -1020,9 +1020,9 @@ namespace VistaDB.Engine.Core
             foreach (ExtendedColumn extendedColumn in (List<IColumn>)extensions)
             {
                 if (extendedColumn.NeedFlush)
-                    ((ExtendedColumn)oldRow[extendedColumn.RowIndex]).FreeSpace((DataStorage)this);
+                    ((ExtendedColumn)oldRow[extendedColumn.RowIndex]).FreeSpace(this);
             }
-            newRow.WriteExtensions((DataStorage)this, false, true);
+            newRow.WriteExtensions(this, false, true);
             return true;
         }
 
@@ -1033,8 +1033,8 @@ namespace VistaDB.Engine.Core
             TriggerContext triggerContext = VistaDBContext.SQLChannel.TriggerContext;
             if (triggerContext == null)
                 return true;
-            Table table1 = (Table)null;
-            Table table2 = (Table)null;
+            Table table1 = null;
+            Table table2 = null;
             if (triggerContext.ModificationTables != null)
             {
                 foreach (Table modificationTable in triggerContext.ModificationTables)
@@ -1133,7 +1133,7 @@ namespace VistaDB.Engine.Core
         {
             if (clonedStorage != null)
                 return base.DoCreateHeaderInstance(pageSize, culture, clonedStorage);
-            return (StorageHeader)ClusteredRowsetHeader.CreateInstance((DataStorage)this, pageSize, culture);
+            return ClusteredRowsetHeader.CreateInstance(this, pageSize, culture);
         }
 
         protected override void OnDeclareNewStorage(object hint)
@@ -1144,17 +1144,17 @@ namespace VistaDB.Engine.Core
             if (WrapperDatabase == null || WrapperDatabase.EncryptionKey.Key != null)
                 return;
             foreach (IVistaDBColumnAttributes columnAttributes in (IEnumerable<IVistaDBColumnAttributes>)newSchema)
-                newSchema.DefineColumnAttributes(columnAttributes.Name, columnAttributes.AllowNull, columnAttributes.ReadOnly, false, columnAttributes.Packed, columnAttributes.Caption, columnAttributes.Description);
+                newSchema.DefineColumnAttributes(columnAttributes.Name, columnAttributes.AllowNull, columnAttributes.ReadOnly, false, columnAttributes.Packed, columnAttributes.Description);
         }
 
         protected override void OnLowLevelLockRow(uint rowId)
         {
-            base.OnLowLevelLockRow(rowId + (uint)byte.MaxValue);
+            base.OnLowLevelLockRow(rowId + byte.MaxValue);
         }
 
         protected override void OnLowLevelUnlockRow(uint rowId)
         {
-            base.OnLowLevelUnlockRow(rowId + (uint)byte.MaxValue);
+            base.OnLowLevelUnlockRow(rowId + byte.MaxValue);
         }
 
         protected override TranslationList OnCreateTranslationsList(DataStorage destinationStorage)
@@ -1183,8 +1183,8 @@ namespace VistaDB.Engine.Core
             if ((int)Header.DefaultRowVersion == (int)DefaultRow.RowVersion)
                 return;
             DefaultRow.RowId = 0U;
-            DefaultRow.WriteExtensions((DataStorage)this, false, true);
-            int memoryApartment = DefaultRow.GetMemoryApartment((Row)null);
+            DefaultRow.WriteExtensions(this, false, true);
+            int memoryApartment = DefaultRow.GetMemoryApartment(null);
             int pageSize = PageSize;
             int num = memoryApartment + (pageSize - memoryApartment % pageSize) % pageSize;
             if (num > DefaultRow.FormatLength)
@@ -1206,7 +1206,7 @@ namespace VistaDB.Engine.Core
         {
             int index = 0;
             for (int count = DefaultRow.Count; index < count; ++index)
-                DefaultRow[index].Value = (object)null;
+                DefaultRow[index].Value = null;
             DefaultRow.RowVersion = 1U;
         }
 
@@ -1276,7 +1276,7 @@ namespace VistaDB.Engine.Core
         private Table OpenTombstoneTable()
         {
             if (!ActiveSyncService)
-                return (Table)null;
+                return null;
             Table table = (Table)WrapperDatabase.OpenClone(SyncExtension.TombstoneTablenamePrefix + Name, IsReadOnly);
             table.Rowset.SuppressAutoValues = true;
             return table;
@@ -1287,7 +1287,7 @@ namespace VistaDB.Engine.Core
             lastIdentity = new LastIdentity(CreateEmptyRowInstance());
             Row row = Header.AllocateDefaultRow(CreateEmptyRowInstance());
             Row.Column timeStampColumn = row.TimeStampColumn;
-            if (timeStampColumn != (Row.Column)null && WrapperDatabase != null)
+            if (timeStampColumn != null && WrapperDatabase != null)
                 WrapperDatabase.ActivateLastTimestamp(Name, timeStampColumn);
             return row;
         }
@@ -1302,7 +1302,7 @@ namespace VistaDB.Engine.Core
             IVistaDBDDAEventDelegate eventDelegate = eventDelegates.GetDelegate(DDAEventDelegateType.BeforeInsert);
             if (eventDelegate != null)
             {
-                Exception exception = eventDelegate.EventDelegate(eventDelegate, (IVistaDBRow)SatelliteRow.CopyInstance());
+                Exception exception = eventDelegate.EventDelegate(eventDelegate, SatelliteRow.CopyInstance());
                 if (exception != null)
                     throw exception;
             }
@@ -1317,7 +1317,7 @@ namespace VistaDB.Engine.Core
                 IVistaDBDDAEventDelegate eventDelegate = eventDelegates.GetDelegate(DDAEventDelegateType.AfterInsert);
                 if (eventDelegate != null)
                 {
-                    Exception exception = eventDelegate.EventDelegate(eventDelegate, (IVistaDBRow)CurrentRow.CopyInstance());
+                    Exception exception = eventDelegate.EventDelegate(eventDelegate, CurrentRow.CopyInstance());
                     if (exception != null)
                         throw exception;
                 }
@@ -1356,7 +1356,7 @@ namespace VistaDB.Engine.Core
                 IVistaDBDDAEventDelegate eventDelegate = eventDelegates.GetDelegate(DDAEventDelegateType.BeforeUpdate);
                 if (eventDelegate != null)
                 {
-                    Exception exception = eventDelegate.EventDelegate(eventDelegate, (IVistaDBRow)SatelliteRow.CopyInstance());
+                    Exception exception = eventDelegate.EventDelegate(eventDelegate, SatelliteRow.CopyInstance());
                     if (exception != null)
                         throw exception;
                 }
@@ -1377,7 +1377,7 @@ namespace VistaDB.Engine.Core
                 IVistaDBDDAEventDelegate eventDelegate = eventDelegates.GetDelegate(DDAEventDelegateType.AfterUpdate);
                 if (eventDelegate != null)
                 {
-                    Exception exception = eventDelegate.EventDelegate(eventDelegate, (IVistaDBRow)CurrentRow.CopyInstance());
+                    Exception exception = eventDelegate.EventDelegate(eventDelegate, CurrentRow.CopyInstance());
                     if (exception != null)
                         throw exception;
                 }
@@ -1418,7 +1418,7 @@ namespace VistaDB.Engine.Core
                 IVistaDBDDAEventDelegate eventDelegate = eventDelegates.GetDelegate(DDAEventDelegateType.BeforeDelete);
                 if (eventDelegate != null)
                 {
-                    Exception exception = eventDelegate.EventDelegate(eventDelegate, (IVistaDBRow)SatelliteRow.CopyInstance());
+                    Exception exception = eventDelegate.EventDelegate(eventDelegate, SatelliteRow.CopyInstance());
                     if (exception != null)
                         throw exception;
                 }
@@ -1439,7 +1439,7 @@ namespace VistaDB.Engine.Core
                 IVistaDBDDAEventDelegate eventDelegate = eventDelegates.GetDelegate(DDAEventDelegateType.AfterDelete);
                 if (eventDelegate != null)
                 {
-                    Exception exception = eventDelegate.EventDelegate(eventDelegate, (IVistaDBRow)CurrentRow.CopyInstance());
+                    Exception exception = eventDelegate.EventDelegate(eventDelegate, CurrentRow.CopyInstance());
                     if (exception != null)
                         throw exception;
                 }
@@ -1477,7 +1477,7 @@ namespace VistaDB.Engine.Core
             BlockCreateGenerators(newRow);
             try
             {
-                return base.OnCreateRow(blank, newRow) && DoCheckNulls(newRow) && (DoAssignIdentity(newRow) && DoAllocateExtensions(newRow, true)) && DoMirrowModifications((Row)null, newRow, TriggerAction.AfterInsert);
+                return base.OnCreateRow(blank, newRow) && DoCheckNulls(newRow) && (DoAssignIdentity(newRow) && DoAllocateExtensions(newRow, true)) && DoMirrowModifications(null, newRow, TriggerAction.AfterInsert);
             }
             catch (Exception ex)
             {
@@ -1509,7 +1509,7 @@ namespace VistaDB.Engine.Core
             AddTombstoneRow(currentRow);
             if ((int)currentRow.RowId == (int)Row.MinRowId || (int)currentRow.RowId == (int)Row.MaxRowId)
                 throw new VistaDBException(261, currentRow.RowId.ToString());
-            if (DoMirrowModifications(currentRow, (Row)null, TriggerAction.AfterDelete) && base.OnDeleteRow(currentRow))
+            if (DoMirrowModifications(currentRow, null, TriggerAction.AfterDelete) && base.OnDeleteRow(currentRow))
                 return DoDeallocateExtensions(currentRow);
             return false;
         }
@@ -1524,11 +1524,11 @@ namespace VistaDB.Engine.Core
 
         protected override Row OnCompileRow(string keyEvaluationExpression, bool initTop)
         {
-            EvalStack evalStack = Parser.Compile(keyEvaluationExpression, (DataStorage)this, false);
+            EvalStack evalStack = Parser.Compile(keyEvaluationExpression, this, false);
             evalStack.Exec(CurrentRow, CreateEmptyRowInstance());
             Row evaluatedRow = evalStack.EvaluatedRow;
             if (evaluatedRow.Count == 0)
-                evaluatedRow.AppendColumn((IColumn)evalStack.EvaluatedColumn);
+                evaluatedRow.AppendColumn(evalStack.EvaluatedColumn);
             return evaluatedRow;
         }
 
@@ -1610,7 +1610,7 @@ namespace VistaDB.Engine.Core
                 if (rollback && transactionLog.NoFileImage)
                 {
                     transactionLog.Dispose();
-                    transactionLog = (TransactionLogRowset)null;
+                    transactionLog = null;
                 }
                 else
                     transactionLog.FinalizeChanges(rollback, commit);
@@ -1632,17 +1632,17 @@ namespace VistaDB.Engine.Core
         {
             if (triggeredRowsets != null)
                 triggeredRowsets.Dispose();
-            triggeredRowsets = (TriggeredRowsets)null;
+            triggeredRowsets = null;
             if (eventDelegates != null)
                 eventDelegates.Clear();
-            eventDelegates = (EventDelegateList)null;
-            lastIdentity = (LastIdentity)null;
+            eventDelegates = null;
+            lastIdentity = null;
             if (transactionLog != null)
                 transactionLog.Dispose();
-            transactionLog = (TransactionLogRowset)null;
+            transactionLog = null;
             if (selfRelations != null)
                 selfRelations.Clear();
-            selfRelations = (InsensitiveHashtable)null;
+            selfRelations = null;
             DeactivateTriggers();
             base.Destroy();
         }
@@ -1655,7 +1655,7 @@ namespace VistaDB.Engine.Core
             IVistaDBDDAEventDelegate eventDelegate = eventDelegates.GetDelegate(DDAEventDelegateType.NewVersion);
             if (eventDelegate == null)
                 return;
-            Exception exception = eventDelegate.EventDelegate(eventDelegate, (IVistaDBRow)null);
+            Exception exception = eventDelegate.EventDelegate(eventDelegate, null);
         }
 
         protected override void OnReactivateIndex()
@@ -1669,7 +1669,7 @@ namespace VistaDB.Engine.Core
 
         protected override void OnRereadExtendedColumn(ExtendedColumn column, Row rowKey)
         {
-            Row row = (int)rowKey.RowId == (int)CurrentRow.RowId ? (Row)null : CurrentRow.CopyInstance();
+            Row row = (int)rowKey.RowId == (int)CurrentRow.RowId ? null : CurrentRow.CopyInstance();
             LockStorage();
             FreezeRelationships();
             try
@@ -1679,7 +1679,7 @@ namespace VistaDB.Engine.Core
                     throw new VistaDBException(262);
                 try
                 {
-                    column.UnformatExtension((DataStorage)this, false, (Row)null, false);
+                    column.UnformatExtension(this, false, null, false);
                 }
                 catch
                 {
@@ -1768,7 +1768,7 @@ namespace VistaDB.Engine.Core
                 case TriggerAction.AfterDelete:
                     return triggersAfterDelete;
                 default:
-                    return (Database.ClrTriggerCollection)null;
+                    return null;
             }
         }
 
@@ -1776,13 +1776,13 @@ namespace VistaDB.Engine.Core
         {
             Database.ClrTriggerCollection triggers = GetTriggers(eventType);
             if (triggers == null || triggers.Count == 0 || triggers.InAction)
-                return (Database.ClrTriggerCollection)null;
+                return null;
             foreach (Database.ClrTriggerCollection.ClrTriggerInformation triggerInformation in triggers.Values)
             {
                 if (triggerInformation.Active)
                     return triggers;
             }
-            return (Database.ClrTriggerCollection)null;
+            return null;
         }
 
         internal bool StopTriggers(TriggerAction eventType)
@@ -1794,7 +1794,7 @@ namespace VistaDB.Engine.Core
 
         internal void PrepareTriggers(TriggerAction eventType)
         {
-            VistaDBContext.SQLChannel.PushTriggerContext(GetAvailableTriggers(eventType) == null || StopTriggers(eventType) ? (Table[])null : (Table[])WrapperDatabase.ActivateModificationTable(this, eventType), eventType, CurrentRow.Count);
+            VistaDBContext.SQLChannel.PushTriggerContext(GetAvailableTriggers(eventType) == null || StopTriggers(eventType) ? null : (Table[])WrapperDatabase.ActivateModificationTable(this, eventType), eventType, CurrentRow.Count);
         }
 
         internal void ExecuteCLRTriggers(TriggerAction eventType, bool justReset)
@@ -1837,8 +1837,8 @@ namespace VistaDB.Engine.Core
             {
                 if (optimizedRowFilter != null)
                 {
-                    DetachFilter(Filter.FilterType.Optimized, (Filter)optimizedRowFilter);
-                    optimizedRowFilter = (RowIdFilter)null;
+                    DetachFilter(Filter.FilterType.Optimized, optimizedRowFilter);
+                    optimizedRowFilter = null;
                 }
                 optimizedRowFilter = new RowIdFilter(Header.CurrentAutoId);
                 return optimizedRowFilter;
@@ -1848,11 +1848,11 @@ namespace VistaDB.Engine.Core
         internal void BeginOptimizedFiltering(IOptimizedFilter filter)
         {
             if (optimizedRowFilter != null)
-                optimizedRowFilter = (RowIdFilter)null;
+                optimizedRowFilter = null;
             optimizedRowFilter = (RowIdFilter)filter;
             optimizedRowFilter.PrepareAttachment();
             DetachFiltersByType(Filter.FilterType.Optimized);
-            AttachFilter((Filter)optimizedRowFilter);
+            AttachFilter(optimizedRowFilter);
         }
 
         internal void ResetOptimizedFiltering()
@@ -1933,12 +1933,12 @@ namespace VistaDB.Engine.Core
 
             internal static IVistaDBTableSchema GetAnchorSchema(Database db)
             {
-                Table.TableSchema tableSchema = new Table.TableSchema(AnchorTablename, Table.TableType.Anchor, AnchorTableDescription, 0UL, (DataStorage)db);
+                Table.TableSchema tableSchema = new Table.TableSchema(AnchorTablename, Table.TableType.Anchor, AnchorTableDescription, 0UL, db);
                 tableSchema.AddColumn(SyncTableName, VistaDBType.NVarChar, 1024, 0, false);
                 tableSchema.AddColumn(OriginatorIdName, VistaDBType.UniqueIdentifier, 0, 0, false);
                 tableSchema.AddColumn(LastReceivedAnchorName, VistaDBType.VarBinary, 0, 0, false);
                 tableSchema.AddColumn(LastSentAnchorName, VistaDBType.VarBinary, 0, 0, false);
-                return (IVistaDBTableSchema)tableSchema;
+                return tableSchema;
             }
         }
 
@@ -1960,7 +1960,7 @@ namespace VistaDB.Engine.Core
             internal IVistaDBDDAEventDelegate GetDelegate(DDAEventDelegateType type)
             {
                 if (!ContainsKey(type))
-                    return (IVistaDBDDAEventDelegate)null;
+                    return null;
                 return this[type];
             }
         }
@@ -2034,9 +2034,9 @@ namespace VistaDB.Engine.Core
                 if (isDisposed)
                     return;
                 isDisposed = true;
-                GC.SuppressFinalize((object)this);
+                GC.SuppressFinalize(this);
                 FinalizeChanges(parentRowset, true, false);
-                parentRowset = (ClusteredRowset)null;
+                parentRowset = null;
                 Clear();
             }
         }
@@ -2055,8 +2055,8 @@ namespace VistaDB.Engine.Core
             protected ClusteredRowsetHeader(DataStorage parentStorage, HeaderId id, Type type, int pageSize, CultureInfo culture)
               : base(parentStorage, id, type, pageSize, culture)
             {
-                defaultRowLengthIndex = AppendColumn((IColumn)new IntColumn(0));
-                defaultRowVersionIndex = AppendColumn((IColumn)new IntColumn(0));
+                defaultRowLengthIndex = AppendColumn(new IntColumn(0));
+                defaultRowVersionIndex = AppendColumn(new IntColumn(0));
             }
 
             internal int DefaultRowLength
@@ -2068,7 +2068,7 @@ namespace VistaDB.Engine.Core
                 set
                 {
                     Modified = DefaultRowLength != value;
-                    this[defaultRowLengthIndex].Value = (object)value;
+                    this[defaultRowLengthIndex].Value = value;
                 }
             }
 
@@ -2081,7 +2081,7 @@ namespace VistaDB.Engine.Core
                 set
                 {
                     Modified = (int)DefaultRowVersion != (int)value;
-                    this[defaultRowVersionIndex].Value = (object)(int)value;
+                    this[defaultRowVersionIndex].Value = (int)value;
                 }
             }
 
@@ -2166,7 +2166,7 @@ namespace VistaDB.Engine.Core
             internal void AddColumn(Row.Column column)
             {
                 Row.Column column1 = column.Duplicate(false);
-                identValue.AppendColumn((IColumn)column1);
+                identValue.AppendColumn(column1);
                 column1.RowIndex = column.RowIndex;
                 Resort();
             }
@@ -2187,7 +2187,7 @@ namespace VistaDB.Engine.Core
             internal void SetNulls()
             {
                 foreach (Row.Column column in (List<Row.Column>)identValue)
-                    column.Value = (object)null;
+                    column.Value = null;
             }
 
             internal void AssignValue(Row newValue)

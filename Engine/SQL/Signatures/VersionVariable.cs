@@ -30,7 +30,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       if (changed)
       {
-        ((IValue) result).Value = (object) Database.DatabaseHeader.FileCopyrightString;
+                result.Value = Database.DatabaseHeader.FileCopyrightString;
         changed = false;
       }
       return result;

@@ -12,9 +12,9 @@ namespace VistaDB.Engine.SQL.Signatures
     protected override IColumn InternalExecute()
     {
       if (parent.Connection.Database == null)
-        ((IValue) Result).Value = (object) -1;
+                Result.Value = -1;
       else
-        ((IValue) result).Value = (object) parent.Connection.Database.NestedTransactionLevel;
+                result.Value = parent.Connection.Database.NestedTransactionLevel;
       parent.Connection.CachedAffectedRows = 1L;
       return result;
     }

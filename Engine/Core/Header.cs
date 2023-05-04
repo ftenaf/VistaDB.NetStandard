@@ -16,13 +16,13 @@ namespace VistaDB.Engine.Core
     private int pageSize;
 
     protected Header(DataStorage parentStorage, HeaderId id, ulong dataReference, int signature, int pageSize)
-      : base((uint) id, 0U, dataReference, true, parentStorage.Encryption, (int[]) null)
+      : base((uint) id, 0U, dataReference, true, parentStorage.Encryption, null)
     {
       this.parentStorage = parentStorage;
       this.pageSize = pageSize;
       alignment = true;
-      signatureEntry = AppendColumn((IColumn) new IntColumn(signature));
-      rowNumberEntry = AppendColumn((IColumn) new IntColumn(0));
+      signatureEntry = AppendColumn(new IntColumn(signature));
+      rowNumberEntry = AppendColumn(new IntColumn(0));
     }
 
     protected DataStorage ParentStorage
@@ -42,7 +42,7 @@ namespace VistaDB.Engine.Core
       set
       {
         Modified = (int) Signature != (int) value;
-        this[signatureEntry].Value = (object) (int) value;
+        this[signatureEntry].Value = (int)value;
       }
     }
 
@@ -55,7 +55,7 @@ namespace VistaDB.Engine.Core
       set
       {
         Modified = (int) RowCount != (int) value;
-        this[rowNumberEntry].Value = (object) (int) value;
+        this[rowNumberEntry].Value = (int)value;
       }
     }
 
@@ -180,9 +180,9 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        long version = (long) Version;
+        long version = Version;
         Read(ParentStorage.VirtualLocks ? RowScope.All : RowScope.Head);
-        return (long) Version != version;
+        return Version != version;
       }
     }
 
@@ -228,7 +228,7 @@ namespace VistaDB.Engine.Core
 
     internal void AssignBuffer()
     {
-      int memoryApartment = GetMemoryApartment((Row) null);
+      int memoryApartment = GetMemoryApartment(null);
       int pageSize = PageSize;
       FormatLength = memoryApartment + (pageSize - memoryApartment % pageSize) % pageSize;
     }

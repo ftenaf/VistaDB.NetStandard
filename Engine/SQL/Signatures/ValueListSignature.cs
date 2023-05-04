@@ -24,12 +24,12 @@ namespace VistaDB.Engine.SQL.Signatures
       signatureType = SignatureType.Expression;
       dataType = VistaDBType.Unknown;
       optimizable = false;
-      tempValue = (IColumn) null;
+      tempValue = null;
     }
 
     internal static Signature CreateSignature(SQLParser parser)
     {
-      return (Signature) new ValueListSignature(parser);
+      return new ValueListSignature(parser);
     }
 
     public override SignatureType OnPrepare()
@@ -129,10 +129,10 @@ namespace VistaDB.Engine.SQL.Signatures
         tempValue = CreateColumn(val.Type);
       for (int index = 0; index < valueList.Count; ++index)
       {
-        Convert((IValue) valueList[index].Execute(), (IValue) tempValue);
+        Convert(valueList[index].Execute(), tempValue);
         if (Utils.IsCharacterDataType(val.Type) && !tempValue.IsNull)
-          ((IValue) tempValue).Value = (object) ((string) ((IValue) tempValue).Value).TrimEnd();
-        if (val.Compare((IVistaDBColumn) tempValue) == 0)
+                    tempValue.Value = ((string)tempValue.Value).TrimEnd();
+        if (val.Compare(tempValue) == 0)
           return true;
       }
       return false;
@@ -148,7 +148,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public IEnumerator GetEnumerator()
     {
-      return (IEnumerator) valueList.GetEnumerator();
+      return valueList.GetEnumerator();
     }
   }
 }

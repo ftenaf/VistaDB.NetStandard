@@ -13,13 +13,13 @@ namespace VistaDB.Engine.Core
         case VistaDBType.NChar:
           return float.Parse((string) col.Value, CrossConversion.NumberFormat);
         case VistaDBType.TinyInt:
-          return (float) (byte) col.Value;
+          return (byte)col.Value;
         case VistaDBType.SmallInt:
-          return (float) (short) col.Value;
+          return (short)col.Value;
         case VistaDBType.Int:
-          return (float) (int) col.Value;
+          return (int)col.Value;
         case VistaDBType.BigInt:
-          return (float) (long) col.Value;
+          return (long)col.Value;
         case VistaDBType.Decimal:
           return Decimal.ToSingle((Decimal) col.Value);
         default:
@@ -28,17 +28,17 @@ namespace VistaDB.Engine.Core
     }
 
     internal RealColumn()
-      : base((object) null, VistaDBType.Real, SingleSize)
+      : base(null, VistaDBType.Real, SingleSize)
     {
     }
 
     internal RealColumn(float val)
-      : base((object) val, VistaDBType.Real, SingleSize)
+      : base(val, VistaDBType.Real, SingleSize)
     {
     }
 
     internal RealColumn(RealColumn col)
-      : base((Row.Column) col)
+      : base(col)
     {
     }
 
@@ -46,7 +46,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (object) float.MinValue;
+        return float.MinValue;
       }
     }
 
@@ -54,7 +54,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (object) float.MaxValue;
+        return float.MaxValue;
       }
     }
 
@@ -70,24 +70,24 @@ namespace VistaDB.Engine.Core
     {
       set
       {
-        base.Value = value == null ? value : (object) (float) value;
+        base.Value = value == null ? value : (float)value;
       }
     }
 
     protected override Row.Column OnDuplicate(bool padRight)
     {
-      return (Row.Column) new RealColumn(this);
+      return new RealColumn(this);
     }
 
     internal override int ConvertToByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      Array.Copy((Array) BitConverter.GetBytes((float) Value), 0, (Array) buffer, offset, SingleSize);
+      Array.Copy(BitConverter.GetBytes((float)Value), 0, buffer, offset, SingleSize);
       return offset + SingleSize;
     }
 
     internal override int ConvertFromByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      val = (object) BitConverter.ToSingle(buffer, offset);
+      val = BitConverter.ToSingle(buffer, offset);
       return offset + SingleSize;
     }
 
@@ -100,50 +100,50 @@ namespace VistaDB.Engine.Core
 
     protected override Row.Column DoUnaryMinus()
     {
-      Value = (object) (float) -(double) (float) Value;
-      return (Row.Column) this;
+      Value = (float)-(double)(float)Value;
+      return this;
     }
 
     protected override Row.Column DoMultiplyBy(Row.Column col)
     {
-      Value = (object) (float) ((double) (float) Value * (double)CustValue(col));
-      return (Row.Column) this;
+      Value = (float)((double)(float)Value * (double)CustValue(col));
+      return this;
     }
 
     protected override Row.Column DoMinus(Row.Column col)
     {
-      Value = (object) (float) ((double) (float) Value - (double)CustValue(col));
-      return (Row.Column) this;
+      Value = (float)((double)(float)Value - (double)CustValue(col));
+      return this;
     }
 
     protected override Row.Column DoPlus(Row.Column col)
     {
-      Value = (object) (float) ((double) (float) Value + (double)CustValue(col));
-      return (Row.Column) this;
+      Value = (float)((double)(float)Value + (double)CustValue(col));
+      return this;
     }
 
     protected override Row.Column DoDivideBy(Row.Column denominator)
     {
-      Value = (object) (float) ((double) (float) Value / (double)CustValue(denominator));
-      return (Row.Column) this;
+      Value = (float)((double)(float)Value / (double)CustValue(denominator));
+      return this;
     }
 
     protected override Row.Column DoGetDividedBy(Row.Column numerator)
     {
-      Value = (object) (float) ((double)CustValue(numerator) / (double) (float) Value);
-      return (Row.Column) this;
+      Value = (float)((double)CustValue(numerator) / (double)(float)Value);
+      return this;
     }
 
     protected override Row.Column DoModBy(Row.Column denominator)
     {
-      Value = (object) (float) ((double) (float) Value % (double)CustValue(denominator));
-      return (Row.Column) this;
+      Value = (float)((double)(float)Value % (double)CustValue(denominator));
+      return this;
     }
 
     protected override Row.Column DoGetModBy(Row.Column numerator)
     {
-      Value = (object) (float) ((double)CustValue(numerator) % (double) (float) Value);
-      return (Row.Column) this;
+      Value = (float)((double)CustValue(numerator) % (double)(float)Value);
+      return this;
     }
   }
 }

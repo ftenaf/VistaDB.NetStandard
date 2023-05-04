@@ -65,7 +65,7 @@ namespace VistaDB.Provider
         int parameter = FindParameter(parameterName);
         if (parameter >= 0)
           return parameters[parameter];
-        return (VistaDBParameter) null;
+        return null;
       }
       set
       {
@@ -77,7 +77,7 @@ namespace VistaDB.Provider
     {
       get
       {
-        return (object) this;
+        return this;
       }
     }
 
@@ -147,7 +147,7 @@ namespace VistaDB.Provider
 
     public override IEnumerator GetEnumerator()
     {
-      return (IEnumerator) new ParameterEnumerator(this);
+      return new ParameterEnumerator(this);
     }
 
     public override int IndexOf(object value)
@@ -192,12 +192,12 @@ namespace VistaDB.Provider
 
     protected override DbParameter GetParameter(int index)
     {
-      return (DbParameter) this[index];
+      return this[index];
     }
 
     protected override DbParameter GetParameter(string parameterName)
     {
-      return (DbParameter) this[parameterName];
+      return this[parameterName];
     }
 
     protected override void SetParameter(int index, DbParameter value)
@@ -237,8 +237,8 @@ namespace VistaDB.Provider
         get
         {
           if (index >= 0)
-            return (object) parent.parameters[index];
-          return (object) null;
+            return parent.parameters[index];
+          return null;
         }
       }
 

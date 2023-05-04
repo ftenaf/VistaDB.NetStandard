@@ -172,17 +172,17 @@ namespace VistaDB.Engine.SQL
     public static int GetByte(char lowHex)
     {
       if (lowHex >= '0' && lowHex <= '9')
-        return (int) lowHex - 48;
+        return lowHex - 48;
       if (lowHex >= 'A' && lowHex <= 'F')
-        return 10 + (int) lowHex - 65;
-      return 10 + (int) lowHex - 97;
+        return 10 + lowHex - 65;
+      return 10 + lowHex - 97;
     }
 
     public static byte[] StringToBinary(string hex)
     {
       int length = hex.Length / 2 - 1;
       if (length == 0)
-        return new byte[1]{ (byte) 0 };
+        return new byte[1]{ 0 };
       if (hex.Length % 2 != 0)
         ++length;
       byte[] numArray = new byte[length];

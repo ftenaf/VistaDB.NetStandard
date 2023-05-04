@@ -33,7 +33,7 @@ namespace VistaDB.Engine.Internal
       {
         ITableCache tableCache = GetTableCache(database, table.TableName, activeIndex, keyColumn.DataType);
         if (tableCache == null)
-          return (KeyedLookupTable) null;
+          return null;
         keyedLookupTable = new KeyedLookupTable(tableCache, keyColumn, table.Parent);
         m_KeyedTables[table.Alias] = keyedLookupTable;
       }
@@ -44,7 +44,7 @@ namespace VistaDB.Engine.Internal
     {
       KeyedLookupTable keyedLookupTable;
       if (!m_KeyedTables.TryGetValue(tableAlias, out keyedLookupTable))
-        return (KeyedLookupTable) null;
+        return null;
       return keyedLookupTable;
     }
 
@@ -81,7 +81,7 @@ namespace VistaDB.Engine.Internal
     {
       ITableCache tableCache;
       if (!m_CachedTables.TryGetValue(GetTableCacheKey(tableName, indexColumnName), out tableCache))
-        return (ITableCache) null;
+        return null;
       return tableCache;
     }
 
@@ -95,28 +95,28 @@ namespace VistaDB.Engine.Internal
         case VistaDBType.NChar:
         case VistaDBType.VarChar:
         case VistaDBType.NVarChar:
-          tableCache = (ITableCache) new TableCache<string>(database, tableName, filterFormatString, CultureInfo.InvariantCulture, true);
+          tableCache = new TableCache<string>(database, tableName, filterFormatString, CultureInfo.InvariantCulture, true);
           break;
         case VistaDBType.SmallInt:
-          tableCache = (ITableCache) new TableCache<short>(database, tableName, filterFormatString);
+          tableCache = new TableCache<short>(database, tableName, filterFormatString);
           break;
         case VistaDBType.Int:
-          tableCache = (ITableCache) new TableCache<int>(database, tableName, filterFormatString);
+          tableCache = new TableCache<int>(database, tableName, filterFormatString);
           break;
         case VistaDBType.BigInt:
-          tableCache = (ITableCache) new TableCache<long>(database, tableName, filterFormatString);
+          tableCache = new TableCache<long>(database, tableName, filterFormatString);
           break;
         case VistaDBType.Real:
-          tableCache = (ITableCache) new TableCache<float>(database, tableName, filterFormatString);
+          tableCache = new TableCache<float>(database, tableName, filterFormatString);
           break;
         case VistaDBType.Float:
-          tableCache = (ITableCache) new TableCache<double>(database, tableName, filterFormatString);
+          tableCache = new TableCache<double>(database, tableName, filterFormatString);
           break;
         case VistaDBType.UniqueIdentifier:
-          tableCache = (ITableCache) new TableCache<Guid>(database, tableName, filterFormatString);
+          tableCache = new TableCache<Guid>(database, tableName, filterFormatString);
           break;
         default:
-          return (ITableCache) null;
+          return null;
       }
       m_CachedTables.Add(tableCacheKey, tableCache);
       return tableCache;

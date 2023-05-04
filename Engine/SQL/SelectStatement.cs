@@ -125,7 +125,7 @@ namespace VistaDB.Engine.SQL
         }
         else if (parser.TokenValue.TokenType != TokenType.Integer)
           throw new VistaDBSQLException(507, "numeric integer value", parser.TokenValue.RowNo, parser.TokenValue.ColNo);
-        if (topCountSig == (Signature) null)
+        if (topCountSig == null)
           topCount = long.Parse(parser.TokenValue.Token);
         if (flag)
         {
@@ -212,8 +212,8 @@ namespace VistaDB.Engine.SQL
       bool flag = false;
       do
       {
-        Signature signature = (Signature) null;
-        string paramName = (string) null;
+        Signature signature = null;
+        string paramName = null;
         if (flag)
           parser.SkipToken(true);
         if (ParameterSignature.IsParameter(parser.TokenValue.Token))
@@ -228,8 +228,8 @@ namespace VistaDB.Engine.SQL
           }
         }
         else if (assignValueStatement)
-          throw new VistaDBSQLException(642, (string) null, lineNo, symbolNo);
-        if (signature == (Signature) null)
+          throw new VistaDBSQLException(642, null, lineNo, symbolNo);
+        if (signature == null)
           signature = parser.NextSignature(false, true, 6);
         string str;
         if (parser.IsToken(",") || parser.IsToken("FROM") || (parser.IsToken("WHERE") || parser.IsToken("UNION")) || EndOfStatement(parser))
@@ -259,8 +259,8 @@ namespace VistaDB.Engine.SQL
         return;
       parser.SkipToken(true);
       parser.ExpectedExpression("BY");
-      string objectName = (string) null;
-      string tableName = (string) null;
+      string objectName = null;
+      string tableName = null;
       int ordinal = -1;
       do
       {
@@ -344,7 +344,7 @@ namespace VistaDB.Engine.SQL
           if (column == null)
           {
             string columnAlias = resultColumns.GenerateColumnAlias(signature);
-            column = new ResultColumn(signature, columnAlias, true, (string) null);
+            column = new ResultColumn(signature, columnAlias, true, null);
             resultColumns.Add(column);
           }
           groupColumns.Add(column, signature.LineNo, signature.SymbolNo);
@@ -379,7 +379,7 @@ namespace VistaDB.Engine.SQL
         {
           resultColumn.Signature.GetAggregateFunctions(list);
           foreach (AggregateFunction func in list)
-            aggregateExpressions.Add(new AggregateExpression(func, resultColumns.GenerateColumnAlias((Signature) null)));
+            aggregateExpressions.Add(new AggregateExpression(func, resultColumns.GenerateColumnAlias(null)));
           if (resultColumn.HasDistinctAggregate)
             distinctAggregate = true;
           list.Clear();
@@ -398,7 +398,7 @@ namespace VistaDB.Engine.SQL
         parser.SkipToken(true);
       }
       parser.ExpectedExpression("SELECT");
-      unionQuery = (SelectStatement) new SelectUnionStatement(connection, (Statement) this, parser);
+      unionQuery = new SelectUnionStatement(connection, this, parser);
     }
 
     public override void SetChanged()
@@ -445,11 +445,11 @@ namespace VistaDB.Engine.SQL
       {
         IViewList views = Database.EnumViews();
         IVistaDBTableNameCollection tableNames = Database.GetTableNames();
-        cacheFactory = !(join is Join) ? (CacheFactory) null : new CacheFactory();
+        cacheFactory = !(join is Join) ? null : new CacheFactory();
         int tableIndex = 0;
         join = join.PrepareTables(tableNames, views, sourceTables, false, ref tableIndex);
       }
-      if (topCountSig != (Signature) null)
+      if (topCountSig != null)
       {
         int num1 = (int) topCountSig.Prepare();
       }
@@ -499,31 +499,31 @@ namespace VistaDB.Engine.SQL
       if (assignValueStatement)
         SetChanged();
       SourceTable table;
-      IQueryResult result = IsLiveQuery() ? ExecuteLiveQuery((Signature[]) null, true, out table) : ExecuteNonLiveQuery();
+      IQueryResult result = IsLiveQuery() ? ExecuteLiveQuery(null, true, out table) : ExecuteNonLiveQuery();
       if (!assignValueStatement)
         return result;
       CalculateParametersValue(result);
-      return (IQueryResult) null;
+      return null;
     }
 
     protected override bool AcceptRow()
     {
       if (!hasAggregate)
         resultColumns.Execute();
-      return AddRow(DataRowType.ResultColumnList, (object) resultColumns, false);
+      return AddRow(DataRowType.ResultColumnList, resultColumns, false);
     }
 
     public override IQuerySchemaInfo GetSchemaInfo()
     {
-      return (IQuerySchemaInfo) this;
+      return this;
     }
 
     private long GetTopCount()
     {
-      if (topCountSig != (Signature) null && topCount == 0L)
+      if (topCountSig != null && topCount == 0L)
       {
-        IValue destinationValue = (IValue) new BigIntColumn();
-        Database.Conversion.Convert((IValue) topCountSig.Execute(), destinationValue);
+        IValue destinationValue = new BigIntColumn();
+        Database.Conversion.Convert(topCountSig.Execute(), destinationValue);
         topCount = (long) destinationValue.Value;
       }
       if (!singleRow)
@@ -551,8 +551,8 @@ namespace VistaDB.Engine.SQL
           {
             IParameter parameter = DoGetParam(resultColumn.ParamName);
             IColumn column = resultColumn.Signature.CreateColumn(parameter.DataType);
-            Database.Conversion.Convert(IsLiveQuery() ? (IValue) resultColumn.Signature.Result : (IValue) result.GetColumn(index), (IValue) column);
-            parameter.Value = ((IValue) column).Value;
+            Database.Conversion.Convert(IsLiveQuery() ? resultColumn.Signature.Result : (IValue) result.GetColumn(index), column);
+            parameter.Value = column.Value;
           }
         }
       }
@@ -566,23 +566,23 @@ namespace VistaDB.Engine.SQL
     {
       Optimize();
       simpleAggregateAdded = false;
-      nonAggColumns = (ResultColumnList) null;
+      nonAggColumns = null;
     }
 
         internal void SwitchToTemporaryTable(SourceRow sourceRow, int columnIndex, ResultColumn resultColumn)
     {
-      if (whereClause == null || whereClause.Signature == (Signature) null)
+      if (whereClause == null || whereClause.Signature == null)
         return;
       whereClause.Signature.SwitchToTempTable(sourceRow, columnIndex, resultColumn);
     }
 
     internal IQueryResult ExecuteLiveQuery(Signature[] signatures, bool readOnly, out SourceTable table)
     {
-      table = (SourceTable) null;
+      table = null;
       if (whereClause.IsAlwaysFalse)
       {
         endOfTable = true;
-        return (IQueryResult) this;
+        return this;
       }
       PreExecute();
       if (signatures != null)
@@ -597,17 +597,17 @@ namespace VistaDB.Engine.SQL
             if (index == 0)
               table = ((ColumnSignature) resultColumn.Signature).Table;
             else if (table != null && table != ((ColumnSignature) resultColumn.Signature).Table)
-              table = (SourceTable) null;
+              table = null;
           }
           else
-            table = (SourceTable) null;
+            table = null;
         }
       }
       if (!readOnly && table != null)
         table.ReadOnly = false;
       sourceTables.Open();
       FirstRow();
-      return (IQueryResult) this;
+      return this;
     }
 
     internal IQueryResult ExecuteNonLiveQuery()
@@ -639,31 +639,31 @@ namespace VistaDB.Engine.SQL
           if (hasAggregate)
             GroupBy();
           else if ((unionQuery == null || !unionAll) && (distinct && addRowMethod == null))
-            resultTable.Sort((QueryResultKey[]) null, true, false);
+            resultTable.Sort(null, true, false);
         }
         if (unionQuery != null)
         {
           unionQuery.ExecuteQuery();
           if (!unionAll && addRowMethod == null)
-            resultTable.Sort((QueryResultKey[]) null, true, false);
+            resultTable.Sort(null, true, false);
           flag = resultTable != null && resultTable.RowCount > 0L;
         }
         if (flag)
-          return (IQueryResult) resultTable;
+          return resultTable;
         SetChanged();
         if (addRowMethod != null)
-          return (IQueryResult) null;
+          return null;
         OrderBy();
         affectedRows = resultTable.RowCount;
-        return (IQueryResult) resultTable;
+        return resultTable;
       }
       finally
       {
-        groupTable = (TempTable) null;
-        hashGroupTable = (HashGroupTable) null;
+        groupTable = null;
+        hashGroupTable = null;
         if (resultTable != null)
           resultTable.FirstRow();
-        resultTable = (TempTable) null;
+        resultTable = null;
       }
     }
 
@@ -680,10 +680,10 @@ namespace VistaDB.Engine.SQL
         {
           for (int index = 0; index < aggregateExpressions.Count; ++index)
           {
-            object newVal = (object) null;
+            object newVal = null;
             AggregateFunction function = aggregateExpressions[index].Function;
-            if (function.Expression != (Signature) null)
-              newVal = ((IValue) aggregateExpressions[index].Expression.Execute()).Value;
+            if (function.Expression != null)
+              newVal = aggregateExpressions[index].Expression.Execute().Value;
             if (!function.AddRowToGroup(newVal))
               return false;
           }
@@ -693,10 +693,10 @@ namespace VistaDB.Engine.SQL
           simpleAggregateAdded = true;
           for (int index = 0; index < aggregateExpressions.Count; ++index)
           {
-            object newVal = (object) null;
+            object newVal = null;
             AggregateFunction function = aggregateExpressions[index].Function;
-            if (function.Expression != (Signature) null)
-              newVal = ((IValue) aggregateExpressions[index].Expression.Execute()).Value;
+            if (function.Expression != null)
+              newVal = aggregateExpressions[index].Expression.Execute().Value;
             function.CreateNewGroup(newVal);
           }
         }
@@ -709,7 +709,7 @@ namespace VistaDB.Engine.SQL
       for (int index = 0; index < aggregateExpressions.Count; ++index)
       {
         Signature expression = aggregateExpressions[index].Expression;
-        if (expression != (Signature) null)
+        if (expression != null)
         {
           resultTable.PutColumn(expression.Execute(), count);
           ++count;
@@ -734,7 +734,7 @@ namespace VistaDB.Engine.SQL
       if (CanBeUsedHashGroupTable())
       {
         hashGroupTable = new HashGroupTable(Database, addRowMethod, resultColumns, groupColumns, aggregateExpressions, havingClause);
-        resultTable = (TempTable) hashGroupTable;
+        resultTable = hashGroupTable;
       }
       else
       {
@@ -752,7 +752,7 @@ namespace VistaDB.Engine.SQL
         for (int index = 0; index < aggregateExpressions.Count; ++index)
         {
           Signature expression = aggregateExpressions[index].Expression;
-          if (expression != (Signature) null)
+          if (expression != null)
             resultTable.AddColumn(aggregateExpressions[index].Alias, expression.DataType);
         }
         resultTable.FinalizeCreate();
@@ -817,10 +817,10 @@ namespace VistaDB.Engine.SQL
       {
         SourceRow sourceRow1 = new SourceRow();
         SourceRow sourceRow2 = new SourceRow();
-        ArrayList list = (ArrayList) null;
+        ArrayList list = null;
         bool flag1 = false;
-        List<QueryResultKey[]> queryResultKeyArrayList = (List<QueryResultKey[]>) null;
-        List<int> intList = (List<int>) null;
+        List<QueryResultKey[]> queryResultKeyArrayList = null;
+        List<int> intList = null;
         bool flag2 = false;
         if (resultTable == null)
         {
@@ -839,7 +839,7 @@ namespace VistaDB.Engine.SQL
             resultColumns[index1].Signature.Execute();
           if (addRowMethod != null)
           {
-            int num = addRowMethod(DataRowType.ResultColumnList, (object) resultColumns, true) ? 1 : 0;
+            int num = addRowMethod(DataRowType.ResultColumnList, resultColumns, true) ? 1 : 0;
           }
           else
           {
@@ -865,7 +865,7 @@ namespace VistaDB.Engine.SQL
           QueryResultKey[] sortOrder;
           if (groupColumns.Count == 0)
           {
-            sortOrder = (QueryResultKey[]) null;
+            sortOrder = null;
           }
           else
           {
@@ -891,7 +891,7 @@ namespace VistaDB.Engine.SQL
               if (manyGroups)
               {
                 queryResultKeyArray = new QueryResultKey[sortOrder.Length + 1];
-                sortOrder.CopyTo((Array) queryResultKeyArray, 0);
+                sortOrder.CopyTo(queryResultKeyArray, 0);
                 queryResultKeyArray[sortOrder.Length].ColumnIndex = index + sortColumnCount;
                 queryResultKeyArray[sortOrder.Length].Descending = false;
               }
@@ -911,10 +911,10 @@ namespace VistaDB.Engine.SQL
           {
             list = new ArrayList(resultColumns.VisibleColumnCount);
             for (int index = 0; index < resultColumns.VisibleColumnCount; ++index)
-              list.Add((object) null);
+              list.Add(null);
           }
           CreateTempTable();
-          TempTable secondTable = !distinctAggregate ? (TempTable) null : CreateSecondGroupTable();
+          TempTable secondTable = !distinctAggregate ? null : CreateSecondGroupTable();
           if (flag1)
           {
             if (manyGroups)
@@ -948,19 +948,19 @@ namespace VistaDB.Engine.SQL
             secondTable.FirstRow();
             while (!resultTable.EndOfTable)
             {
-              sourceRow1.Row = (IRow) resultTable.CurrentRow;
-              sourceRow2.Row = (IRow) secondTable.CurrentRow;
+              sourceRow1.Row = resultTable.CurrentRow;
+              sourceRow2.Row = secondTable.CurrentRow;
               if (havingClause.Evaluate())
               {
                 for (int index2 = 0; index2 < resultColumns.VisibleColumnCount; ++index2)
                 {
                                     ResultColumn resultColumn = resultColumns[index2];
                   if (resultColumn.Aggregate)
-                    ((IValue) sourceRow1.Row[index2]).Value = ((IValue) resultColumn.Signature.Execute()).Value;
+                                        sourceRow1.Row[index2].Value = resultColumn.Signature.Execute().Value;
                 }
                 if (addRowMethod != null)
                 {
-                  int num = addRowMethod(DataRowType.TableRow, (object) sourceRow1.Row, true) ? 1 : 0;
+                  int num = addRowMethod(DataRowType.TableRow, sourceRow1.Row, true) ? 1 : 0;
                 }
                 resultTable.NextRow();
               }
@@ -990,8 +990,8 @@ namespace VistaDB.Engine.SQL
     private void AggregateStream(TempTable secondTable, SourceRow sourceRow, int functionIndex, bool insertNew, ArrayList list, int sortColumnCount, bool manyGroups, bool lastGrouping)
     {
       bool flag1 = false;
-      IVistaDBRow vistaDbRow1 = (IVistaDBRow) null;
-      IVistaDBRow vistaDbRow2 = (IVistaDBRow) null;
+      IVistaDBRow vistaDbRow1 = null;
+      IVistaDBRow vistaDbRow2 = null;
       bool insertIntoTemp = addRowMethod == null || list == null;
       bool flag2 = functionIndex >= 0;
       affectedRows = 0L;
@@ -1012,10 +1012,10 @@ namespace VistaDB.Engine.SQL
           {
             if (manyGroups)
             {
-              vistaDbRow2 = (IVistaDBRow) groupTable.GetCurrentKeyClone();
+              vistaDbRow2 = groupTable.GetCurrentKeyClone();
               if (!flag2)
               {
-                if (!vistaDbRow2.Equals((object) vistaDbRow1))
+                if (!vistaDbRow2.Equals(vistaDbRow1))
                   flag3 = true;
               }
               else
@@ -1033,7 +1033,7 @@ namespace VistaDB.Engine.SQL
           }
           else
           {
-            vistaDbRow1 = manyGroups ? (IVistaDBRow) groupTable.GetCurrentKeyClone() : (IVistaDBRow) null;
+            vistaDbRow1 = manyGroups ? groupTable.GetCurrentKeyClone() : (IVistaDBRow) null;
             sourceRow.Row = groupTable.GetCurrentRowClone();
           }
         }
@@ -1102,7 +1102,7 @@ label_20:;
               if (insertIntoTemp)
                 resultTable.PutColumn(sourceRow.Row[index1], index2);
               else
-                list[index2] = (object) sourceRow.Row[index1];
+                list[index2] = sourceRow.Row[index1];
               ++index1;
             }
           }
@@ -1111,7 +1111,7 @@ label_20:;
             if (insertIntoTemp)
               resultTable.PutColumn(resultColumn.Signature.Execute(), index2);
             else
-              list[index2] = (object) resultColumn.Signature.Execute();
+              list[index2] = resultColumn.Signature.Execute();
           }
         }
       }
@@ -1144,7 +1144,7 @@ label_20:;
       }
       else
       {
-        int num = addRowMethod(DataRowType.ArrayList, (object) list, true) ? 1 : 0;
+        int num = addRowMethod(DataRowType.ArrayList, list, true) ? 1 : 0;
       }
       ++affectedRows;
       if (GetTopCount() > affectedRows)
@@ -1160,16 +1160,16 @@ label_20:;
       for (int index2 = 0; index2 < aggregateExpressions.Count; ++index2)
       {
         AggregateFunction function = aggregateExpressions[index2].Function;
-        if (function.Expression == (Signature) null)
+        if (function.Expression == null)
         {
           if (functionIndex < 0 && !function.Distinct || functionIndex == index2)
-            function.CreateNewGroup((object) null);
+            function.CreateNewGroup(null);
         }
         else
         {
           if (functionIndex < 0 && !function.Distinct || functionIndex == index2)
           {
-            object newVal = ((IValue) groupTable.GetColumn(index1)).Value;
+            object newVal = groupTable.GetColumn(index1).Value;
             function.CreateNewGroup(newVal);
           }
           ++index1;
@@ -1183,16 +1183,16 @@ label_20:;
       for (int index2 = 0; index2 < aggregateExpressions.Count; ++index2)
       {
         AggregateFunction function = aggregateExpressions[index2].Function;
-        if (function.Expression == (Signature) null)
+        if (function.Expression == null)
         {
           if (functionIndex < 0 && !function.Distinct || functionIndex == index2)
-            function.AddRowToGroup((object) null);
+            function.AddRowToGroup(null);
         }
         else
         {
           if (functionIndex < 0 && !function.Distinct || functionIndex == index2)
           {
-            object newVal = ((IValue) groupTable.GetColumn(index1)).Value;
+            object newVal = groupTable.GetColumn(index1).Value;
             function.AddRowToGroup(newVal);
           }
           ++index1;
@@ -1277,7 +1277,7 @@ label_20:;
       get
       {
         if (topCount == long.MaxValue)
-          return topCountSig != (Signature) null;
+          return topCountSig != null;
         return true;
       }
     }
@@ -1294,7 +1294,7 @@ label_20:;
     {
       get
       {
-        return whereClause.Signature != (Signature) null;
+        return whereClause.Signature != null;
       }
     }
 
@@ -1312,7 +1312,7 @@ label_20:;
     {
       get
       {
-        return havingClause.Signature != (Signature) null;
+        return havingClause.Signature != null;
       }
     }
 
@@ -1404,7 +1404,7 @@ label_20:;
     public DataTable GetSchemaTable()
     {
       if (!prepared)
-        return (DataTable) null;
+        return null;
       DataTable schemaTableInstance = GetSchemaTableInstance();
       schemaTableInstance.BeginLoadData();
       int index = 0;
@@ -1412,29 +1412,29 @@ label_20:;
       {
                 ResultColumn resultColumn = resultColumns[index];
         DataRow row = schemaTableInstance.NewRow();
-        row["ColumnName"] = (object) resultColumn.Alias;
-        row["ColumnOrdinal"] = (object) index;
-        row["ColumnSize"] = (object) resultColumn.Width;
-        row["NumericPrecision"] = (object) (int) byte.MaxValue;
-        row["NumericScale"] = (object) (int) byte.MaxValue;
-        row["IsUnique"] = (object) resultColumn.IsKey;
-        row["IsKey"] = (object) resultColumn.IsKey;
-        row["BaseColumnName"] = (object) resultColumn.ColumnName;
-        row["BaseSchemaName"] = (object) null;
-        row["BaseTableName"] = (object) resultColumn.TableName;
-        row["DataType"] = (object) resultColumn.SystemType;
-        row["AllowDBNull"] = (object) resultColumn.IsAllowNull;
-        row["ProviderType"] = (object) resultColumn.DataType;
-        row["IsAliased"] = (object) resultColumn.IsAliased;
-        row["IsExpression"] = (object) resultColumn.IsExpression;
-        row["IsIdentity"] = (object) resultColumn.IsAutoIncrement;
-        row["IsAutoIncrement"] = (object) resultColumn.IsAutoIncrement;
-        row["IsRowVersion"] = (object) false;
-        row["IsHidden"] = (object) false;
-        row["IsLong"] = (object) resultColumn.IsLong;
-        row["IsReadOnly"] = (object) resultColumn.IsReadOnly;
-        row["ProviderSpecificDataType"] = (object) resultColumn.SystemType;
-        row["DataTypeName"] = (object) resultColumn.DataType.ToString();
+        row["ColumnName"] = resultColumn.Alias;
+        row["ColumnOrdinal"] = index;
+        row["ColumnSize"] = resultColumn.Width;
+        row["NumericPrecision"] = (int)byte.MaxValue;
+        row["NumericScale"] = (int)byte.MaxValue;
+        row["IsUnique"] = resultColumn.IsKey;
+        row["IsKey"] = resultColumn.IsKey;
+        row["BaseColumnName"] = resultColumn.ColumnName;
+        row["BaseSchemaName"] = null;
+        row["BaseTableName"] = resultColumn.TableName;
+        row["DataType"] = resultColumn.SystemType;
+        row["AllowDBNull"] = resultColumn.IsAllowNull;
+        row["ProviderType"] = resultColumn.DataType;
+        row["IsAliased"] = resultColumn.IsAliased;
+        row["IsExpression"] = resultColumn.IsExpression;
+        row["IsIdentity"] = resultColumn.IsAutoIncrement;
+        row["IsAutoIncrement"] = resultColumn.IsAutoIncrement;
+        row["IsRowVersion"] = false;
+        row["IsHidden"] = false;
+        row["IsLong"] = resultColumn.IsLong;
+        row["IsReadOnly"] = resultColumn.IsReadOnly;
+        row["ProviderSpecificDataType"] = resultColumn.SystemType;
+        row["DataTypeName"] = resultColumn.DataType.ToString();
         schemaTableInstance.Rows.Add(row);
       }
       schemaTableInstance.AcceptChanges();
@@ -1531,20 +1531,20 @@ label_20:;
     public object GetValue(int index, VistaDBType dataType)
     {
       if (endOfTable)
-        return (object) null;
+        return null;
       IColumn column1 = resultColumns[index].Signature.Execute();
       if (dataType == VistaDBType.Unknown || column1.InternalType == dataType)
-        return ((IValue) column1).Value;
+        return column1.Value;
       IColumn column2 = resultColumns[index].Signature.CreateColumn(dataType);
-      Database.Conversion.Convert((IValue) column1, (IValue) column2);
-      return ((IValue) column2).Value;
+      Database.Conversion.Convert(column1, column2);
+      return column2.Value;
     }
 
     public IColumn GetColumn(int index)
     {
       if (!endOfTable)
         return resultColumns[index].Signature.Execute();
-      return (IColumn) null;
+      return null;
     }
 
     public bool IsNull(int index)
@@ -1620,27 +1620,27 @@ label_20:;
         this.hidden = hidden;
         aggregate = signature.HasAggregateFunction(out aggregateDistinct);
         width = 0;
-        columnName = (string) null;
-        tableName = (string) null;
+        columnName = null;
+        tableName = null;
         isKey = false;
         isAllowNull = true;
         isExpression = true;
         isAutoIncrement = false;
         isReadOnly = false;
-        description = (string) null;
-        caption = (string) null;
+        description = null;
+        caption = null;
         encrypted = false;
         codePage = 0;
-        identity = (string) null;
-        identityStep = (string) null;
-        identitySeed = (string) null;
-        defaultValue = (string) null;
+        identity = null;
+        identityStep = null;
+        identitySeed = null;
+        defaultValue = null;
         useInUpdate = false;
         this.paramName = paramName;
       }
 
       public ResultColumn(ColumnSignature column, string alias)
-        : this((Signature) column, alias, false, (string) null)
+        : this(column, alias, false, null)
       {
         columnName = column.ColumnName;
         tableName = column.Table.TableName;
@@ -1677,7 +1677,7 @@ label_20:;
           case SignatureType.Constant:
             if (signature.SignatureType != SignatureType.Constant)
             {
-              signature = (Signature) ConstantSignature.CreateSignature(signature.Execute(), signature.Parent);
+              signature = ConstantSignature.CreateSignature(signature.Execute(), signature.Parent);
               break;
             }
             goto default;
@@ -1973,9 +1973,9 @@ label_20:;
 
       internal void ReplaceSignature(QuickJoinLookupColumn newColumnSignature)
       {
-        if (!((Signature) newColumnSignature != (Signature) null))
+        if (!(newColumnSignature != null))
           return;
-        signature = (Signature) newColumnSignature;
+        signature = newColumnSignature;
       }
     }
 
@@ -2029,7 +2029,7 @@ label_20:;
 
       public ResultColumn AddOrderColumn(string tableName, string columnName, SQLParser parser)
       {
-                ResultColumn column1 = (ResultColumn) null;
+                ResultColumn column1 = null;
         int index1 = -1;
         for (int index2 = 0; index2 < Count; ++index2)
         {
@@ -2072,8 +2072,8 @@ label_20:;
           return column1;
         }
         ColumnSignature signature1 = ColumnSignature.CreateSignature(tableName, columnName, parser);
-        string columnAlias = GenerateColumnAlias((Signature) signature1);
-                ResultColumn column2 = new ResultColumn((Signature) signature1, columnAlias, false, (string) null);
+        string columnAlias = GenerateColumnAlias(signature1);
+                ResultColumn column2 = new ResultColumn(signature1, columnAlias, false, null);
         Insert(visibleColumnCount, column2);
         ++hiddenSortColumnCount;
         return column2;
@@ -2113,7 +2113,7 @@ label_20:;
             for (int index2 = 0; index2 < count2; ++index2)
             {
               ColumnSignature column = columnSignatureList[index2];
-              string columnAlias = GenerateColumnAlias((Signature) column);
+              string columnAlias = GenerateColumnAlias(column);
               Insert(index1 + index2, new ResultColumn(column, columnAlias));
             }
             int num = count2 - 1;
@@ -2144,12 +2144,12 @@ label_20:;
 
       public string GenerateColumnAlias(Signature signature)
       {
-        if (signature != (Signature) null && signature.SignatureType == SignatureType.MultiplyColumn)
+        if (signature != null && signature.SignatureType == SignatureType.MultiplyColumn)
           return "*";
         int num = 0;
         string str;
         string alias;
-        if (signature != (Signature) null && (signature.SignatureType == SignatureType.Column || signature.SignatureType == SignatureType.ExternalColumn))
+        if (signature != null && (signature.SignatureType == SignatureType.Column || signature.SignatureType == SignatureType.ExternalColumn))
         {
           str = ((ColumnSignature) signature).ColumnName;
           alias = str;
@@ -2172,7 +2172,7 @@ label_20:;
           if (parent.connection.CompareString(resultColumn.TableAlias, tableName, true) == 0 && parent.connection.CompareString(resultColumn.ColumnName, columnName, true) == 0 || parent.connection.CompareString(resultColumn.TableName, tableName, true) == 0 && parent.connection.CompareString(resultColumn.ColumnName, columnName, true) == 0 || (parent.connection.CompareString(resultColumn.Alias, columnName, true) == 0 && (string.IsNullOrEmpty(resultColumn.TableName) || parent.connection.CompareString(resultColumn.TableName, tableName, true) == 0) || parent.connection.CompareString(resultColumn.Alias, columnName, true) == 0 && parent.connection.CompareString(resultColumn.TableAlias, tableName, true) == 0))
             return resultColumn;
         }
-        return (ResultColumn) null;
+        return null;
       }
 
       public void SetChanged()
@@ -2192,7 +2192,7 @@ label_20:;
         get
         {
           if (index < 0 || index >= Count)
-            return (ResultColumn) null;
+            return null;
           return base[index];
         }
       }
@@ -2203,7 +2203,7 @@ label_20:;
         {
           int index = IndexOf(alias);
           if (index < 0)
-            return (ResultColumn) null;
+            return null;
           return base[index];
         }
       }
@@ -2214,7 +2214,7 @@ label_20:;
         {
           int index = IndexOf(signature);
           if (index < 0)
-            return (ResultColumn) null;
+            return null;
           return base[index];
         }
       }
@@ -2266,7 +2266,7 @@ label_20:;
         this.lineNo = lineNo;
         this.symbolNo = symbolNo;
         this.orderDirection = orderDirection;
-        column = (ResultColumn) null;
+        column = null;
         this.text = text;
         this.isOrdinal = isOrdinal;
         this.ordinal = ordinal;
@@ -2428,23 +2428,23 @@ label_20:;
 
       public HavingClause(SelectStatement parent)
       {
-        signature = (Signature) null;
+        signature = null;
         this.parent = parent;
       }
 
       public bool Evaluate()
       {
-        if (!(signature == (Signature) null))
-          return (bool) ((IValue) signature.Execute()).Value;
+        if (!(signature == null))
+          return (bool)signature.Execute().Value;
         return true;
       }
 
       public void Prepare()
       {
-        if (signature == (Signature) null)
+        if (signature == null)
           return;
         if (signature.Prepare() == SignatureType.Constant && signature.SignatureType != SignatureType.Constant)
-          signature = (Signature) ConstantSignature.CreateSignature(signature.Execute(), (Statement) parent);
+          signature = ConstantSignature.CreateSignature(signature.Execute(), parent);
         if (signature.DataType != VistaDBType.Bit)
           throw new VistaDBSQLException(570, "", signature.LineNo, signature.SymbolNo);
       }
@@ -2456,14 +2456,14 @@ label_20:;
 
       public void SetChanged()
       {
-        if (!(signature != (Signature) null))
+        if (!(signature != null))
           return;
         signature.SetChanged();
       }
 
       public void ClearChanged()
       {
-        if (!(signature != (Signature) null))
+        if (!(signature != null))
           return;
         signature.ClearChanged();
       }
@@ -2472,7 +2472,7 @@ label_20:;
       {
         get
         {
-          if (signature != (Signature) null && signature.SignatureType == SignatureType.Constant)
+          if (signature != null && signature.SignatureType == SignatureType.Constant)
             return !Evaluate();
           return false;
         }
@@ -2482,7 +2482,7 @@ label_20:;
       {
         get
         {
-          if (signature == (Signature) null)
+          if (signature == null)
             return true;
           if (signature.SignatureType == SignatureType.Constant)
             return Evaluate();
@@ -2516,13 +2516,13 @@ label_20:;
           if (columnCount2 < columnCount1)
             throw new VistaDBSQLException(571, "", signature.LineNo, signature.SymbolNo);
           for (int index = 0; index < parent.aggregateExpressions.Count; ++index)
-            signature = signature.Relink((Signature) parent.aggregateExpressions[index].Function, ref columnCount2);
+            signature = signature.Relink(parent.aggregateExpressions[index].Function, ref columnCount2);
         }
       }
 
       public bool GetIsChanged()
       {
-        if (signature != (Signature) null)
+        if (signature != null)
           return signature.GetIsChanged();
         return false;
       }
@@ -2571,7 +2571,7 @@ label_20:;
         int num = 0;
         foreach (AggregateExpression aggregateExpression in (List<AggregateExpression>) this)
         {
-          if (aggregateExpression.Expression != (Signature) null)
+          if (aggregateExpression.Expression != null)
             ++num;
         }
         return num;

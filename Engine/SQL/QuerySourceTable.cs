@@ -13,7 +13,7 @@ namespace VistaDB.Engine.SQL
       : base(parent, alias, alias, index, lineNo, symbolNo)
     {
       this.statement = statement;
-      queryTable = (IQueryResult) null;
+      queryTable = null;
     }
 
     public override IColumn SimpleGetColumn(int colIndex)
@@ -30,7 +30,7 @@ namespace VistaDB.Engine.SQL
       if (queryTable == null)
         return;
       queryTable.Close();
-      queryTable = (IQueryResult) null;
+      queryTable = null;
     }
 
     public override void FreeTable()
@@ -40,17 +40,17 @@ namespace VistaDB.Engine.SQL
 
     public override IVistaDBTableSchema GetTableSchema()
     {
-      return (IVistaDBTableSchema) null;
+      return null;
     }
 
     public override IColumn GetLastIdentity(string columnName)
     {
-      return (IColumn) null;
+      return null;
     }
 
     public override string CreateIndex(string expression, bool instantly)
     {
-      return (string) null;
+      return null;
     }
 
     public override int GetColumnCount()

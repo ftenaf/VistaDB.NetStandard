@@ -88,11 +88,11 @@ namespace VistaDB.Engine.Core.Indexing
     protected override Row DoAllocateCurrentRow()
     {
       Row emptyRowInstance = CreateEmptyRowInstance();
-      columnOrderIndex = emptyRowInstance.AppendColumn((IColumn) new SmallIntColumn());
-      tokenIndex = emptyRowInstance.AppendColumn((IColumn) new NVarcharColumn((string) null, 8192, Culture, !CaseSensitive, NCharColumn.DefaultUnicode));
-      occurrenceIndex = emptyRowInstance.AppendColumn((IColumn) new IntColumn());
+      columnOrderIndex = emptyRowInstance.AppendColumn(new SmallIntColumn());
+      tokenIndex = emptyRowInstance.AppendColumn(new NVarcharColumn(null, 8192, Culture, !CaseSensitive, NCharColumn.DefaultUnicode));
+      occurrenceIndex = emptyRowInstance.AppendColumn(new IntColumn());
       if (Encryption != null)
-        emptyRowInstance[tokenIndex].AssignAttributes((string) null, true, false, true, false);
+        emptyRowInstance[tokenIndex].AssignAttributes(null, true, false, true, false);
       return emptyRowInstance;
     }
 
@@ -145,7 +145,7 @@ namespace VistaDB.Engine.Core.Indexing
     protected override Row DoEvaluateLink(DataStorage masterStorage, EvalStack linking, Row sourceRow, Row targetRow)
     {
       ftsEvaluator = linking;
-      Row link = base.DoEvaluateLink(masterStorage, (EvalStack) null, sourceRow, targetRow);
+      Row link = base.DoEvaluateLink(masterStorage, null, sourceRow, targetRow);
       link?.InitTop();
       return link;
     }
@@ -224,11 +224,11 @@ namespace VistaDB.Engine.Core.Indexing
       int index = 0;
       for (int length = tableColumnsOrder.Length; index < length; ++index)
       {
-        emptyRowInstance1.AppendColumn((IColumn) ParentRowset.TopRow[(int) tableColumnsOrder[index]].Duplicate(false));
-        emptyRowInstance2.AppendColumn((IColumn) ParentRowset.BottomRow[(int) tableColumnsOrder[index]].Duplicate(false));
+        emptyRowInstance1.AppendColumn(ParentRowset.TopRow[tableColumnsOrder[index]].Duplicate(false));
+        emptyRowInstance2.AppendColumn(ParentRowset.BottomRow[tableColumnsOrder[index]].Duplicate(false));
       }
-      lowValue = (IVistaDBRow) emptyRowInstance1;
-      highValue = (IVistaDBRow) emptyRowInstance2;
+      lowValue = emptyRowInstance1;
+      highValue = emptyRowInstance2;
     }
 
     internal override void DoSetFtsActive()
@@ -238,24 +238,24 @@ namespace VistaDB.Engine.Core.Indexing
         ftsFilter = new FTSKeysFilter(ParentRowset.MaxRowId);
       else
         ftsFilter.Reset(ParentRowset.MaxRowId);
-      ParentRowset.AttachFilter((Filter) ftsFilter);
+      ParentRowset.AttachFilter(ftsFilter);
     }
 
     internal override void DoSetFtsInactive()
     {
-      ParentRowset.DetachFilter(Filter.FilterType.Optimized, (Filter) ftsFilter);
+      ParentRowset.DetachFilter(Filter.FilterType.Optimized, ftsFilter);
     }
 
     protected override void Destroy()
     {
-      ftsEvaluator = (EvalStack) null;
+      ftsEvaluator = null;
       if (deleteFtsKeys != null)
         deleteFtsKeys.Clear();
-      deleteFtsKeys = (FtsKeys) null;
+      deleteFtsKeys = null;
       if (insertFtsKeys != null)
         insertFtsKeys.Clear();
-      insertFtsKeys = (FtsKeys) null;
-      ftsEvaluationRow = (Row) null;
+      insertFtsKeys = null;
+      ftsEvaluationRow = null;
       base.Destroy();
     }
 
@@ -278,7 +278,7 @@ namespace VistaDB.Engine.Core.Indexing
       internal class StopWords : Dictionary<string, int>
       {
         internal StopWords()
-          : base((IEqualityComparer<string>) StringComparer.OrdinalIgnoreCase)
+          : base(StringComparer.OrdinalIgnoreCase)
         {
           try
           {
@@ -317,9 +317,9 @@ namespace VistaDB.Engine.Core.Indexing
       {
         Row row = patternRowResult.CopyInstance();
         row.CopyMetaData(evaluatedRow);
-        row[columnOrderIndex].Value = (object) tableColumnsOrders[columnOrder];
-        row[dataIndex].Value = (object) token;
-        row[occurenceIndex].Value = (object) occurence;
+        row[columnOrderIndex].Value = tableColumnsOrders[columnOrder];
+        row[dataIndex].Value = token;
+        row[occurenceIndex].Value = occurence;
         Add(row);
       }
 
@@ -327,17 +327,17 @@ namespace VistaDB.Engine.Core.Indexing
       {
         ++position;
         if (position >= columnValue.Length)
-          return (string) null;
+          return null;
         while (position < columnValue.Length && WordBreaker.IsWordBreaker(columnValue, position))
           ++position;
         int startIndex = position;
         while (position < columnValue.Length && !WordBreaker.IsWordBreaker(columnValue, position))
           ++position;
         if (position == startIndex)
-          return (string) null;
+          return null;
         string str = columnValue.Substring(startIndex, position - startIndex).Trim(' ', char.MinValue);
         if (str.Length == 0)
-          return (string) null;
+          return null;
         if (str.Length <= maxLen)
           return str;
         return str.Substring(0, 1);

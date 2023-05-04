@@ -57,7 +57,7 @@ namespace VistaDB.Engine.SQL
     protected override IQueryResult OnExecuteQuery()
     {
       if (createInPrepare)
-        return (IQueryResult) null;
+        return null;
       if (connection.Database == null)
         throw new VistaDBSQLException(623, string.Empty, 0, 0);
       using (IVistaDBTableSchema vistaDbTableSchema = connection.Database.NewTable(tableName))
@@ -79,7 +79,7 @@ namespace VistaDB.Engine.SQL
           throw;
         }
       }
-      return (IQueryResult) null;
+      return null;
     }
 
     public string TableName
@@ -92,7 +92,7 @@ namespace VistaDB.Engine.SQL
 
     internal void CreateUniqueName(string paramName)
     {
-      tableName = "#" + (object) '_' + tableIdCounter.ToString() + (object) '_' + paramName;
+      tableName = "#" + '_' + tableIdCounter.ToString() + '_' + paramName;
       ++tableIdCounter;
     }
   }

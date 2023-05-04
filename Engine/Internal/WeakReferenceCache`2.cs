@@ -14,13 +14,13 @@ namespace VistaDB.Engine.Internal
         private readonly IEqualityComparer<TKey> m_Comparer;
 
         public WeakReferenceCache(int capacity)
-          : this(capacity, (IEqualityComparer<TKey>)null)
+          : this(capacity, null)
         {
         }
 
         public WeakReferenceCache(int capacity, IEqualityComparer<TKey> comparer)
         {
-            m_Comparer = comparer ?? (IEqualityComparer<TKey>)EqualityComparer<TKey>.Default;
+            m_Comparer = comparer ?? EqualityComparer<TKey>.Default;
             m_Cache = new Dictionary<TKey, CacheNode<TValue>>(capacity, m_Comparer);
             m_Queue = new LRUQueue<TValue>(capacity);
             m_InitialCapacity = capacity;
@@ -30,31 +30,31 @@ namespace VistaDB.Engine.Internal
         {
             get
             {
-                if ((object)m_PreviousValue != null && m_Comparer.Equals(key, m_PreviousKey))
+                if (m_PreviousValue != null && m_Comparer.Equals(key, m_PreviousKey))
                     return m_PreviousValue;
                 TValue obj = default(TValue);
                 CacheNode<TValue> cacheNode;
                 if (m_Cache.TryGetValue(key, out cacheNode))
                 {
                     obj = cacheNode.Value;
-                    if ((object)obj == null)
+                    if (obj == null)
                     {
                         m_Queue.Remove(cacheNode.QueueNode);
-                        cacheNode.QueueNode = (LRUNode<TValue>)null;
+                        cacheNode.QueueNode = null;
                         m_Cache.Remove(key);
                     }
-                    else if (cacheNode.QueueNode == null || (object)cacheNode.QueueNode.Value == null)
+                    else if (cacheNode.QueueNode == null || cacheNode.QueueNode.Value == null)
                         cacheNode.QueueNode = m_Queue.AddToFront(obj);
                     else
                         m_Queue.MoveToFront(cacheNode.QueueNode);
                 }
-                if ((object)obj == null)
+                if (obj == null)
                 {
                     obj = FetchValue(key);
-                    if ((object)obj != null)
+                    if (obj != null)
                         this[key] = obj;
                 }
-                if ((object)obj != null)
+                if (obj != null)
                 {
                     m_PreviousKey = key;
                     m_PreviousValue = obj;
@@ -78,13 +78,13 @@ namespace VistaDB.Engine.Internal
         public void AddToWeakCache(TKey key, TValue newValue)
         {
             CacheNode<TValue> cacheNode1;
-            if (m_Cache.TryGetValue(key, out cacheNode1) && (object)cacheNode1.Value == null)
+            if (m_Cache.TryGetValue(key, out cacheNode1) && cacheNode1.Value == null)
             {
                 m_Queue.Remove(cacheNode1.QueueNode);
-                cacheNode1.QueueNode = (LRUNode<TValue>)null;
+                cacheNode1.QueueNode = null;
                 m_Cache.Remove(key);
             }
-            CacheNode<TValue> cacheNode2 = new CacheNode<TValue>() { Value = newValue, QueueNode = (LRUNode<TValue>)null };
+            CacheNode<TValue> cacheNode2 = new CacheNode<TValue>() { Value = newValue, QueueNode = null };
             m_Cache.Add(key, cacheNode2);
             if (++m_AddCount <= m_InitialCapacity)
                 return;
@@ -101,13 +101,13 @@ namespace VistaDB.Engine.Internal
             TValue obj = cacheNode.Value;
             if (queueNode != null)
                 m_Queue.Remove(queueNode);
-            if ((object)m_PreviousValue != null && m_Comparer.Equals(key, m_PreviousKey))
+            if (m_PreviousValue != null && m_Comparer.Equals(key, m_PreviousKey))
             {
                 m_PreviousValue = default(TValue);
                 m_PreviousKey = default(TKey);
             }
             m_Cache.Remove(key);
-            return (object)obj != null;
+            return obj != null;
         }
 
         public List<TValue> GetMostRecentList()
@@ -122,7 +122,7 @@ namespace VistaDB.Engine.Internal
 
         public IEnumerator<TValue> EnumerateMostRecent()
         {
-            return (IEnumerator<TValue>)m_Queue.GetValues().GetEnumerator();
+            return m_Queue.GetValues().GetEnumerator();
         }
 
         public IEnumerator<TValue> EnumerateEntireCache()
@@ -130,7 +130,7 @@ namespace VistaDB.Engine.Internal
             foreach (CacheNode<TValue> cacheNode in m_Cache.Values)
             {
                 TValue value = cacheNode.Value;
-                if ((object)value != null)
+                if (value != null)
                     yield return value;
             }
         }
@@ -220,7 +220,7 @@ namespace VistaDB.Engine.Internal
                 }
                 set
                 {
-                    WeakReference = new WeakReference((object)value);
+                    WeakReference = new WeakReference(value);
                 }
             }
         }
@@ -256,7 +256,7 @@ namespace VistaDB.Engine.Internal
 
             public WeakReferenceCache<TKey, TValue>.LRUNode<TValue> AddToFront(TValue value)
             {
-                WeakReferenceCache<TKey, TValue>.LRUNode<TValue> lruNode = new WeakReferenceCache<TKey, TValue>.LRUNode<TValue>() { Value = value, Next = Head, Previous = (WeakReferenceCache<TKey, TValue>.LRUNode<TValue>)null };
+                WeakReferenceCache<TKey, TValue>.LRUNode<TValue> lruNode = new WeakReferenceCache<TKey, TValue>.LRUNode<TValue>() { Value = value, Next = Head, Previous = null };
                 if (Head != null)
                     Head.Previous = lruNode;
                 Head = lruNode;
@@ -280,7 +280,7 @@ namespace VistaDB.Engine.Internal
                     Tail = node.Previous;
                 node.Next = Head;
                 Head.Previous = node;
-                node.Previous = (WeakReferenceCache<TKey, TValue>.LRUNode<TValue>)null;
+                node.Previous = null;
                 Head = node;
             }
 
@@ -291,16 +291,16 @@ namespace VistaDB.Engine.Internal
                     return;
                 Tail = tail.Previous;
                 if (Tail != null)
-                    Tail.Next = (WeakReferenceCache<TKey, TValue>.LRUNode<TValue>)null;
-                tail.Next = (WeakReferenceCache<TKey, TValue>.LRUNode<TValue>)null;
-                tail.Previous = (WeakReferenceCache<TKey, TValue>.LRUNode<TValue>)null;
+                    Tail.Next = null;
+                tail.Next = null;
+                tail.Previous = null;
                 tail.Value = default(TValue);
                 --Count;
             }
 
             public void Remove(WeakReferenceCache<TKey, TValue>.LRUNode<TValue> node)
             {
-                if (node == null || (object)node.Value == null)
+                if (node == null || node.Value == null)
                     return;
                 if (node.Previous != null)
                     node.Previous.Next = node.Next;
@@ -310,8 +310,8 @@ namespace VistaDB.Engine.Internal
                     Head = node.Next;
                 if (Tail == node)
                     Tail = node.Previous;
-                node.Next = (WeakReferenceCache<TKey, TValue>.LRUNode<TValue>)null;
-                node.Previous = (WeakReferenceCache<TKey, TValue>.LRUNode<TValue>)null;
+                node.Next = null;
+                node.Previous = null;
                 node.Value = default(TValue);
                 --Count;
             }
@@ -388,7 +388,7 @@ namespace VistaDB.Engine.Internal
                     if (m_MruList.Count > m_Capacity)
                         m_MruList.RemoveLast();
                 }
-                if (node.List != m_MruList || ReferenceEquals((object)m_MruList.First, (object)node))
+                if (node.List != m_MruList || ReferenceEquals(m_MruList.First, node))
                     return;
                 m_MruList.Remove(node);
                 m_MruList.AddFirst(node);

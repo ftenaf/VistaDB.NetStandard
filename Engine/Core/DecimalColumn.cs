@@ -17,35 +17,35 @@ namespace VistaDB.Engine.Core
         case VistaDBType.NChar:
           return Decimal.Parse((string) col.Value);
         case VistaDBType.TinyInt:
-          return (Decimal) ((byte) col.Value);
+          return (byte)col.Value;
         case VistaDBType.SmallInt:
-          return (Decimal) ((short) col.Value);
+          return (short)col.Value;
         case VistaDBType.Int:
-          return (Decimal) ((int) col.Value);
+          return (int)col.Value;
         case VistaDBType.BigInt:
-          return (Decimal) ((long) col.Value);
+          return (long)col.Value;
         default:
           return (Decimal) col.Value;
       }
     }
 
     internal DecimalColumn()
-      : base((object) null, VistaDBType.Decimal, DecSize)
+      : base(null, VistaDBType.Decimal, DecSize)
     {
     }
 
     internal DecimalColumn(Decimal val)
-      : base((object) val, VistaDBType.Decimal, DecSize)
+      : base(val, VistaDBType.Decimal, DecSize)
     {
     }
 
     internal DecimalColumn(DecimalColumn col)
-      : base((Row.Column) col)
+      : base(col)
     {
     }
 
     protected DecimalColumn(VistaDBType type, int size)
-      : base((object) null, type, size)
+      : base(null, type, size)
     {
     }
 
@@ -53,7 +53,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (object) new Decimal(-1, -1, -1, true, (byte) 0);
+        return new Decimal(-1, -1, -1, true, 0);
       }
     }
 
@@ -61,7 +61,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (object) new Decimal(-1, -1, -1, false, (byte) 0);
+        return new Decimal(-1, -1, -1, false, 0);
       }
     }
 
@@ -69,7 +69,7 @@ namespace VistaDB.Engine.Core
     {
       set
       {
-        base.Value = value == null ? value : (object) (Decimal) value;
+        base.Value = value == null ? value : (Decimal)value;
       }
     }
 
@@ -91,7 +91,7 @@ namespace VistaDB.Engine.Core
 
     protected override Row.Column OnDuplicate(bool padRight)
     {
-      return (Row.Column) new DecimalColumn(this);
+      return new DecimalColumn(this);
     }
 
     internal override int ConvertToByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
@@ -101,9 +101,9 @@ namespace VistaDB.Engine.Core
       offset = VdbBitConverter.GetBytes((uint) bits[1], buffer, offset, IntSize);
       offset = VdbBitConverter.GetBytes((uint) bits[2], buffer, offset, IntSize);
       byte[] bytes = BitConverter.GetBytes(bits[3]);
-      Array.Copy((Array) bytes, 2, (Array) buffer, offset, ScaleSize);
+      Array.Copy(bytes, 2, buffer, offset, ScaleSize);
       offset += ScaleSize;
-      Array.Copy((Array) bytes, 3, (Array) buffer, offset, BoolSize);
+      Array.Copy(bytes, 3, buffer, offset, BoolSize);
       offset += BoolSize;
       return offset;
     }
@@ -120,61 +120,61 @@ namespace VistaDB.Engine.Core
       offset += ScaleSize;
       bool boolean = BitConverter.ToBoolean(buffer, offset);
       offset += BoolSize;
-      val = (object) new Decimal(int32_1, int32_2, int32_3, boolean, scale);
+      val = new Decimal(int32_1, int32_2, int32_3, boolean, scale);
       return offset;
     }
 
     protected override long Collate(Row.Column col)
     {
-      return (long) Decimal.Compare((Decimal) Value, (Decimal) col.Value);
+      return Decimal.Compare((Decimal)Value, (Decimal)col.Value);
     }
 
     protected override Row.Column DoUnaryMinus()
     {
-      Value = (object) Decimal.Negate((Decimal) Value);
-      return (Row.Column) this;
+      Value = Decimal.Negate((Decimal)Value);
+      return this;
     }
 
     protected override Row.Column DoMinus(Row.Column column)
     {
-      Value = (object) ((Decimal) Value - CustValue(column));
-      return (Row.Column) this;
+      Value = (Decimal)Value - CustValue(column);
+      return this;
     }
 
     protected override Row.Column DoPlus(Row.Column column)
     {
-      Value = (object) ((Decimal) Value + CustValue(column));
-      return (Row.Column) this;
+      Value = (Decimal)Value + CustValue(column);
+      return this;
     }
 
     protected override Row.Column DoMultiplyBy(Row.Column col)
     {
-      Value = (object) Decimal.Multiply((Decimal) Value, CustValue(col));
-      return (Row.Column) this;
+      Value = Decimal.Multiply((Decimal)Value, CustValue(col));
+      return this;
     }
 
     protected override Row.Column DoDivideBy(Row.Column denominator)
     {
-      Value = (object) Decimal.Divide((Decimal) Value, CustValue(denominator));
-      return (Row.Column) this;
+      Value = Decimal.Divide((Decimal)Value, CustValue(denominator));
+      return this;
     }
 
     protected override Row.Column DoGetDividedBy(Row.Column numerator)
     {
-      Value = (object) Decimal.Divide(CustValue(numerator), (Decimal) Value);
-      return (Row.Column) this;
+      Value = Decimal.Divide(CustValue(numerator), (Decimal)Value);
+      return this;
     }
 
     protected override Row.Column DoModBy(Row.Column denominator)
     {
-      Value = (object) ((Decimal) Value % CustValue(denominator));
-      return (Row.Column) this;
+      Value = (Decimal)Value % CustValue(denominator);
+      return this;
     }
 
     protected override Row.Column DoGetModBy(Row.Column numerator)
     {
-      Value = (object) (CustValue(numerator) % (Decimal) Value);
-      return (Row.Column) this;
+      Value = CustValue(numerator) % (Decimal)Value;
+      return this;
     }
   }
 }

@@ -7,8 +7,8 @@ namespace VistaDB.Engine.Core
   internal class SmallMoneyColumn : DecimalColumn
   {
     public static readonly int ScaleFactor = 10000;
-    private static readonly Decimal MaxCurrency = new Decimal(int.MaxValue) / (Decimal)ScaleFactor;
-    private static readonly Decimal MinCurrency = new Decimal(int.MinValue) / (Decimal)ScaleFactor;
+    private static readonly Decimal MaxCurrency = new Decimal(int.MaxValue) / ScaleFactor;
+    private static readonly Decimal MinCurrency = new Decimal(int.MinValue) / ScaleFactor;
     private static readonly int SmallMoneySize = 4;
 
     internal SmallMoneyColumn()
@@ -19,11 +19,11 @@ namespace VistaDB.Engine.Core
     internal SmallMoneyColumn(Decimal val)
       : this()
     {
-      Value = (object) val;
+      Value = val;
     }
 
     internal SmallMoneyColumn(SmallMoneyColumn column)
-      : base((DecimalColumn) column)
+      : base(column)
     {
     }
 
@@ -31,7 +31,7 @@ namespace VistaDB.Engine.Core
     {
       set
       {
-        base.Value = value == null ? value : (object) TestDynamicRange(Truncate((Decimal) value));
+        base.Value = value == null ? value : TestDynamicRange(Truncate((Decimal)value));
       }
     }
 
@@ -39,7 +39,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (object)MaxCurrency;
+        return MaxCurrency;
       }
     }
 
@@ -47,31 +47,31 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (object)MinCurrency;
+        return MinCurrency;
       }
     }
 
     internal override int ConvertToByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      return VdbBitConverter.GetBytes((uint) Decimal.ToInt32((Decimal) Value * (Decimal)ScaleFactor), buffer, offset, SmallMoneySize);
+      return VdbBitConverter.GetBytes((uint) Decimal.ToInt32((Decimal) Value * ScaleFactor), buffer, offset, SmallMoneySize);
     }
 
     internal override int ConvertFromByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
       int int32 = BitConverter.ToInt32(buffer, offset);
       offset += SmallMoneySize;
-      val = (object) (new Decimal(int32) / (Decimal)ScaleFactor);
+      val = new Decimal(int32) / ScaleFactor;
       return offset;
     }
 
     protected override Row.Column OnDuplicate(bool padRight)
     {
-      return (Row.Column) new SmallMoneyColumn(this);
+      return new SmallMoneyColumn(this);
     }
 
     private Decimal Truncate(Decimal currency)
     {
-      return new Decimal(Decimal.ToInt32(currency * (Decimal)ScaleFactor)) / (Decimal)ScaleFactor;
+      return new Decimal(Decimal.ToInt32(currency * ScaleFactor)) / ScaleFactor;
     }
 
     private Decimal TestDynamicRange(Decimal currency)

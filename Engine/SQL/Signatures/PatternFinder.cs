@@ -30,7 +30,7 @@ namespace VistaDB.Engine.SQL.Signatures
       alwaysOne = true;
       connCulture = conn.Database.Culture;
       connCaseSensitive = conn.Database.CaseSensitive;
-      expression = (Regex) null;
+      expression = null;
       ParsePattern();
       for (int index = 0; index < chunks.Count; ++index)
       {
@@ -88,7 +88,7 @@ namespace VistaDB.Engine.SQL.Signatures
             else if (minAny == 1)
               exp.Append("(?:.+?)");
             else
-              exp.AppendFormat("(?:.{{{0},}}?)", (object) minAny);
+              exp.AppendFormat("(?:.{{{0},}}?)", minAny);
             openEnd = false;
           }
           inAny = false;
@@ -96,17 +96,17 @@ namespace VistaDB.Engine.SQL.Signatures
           switch (chunk.Type)
           {
             case ChunkType.String:
-              exp.AppendFormat("(?:{0})", (object) Regex.Escape(chunk.Expression));
+              exp.AppendFormat("(?:{0})", Regex.Escape(chunk.Expression));
               return;
             case ChunkType.AnyCharacters:
               return;
             case ChunkType.SingleCharacter:
               return;
             case ChunkType.IncludingCharacters:
-              exp.AppendFormat("[{0}]", (object) chunk.Expression);
+              exp.AppendFormat("[{0}]", chunk.Expression);
               return;
             case ChunkType.ExcludingCharacters:
-              exp.AppendFormat("[^{0}]", (object) chunk.Expression);
+              exp.AppendFormat("[^{0}]", chunk.Expression);
               return;
             default:
               return;
@@ -145,7 +145,7 @@ namespace VistaDB.Engine.SQL.Signatures
     private void ParsePattern()
     {
       int startIndex1 = 0;
-      string str = (string) null;
+      string str = null;
       int index;
       for (; startIndex1 < pattern.Length; startIndex1 = index + 1)
       {
@@ -153,7 +153,7 @@ namespace VistaDB.Engine.SQL.Signatures
         for (index = startIndex1; index < pattern.Length; ++index)
         {
           char ch = pattern[index];
-          if (escapeCharacter == null || (int) escapeCharacter[0] != (int) ch && (index == 0 || (int) escapeCharacter[0] != (int) pattern[index - 1]))
+          if (escapeCharacter == null || escapeCharacter[0] != ch && (index == 0 || escapeCharacter[0] != pattern[index - 1]))
           {
             switch (ch)
             {
@@ -188,7 +188,7 @@ label_9:
             break;
           case ChunkType.AnyCharacters:
           case ChunkType.SingleCharacter:
-            str = (string) null;
+            str = null;
             break;
           case ChunkType.IncludingCharacters:
             int startIndex2 = index + 1;
@@ -228,10 +228,10 @@ label_9:
 
     private string GetCharacterSetFromRange(string str)
     {
-      if ((int) str[0] > (int) str[2])
+      if (str[0] > str[2])
         throw new VistaDBSQLException(555, "", lineNo, symbolNo);
       StringBuilder stringBuilder = new StringBuilder();
-      for (char ch = str[0]; (int) ch <= (int) str[2]; ++ch)
+      for (char ch = str[0]; ch <= str[2]; ++ch)
         stringBuilder.Append(ch);
       return stringBuilder.ToString();
     }
@@ -244,7 +244,7 @@ label_9:
       int startIndex = 0;
       for (int index = 0; index < str.Length; ++index)
       {
-        if ((int) str[index] == (int) escapeCharacter[0])
+        if (str[index] == escapeCharacter[0])
         {
           if (startIndex != index)
             stringBuilder.Append(str.Substring(startIndex, index - startIndex));
@@ -349,9 +349,9 @@ label_9:
                 for (int index2 = length2 - 1; index2 > -1; --index2)
                 {
                   int index3 = num5 - length2 + index2 + 1;
-                  if (chunk.BmTable[(int) matchExpr[index3], index2] != 0)
+                  if (chunk.BmTable[matchExpr[index3], index2] != 0)
                   {
-                    num5 += chunk.BmTable[(int) matchExpr[index3], index2];
+                    num5 += chunk.BmTable[matchExpr[index3], index2];
                     break;
                   }
                   if (index2 == 0)
@@ -456,10 +456,10 @@ label_9:
       IColumn emtpyUnicodeColumn1 = database.CreateEmtpyUnicodeColumn();
       IColumn emtpyUnicodeColumn2 = database.CreateEmtpyUnicodeColumn();
       string expression = chunk[0].Expression;
-      ((IValue) emtpyUnicodeColumn1).Value = (object) expression;
-      ((IValue) emtpyUnicodeColumn2).Value = (object) (expression + (object) database.MaximumChar);
-      low = (Signature) ConstantSignature.CreateSignature(emtpyUnicodeColumn1, statement);
-      high = (Signature) ConstantSignature.CreateSignature(emtpyUnicodeColumn2, statement);
+            emtpyUnicodeColumn1.Value = expression;
+            emtpyUnicodeColumn2.Value = expression + database.MaximumChar;
+      low = ConstantSignature.CreateSignature(emtpyUnicodeColumn1, statement);
+      high = ConstantSignature.CreateSignature(emtpyUnicodeColumn2, statement);
     }
 
     private enum ChunkType
@@ -554,7 +554,7 @@ label_9:
 
       private void InitOffsetTable(int patternLength)
       {
-        offsetTable = new int[(int) ushort.MaxValue, patternLength];
+        offsetTable = new int[ushort.MaxValue, patternLength];
       }
 
       private static int FindRightMost(string s, string p, int n)
@@ -564,7 +564,7 @@ label_9:
           return -1;
         for (int index1 = n - length; index1 > -1; --index1)
         {
-          for (int index2 = 0; index2 < length && (int) s[index1 + index2] == (int) p[index2]; ++index2)
+          for (int index2 = 0; index2 < length && s[index1 + index2] == p[index2]; ++index2)
           {
             if (index2 == length - 1)
               return index1;
@@ -581,15 +581,15 @@ label_9:
         InitOffsetTable(length);
         if (pattern == null || pattern.Length == 0)
           return;
-        for (int index = 0; index < (int) ushort.MaxValue; ++index)
+        for (int index = 0; index < ushort.MaxValue; ++index)
           offsetTable[index, length - 1] = length;
         for (int index = length - 1; index > -1; --index)
         {
-          if (offsetTable[(int) pattern[index], length - 1] == length)
+          if (offsetTable[pattern[index], length - 1] == length)
           {
-            offsetTable[(int) pattern[index], length - 1] = length - index - 1;
+            offsetTable[pattern[index], length - 1] = length - index - 1;
             if (!caseSensitive && char.IsLetter(pattern[index]))
-              offsetTable[(int) char.ToLower(pattern[index], culture), length - 1] = length - index - 1;
+              offsetTable[char.ToLower(pattern[index], culture), length - 1] = length - index - 1;
           }
         }
         int num1 = length;
@@ -598,7 +598,7 @@ label_9:
           string str = pattern.Substring(index1 + 1);
           if (pattern.IndexOf(str) == 0)
             num1 = index1 + 1;
-          for (int index2 = 0; index2 < (int) ushort.MaxValue; ++index2)
+          for (int index2 = 0; index2 < ushort.MaxValue; ++index2)
           {
             char c = (char) index2;
             if (caseSensitive || !char.IsLetter(c) || !char.IsLower(c))
@@ -610,12 +610,12 @@ label_9:
                 num2 = index1 - rightMost;
               offsetTable[index2, index1] = num2;
               if (!caseSensitive && char.IsLetter(c))
-                offsetTable[(int) char.ToLower(c, culture), index1] = num2;
+                offsetTable[char.ToLower(c, culture), index1] = num2;
             }
           }
-          offsetTable[(int) pattern[index1], index1] = 0;
+          offsetTable[pattern[index1], index1] = 0;
           if (!caseSensitive && char.IsLetter(pattern[index1]))
-            offsetTable[(int) char.ToLower(pattern[index1], culture), index1] = 0;
+            offsetTable[char.ToLower(pattern[index1], culture), index1] = 0;
         }
       }
 

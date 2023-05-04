@@ -22,16 +22,16 @@ namespace VistaDB.Engine.SQL.Signatures
         IColumn column2 = rightOperand.Execute();
         if (column1.IsNull || column2.IsNull)
         {
-          ((IValue) result).Value = (object) null;
+                    result.Value = null;
         }
         else
         {
-          Convert((IValue) column1, (IValue) leftValue);
-          Convert((IValue) column2, (IValue) rightValue);
+          Convert(column1, leftValue);
+          Convert(column2, rightValue);
           if (dateOperands)
-            ((IValue) result).Value = GetDateResult();
+                        result.Value = GetDateResult();
           else
-            ((IValue) result).Value = ((Row.Column) leftValue - (Row.Column) rightValue).Value;
+                        result.Value = ((Row.Column) leftValue - (Row.Column) rightValue).Value;
         }
         needsEvaluation = false;
       }
@@ -40,7 +40,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     private object GetDateResult()
     {
-      return (object) ((DateTime) ((IValue) leftValue).Value).AddDays(-(double) ((IValue) rightValue).Value);
+      return ((DateTime)leftValue.Value).AddDays(-(double)rightValue.Value);
     }
 
     public override SignatureType OnPrepare()

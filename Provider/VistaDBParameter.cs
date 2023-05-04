@@ -86,9 +86,9 @@ namespace VistaDB.Provider
       direction = ParameterDirection.Input;
       isNullable = true;
       size = 0;
-      sourceColumn = (string) null;
+      sourceColumn = null;
       sourceVersion = DataRowVersion.Default;
-      paramValue = (object) DBNull.Value;
+      paramValue = DBNull.Value;
       paramType = VistaDBType.Unknown;
       dataTypeSet = false;
       prepared = false;
@@ -264,7 +264,7 @@ namespace VistaDB.Provider
 
     public override void ResetDbType()
     {
-      paramValue = (object) DBNull.Value;
+      paramValue = DBNull.Value;
       paramType = VistaDBType.Unknown;
       dataTypeSet = false;
       prepared = false;
@@ -288,27 +288,27 @@ namespace VistaDB.Provider
         case TypeCode.Boolean:
           return VistaDBType.Bit;
         case TypeCode.Char:
-          paramValue = (object) ((char) paramValue).ToString();
+          paramValue = ((char)paramValue).ToString();
           return VistaDBType.NChar;
         case TypeCode.SByte:
-          paramValue = (object) (byte) (sbyte) paramValue;
+          paramValue = (byte)(sbyte)paramValue;
           return VistaDBType.TinyInt;
         case TypeCode.Byte:
           return VistaDBType.TinyInt;
         case TypeCode.Int16:
           return VistaDBType.SmallInt;
         case TypeCode.UInt16:
-          paramValue = (object) (short) (ushort) paramValue;
+          paramValue = (short)(ushort)paramValue;
           return VistaDBType.SmallInt;
         case TypeCode.Int32:
           return VistaDBType.Int;
         case TypeCode.UInt32:
-          paramValue = (object) (int) (uint) paramValue;
+          paramValue = (int)(uint)paramValue;
           return VistaDBType.Int;
         case TypeCode.Int64:
           return VistaDBType.BigInt;
         case TypeCode.UInt64:
-          paramValue = (object) (long) (ulong) paramValue;
+          paramValue = (long)(ulong)paramValue;
           return VistaDBType.BigInt;
         case TypeCode.Single:
           return VistaDBType.Real;
@@ -366,8 +366,8 @@ namespace VistaDB.Provider
         if (valueDataType == VistaDBType.Unknown || Row.Column.GetInternalType(valueDataType) == Row.Column.GetInternalType(paramType))
           return;
                 ParameterValue parameterValue1 = new ParameterValue(valueDataType, paramValue);
-                ParameterValue parameterValue2 = new ParameterValue(paramType, (object) null);
-        VistaDBConnection.Conversion.Convert((IValue) parameterValue1, (IValue) parameterValue2);
+                ParameterValue parameterValue2 = new ParameterValue(paramType, null);
+        VistaDBConnection.Conversion.Convert(parameterValue1, parameterValue2);
         paramValue = parameterValue2.Value;
       }
     }
@@ -382,7 +382,7 @@ namespace VistaDB.Provider
 
     object ICloneable.Clone()
     {
-      return (object) new VistaDBParameter(this);
+      return new VistaDBParameter(this);
     }
 
     VistaDBType IParameter.DataType
@@ -402,12 +402,12 @@ namespace VistaDB.Provider
       get
       {
         if (paramValue == DBNull.Value)
-          return (object) null;
+          return null;
         return paramValue;
       }
       set
       {
-        paramValue = value == null ? (object) DBNull.Value : value;
+        paramValue = value == null ? DBNull.Value : value;
         prepared = false;
       }
     }
@@ -475,7 +475,7 @@ namespace VistaDB.Provider
       {
         get
         {
-          return (Type) null;
+          return null;
         }
       }
     }
