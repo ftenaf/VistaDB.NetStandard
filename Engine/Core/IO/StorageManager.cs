@@ -24,30 +24,9 @@ namespace VistaDB.Engine.Core.IO
       }
     }
 
-    private bool TryGetHandle(string fileName, StorageHandle.StorageMode mode, bool persistent, out StorageHandle newHandle)
+        private StorageHandle LookForSameCompatible(string fileName, StorageHandle.StorageMode mode)
     {
-      int count = this.Count;
-      for (int index = 0; index < count; ++index)
-      {
-        StorageHandle storageHandle = this[index];
-        if (storageHandle.Name.Equals(fileName, StringComparison.OrdinalIgnoreCase) && storageHandle.Mode == mode)
-        {
-          newHandle = storageHandle;
-          return true;
-        }
-      }
-      newHandle = (StorageHandle) null;
-      return false;
-    }
-
-    private StorageHandle FindDuplicate(StorageHandle newHandle)
-    {
-      return (StorageHandle) null;
-    }
-
-    private StorageHandle LookForSameCompatible(string fileName, StorageHandle.StorageMode mode)
-    {
-      for (int index = 0; index <= this.Count - 1; ++index)
+      for (int index = 0; index <= Count - 1; ++index)
       {
         StorageHandle storageHandle = this[index];
         if (!(fileName != storageHandle.Name))
@@ -67,30 +46,30 @@ namespace VistaDB.Engine.Core.IO
         str = Path.GetTempFileName();
         File.Delete(str);
       }
-      catch (SecurityException ex)
-      {
+      catch (SecurityException)
+            {
         str = "VistaDB." + Guid.NewGuid().ToString() + ".tmp";
       }
-      return this.CreateTemporaryStorage(str, SizeofPage, transacted, isolated);
+      return CreateTemporaryStorage(str, SizeofPage, transacted, isolated);
     }
 
     internal StorageHandle CreateTemporaryStorage(string fileName, int SizeofPage, bool transacted, bool isolated)
     {
-      return this.OpenStorage(fileName, new StorageHandle.StorageMode(FileMode.CreateNew, FileShare.None, FileAccess.ReadWrite, FileAttributes.Hidden | FileAttributes.Archive | FileAttributes.Temporary | FileAttributes.NotContentIndexed, transacted, true, isolated), SizeofPage, false);
+      return OpenStorage(fileName, new StorageHandle.StorageMode(FileMode.CreateNew, FileShare.None, FileAccess.ReadWrite, FileAttributes.Hidden | FileAttributes.Archive | FileAttributes.Temporary | FileAttributes.NotContentIndexed, transacted, true, isolated), SizeofPage, false);
     }
 
     internal StorageHandle OpenOrCreateTemporaryStorage(string fileName, bool shared, int SizeofPage, bool isolated, bool persistent)
     {
-      return this.OpenStorage(fileName, new StorageHandle.StorageMode(FileMode.OpenOrCreate, shared ? FileShare.ReadWrite : FileShare.None, FileAccess.ReadWrite, FileAttributes.Hidden | FileAttributes.Archive | FileAttributes.Temporary, false, !persistent, isolated), SizeofPage, persistent);
+      return OpenStorage(fileName, new StorageHandle.StorageMode(FileMode.OpenOrCreate, shared ? FileShare.ReadWrite : FileShare.None, FileAccess.ReadWrite, FileAttributes.Hidden | FileAttributes.Archive | FileAttributes.Temporary, false, !persistent, isolated), SizeofPage, persistent);
     }
 
     internal StorageHandle OpenStorage(string fileName, StorageHandle.StorageMode mode, int SizeofPage, bool persistent)
     {
-      lock (StorageManager.SyncObj)
+      lock (SyncObj)
       {
-        if (this.serverMode && (mode.Attributes & FileAttributes.Temporary) != FileAttributes.Temporary)
+        if (serverMode && (mode.Attributes & FileAttributes.Temporary) != FileAttributes.Temporary)
         {
-          StorageHandle storageHandle = this.LookForSameCompatible(fileName, mode);
+          StorageHandle storageHandle = LookForSameCompatible(fileName, mode);
           if (storageHandle != null)
           {
             storageHandle.AddRef();
@@ -98,9 +77,9 @@ namespace VistaDB.Engine.Core.IO
           }
           mode.SetExclusive();
         }
-        mode.VirtualLocks = mode.VirtualLocks || this.ServerMode;
+        mode.VirtualLocks = mode.VirtualLocks || ServerMode;
         StorageHandle storageHandle1 = new StorageHandle(fileName, mode, SizeofPage, persistent);
-        this.Add(storageHandle1);
+        Add(storageHandle1);
         storageHandle1.AddRef();
         return storageHandle1;
       }
@@ -110,23 +89,23 @@ namespace VistaDB.Engine.Core.IO
     {
       if (handle == null)
         return;
-      lock (StorageManager.SyncObj)
+      lock (SyncObj)
       {
-        if (!this.Contains(handle) || !handle.ReleaseRef())
+        if (!Contains(handle) || !handle.ReleaseRef())
           return;
-        this.Remove(handle);
+        Remove(handle);
         handle.Dispose();
       }
     }
 
     public void Dispose()
     {
-      lock (StorageManager.SyncObj)
+      lock (SyncObj)
       {
-        if (!this.isDisposed)
+        if (!isDisposed)
         {
-          this.Destroy();
-          this.isDisposed = true;
+          Destroy();
+          isDisposed = true;
         }
         GC.SuppressFinalize((object) this);
       }
@@ -134,10 +113,10 @@ namespace VistaDB.Engine.Core.IO
 
     ~StorageManager()
     {
-      if (this.isDisposed)
+      if (isDisposed)
         return;
-      this.Destroy();
-      this.isDisposed = true;
+      Destroy();
+      isDisposed = true;
     }
 
     private void Destroy()
@@ -147,13 +126,13 @@ namespace VistaDB.Engine.Core.IO
         foreach (StorageHandle storageHandle in (List<StorageHandle>) this)
           storageHandle?.Dispose();
       }
-      catch (Exception ex)
-      {
+      catch (Exception)
+            {
         throw;
       }
       finally
       {
-        this.Clear();
+        Clear();
       }
     }
   }

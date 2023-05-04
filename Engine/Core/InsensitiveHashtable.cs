@@ -18,22 +18,22 @@ namespace VistaDB.Engine.Core
 
     public override bool ContainsKey(object key)
     {
-      return base.ContainsKey((object) ((string) key).ToUpper(this.culture));
+      return base.ContainsKey((object) ((string) key).ToUpper(culture));
     }
 
     protected override int GetHash(object key)
     {
-      return base.GetHash((object) ((string) key).ToUpper(this.culture));
+      return base.GetHash((object) ((string) key).ToUpper(culture));
     }
 
     protected override bool KeyEquals(object item, object key)
     {
-      return base.KeyEquals((object) ((string) item).ToUpper(this.culture), (object) ((string) key).ToUpper(this.culture));
+      return base.KeyEquals((object) ((string) item).ToUpper(culture), (object) ((string) key).ToUpper(culture));
     }
 
     public override IDictionaryEnumerator GetEnumerator()
     {
-      return (IDictionaryEnumerator) this.Values.GetEnumerator();
+      return (IDictionaryEnumerator) Values.GetEnumerator();
     }
   }
 }

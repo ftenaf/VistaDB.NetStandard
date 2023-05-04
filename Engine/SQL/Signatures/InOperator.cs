@@ -12,12 +12,12 @@ namespace VistaDB.Engine.SQL.Signatures
       parser.ExpectedExpression("(");
       parser.SkipToken(true);
       if (SubQuerySignature.IsSubQuery(parser.TokenValue.Token))
-        this.rightOperand = SubQuerySignature.CreateSignature(parser);
+        rightOperand = SubQuerySignature.CreateSignature(parser);
       else
-        this.rightOperand = ValueListSignature.CreateSignature(parser);
+        rightOperand = ValueListSignature.CreateSignature(parser);
       parser.ExpectedExpression(")");
       parser.SkipToken(false);
-      this.rightOperandIsSubQuery = true;
+      rightOperandIsSubQuery = true;
     }
 
     protected override void DoParseRightOperand(SQLParser parser, int priority)
@@ -26,20 +26,20 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public override SignatureType OnPrepare()
     {
-      this.leftOperand = ConstantSignature.PrepareAndCheckConstant(this.leftOperand, VistaDBType.Unknown);
-      int num = (int) this.rightOperand.OnPrepare();
-      this.operandType = this.leftOperand.DataType;
-      this.optimizable = this.rightOperand.SignatureType == SignatureType.Constant;
-      if (this.leftOperand.AlwaysNull || this.rightOperand.AlwaysNull || this.leftOperand.SignatureType == SignatureType.Constant && this.leftOperand.SignatureType == SignatureType.Constant)
+      leftOperand = ConstantSignature.PrepareAndCheckConstant(leftOperand, VistaDBType.Unknown);
+      int num = (int) rightOperand.OnPrepare();
+      operandType = leftOperand.DataType;
+      optimizable = rightOperand.SignatureType == SignatureType.Constant;
+      if (leftOperand.AlwaysNull || rightOperand.AlwaysNull || leftOperand.SignatureType == SignatureType.Constant && leftOperand.SignatureType == SignatureType.Constant)
         return SignatureType.Constant;
-      return this.signatureType;
+      return signatureType;
     }
 
     protected override bool CompareOperands()
     {
-      if (this.rightOperand.DataType == VistaDBType.Unknown)
-        throw new VistaDBSQLException(637, this.Text, this.LineNo, this.SymbolNo);
-      return ((IValueList) this.rightOperand).IsValuePresent(this.leftValue);
+      if (rightOperand.DataType == VistaDBType.Unknown)
+        throw new VistaDBSQLException(637, Text, LineNo, SymbolNo);
+      return ((IValueList) rightOperand).IsValuePresent(leftValue);
     }
 
     protected override CompareOperation GetCompareOperation()
@@ -54,13 +54,13 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override bool OnOptimize(ConstraintOperations constrainOperations)
     {
-      ValueListSignature rightOperand1 = (ValueListSignature) this.rightOperand;
+      ValueListSignature rightOperand1 = (ValueListSignature) rightOperand;
       if (rightOperand1.Count > 3)
         return false;
       int num = 0;
       foreach (Signature rightOperand2 in rightOperand1)
       {
-        if (!constrainOperations.AddLogicalCompare(this.leftOperand, rightOperand2, CompareOperation.Equal, CompareOperation.Equal, false) || num > 0 && !constrainOperations.AddLogicalOr())
+        if (!constrainOperations.AddLogicalCompare(leftOperand, rightOperand2, CompareOperation.Equal, CompareOperation.Equal, false) || num > 0 && !constrainOperations.AddLogicalOr())
           return false;
         ++num;
       }

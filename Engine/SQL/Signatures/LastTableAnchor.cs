@@ -7,13 +7,13 @@ namespace VistaDB.Engine.SQL.Signatures
     public LastTableAnchor(SQLParser parser)
       : base(parser, 1, true)
     {
-      this.dataType = VistaDBType.Timestamp;
-      this.parameterTypes[0] = VistaDBType.NChar;
+      dataType = VistaDBType.Timestamp;
+      parameterTypes[0] = VistaDBType.NChar;
     }
 
     protected override object ExecuteSubProgram()
     {
-      return ((IValue) this.parent.Database.GetTableAnchor((string) ((IValue) this.paramValues[0]).Value))?.Value;
+      return ((IValue) parent.Database.GetTableAnchor((string) ((IValue) paramValues[0]).Value))?.Value;
     }
   }
 }

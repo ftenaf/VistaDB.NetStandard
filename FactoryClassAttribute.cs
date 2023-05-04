@@ -11,30 +11,30 @@ internal sealed class FactoryClassAttribute : Attribute
 
   public FactoryClassAttribute(Type classType)
   {
-    this._className = classType.FullName;
-    this._name = classType.Name;
-    this._names = new string[0];
+    _className = classType.FullName;
+    _name = classType.Name;
+    _names = new string[0];
   }
 
   public FactoryClassAttribute(Type classType, string name)
   {
-    this._className = classType.FullName;
-    this._name = name;
-    this._names = new string[0];
+    _className = classType.FullName;
+    _name = name;
+    _names = new string[0];
   }
 
   public FactoryClassAttribute(Type classType, string name, params string[] alternateNames)
   {
-    this._className = classType.FullName;
-    this._name = name;
-    this._names = alternateNames;
+    _className = classType.FullName;
+    _name = name;
+    _names = alternateNames;
   }
 
   public string ClassName
   {
     get
     {
-      return this._className;
+      return _className;
     }
   }
 
@@ -42,7 +42,7 @@ internal sealed class FactoryClassAttribute : Attribute
   {
     get
     {
-      return this._name;
+      return _name;
     }
   }
 
@@ -50,7 +50,7 @@ internal sealed class FactoryClassAttribute : Attribute
   {
     get
     {
-      return this._names;
+      return _names;
     }
   }
 }

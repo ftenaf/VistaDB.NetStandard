@@ -16,26 +16,26 @@ namespace VistaDB.Engine.Internal
 
     static CacheFactory()
     {
-      CacheFactory.Reset();
+            Reset();
     }
 
     public static void Reset()
     {
-      if (CacheFactory.Instance != null)
-        CacheFactory.Instance.Close();
-      CacheFactory.Instance = new CacheFactory();
+      if (Instance != null)
+                Instance.Close();
+            Instance = new CacheFactory();
     }
 
     public KeyedLookupTable GetLookupTable(IVistaDBDatabase database, SourceTable table, string activeIndex, ColumnSignature keyColumn)
     {
       KeyedLookupTable keyedLookupTable;
-      if (!this.m_KeyedTables.TryGetValue(table.Alias, out keyedLookupTable))
+      if (!m_KeyedTables.TryGetValue(table.Alias, out keyedLookupTable))
       {
-        ITableCache tableCache = this.GetTableCache(database, table.TableName, activeIndex, keyColumn.DataType);
+        ITableCache tableCache = GetTableCache(database, table.TableName, activeIndex, keyColumn.DataType);
         if (tableCache == null)
           return (KeyedLookupTable) null;
         keyedLookupTable = new KeyedLookupTable(tableCache, keyColumn, table.Parent);
-        this.m_KeyedTables[table.Alias] = keyedLookupTable;
+        m_KeyedTables[table.Alias] = keyedLookupTable;
       }
       return keyedLookupTable;
     }
@@ -43,51 +43,51 @@ namespace VistaDB.Engine.Internal
     public KeyedLookupTable GetLookupTable(string tableAlias)
     {
       KeyedLookupTable keyedLookupTable;
-      if (!this.m_KeyedTables.TryGetValue(tableAlias, out keyedLookupTable))
+      if (!m_KeyedTables.TryGetValue(tableAlias, out keyedLookupTable))
         return (KeyedLookupTable) null;
       return keyedLookupTable;
     }
 
     public ITableCache GetTableCache(IVistaDBDatabase database, string tableName, string indexColumnName, VistaDBType indexType)
     {
-      ITableCache tableCache = this.FindTableCache(tableName, indexColumnName);
+      ITableCache tableCache = FindTableCache(tableName, indexColumnName);
       if (tableCache == null)
       {
-        string filterFormatString = this.GetFilterFormatString(indexColumnName, indexType);
-        tableCache = this.CreateTableCache(database, tableName, indexColumnName, indexType, filterFormatString);
+        string filterFormatString = GetFilterFormatString(indexColumnName, indexType);
+        tableCache = CreateTableCache(database, tableName, indexColumnName, indexType, filterFormatString);
       }
       return tableCache;
     }
 
     public ColumnCache GetColumnCache(IVistaDBDatabase database, string tableName, string indexColumnName, VistaDBType indexType, string returnColumnName)
     {
-      ITableCache tableCache = this.FindTableCache(tableName, indexColumnName);
+      ITableCache tableCache = FindTableCache(tableName, indexColumnName);
       if (tableCache == null)
       {
-        string filterFormatString = this.GetFilterFormatString(indexColumnName, indexType);
-        tableCache = this.CreateTableCache(database, tableName, indexColumnName, indexType, filterFormatString);
+        string filterFormatString = GetFilterFormatString(indexColumnName, indexType);
+        tableCache = CreateTableCache(database, tableName, indexColumnName, indexType, filterFormatString);
       }
       return tableCache?.GetColumnCache(returnColumnName);
     }
 
     public void Close()
     {
-      foreach (KeyValuePair<string, ITableCache> cachedTable in this.m_CachedTables)
+      foreach (KeyValuePair<string, ITableCache> cachedTable in m_CachedTables)
         cachedTable.Value.Close();
-      this.m_CachedTables.Clear();
+      m_CachedTables.Clear();
     }
 
     private ITableCache FindTableCache(string tableName, string indexColumnName)
     {
       ITableCache tableCache;
-      if (!this.m_CachedTables.TryGetValue(this.GetTableCacheKey(tableName, indexColumnName), out tableCache))
+      if (!m_CachedTables.TryGetValue(GetTableCacheKey(tableName, indexColumnName), out tableCache))
         return (ITableCache) null;
       return tableCache;
     }
 
     private ITableCache CreateTableCache(IVistaDBDatabase database, string tableName, string indexColumnName, VistaDBType indexType, string filterFormatString)
     {
-      string tableCacheKey = this.GetTableCacheKey(tableName, indexColumnName);
+      string tableCacheKey = GetTableCacheKey(tableName, indexColumnName);
       ITableCache tableCache;
       switch (indexType)
       {
@@ -118,7 +118,7 @@ namespace VistaDB.Engine.Internal
         default:
           return (ITableCache) null;
       }
-      this.m_CachedTables.Add(tableCacheKey, tableCache);
+      m_CachedTables.Add(tableCacheKey, tableCache);
       return tableCache;
     }
 

@@ -14,7 +14,7 @@ namespace VistaDB.Engine.SQL.Signatures
       : base(parser, -1, false)
     {
       this.sp = sp;
-      this.skipNull = false;
+      skipNull = false;
     }
 
     protected override void ParseParameters(SQLParser parser)
@@ -25,70 +25,70 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public override SignatureType OnPrepare()
     {
-      this.PrepareQueryStatement();
+      PrepareQueryStatement();
       int num = (int) base.OnPrepare();
       return SignatureType.Expression;
     }
 
     internal override void DisposeSubProgramStatement()
     {
-      if (this.bodyStatement == null)
+      if (bodyStatement == null)
         return;
-      this.bodyStatement.Dispose();
+      bodyStatement.Dispose();
     }
 
     private void PrepareQueryStatement()
     {
-      if (this.bodyStatement != null)
-        this.parameters.Clear();
-      this.bodyStatement = (Statement) this.parent.Connection.CreateStoredProcedureStatement(this.parent, this.sp.Statement, out this.variables);
-      if (this.variables == null)
+      if (bodyStatement != null)
+        parameters.Clear();
+      bodyStatement = (Statement) parent.Connection.CreateStoredProcedureStatement(parent, sp.Statement, out variables);
+      if (variables == null)
         return;
-      this.parameters = this.CheckParameters();
-      this.parameterTypes = new VistaDBType[this.variables.Count];
-      this.paramValues = new IColumn[this.variables.Count];
+      parameters = CheckParameters();
+      parameterTypes = new VistaDBType[variables.Count];
+      paramValues = new IColumn[variables.Count];
       int paramPos = 0;
-      foreach (SQLParser.VariableDeclaration variable in this.variables)
+      foreach (SQLParser.VariableDeclaration variable in variables)
       {
-        if (this.bodyStatement.DoGetParam(variable.Name) != null)
-          throw new VistaDBSQLException(620, 64.ToString() + variable.Name, this.lineNo, this.symbolNo);
-        if (this.IsOutParameter(paramPos, variable.Name))
+        if (bodyStatement.DoGetParam(variable.Name) != null)
+          throw new VistaDBSQLException(620, 64.ToString() + variable.Name, lineNo, symbolNo);
+        if (IsOutParameter(paramPos, variable.Name))
         {
           if (variable.Direction == ParameterDirection.Input)
-            throw new VistaDBSQLException(639, variable.Name, this.LineNo, this.symbolNo);
-          this.bodyStatement.DoSetParam(variable.Name, this.ResolveParameter(variable.Name, paramPos));
+            throw new VistaDBSQLException(639, variable.Name, LineNo, symbolNo);
+          bodyStatement.DoSetParam(variable.Name, ResolveParameter(variable.Name, paramPos));
         }
         else
-          this.bodyStatement.DoSetParam(variable.Name, (object) null, variable.DataType, ParameterDirection.Input);
-        this.parameterTypes[paramPos++] = variable.DataType;
+          bodyStatement.DoSetParam(variable.Name, (object) null, variable.DataType, ParameterDirection.Input);
+        parameterTypes[paramPos++] = variable.DataType;
       }
     }
 
     private IParameter ResolveParameter(string paramName, int paramPos)
     {
       string paramName1 = paramName;
-      if (this.namedParams.ContainsKey(paramName))
+      if (namedParams.ContainsKey(paramName))
       {
-        paramName1 = this.namedParams[paramName].Text.Substring(1);
+        paramName1 = namedParams[paramName].Text.Substring(1);
       }
       else
       {
-        Signature parameter = this.parameters[paramPos];
+        Signature parameter = parameters[paramPos];
         if (parameter != (Signature) null && parameter.SignatureType == SignatureType.Parameter)
           paramName1 = parameter.Text.Substring(1);
       }
-      return this.parent.DoGetParam(paramName1);
+      return parent.DoGetParam(paramName1);
     }
 
     private bool IsOutParameter(int paramPos, string paramName)
     {
-      if (this.parameters[paramPos] != (Signature) null)
+      if (parameters[paramPos] != (Signature) null)
       {
-        if (paramPos < this.outParams.Count)
-          return this.outParams[paramPos];
+        if (paramPos < outParams.Count)
+          return outParams[paramPos];
         return false;
       }
-      IParameter parameter = this.parent.DoGetParam(paramName);
+      IParameter parameter = parent.DoGetParam(paramName);
       if (parameter == null)
         return false;
       if (parameter.Direction != ParameterDirection.Output)
@@ -98,34 +98,34 @@ namespace VistaDB.Engine.SQL.Signatures
 
     private List<Signature> CheckParameters()
     {
-      if (this.parameters.Count + this.namedParams.Count > this.variables.Count)
-        throw new VistaDBSQLException(640, this.Text, this.lineNo, this.symbolNo);
-      List<Signature> signatureList = new List<Signature>(this.variables.Count);
+      if (parameters.Count + namedParams.Count > variables.Count)
+        throw new VistaDBSQLException(640, Text, lineNo, symbolNo);
+      List<Signature> signatureList = new List<Signature>(variables.Count);
       int num = 0;
-      foreach (SQLParser.VariableDeclaration variable in this.variables)
+      foreach (SQLParser.VariableDeclaration variable in variables)
       {
-        if (this.namedParams.ContainsKey(variable.Name))
+        if (namedParams.ContainsKey(variable.Name))
         {
-          signatureList.Add(this.namedParams[variable.Name]);
+          signatureList.Add(namedParams[variable.Name]);
         }
         else
         {
           Signature signature = (Signature) null;
-          if (num < this.parameters.Count)
-            signature = this.parameters[num++];
+          if (num < parameters.Count)
+            signature = parameters[num++];
           if (signature == (Signature) null)
           {
-            if (this.parent.DoGetParam(variable.Name) != null)
+            if (parent.DoGetParam(variable.Name) != null)
             {
               signatureList.Add((Signature) null);
             }
             else
             {
               if (variable.Default == null)
-                throw new VistaDBSQLException(641, variable.Name, this.LineNo, this.SymbolNo);
-              IColumn column = this.CreateColumn(variable.DataType);
-              this.parent.Database.Conversion.Convert(variable.Default, (IValue) column);
-              signatureList.Add((Signature) ConstantSignature.CreateSignature(column, this.parent));
+                throw new VistaDBSQLException(641, variable.Name, LineNo, SymbolNo);
+              IColumn column = CreateColumn(variable.DataType);
+              parent.Database.Conversion.Convert(variable.Default, (IValue) column);
+              signatureList.Add((Signature) ConstantSignature.CreateSignature(column, parent));
             }
           }
           else
@@ -142,22 +142,22 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object ExecuteSubProgram()
     {
-      if (this.variables != null)
+      if (variables != null)
       {
         int index = 0;
-        foreach (SQLParser.VariableDeclaration variable in this.variables)
+        foreach (SQLParser.VariableDeclaration variable in variables)
         {
-          if (index < this.parameters.Count && this.parameters[index] != (Signature) null)
-            this.bodyStatement.DoSetParam(variable.Name, ((IValue) this.paramValues[index]).Value, variable.DataType, variable.Direction);
+          if (index < parameters.Count && parameters[index] != (Signature) null)
+            bodyStatement.DoSetParam(variable.Name, ((IValue) paramValues[index]).Value, variable.DataType, variable.Direction);
           else
-            this.bodyStatement.DoSetParam(variable.Name, this.parent.DoGetParam(variable.Name).Value, variable.DataType, variable.Direction);
+            bodyStatement.DoSetParam(variable.Name, parent.DoGetParam(variable.Name).Value, variable.DataType, variable.Direction);
           ++index;
         }
       }
-      this.bodyStatement.DoSetReturnParameter(this.returnParameter);
-      IQueryResult queryResult = this.bodyStatement.ExecuteQuery();
-      if (this.bodyStatement.AffectedRows > 0L)
-        this.parent.AffectedRows += this.bodyStatement.AffectedRows;
+      bodyStatement.DoSetReturnParameter(returnParameter);
+      IQueryResult queryResult = bodyStatement.ExecuteQuery();
+      if (bodyStatement.AffectedRows > 0L)
+        parent.AffectedRows += bodyStatement.AffectedRows;
       return (object) queryResult;
     }
   }

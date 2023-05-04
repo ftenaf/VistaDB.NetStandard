@@ -11,14 +11,14 @@ namespace VistaDB.Diagnostic
     private int symbolNo;
 
     internal VistaDBSQLException(int errorId, string hint, int lineNo, int symbolNo)
-      : base(errorId, VistaDBSQLException.CreateMessage(hint, lineNo, symbolNo))
+      : base(errorId, CreateMessage(hint, lineNo, symbolNo))
     {
       this.lineNo = lineNo;
       this.symbolNo = symbolNo;
     }
 
     internal VistaDBSQLException(Exception ex, int errorId, string hint, int lineNo, int symbolNo)
-      : base(ex, errorId, VistaDBSQLException.CreateMessage(hint, lineNo, symbolNo))
+      : base(ex, errorId, CreateMessage(hint, lineNo, symbolNo))
     {
       this.lineNo = lineNo;
       this.symbolNo = symbolNo;
@@ -27,16 +27,16 @@ namespace VistaDB.Diagnostic
     protected VistaDBSQLException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
-      this.lineNo = info.GetInt32("VistaDBLineNo");
-      this.symbolNo = info.GetInt32("VistaDBSymbolNo");
+      lineNo = info.GetInt32("VistaDBLineNo");
+      symbolNo = info.GetInt32("VistaDBSymbolNo");
     }
 
     [SecurityCritical]
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       base.GetObjectData(info, context);
-      info.AddValue("VistaDBLineNo", (object) this.lineNo, typeof (int));
-      info.AddValue("VistaDBSymbolNo", (object) this.symbolNo, typeof (int));
+      info.AddValue("VistaDBLineNo", (object) lineNo, typeof (int));
+      info.AddValue("VistaDBSymbolNo", (object) symbolNo, typeof (int));
     }
 
     private static string CreateMessage(string hint, int lineNo, int symbolNo)
@@ -48,7 +48,7 @@ namespace VistaDB.Diagnostic
     {
       get
       {
-        return this.lineNo;
+        return lineNo;
       }
     }
 
@@ -56,7 +56,7 @@ namespace VistaDB.Diagnostic
     {
       get
       {
-        return this.symbolNo;
+        return symbolNo;
       }
     }
   }

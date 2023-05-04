@@ -5,15 +5,15 @@ namespace VistaDB.Provider
 {
   public class VistaDBPlanBlock
   {
-    private VistaDBPlanBlock.BlockType blockType;
+    private BlockType blockType;
     private VistaDBPlanBlock[] childs;
-    private VistaDBPlanBlock.PlanBlockCollection childCollection;
+    private PlanBlockCollection childCollection;
 
-    protected VistaDBPlanBlock(VistaDBPlanBlock.BlockType blockType, VistaDBPlanBlock[] childs)
+    protected VistaDBPlanBlock(BlockType blockType, VistaDBPlanBlock[] childs)
     {
       this.blockType = blockType;
       this.childs = childs;
-      this.childCollection = new VistaDBPlanBlock.PlanBlockCollection(this);
+      childCollection = new PlanBlockCollection(this);
     }
 
     internal static VistaDBPlanBlock CreateExecutionPlan(IQueryStatement query)
@@ -22,53 +22,53 @@ namespace VistaDB.Provider
       if (query1 != null)
         return (VistaDBPlanBlock) new VistaDBPlanResultBlock(query, new VistaDBPlanBlock[1]
         {
-          VistaDBPlanBlock.CreateQueryBlock(query1)
+          CreateQueryBlock(query1)
         });
       if (query.SubQueryCount == 1)
         return (VistaDBPlanBlock) new VistaDBPlanResultBlock(query, (VistaDBPlanBlock[]) null);
       VistaDBPlanBlock[] childs = new VistaDBPlanBlock[query.SubQueryCount];
       int index = 0;
       for (int subQueryCount = query.SubQueryCount; index < subQueryCount; ++index)
-        childs[index] = VistaDBPlanBlock.CreateExecutionPlan(query.SubQuery(index));
-      return new VistaDBPlanBlock(VistaDBPlanBlock.BlockType.Batch, childs);
+        childs[index] = CreateExecutionPlan(query.SubQuery(index));
+      return new VistaDBPlanBlock(BlockType.Batch, childs);
     }
 
     private static VistaDBPlanBlock CreateQueryBlock(BaseSelectStatement query)
     {
       query.Optimize();
-      VistaDBPlanBlock vistaDbPlanBlock = VistaDBPlanBlock.CreateRowSetBlock(query.RowSet, query.ConstraintOperations, 0);
+      VistaDBPlanBlock vistaDbPlanBlock = CreateRowSetBlock(query.RowSet, query.ConstraintOperations, 0);
       SelectStatement selectStatement = query as SelectStatement;
       if (selectStatement == null)
         return vistaDbPlanBlock;
       if (selectStatement.HasAggregate)
-        vistaDbPlanBlock = new VistaDBPlanBlock(VistaDBPlanBlock.BlockType.AggregateStream, new VistaDBPlanBlock[1]
+        vistaDbPlanBlock = new VistaDBPlanBlock(BlockType.AggregateStream, new VistaDBPlanBlock[1]
         {
           vistaDbPlanBlock
         });
       if (selectStatement.Distinct)
-        vistaDbPlanBlock = new VistaDBPlanBlock(VistaDBPlanBlock.BlockType.DistinctSort, new VistaDBPlanBlock[1]
+        vistaDbPlanBlock = new VistaDBPlanBlock(BlockType.DistinctSort, new VistaDBPlanBlock[1]
         {
           vistaDbPlanBlock
         });
       if (selectStatement.IsSetTopCount)
-        vistaDbPlanBlock = new VistaDBPlanBlock(VistaDBPlanBlock.BlockType.Top, new VistaDBPlanBlock[1]
+        vistaDbPlanBlock = new VistaDBPlanBlock(BlockType.Top, new VistaDBPlanBlock[1]
         {
           vistaDbPlanBlock
         });
       if (selectStatement.Sorted)
-        vistaDbPlanBlock = new VistaDBPlanBlock(VistaDBPlanBlock.BlockType.Sort, new VistaDBPlanBlock[1]
+        vistaDbPlanBlock = new VistaDBPlanBlock(BlockType.Sort, new VistaDBPlanBlock[1]
         {
           vistaDbPlanBlock
         });
       if (selectStatement.UnionQuery != null)
       {
-        vistaDbPlanBlock = new VistaDBPlanBlock(VistaDBPlanBlock.BlockType.Union, new VistaDBPlanBlock[2]
+        vistaDbPlanBlock = new VistaDBPlanBlock(BlockType.Union, new VistaDBPlanBlock[2]
         {
           vistaDbPlanBlock,
-          VistaDBPlanBlock.CreateQueryBlock((BaseSelectStatement) selectStatement.UnionQuery)
+          CreateQueryBlock((BaseSelectStatement) selectStatement.UnionQuery)
         });
         if (selectStatement.UnionAll && !selectStatement.Distinct)
-          vistaDbPlanBlock = new VistaDBPlanBlock(VistaDBPlanBlock.BlockType.DistinctSort, new VistaDBPlanBlock[1]
+          vistaDbPlanBlock = new VistaDBPlanBlock(BlockType.DistinctSort, new VistaDBPlanBlock[1]
           {
             vistaDbPlanBlock
           });
@@ -79,13 +79,13 @@ namespace VistaDB.Provider
     private static VistaDBPlanBlock CreateRowSetBlock(IRowSet rowSet, ConstraintOperations optTable, int rowIndex)
     {
       if (rowSet == null)
-        return new VistaDBPlanBlock(VistaDBPlanBlock.BlockType.Scalar, (VistaDBPlanBlock[]) null);
+        return new VistaDBPlanBlock(BlockType.Scalar, (VistaDBPlanBlock[]) null);
       if (rowSet is SourceTable)
-        return VistaDBPlanBlock.CreateSourceTableBlock((SourceTable) rowSet, optTable, rowIndex);
-      VistaDBPlanBlock.BlockType blockType = rowSet is LeftJoin ? VistaDBPlanBlock.BlockType.LeftJoin : VistaDBPlanBlock.BlockType.InnerJoin;
+        return CreateSourceTableBlock((SourceTable) rowSet, optTable, rowIndex);
+            BlockType blockType = rowSet is LeftJoin ? BlockType.LeftJoin : BlockType.InnerJoin;
       Join join = (Join) rowSet;
-      VistaDBPlanBlock rowSetBlock1 = VistaDBPlanBlock.CreateRowSetBlock(join.LeftRowSet, optTable, rowIndex);
-      VistaDBPlanBlock rowSetBlock2 = VistaDBPlanBlock.CreateRowSetBlock(join.RightRowSet, optTable, rowIndex);
+      VistaDBPlanBlock rowSetBlock1 = CreateRowSetBlock(join.LeftRowSet, optTable, rowIndex);
+      VistaDBPlanBlock rowSetBlock2 = CreateRowSetBlock(join.RightRowSet, optTable, rowIndex);
       return new VistaDBPlanBlock(blockType, new VistaDBPlanBlock[2]
       {
         rowSetBlock1,
@@ -112,25 +112,25 @@ namespace VistaDB.Provider
         return (VistaDBPlanBlock) new VistaDBPlanTableBlock(table.Alias, indexName, joinedTable);
       }
       if (table is QuerySourceTable)
-        return VistaDBPlanBlock.CreateQueryBlock((BaseSelectStatement) ((QuerySourceTable) table).Statement);
+        return CreateQueryBlock((BaseSelectStatement) ((QuerySourceTable) table).Statement);
       if (table is BaseViewSourceTable)
-        return VistaDBPlanBlock.CreateQueryBlock((BaseSelectStatement) ((BaseViewSourceTable) table).Statement);
+        return CreateQueryBlock((BaseSelectStatement) ((BaseViewSourceTable) table).Statement);
       return (VistaDBPlanBlock) new VistaDBPlanFunctionBlock(table.Alias);
     }
 
-    public VistaDBPlanBlock.BlockType PlanBlockType
+    public BlockType PlanBlockType
     {
       get
       {
-        return this.blockType;
+        return blockType;
       }
     }
 
-    public VistaDBPlanBlock.PlanBlockCollection Childs
+    public PlanBlockCollection Childs
     {
       get
       {
-        return this.childCollection;
+        return childCollection;
       }
     }
 
@@ -164,8 +164,8 @@ namespace VistaDB.Provider
       {
         get
         {
-          if (this.parent.childs != null)
-            return this.parent.childs.Length;
+          if (parent.childs != null)
+            return parent.childs.Length;
           return 0;
         }
       }
@@ -174,7 +174,7 @@ namespace VistaDB.Provider
       {
         get
         {
-          return this.parent.childs[index];
+          return parent.childs[index];
         }
       }
     }

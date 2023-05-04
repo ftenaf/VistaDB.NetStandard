@@ -33,7 +33,7 @@ namespace VistaDB.Extra.Internal
     {
       try
       {
-        IVistaDBColumn vistaDbColumn = ((EditableRow) component).Row[this.columnNo];
+        IVistaDBColumn vistaDbColumn = ((EditableRow) component).Row[columnNo];
         return vistaDbColumn.Value == null ? (object) DBNull.Value : vistaDbColumn.Value;
       }
       catch (Exception ex)
@@ -46,7 +46,7 @@ namespace VistaDB.Extra.Internal
     {
       get
       {
-        return this.readOnly;
+        return readOnly;
       }
     }
 
@@ -54,7 +54,7 @@ namespace VistaDB.Extra.Internal
     {
       get
       {
-        return this.propertyType;
+        return propertyType;
       }
     }
 
@@ -69,7 +69,7 @@ namespace VistaDB.Extra.Internal
 
     public override void SetValue(object component, object value)
     {
-      ((EditableRow) component).SetDataToColumn(this.columnNo, value);
+      ((EditableRow) component).SetDataToColumn(columnNo, value);
     }
 
     public override bool ShouldSerializeValue(object component)

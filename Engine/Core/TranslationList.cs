@@ -9,37 +9,37 @@ namespace VistaDB.Engine.Core
     {
     }
 
-    internal TranslationList.Rule this[Row.Column srcColumn]
+    internal Rule this[Row.Column srcColumn]
     {
       get
       {
-        if (!this.Contains((object) srcColumn.Name))
-          return (TranslationList.Rule) null;
-        return (TranslationList.Rule) this[(object) srcColumn.Name];
+        if (!Contains((object) srcColumn.Name))
+          return (Rule) null;
+        return (Rule) this[(object) srcColumn.Name];
       }
     }
 
     internal void AddTranslationRule(Row.Column srcColumn, Row.Column dstColumn)
     {
-      this.Add((object) srcColumn.Name, (object) new TranslationList.Rule(srcColumn, dstColumn, CrossConversion.Method(srcColumn.InternalType, dstColumn.InternalType)));
+      Add((object) srcColumn.Name, (object) new Rule(srcColumn, dstColumn, CrossConversion.Method(srcColumn.InternalType, dstColumn.InternalType)));
     }
 
     internal void AddTranslationRule(DefaultValue dstDefaults, Row.Column dstColumn)
     {
-      this.Add((object) ("New_" + dstColumn.Name), (object) new TranslationList.Rule(dstDefaults, dstColumn, (CrossConversion.ConversionMethod) null));
+      Add((object) ("New_" + dstColumn.Name), (object) new Rule(dstDefaults, dstColumn, (CrossConversion.ConversionMethod) null));
     }
 
     internal void DropTranslationRule(Row.Column srcColumn)
     {
       string name = srcColumn.Name;
-      if (!this.Contains((object) name))
+      if (!Contains((object) name))
         return;
-      this.Remove((object) name);
+      Remove((object) name);
     }
 
     internal bool IsColumnTranslated(Row.Column srcColumn)
     {
-      return this.Contains((object) srcColumn.Name);
+      return Contains((object) srcColumn.Name);
     }
 
     protected virtual void Destroy()
@@ -71,7 +71,7 @@ namespace VistaDB.Engine.Core
       {
         get
         {
-          return this.srcColumn;
+          return srcColumn;
         }
       }
 
@@ -79,23 +79,23 @@ namespace VistaDB.Engine.Core
       {
         get
         {
-          return this.dstColumn;
+          return dstColumn;
         }
       }
 
       internal void Convert(Row srcRow, Row dstRow, CultureInfo culture)
       {
-        if (this.srcValue != null && this.srcColumn == (Row.Column) null)
-          this.srcValue.GetValidRowStatus(dstRow);
-        else if (this.srcColumn.InternalType == this.dstColumn.InternalType)
+        if (srcValue != null && srcColumn == (Row.Column) null)
+          srcValue.GetValidRowStatus(dstRow);
+        else if (srcColumn.InternalType == dstColumn.InternalType)
         {
-          dstRow[this.dstColumn.RowIndex].Value = srcRow[this.srcColumn.RowIndex].Value;
+          dstRow[dstColumn.RowIndex].Value = srcRow[srcColumn.RowIndex].Value;
         }
         else
         {
-          if (this.method == null)
+          if (method == null)
             return;
-          this.method((IValue) srcRow[this.srcColumn.RowIndex], (IValue) dstRow[this.dstColumn.RowIndex], culture);
+          method((IValue) srcRow[srcColumn.RowIndex], (IValue) dstRow[dstColumn.RowIndex], culture);
         }
       }
     }

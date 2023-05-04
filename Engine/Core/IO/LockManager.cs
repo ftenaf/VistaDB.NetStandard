@@ -8,8 +8,8 @@ namespace VistaDB.Engine.Core.IO
   internal class LockManager : IDisposable
   {
     private ulong storageLock = ulong.MaxValue;
-    private LockManager.LockCollection userLocks = new LockManager.LockCollection();
-    private LockManager.LockCollection rowIdCollection = new LockManager.LockCollection();
+    private LockCollection userLocks = new LockCollection();
+    private LockCollection rowIdCollection = new LockCollection();
     private DataStorage storage;
     private bool isDisposed;
 
@@ -20,115 +20,115 @@ namespace VistaDB.Engine.Core.IO
 
     private void LockStorage()
     {
-      this.storage.LowLevelLockStorage(0UL, 0);
-      this.storageLock = 1UL;
+      storage.LowLevelLockStorage(0UL, 0);
+      storageLock = 1UL;
     }
 
     private void UnlockStorage()
     {
-      if (this.storage != null)
-        this.storage.LowLevelUnlockStorage(0UL, 0);
-      this.storageLock = ulong.MaxValue;
+      if (storage != null)
+        storage.LowLevelUnlockStorage(0UL, 0);
+      storageLock = ulong.MaxValue;
     }
 
     private void LockRow(ulong id)
     {
-      this.storage.LowLevelLockRow((uint) id);
-      lock (this.rowIdCollection.syncObject)
-        this.rowIdCollection.SetLock(id);
+      storage.LowLevelLockRow((uint) id);
+      lock (rowIdCollection.syncObject)
+        rowIdCollection.SetLock(id);
     }
 
     private void UnlockRow(ulong id)
     {
-      this.storage.LowLevelUnlockRow((uint) id);
-      lock (this.rowIdCollection.syncObject)
-        this.rowIdCollection.ResetLock(id);
+      storage.LowLevelUnlockRow((uint) id);
+      lock (rowIdCollection.syncObject)
+        rowIdCollection.ResetLock(id);
     }
 
     private void UnlockAllRows()
     {
-      lock (this.rowIdCollection.syncObject)
+      lock (rowIdCollection.syncObject)
       {
-        foreach (uint key in this.rowIdCollection.Keys)
-          this.storage.LowLevelUnlockRow(key);
-        this.rowIdCollection.Clear();
+        foreach (uint key in rowIdCollection.Keys)
+          storage.LowLevelUnlockRow(key);
+        rowIdCollection.Clear();
       }
     }
 
-    private bool FindLock(LockManager.LockType type, ulong id)
+    private bool FindLock(LockType type, ulong id)
     {
-      if (type != LockManager.LockType.FileLock)
-        return this.rowIdCollection.LockedStatus(id);
-      return this.storageLock != ulong.MaxValue;
+      if (type != LockType.FileLock)
+        return rowIdCollection.LockedStatus(id);
+      return storageLock != ulong.MaxValue;
     }
 
-    private bool IncreaseRef(LockManager.LockType type, ulong id)
+    private bool IncreaseRef(LockType type, ulong id)
     {
-      if (!this.FindLock(type, id))
+      if (!FindLock(type, id))
         return false;
-      if (type == LockManager.LockType.FileLock)
+      if (type == LockType.FileLock)
       {
-        ++this.storageLock;
+        ++storageLock;
       }
       else
       {
-        lock (this.rowIdCollection.syncObject)
+        lock (rowIdCollection.syncObject)
         {
-          int rowId = this.rowIdCollection[id];
+          int rowId = rowIdCollection[id];
           int num;
-          this.rowIdCollection[id] = num = rowId + 1;
+          rowIdCollection[id] = num = rowId + 1;
         }
       }
       return true;
     }
 
-    private bool DecreaseRef(LockManager.LockType type, ulong id)
+    private bool DecreaseRef(LockType type, ulong id)
     {
-      if (!this.FindLock(type, id))
+      if (!FindLock(type, id))
         return false;
-      if (type == LockManager.LockType.FileLock)
+      if (type == LockType.FileLock)
       {
-        if (this.storageLock > 0UL)
-          --this.storageLock;
-        return this.storageLock == 0UL;
+        if (storageLock > 0UL)
+          --storageLock;
+        return storageLock == 0UL;
       }
-      lock (this.rowIdCollection.syncObject)
+      lock (rowIdCollection.syncObject)
       {
-        int rowId = this.rowIdCollection[id];
+        int rowId = rowIdCollection[id];
         if (rowId > 0)
-          this.rowIdCollection[id] = --rowId;
+          rowIdCollection[id] = --rowId;
         return rowId == 0;
       }
     }
 
-    internal void LockObject(bool userLock, ulong id, LockManager.LockType type, ref bool actualLock, int lockTimeout)
+    internal void LockObject(bool userLock, ulong id, LockType type, ref bool actualLock, int lockTimeout)
     {
       actualLock = false;
       if (userLock)
       {
-        if (this.userLocks.LockedStatus(id))
+        if (userLocks.LockedStatus(id))
           return;
       }
       try
       {
-        if (this.IncreaseRef(type, id))
+        if (IncreaseRef(type, id))
           return;
         int millisecondsTimeout = 20;
         while (lockTimeout >= 0)
         {
           try
           {
-            if (type == LockManager.LockType.FileLock)
-              this.LockStorage();
+            if (type == LockType.FileLock)
+              LockStorage();
             else
-              this.LockRow(id);
+              LockRow(id);
             actualLock = true;
             break;
           }
           catch (Exception ex)
           {
             if (lockTimeout == 0)
-              throw new VistaDBException(ex, 163, this.storage.Name);
+              throw new VistaDBException(ex, 163, storage.Name);
           }
           Thread.Sleep(millisecondsTimeout);
           lockTimeout -= millisecondsTimeout;
@@ -136,71 +136,71 @@ namespace VistaDB.Engine.Core.IO
       }
       catch (Exception ex)
       {
-        throw new VistaDBException(ex, 161, this.storage.Name);
+        throw new VistaDBException(ex, 161, storage.Name);
       }
       if (!userLock)
         return;
-      this.userLocks.SetLock(id);
+      userLocks.SetLock(id);
     }
 
-    internal void UnlockObject(bool userLock, ulong id, LockManager.LockType type, bool waitForSynchAll)
+    internal void UnlockObject(bool userLock, ulong id, LockType type, bool waitForSynchAll)
     {
-      if (this.DecreaseRef(type, id) && !waitForSynchAll)
+      if (DecreaseRef(type, id) && !waitForSynchAll)
       {
-        if (type == LockManager.LockType.FileLock)
-          this.UnlockStorage();
+        if (type == LockType.FileLock)
+          UnlockStorage();
         else
-          this.UnlockRow(id);
+          UnlockRow(id);
       }
       if (!userLock)
         return;
-      this.userLocks.ResetLock(id);
+      userLocks.ResetLock(id);
     }
 
     internal void SynchAll()
     {
-      if (this.storageLock == 0UL)
-        this.UnlockStorage();
-      lock (this.rowIdCollection.syncObject)
+      if (storageLock == 0UL)
+        UnlockStorage();
+      lock (rowIdCollection.syncObject)
       {
-        ulong[] numArray = new ulong[this.rowIdCollection.Count];
+        ulong[] numArray = new ulong[rowIdCollection.Count];
         int num = 0;
-        foreach (ulong key in this.rowIdCollection.Keys)
+        foreach (ulong key in rowIdCollection.Keys)
         {
-          if (this.rowIdCollection[key] == 0 && !this.userLocks.LockedStatus((ulong) (uint) key))
+          if (rowIdCollection[key] == 0 && !userLocks.LockedStatus((ulong) (uint) key))
             numArray[num++] = key;
         }
         for (int index = 0; index < num; ++index)
-          this.UnlockRow(numArray[index]);
+          UnlockRow(numArray[index]);
       }
     }
 
     internal void UnlockAllItems()
     {
-      if (this.storageLock != ulong.MaxValue)
-        this.UnlockStorage();
-      this.UnlockAllRows();
-      this.userLocks.Clear();
+      if (storageLock != ulong.MaxValue)
+        UnlockStorage();
+      UnlockAllRows();
+      userLocks.Clear();
     }
 
     public void Dispose()
     {
-      if (this.isDisposed)
+      if (isDisposed)
         return;
-      this.isDisposed = true;
+      isDisposed = true;
       GC.SuppressFinalize((object) this);
       try
       {
-        if (this.storage != null)
-          this.UnlockAllItems();
-        this.userLocks = (LockManager.LockCollection) null;
-        if (this.rowIdCollection != null)
-          this.rowIdCollection.Clear();
-        this.rowIdCollection = (LockManager.LockCollection) null;
-        this.storage = (DataStorage) null;
+        if (storage != null)
+          UnlockAllItems();
+        userLocks = (LockCollection) null;
+        if (rowIdCollection != null)
+          rowIdCollection.Clear();
+        rowIdCollection = (LockCollection) null;
+        storage = (DataStorage) null;
       }
-      catch (Exception ex)
-      {
+      catch (Exception)
+            {
         throw;
       }
     }
@@ -217,17 +217,17 @@ namespace VistaDB.Engine.Core.IO
 
       internal void SetLock(ulong objectId)
       {
-        this.Add(objectId, 1);
+        Add(objectId, 1);
       }
 
       internal void ResetLock(ulong objectId)
       {
-        this.Remove(objectId);
+        Remove(objectId);
       }
 
       internal bool LockedStatus(ulong objectId)
       {
-        return this.ContainsKey(objectId);
+        return ContainsKey(objectId);
       }
     }
   }

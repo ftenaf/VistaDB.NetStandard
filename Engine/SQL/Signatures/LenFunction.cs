@@ -7,13 +7,13 @@ namespace VistaDB.Engine.SQL.Signatures
     public LenFunction(SQLParser parser)
       : base(parser, 1, true)
     {
-      this.dataType = VistaDBType.Int;
-      this.parameterTypes[0] = VistaDBType.NChar;
+      dataType = VistaDBType.Int;
+      parameterTypes[0] = VistaDBType.NChar;
     }
 
     protected override object ExecuteSubProgram()
     {
-      return (object) ((string) ((IValue) this.paramValues[0]).Value).TrimEnd().Length;
+      return (object) ((string) ((IValue) paramValues[0]).Value).TrimEnd().Length;
     }
   }
 }

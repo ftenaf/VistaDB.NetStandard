@@ -8,14 +8,14 @@ namespace VistaDB.Provider
 
     internal VistaDBExecutionPlan(IQueryStatement query)
     {
-      this.block = VistaDBPlanBlock.CreateExecutionPlan(query);
+      block = VistaDBPlanBlock.CreateExecutionPlan(query);
     }
 
     public VistaDBPlanBlock FirstBlock
     {
       get
       {
-        return this.block;
+        return block;
       }
     }
   }

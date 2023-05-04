@@ -20,27 +20,27 @@ namespace VistaDB.Engine.SQL
     public FuncSourceTable(Statement parent, ITableValuedFunction func, string alias, int index, int lineNo, int symbolNo)
       : base(parent, alias, alias, index, lineNo, symbolNo)
     {
-      this.opened = false;
+      opened = false;
       this.func = func;
-      this.row = (Row) null;
-      this.eof = true;
-      this.resultColumnNames = (string[]) null;
+      row = (Row) null;
+      eof = true;
+      resultColumnNames = (string[]) null;
     }
 
     private void PrepareFirstOpen()
     {
-      IDatabase database = this.parent.Database;
-      VistaDBType[] resultColumnTypes = this.func.GetResultColumnTypes();
-      this.resultColumnNames = this.func.GetResultColumnNames();
-      this.row = Row.CreateInstance(0U, true, (Encryption) null, (int[]) null);
+      IDatabase database = parent.Database;
+      VistaDBType[] resultColumnTypes = func.GetResultColumnTypes();
+      resultColumnNames = func.GetResultColumnNames();
+      row = Row.CreateInstance(0U, true, (Encryption) null, (int[]) null);
       int index = 0;
       for (int length = resultColumnTypes.Length; index < length; ++index)
-        this.row.AppendColumn(database.CreateEmptyColumn(resultColumnTypes[index]));
+        row.AppendColumn(database.CreateEmptyColumn(resultColumnTypes[index]));
     }
 
     public override IColumn SimpleGetColumn(int colIndex)
     {
-      return (IColumn) this.row[colIndex];
+      return (IColumn) row[colIndex];
     }
 
     public override void Post()
@@ -49,17 +49,17 @@ namespace VistaDB.Engine.SQL
 
     public override void Close()
     {
-      if (!this.opened)
+      if (!opened)
         return;
-      this.opened = false;
-      this.func.Close();
+      opened = false;
+      func.Close();
     }
 
     public override void FreeTable()
     {
-      if (!(this.func is TableValuedFunction))
+      if (!(func is TableValuedFunction))
         return;
-      this.func.Close();
+      func.Close();
     }
 
     public override IVistaDBTableSchema GetTableSchema()
@@ -79,54 +79,54 @@ namespace VistaDB.Engine.SQL
 
     public override int GetColumnCount()
     {
-      return this.ColumnCount;
+      return ColumnCount;
     }
 
     protected override void OnOpen(bool readOnly)
     {
-      this.func.Open();
-      this.opened = true;
+      func.Open();
+      opened = true;
     }
 
     protected override bool OnFirst()
     {
-      this.eof = !this.opened || !this.func.First((IRow) this.row);
-      return !this.eof;
+      eof = !opened || !func.First((IRow) row);
+      return !eof;
     }
 
     protected override bool OnNext()
     {
-      this.eof = !this.func.GetNextResult((IRow) this.row);
-      return !this.eof;
+      eof = !func.GetNextResult((IRow) row);
+      return !eof;
     }
 
     protected override IQuerySchemaInfo InternalPrepare()
     {
-      int num = (int) this.func.Prepare();
-      this.PrepareFirstOpen();
+      int num = (int) func.Prepare();
+      PrepareFirstOpen();
       return (IQuerySchemaInfo) this;
     }
 
     protected override void InternalInsert()
     {
-      throw new VistaDBSQLException(609, "", this.lineNo, this.symbolNo);
+      throw new VistaDBSQLException(609, "", lineNo, symbolNo);
     }
 
     protected override void InternalPutValue(int columnIndex, IColumn columnValue)
     {
-      throw new VistaDBSQLException(609, "", this.lineNo, this.symbolNo);
+      throw new VistaDBSQLException(609, "", lineNo, symbolNo);
     }
 
     protected override void InternalDeleteRow()
     {
-      throw new VistaDBSQLException(609, "", this.lineNo, this.symbolNo);
+      throw new VistaDBSQLException(609, "", lineNo, symbolNo);
     }
 
     public override bool Eof
     {
       get
       {
-        return this.eof;
+        return eof;
       }
     }
 
@@ -142,7 +142,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.opened;
+        return opened;
       }
     }
 
@@ -156,16 +156,16 @@ namespace VistaDB.Engine.SQL
 
     public string GetAliasName(int ordinal)
     {
-      return this.resultColumnNames[ordinal];
+      return resultColumnNames[ordinal];
     }
 
     public int GetColumnOrdinal(string name)
     {
-      LocalSQLConnection connection = this.parent.Connection;
+      LocalSQLConnection connection = parent.Connection;
       int index = 0;
-      for (int length = this.resultColumnNames.Length; index < length; ++index)
+      for (int length = resultColumnNames.Length; index < length; ++index)
       {
-        if (connection.CompareString(this.resultColumnNames[index], name, true) == 0)
+        if (connection.CompareString(resultColumnNames[index], name, true) == 0)
           return index;
       }
       return -1;
@@ -183,7 +183,7 @@ namespace VistaDB.Engine.SQL
 
     public string GetColumnName(int ordinal)
     {
-      return this.resultColumnNames[ordinal];
+      return resultColumnNames[ordinal];
     }
 
     public string GetTableName(int ordinal)
@@ -193,7 +193,7 @@ namespace VistaDB.Engine.SQL
 
     public Type GetColumnType(int ordinal)
     {
-      return this.row[ordinal].SystemType;
+      return row[ordinal].SystemType;
     }
 
     public bool GetIsAllowNull(int ordinal)
@@ -203,7 +203,7 @@ namespace VistaDB.Engine.SQL
 
     public VistaDBType GetColumnVistaDBType(int ordinal)
     {
-      return this.row[ordinal].Type;
+      return row[ordinal].Type;
     }
 
     public bool GetIsAliased(int ordinal)
@@ -233,7 +233,7 @@ namespace VistaDB.Engine.SQL
 
     public string GetDataTypeName(int ordinal)
     {
-      return this.row[ordinal].Type.ToString();
+      return row[ordinal].Type.ToString();
     }
 
     public DataTable GetSchemaTable()
@@ -278,7 +278,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.resultColumnNames.Length;
+        return resultColumnNames.Length;
       }
     }
 
@@ -286,7 +286,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.func;
+        return func;
       }
     }
   }

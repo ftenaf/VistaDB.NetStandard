@@ -10,30 +10,30 @@ namespace VistaDB.Engine.SQL.Signatures
     public VersionVariable(SQLParser parser)
       : base(parser)
     {
-      this.dataType = VistaDBType.NChar;
-      this.changed = true;
-      this.optimizable = true;
+      dataType = VistaDBType.NChar;
+      changed = true;
+      optimizable = true;
     }
 
     protected override bool InternalGetIsChanged()
     {
-      return this.changed;
+      return changed;
     }
 
     public override SignatureType OnPrepare()
     {
-      this.changed = true;
-      return this.signatureType;
+      changed = true;
+      return signatureType;
     }
 
     protected override IColumn InternalExecute()
     {
-      if (this.changed)
+      if (changed)
       {
-        ((IValue) this.result).Value = (object) Database.DatabaseHeader.FileCopyrightString;
-        this.changed = false;
+        ((IValue) result).Value = (object) Database.DatabaseHeader.FileCopyrightString;
+        changed = false;
       }
-      return this.result;
+      return result;
     }
   }
 }

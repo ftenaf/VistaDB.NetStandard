@@ -26,11 +26,11 @@ namespace VistaDB.Engine.SQL
 
     protected override IQueryResult OnExecuteQuery()
     {
-      if (((ILocalSQLConnection) this.parent.Connection).ParentConnection.TransactionMode == VistaDBTransaction.TransactionMode.Ignore)
+      if (((ILocalSQLConnection) parent.Connection).ParentConnection.TransactionMode == VistaDBTransaction.TransactionMode.Ignore)
         return (IQueryResult) null;
-      if (((ILocalSQLConnection) this.parent.Connection).ParentConnection.TransactionMode == VistaDBTransaction.TransactionMode.Off)
+      if (((ILocalSQLConnection) parent.Connection).ParentConnection.TransactionMode == VistaDBTransaction.TransactionMode.Off)
         throw new VistaDBException(460);
-      this.parent.Connection.CommitTransaction();
+      parent.Connection.CommitTransaction();
       return (IQueryResult) null;
     }
   }

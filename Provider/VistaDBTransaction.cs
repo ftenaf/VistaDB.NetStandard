@@ -14,11 +14,11 @@ namespace VistaDB.Provider
       this.connection.InternalBeginTransaction(this);
     }
 
-    public VistaDBConnection Connection
+    new public VistaDBConnection Connection
     {
       get
       {
-        return this.connection;
+        return connection;
       }
     }
 
@@ -26,7 +26,7 @@ namespace VistaDB.Provider
     {
       get
       {
-        return (DbConnection) this.Connection;
+        return (DbConnection) Connection;
       }
     }
 
@@ -40,21 +40,21 @@ namespace VistaDB.Provider
 
     public override void Commit()
     {
-      if (this.connection.TransactionMode == VistaDBTransaction.TransactionMode.Off)
+      if (connection.TransactionMode == TransactionMode.Off)
         throw new VistaDBException(460);
-      if (this.connection.TransactionMode == VistaDBTransaction.TransactionMode.Ignore)
+      if (connection.TransactionMode == TransactionMode.Ignore)
         return;
-      this.connection.InternalCommitTransaction();
+      connection.InternalCommitTransaction();
     }
 
     public override void Rollback()
     {
-      this.connection.InternalRollbackTransaction();
+      connection.InternalRollbackTransaction();
     }
 
     protected override void Dispose(bool disposing)
     {
-      this.connection = (VistaDBConnection) null;
+      connection = (VistaDBConnection) null;
       base.Dispose(disposing);
     }
 

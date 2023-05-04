@@ -17,18 +17,18 @@ namespace VistaDB.Engine.SQL.Signatures
     protected override bool OnOptimize(ConstraintOperations constrainOperations)
     {
       int chunkCount;
-      if (!this.CreatePattern() || this.finder.GetOptimizationLevel(out chunkCount) != OptimizationLevel.Full)
+      if (!CreatePattern() || finder.GetOptimizationLevel(out chunkCount) != OptimizationLevel.Full)
         return false;
       Signature low;
       Signature high;
-      this.finder.GetOptimizationScopeSignatures(this.parent, out low, out high);
+      finder.GetOptimizationScopeSignatures(parent, out low, out high);
       if (chunkCount > 1)
       {
-        if (constrainOperations.AddLogicalBetween((ColumnSignature) this.expression, low, high, false))
+        if (constrainOperations.AddLogicalBetween((ColumnSignature) expression, low, high, false))
           return constrainOperations.AddLogicalNot();
         return false;
       }
-      if (constrainOperations.AddLogicalCompare(this.expression, low, CompareOperation.Equal, CompareOperation.Equal, false))
+      if (constrainOperations.AddLogicalCompare(expression, low, CompareOperation.Equal, CompareOperation.Equal, false))
         return constrainOperations.AddLogicalNot();
       return false;
     }

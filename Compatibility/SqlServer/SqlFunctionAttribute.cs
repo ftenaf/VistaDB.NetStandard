@@ -6,13 +6,13 @@ namespace VistaDB.Compatibility.SqlServer
   {
     public SqlFunctionAttribute()
     {
-      this.DataAccess = DataAccessKind.None;
-      this.FillRowMethodName = (string) null;
-      this.IsDeterministic = false;
-      this.IsPrecise = false;
-      this.Name = (string) null;
-      this.SystemDataAccess = SystemDataAccessKind.None;
-      this.TableDefinition = (string) null;
+      DataAccess = DataAccessKind.None;
+      FillRowMethodName = (string) null;
+      IsDeterministic = false;
+      IsPrecise = false;
+      Name = (string) null;
+      SystemDataAccess = SystemDataAccessKind.None;
+      TableDefinition = (string) null;
     }
 
     public DataAccessKind DataAccess { get; set; }

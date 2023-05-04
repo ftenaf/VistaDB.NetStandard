@@ -2,6 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>VistaDB Driver</Title>
+    <Description>VistaDB driver for .net</Description>
+    <Copyright>MIT</Copyright>
+    <PackageProjectUrl>https://github.com/ftenaf/VistaDB.NetStandard</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ftenaf/VistaDB.NetStandard</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>VistaDB</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

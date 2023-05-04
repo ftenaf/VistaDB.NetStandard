@@ -10,11 +10,11 @@ namespace VistaDB.Engine.Core.IO
   {
     internal static readonly int DEFAULT_SIZE_OF_PAGE = 1024;
     private object syncObject = new object();
-    private StorageHandle.FreeSpaceCache freeCache = new StorageHandle.FreeSpaceCache();
+    private FreeSpaceCache freeCache = new FreeSpaceCache();
     internal FileStream fileStream;
     private int pageSize;
-    private StorageHandle.StorageMode storageMode;
-    private StorageHandle.StreamLocksDictionary lockTables;
+    private StorageMode storageMode;
+    private StreamLocksDictionary lockTables;
     private int instanceCount;
     private CacheSystem cache;
     private bool noReadAheadCache;
@@ -22,28 +22,28 @@ namespace VistaDB.Engine.Core.IO
     private bool persistentFile;
     private bool isDisposed;
 
-    internal StorageHandle(string fileName, StorageHandle.StorageMode storageMode, int pageSize, bool persistent)
+    internal StorageHandle(string fileName, StorageMode storageMode, int pageSize, bool persistent)
     {
       this.storageMode = storageMode;
       this.pageSize = pageSize;
-      this.persistentFile = persistent;
-      this.Open(fileName, pageSize, !storageMode.Temporary);
-      this.lockTables = new StorageHandle.StreamLocksDictionary(this);
+      persistentFile = persistent;
+      Open(fileName, pageSize, !storageMode.Temporary);
+      lockTables = new StreamLocksDictionary(this);
     }
 
     internal object SyncObject
     {
       get
       {
-        return this.syncObject;
+        return syncObject;
       }
     }
 
-    internal StorageHandle.StorageMode Mode
+    internal StorageMode Mode
     {
       get
       {
-        return this.storageMode;
+        return storageMode;
       }
     }
 
@@ -51,7 +51,7 @@ namespace VistaDB.Engine.Core.IO
     {
       get
       {
-        return this.fileStream.Name;
+        return fileStream.Name;
       }
     }
 
@@ -59,7 +59,7 @@ namespace VistaDB.Engine.Core.IO
     {
       get
       {
-        return this.storageMode.Transacted;
+        return storageMode.Transacted;
       }
     }
 
@@ -67,7 +67,7 @@ namespace VistaDB.Engine.Core.IO
     {
       get
       {
-        return this.storageMode.IsolatedStorage;
+        return storageMode.IsolatedStorage;
       }
     }
 
@@ -75,13 +75,13 @@ namespace VistaDB.Engine.Core.IO
     {
       get
       {
-        if (this.cache != null)
-          return this.noReadAheadCache;
+        if (cache != null)
+          return noReadAheadCache;
         return true;
       }
       set
       {
-        this.noReadAheadCache = value;
+        noReadAheadCache = value;
       }
     }
 
@@ -89,13 +89,13 @@ namespace VistaDB.Engine.Core.IO
     {
       get
       {
-        if (this.cache != null)
-          return this.noWriteBehindCache;
+        if (cache != null)
+          return noWriteBehindCache;
         return true;
       }
       set
       {
-        this.noWriteBehindCache = value;
+        noWriteBehindCache = value;
       }
     }
 
@@ -103,7 +103,7 @@ namespace VistaDB.Engine.Core.IO
     {
       set
       {
-        this.persistentFile = value;
+        persistentFile = value;
       }
     }
 
@@ -111,87 +111,87 @@ namespace VistaDB.Engine.Core.IO
     {
       get
       {
-        return this.GetFileLength();
+        return GetFileLength();
       }
       set
       {
-        this.SetFileLength(value);
+        SetFileLength(value);
       }
     }
 
     private void Open(string fileName, int pageSize, bool caching)
     {
-      if (this.storageMode.Mode == FileMode.Open && this.storageMode.Share == FileShare.ReadWrite && (!this.IsolatedStorage && File.GetAttributes(fileName) == FileAttributes.ReadOnly))
-        this.storageMode.SetSharedReadOnly();
-      if (!this.storageMode.CreationStatus)
+      if (storageMode.Mode == FileMode.Open && storageMode.Share == FileShare.ReadWrite && (!IsolatedStorage && File.GetAttributes(fileName) == FileAttributes.ReadOnly))
+        storageMode.SetSharedReadOnly();
+      if (!storageMode.CreationStatus)
       {
-        if (!this.IsolatedStorage)
+        if (!IsolatedStorage)
         {
-          if (!this.storageMode.ReadOnly)
+          if (!storageMode.ReadOnly)
           {
             if ((File.GetAttributes(fileName) & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
               throw new VistaDBException(108, fileName);
           }
-          else if (this.storageMode.Shared)
+          else if (storageMode.Shared)
           {
             if ((File.GetAttributes(fileName) & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
-              this.storageMode.SetSharedReadOnly();
+              storageMode.SetSharedReadOnly();
           }
         }
       }
       try
       {
-        if (this.IsolatedStorage)
+        if (IsolatedStorage)
         {
-          this.fileStream = (FileStream) new IsolatedStorageFileStream(fileName, this.storageMode.Mode, this.storageMode.Access, this.storageMode.Share);
+          fileStream = (FileStream) new IsolatedStorageFileStream(fileName, storageMode.Mode, storageMode.Access, storageMode.Share);
         }
         else
         {
           FileOptions options = FileOptions.RandomAccess;
-          if (this.Mode.DeleteOnCloseBySystem)
+          if (Mode.DeleteOnCloseBySystem)
             options |= FileOptions.DeleteOnClose;
-          this.fileStream = new FileStream(fileName, this.storageMode.Mode, this.storageMode.Access, this.storageMode.Share, 8, options);
+          fileStream = new FileStream(fileName, storageMode.Mode, storageMode.Access, storageMode.Share, 8, options);
         }
       }
-      catch (Exception ex)
-      {
+      catch (Exception)
+            {
         throw;
       }
-      if ((this.storageMode.Attributes & FileAttributes.Temporary) == FileAttributes.Temporary)
-        File.SetAttributes(this.fileStream.Name, this.storageMode.Attributes);
+      if ((storageMode.Attributes & FileAttributes.Temporary) == FileAttributes.Temporary)
+        File.SetAttributes(fileStream.Name, storageMode.Attributes);
       if (!caching)
         return;
-      this.cache = new CacheSystem(pageSize, this.fileStream, this.syncObject);
+      cache = new CacheSystem(pageSize, fileStream, syncObject);
     }
 
     private void Close(bool persistent)
     {
-      if (this.fileStream == null)
+      if (fileStream == null)
         return;
       try
       {
-        if (this.cache != null)
+        if (cache != null)
         {
-          this.cache.Clear();
-          this.cache = (CacheSystem) null;
+          cache.Clear();
+          cache = (CacheSystem) null;
         }
-        this.fileStream.Close();
+        fileStream.Close();
       }
       finally
       {
-        if (this.storageMode.DeleteOnClose)
+        if (storageMode.DeleteOnClose)
         {
           if (!persistent)
           {
             try
             {
-              File.Delete(this.fileStream.Name);
+              File.Delete(fileStream.Name);
             }
-            catch (IOException ex)
-            {
+            catch (IOException)
+                        {
             }
-            catch (Exception ex)
-            {
+            catch (Exception)
+                        {
             }
           }
         }
@@ -200,21 +200,21 @@ namespace VistaDB.Engine.Core.IO
 
     private ulong GetFileLength()
     {
-      if (!this.NoWriteBehindCache)
-        return this.cache.FileLength;
-      return (ulong) this.fileStream.Length;
+      if (!NoWriteBehindCache)
+        return cache.FileLength;
+      return (ulong) fileStream.Length;
     }
 
     private void SetFileLength(ulong position)
     {
-      if (this.NoWriteBehindCache)
+      if (NoWriteBehindCache)
       {
-        this.fileStream.SetLength((long) position);
+        fileStream.SetLength((long) position);
       }
       else
       {
-        lock (this.syncObject)
-          this.cache.FileLength = position;
+        lock (syncObject)
+          cache.FileLength = position;
       }
     }
 
@@ -222,10 +222,10 @@ namespace VistaDB.Engine.Core.IO
     {
       int num = buffer.Length - offset;
       len = len < num ? len : num;
-      lock (this.syncObject)
+      lock (syncObject)
       {
-        this.fileStream.Position = (long) position;
-        return this.fileStream.Read(buffer, offset, len);
+        fileStream.Position = (long) position;
+        return fileStream.Read(buffer, offset, len);
       }
     }
 
@@ -233,96 +233,96 @@ namespace VistaDB.Engine.Core.IO
     {
       int num = buffer.Length - offset;
       len = len < num ? len : num;
-      lock (this.syncObject)
+      lock (syncObject)
       {
-        if (this.cache != null)
-          this.cache.RemovePage(position);
-        this.fileStream.Position = (long) position;
-        this.fileStream.Write(buffer, offset, len);
+        if (cache != null)
+          cache.RemovePage(position);
+        fileStream.Position = (long) position;
+        fileStream.Write(buffer, offset, len);
       }
       return len;
     }
 
-    internal void CheckCompatibility(StorageHandle.StorageMode requestMode, bool forceWriting)
+    internal void CheckCompatibility(StorageMode requestMode, bool forceWriting)
     {
-      this.Mode.CheckCompatibility(requestMode, forceWriting, this.fileStream.Name);
+      Mode.CheckCompatibility(requestMode, forceWriting, fileStream.Name);
     }
 
     internal void ResetPageSize(int newPageSize)
     {
-      this.pageSize = newPageSize;
-      if (this.cache == null)
+      pageSize = newPageSize;
+      if (cache == null)
         return;
-      this.cache.Clear();
-      this.cache.ResetPageSize(newPageSize);
+      cache.Clear();
+      cache.ResetPageSize(newPageSize);
     }
 
     internal void AddRef()
     {
-      ++this.instanceCount;
+      ++instanceCount;
     }
 
     internal bool ReleaseRef()
     {
-      --this.instanceCount;
-      return this.instanceCount == 0;
+      --instanceCount;
+      return instanceCount == 0;
     }
 
     internal ulong GetFreeCluster(int pageCount, int storagePageSize)
     {
-      lock (this.syncObject)
+      lock (syncObject)
       {
-        ulong cluster = this.freeCache.GetCluster(pageCount);
+        ulong cluster = freeCache.GetCluster(pageCount);
         if ((long) cluster != (long) Row.EmptyReference)
           return cluster;
-        ulong fileLength = this.FileLength;
-        this.FileLength = fileLength + (ulong) (storagePageSize * pageCount);
+        ulong fileLength = FileLength;
+        FileLength = fileLength + (ulong) (storagePageSize * pageCount);
         return fileLength;
       }
     }
 
     internal void SetFreeCluster(ulong position, int pageCount)
     {
-      lock (this.syncObject)
+      lock (syncObject)
       {
-        this.freeCache.PutCluster(position, pageCount);
-        if (this.cache == null)
+        freeCache.PutCluster(position, pageCount);
+        if (cache == null)
           return;
         ulong pageId = position;
         for (int index = 0; index < pageCount; ++index)
         {
-          this.cache.RemovePage(pageId);
-          pageId += (ulong) this.pageSize;
+          cache.RemovePage(pageId);
+          pageId += (ulong) pageSize;
         }
       }
     }
 
     internal void PendingFreeCluster(ulong storageId, ulong position, int pageCount)
     {
-      lock (this.syncObject)
-        this.freeCache.PutCluster(storageId, position, pageCount);
+      lock (syncObject)
+        freeCache.PutCluster(storageId, position, pageCount);
     }
 
     internal void WriteRow(DataStorage storage, Row row, int length)
     {
-      if (this.NoWriteBehindCache)
-        this.WriteToStream(row.Position, row.Buffer, 0, length);
+      if (NoWriteBehindCache)
+        WriteToStream(row.Position, row.Buffer, 0, length);
       else
-        this.cache.WriteRow(storage, row, length);
+        cache.WriteRow(storage, row, length);
     }
 
     internal void ReadRow(DataStorage storage, Row row, int length, bool force)
     {
-      if (this.NoReadAheadCache)
-        this.ReadFromStream(row.Position, row.Buffer, 0, length);
+      if (NoReadAheadCache)
+        ReadFromStream(row.Position, row.Buffer, 0, length);
       else
-        this.cache.ReadRow(storage, row, length, force);
+        cache.ReadRow(storage, row, length, force);
     }
 
     internal int WritePage(DataStorage storage, ulong pageId, byte[] buffer, int offset, ref int length)
     {
-      int num1 = length > this.pageSize ? this.pageSize : length;
-      int num2 = this.NoWriteBehindCache ? this.WriteToStream(pageId, buffer, offset, num1) : this.cache.WritePage(storage, pageId, buffer, offset, num1);
+      int num1 = length > pageSize ? pageSize : length;
+      int num2 = NoWriteBehindCache ? WriteToStream(pageId, buffer, offset, num1) : cache.WritePage(storage, pageId, buffer, offset, num1);
       length -= num2;
       offset += num2;
       return offset;
@@ -330,8 +330,8 @@ namespace VistaDB.Engine.Core.IO
 
     internal int ReadPage(DataStorage storage, ulong pageId, byte[] buffer, int offset, ref int length)
     {
-      int num1 = length > this.pageSize ? this.pageSize : length;
-      int num2 = this.NoReadAheadCache ? this.ReadFromStream(pageId, buffer, offset, num1) : this.cache.ReadPage(storage, pageId, buffer, offset, num1);
+      int num1 = length > pageSize ? pageSize : length;
+      int num2 = NoReadAheadCache ? ReadFromStream(pageId, buffer, offset, num1) : cache.ReadPage(storage, pageId, buffer, offset, num1);
       length -= num2;
       offset += num2;
       return offset;
@@ -339,89 +339,89 @@ namespace VistaDB.Engine.Core.IO
 
     internal long DirectSeek(long offset, SeekOrigin origin)
     {
-      return this.fileStream.Seek(offset, origin);
+      return fileStream.Seek(offset, origin);
     }
 
     internal void DirectWriteBuffer(byte[] buffer, int length)
     {
-      this.fileStream.Write(buffer, 0, length);
+      fileStream.Write(buffer, 0, length);
     }
 
     internal int DirectReadBuffer(byte[] buffer, int length)
     {
-      return this.fileStream.Read(buffer, 0, length);
+      return fileStream.Read(buffer, 0, length);
     }
 
     internal long DirectGetLength()
     {
-      return this.fileStream.Length;
+      return fileStream.Length;
     }
 
     internal void Lock(ulong pos, int count, ulong storageId)
     {
-      lock (this.syncObject)
+      lock (syncObject)
       {
-        if (this.lockTables == null)
+        if (lockTables == null)
           return;
-        this.lockTables.LockPosition(storageId, pos, count);
+        lockTables.LockPosition(storageId, pos, count);
       }
     }
 
     internal void Unlock(ulong pos, int count, ulong storageId)
     {
-      lock (this.syncObject)
+      lock (syncObject)
       {
-        if (this.lockTables == null)
+        if (lockTables == null)
           return;
-        this.lockTables.UnlockPosition(storageId, pos, count);
+        lockTables.UnlockPosition(storageId, pos, count);
       }
     }
 
     internal void LockFileStream(ulong pos, int count)
     {
-      if (this.Mode.VirtualLocks)
+      if (Mode.VirtualLocks)
         return;
-      lock (this.syncObject)
+      lock (syncObject)
       {
-        if (!this.fileStream.CanWrite && this.Mode.Share != FileShare.ReadWrite)
-          throw new VistaDBException(337, this.Name);
-        this.fileStream.Lock((long) pos, (long) count);
+        if (!fileStream.CanWrite && Mode.Share != FileShare.ReadWrite)
+          throw new VistaDBException(337, Name);
+        fileStream.Lock((long) pos, (long) count);
       }
     }
 
     internal void UnlockFileStream(ulong pos, int count)
     {
-      if (this.Mode.VirtualLocks)
+      if (Mode.VirtualLocks)
         return;
-      lock (this.syncObject)
+      lock (syncObject)
       {
-        if (!this.fileStream.CanWrite && this.Mode.Share != FileShare.ReadWrite)
-          throw new VistaDBException(337, this.Name);
-        this.fileStream.Unlock((long) pos, (long) count);
+        if (!fileStream.CanWrite && Mode.Share != FileShare.ReadWrite)
+          throw new VistaDBException(337, Name);
+        fileStream.Unlock((long) pos, (long) count);
       }
     }
 
     internal void FlushCache()
     {
-      lock (this.syncObject)
+      lock (syncObject)
       {
-        StorageHandle.FreeSpaceCache.Cluster[] clusterArray = (StorageHandle.FreeSpaceCache.Cluster[]) null;
-        if (this.freeCache != null)
-          clusterArray = this.freeCache.CommitRelease();
-        if (this.cache == null)
+                FreeSpaceCache.Cluster[] clusterArray = (FreeSpaceCache.Cluster[]) null;
+        if (freeCache != null)
+          clusterArray = freeCache.CommitRelease();
+        if (cache == null)
           return;
-        this.cache.Flush();
+        cache.Flush();
         if (clusterArray == null || clusterArray.Length == 0)
           return;
-        foreach (StorageHandle.FreeSpaceCache.Cluster cluster in clusterArray)
+        foreach (FreeSpaceCache.Cluster cluster in clusterArray)
         {
           if (cluster != null)
           {
             ulong position = cluster.Position;
             for (int index = 0; index < cluster.PageCount; ++index)
             {
-              this.cache.RemovePage(position);
-              position += (ulong) this.pageSize;
+              cache.RemovePage(position);
+              position += (ulong) pageSize;
             }
           }
         }
@@ -430,80 +430,80 @@ namespace VistaDB.Engine.Core.IO
 
     internal void ClearCache()
     {
-      this.freeCache.Clear();
-      if (this.cache == null)
+      freeCache.Clear();
+      if (cache == null)
         return;
-      this.cache.Clear();
+      cache.Clear();
     }
 
     internal void ClearWholeCacheButHeader(ulong storageId)
     {
-      if (this.cache == null)
+      if (cache == null)
         return;
-      this.cache.ClearAssociativeButHeader(storageId);
+      cache.ClearAssociativeButHeader(storageId);
     }
 
     internal void ClearWholeCache(ulong storageId, bool rollbackStorage)
     {
-      lock (this.syncObject)
+      lock (syncObject)
       {
-        if (this.freeCache != null)
-          this.freeCache.RollbackRelease(storageId);
-        if (this.cache == null)
+        if (freeCache != null)
+          freeCache.RollbackRelease(storageId);
+        if (cache == null)
           return;
-        this.cache.ClearAssociative(storageId);
+        cache.ClearAssociative(storageId);
       }
     }
 
     internal void ResetCachedLength()
     {
-      if (this.cache == null)
+      if (cache == null)
         return;
-      this.cache.Initialize();
+      cache.Initialize();
     }
 
     internal void CopyFrom(StorageHandle srcHandle)
     {
       int len = 8 * srcHandle.pageSize;
       byte[] buffer = new byte[len];
-      this.ClearCache();
-      this.fileStream.SetLength((long) srcHandle.FileLength);
+      ClearCache();
+      fileStream.SetLength((long) srcHandle.FileLength);
       ulong position = 0;
       ulong fileLength = srcHandle.FileLength;
       while (position < fileLength)
       {
         srcHandle.ReadFromStream(position, buffer, 0, len);
-        this.WriteToStream(position, buffer, 0, len);
+        WriteToStream(position, buffer, 0, len);
         position += (ulong) len;
       }
     }
 
     public void Dispose()
     {
-      lock (this.syncObject)
+      lock (syncObject)
       {
-        if (this.isDisposed)
+        if (isDisposed)
           return;
-        if (this.lockTables != null)
-          this.lockTables.Clear();
-        this.Close(this.persistentFile);
-        if (this.freeCache != null)
+        if (lockTables != null)
+          lockTables.Clear();
+        Close(persistentFile);
+        if (freeCache != null)
         {
-          this.freeCache.Clear();
-          this.freeCache = (StorageHandle.FreeSpaceCache) null;
+          freeCache.Clear();
+          freeCache = (FreeSpaceCache) null;
         }
-        if (this.cache != null)
+        if (cache != null)
         {
-          this.cache.Clear();
-          this.cache = (CacheSystem) null;
+          cache.Clear();
+          cache = (CacheSystem) null;
         }
-        if (this.fileStream != null)
+        if (fileStream != null)
         {
-          this.fileStream.Dispose();
-          this.fileStream = (FileStream) null;
+          fileStream.Dispose();
+          fileStream = (FileStream) null;
         }
-        this.lockTables = (StorageHandle.StreamLocksDictionary) null;
-        this.isDisposed = true;
+        lockTables = (StreamLocksDictionary) null;
+        isDisposed = true;
         GC.SuppressFinalize((object) this);
       }
     }
@@ -525,15 +525,15 @@ namespace VistaDB.Engine.Core.IO
         this.fileMode = fileMode;
         this.fileShare = fileShare;
         this.fileAccess = fileAccess;
-        this.fileAttributes = attributes;
+        fileAttributes = attributes;
         this.deleteOnClose = deleteOnClose;
         this.transacted = transacted;
-        this.virtualLocks = false;
+        virtualLocks = false;
         this.isolated = isolated;
       }
 
       internal StorageMode(FileMode fileMode, bool shared, bool shareReadOnly, FileAccess fileAccess, bool transacted, bool isolated)
-        : this(fileMode, StorageHandle.StorageMode.InitShareFlag(shared, shareReadOnly), fileAccess, FileAttributes.Normal, transacted, false, isolated)
+        : this(fileMode, InitShareFlag(shared, shareReadOnly), fileAccess, FileAttributes.Normal, transacted, false, isolated)
       {
       }
 
@@ -553,7 +553,7 @@ namespace VistaDB.Engine.Core.IO
       {
         get
         {
-          return this.fileMode;
+          return fileMode;
         }
       }
 
@@ -561,7 +561,7 @@ namespace VistaDB.Engine.Core.IO
       {
         get
         {
-          return this.fileShare;
+          return fileShare;
         }
       }
 
@@ -569,7 +569,7 @@ namespace VistaDB.Engine.Core.IO
       {
         get
         {
-          return this.fileAccess;
+          return fileAccess;
         }
       }
 
@@ -577,7 +577,7 @@ namespace VistaDB.Engine.Core.IO
       {
         get
         {
-          return this.fileAttributes;
+          return fileAttributes;
         }
       }
 
@@ -585,8 +585,8 @@ namespace VistaDB.Engine.Core.IO
       {
         get
         {
-          if (this.deleteOnClose)
-            return !this.deleteOnCloseBySystem;
+          if (deleteOnClose)
+            return !deleteOnCloseBySystem;
           return false;
         }
       }
@@ -595,11 +595,11 @@ namespace VistaDB.Engine.Core.IO
       {
         set
         {
-          this.deleteOnCloseBySystem = value;
+          deleteOnCloseBySystem = value;
         }
         get
         {
-          return this.deleteOnCloseBySystem;
+          return deleteOnCloseBySystem;
         }
       }
 
@@ -607,7 +607,7 @@ namespace VistaDB.Engine.Core.IO
       {
         get
         {
-          return this.fileAccess == FileAccess.Read;
+          return fileAccess == FileAccess.Read;
         }
       }
 
@@ -615,7 +615,7 @@ namespace VistaDB.Engine.Core.IO
       {
         get
         {
-          return this.fileShare == FileShare.Read;
+          return fileShare == FileShare.Read;
         }
       }
 
@@ -623,7 +623,7 @@ namespace VistaDB.Engine.Core.IO
       {
         get
         {
-          return this.fileShare != FileShare.None;
+          return fileShare != FileShare.None;
         }
       }
 
@@ -631,11 +631,11 @@ namespace VistaDB.Engine.Core.IO
       {
         get
         {
-          return (this.fileAttributes & FileAttributes.Temporary) == FileAttributes.Temporary;
+          return (fileAttributes & FileAttributes.Temporary) == FileAttributes.Temporary;
         }
         set
         {
-          this.fileAttributes |= FileAttributes.Temporary;
+          fileAttributes |= FileAttributes.Temporary;
         }
       }
 
@@ -643,7 +643,7 @@ namespace VistaDB.Engine.Core.IO
       {
         get
         {
-          return this.transacted;
+          return transacted;
         }
       }
 
@@ -651,7 +651,7 @@ namespace VistaDB.Engine.Core.IO
       {
         get
         {
-          return this.isolated;
+          return isolated;
         }
       }
 
@@ -659,11 +659,11 @@ namespace VistaDB.Engine.Core.IO
       {
         get
         {
-          return this.virtualLocks;
+          return virtualLocks;
         }
         set
         {
-          this.virtualLocks = value;
+          virtualLocks = value;
         }
       }
 
@@ -671,8 +671,8 @@ namespace VistaDB.Engine.Core.IO
       {
         get
         {
-          if (this.fileMode != FileMode.CreateNew && this.fileMode != FileMode.Create)
-            return this.fileMode == FileMode.OpenOrCreate;
+          if (fileMode != FileMode.CreateNew && fileMode != FileMode.Create)
+            return fileMode == FileMode.OpenOrCreate;
           return true;
         }
       }
@@ -681,34 +681,34 @@ namespace VistaDB.Engine.Core.IO
       {
         get
         {
-          return this.fileMode == FileMode.Open;
+          return fileMode == FileMode.Open;
         }
       }
 
-      internal void CheckCompatibility(StorageHandle.StorageMode requestMode, bool forceWriting, string fileName)
+      internal void CheckCompatibility(StorageMode requestMode, bool forceWriting, string fileName)
       {
-        if (this.Access == FileAccess.Read && requestMode.Access != FileAccess.Read && !this.ForceWriteMode())
+        if (Access == FileAccess.Read && requestMode.Access != FileAccess.Read && !ForceWriteMode())
           throw new VistaDBException(108, fileName);
       }
 
       internal void SetExclusive()
       {
-        this.fileShare = FileShare.None;
+        fileShare = FileShare.None;
       }
 
       internal void SetSharedReadOnly()
       {
-        this.fileShare = FileShare.Read;
+        fileShare = FileShare.Read;
       }
 
-      public static bool operator ==(StorageHandle.StorageMode m1, StorageHandle.StorageMode m2)
+      public static bool operator ==(StorageMode m1, StorageMode m2)
       {
         if (m1.fileMode == m2.fileMode && m1.fileShare == m2.fileShare && m1.fileAccess == m2.fileAccess)
           return m1.fileAccess == m2.fileAccess;
         return false;
       }
 
-      public static bool operator !=(StorageHandle.StorageMode m1, StorageHandle.StorageMode m2)
+      public static bool operator !=(StorageMode m1, StorageMode m2)
       {
         return !(m1 == m2);
       }
@@ -720,11 +720,11 @@ namespace VistaDB.Engine.Core.IO
 
       public override bool Equals(object obj)
       {
-        return this == (StorageHandle.StorageMode) obj;
+        return this == (StorageMode) obj;
       }
     }
 
-    internal class StreamLocksDictionary : Dictionary<ulong, StorageHandle.StreamLocksDictionary.StreamLocks>
+    internal class StreamLocksDictionary : Dictionary<ulong, StreamLocksDictionary.StreamLocks>
     {
       private StorageHandle parentHandle;
 
@@ -733,21 +733,21 @@ namespace VistaDB.Engine.Core.IO
         this.parentHandle = parentHandle;
       }
 
-      private new StorageHandle.StreamLocksDictionary.StreamLocks this[ulong storageId]
+      private new StreamLocks this[ulong storageId]
       {
         get
         {
-          if (this.ContainsKey(storageId))
+          if (ContainsKey(storageId))
             return base[storageId];
-          StorageHandle.StreamLocksDictionary.StreamLocks streamLocks = new StorageHandle.StreamLocksDictionary.StreamLocks(this.parentHandle);
-          this.Add(storageId, streamLocks);
+                    StreamLocks streamLocks = new StreamLocks(parentHandle);
+          Add(storageId, streamLocks);
           return streamLocks;
         }
       }
 
       public new void Clear()
       {
-        foreach (StorageHandle.StreamLocksDictionary.StreamLocks streamLocks in this.Values)
+        foreach (StreamLocks streamLocks in Values)
           streamLocks.Clear();
         base.Clear();
       }
@@ -762,7 +762,7 @@ namespace VistaDB.Engine.Core.IO
         this[storageId].UnlockPosition(pos, count);
       }
 
-      internal class StreamLocks : List<StorageHandle.StreamLocksDictionary.StreamLocks.Lock>
+      internal class StreamLocks : List<StreamLocks.Lock>
       {
         internal object syncObject = new object();
         internal StorageHandle handle;
@@ -771,18 +771,18 @@ namespace VistaDB.Engine.Core.IO
         internal StreamLocks(StorageHandle handle)
         {
           this.handle = handle;
-          this.virtualLocks = handle.Mode.VirtualLocks;
+          virtualLocks = handle.Mode.VirtualLocks;
         }
 
         internal void LockPosition(ulong position, int count)
         {
           ulong num1 = position;
           ulong num2 = num1 + ((ulong) count - 1UL);
-          lock (this.syncObject)
+          lock (syncObject)
           {
-            for (int index = 0; index < this.Count; ++index)
+            for (int index = 0; index < Count; ++index)
             {
-              StorageHandle.StreamLocksDictionary.StreamLocks.Lock @lock = this[index];
+                            Lock @lock = this[index];
               if (@lock != null)
               {
                 ulong position1 = @lock.Position;
@@ -797,39 +797,39 @@ namespace VistaDB.Engine.Core.IO
               }
             }
           }
-          StorageHandle.StreamLocksDictionary.StreamLocks.Lock lock1 = new StorageHandle.StreamLocksDictionary.StreamLocks.Lock(position, count);
-          this.handle.LockFileStream(position, count);
+                    Lock lock1 = new Lock(position, count);
+          handle.LockFileStream(position, count);
           try
           {
-            lock (this.syncObject)
-              this.Add(lock1);
+            lock (syncObject)
+              Add(lock1);
           }
           catch (Exception ex)
           {
-            this.handle.UnlockFileStream(lock1.Position, lock1.Space);
+            handle.UnlockFileStream(lock1.Position, lock1.Space);
             throw new VistaDBException(ex, 162, position.ToString());
           }
         }
 
         internal void UnlockPosition(ulong position, int count)
         {
-          lock (this.syncObject)
+          lock (syncObject)
           {
-            for (int index = 0; index < this.Count; ++index)
+            for (int index = 0; index < Count; ++index)
             {
-              StorageHandle.StreamLocksDictionary.StreamLocks.Lock @lock = this[index];
+                            Lock @lock = this[index];
               if (@lock != null && (long) @lock.Position == (long) position && @lock.Space == count)
               {
                 if (!@lock.DecreaseDepth())
                 {
                   try
                   {
-                    this.handle.UnlockFileStream(@lock.Position, @lock.Space);
+                    handle.UnlockFileStream(@lock.Position, @lock.Space);
                     break;
                   }
                   finally
                   {
-                    this.RemoveAt(index);
+                    RemoveAt(index);
                   }
                 }
               }
@@ -839,12 +839,12 @@ namespace VistaDB.Engine.Core.IO
 
         public new void Clear()
         {
-          if (!this.virtualLocks)
+          if (!virtualLocks)
           {
-            lock (this.syncObject)
+            lock (syncObject)
             {
-              foreach (StorageHandle.StreamLocksDictionary.StreamLocks.Lock @lock in (List<StorageHandle.StreamLocksDictionary.StreamLocks.Lock>) this)
-                this.handle.UnlockFileStream(@lock.Position, @lock.Space);
+              foreach (Lock @lock in (List<Lock>) this)
+                handle.UnlockFileStream(@lock.Position, @lock.Space);
             }
           }
           base.Clear();
@@ -860,14 +860,14 @@ namespace VistaDB.Engine.Core.IO
           {
             this.position = position;
             this.space = space;
-            this.depth = 0;
+            depth = 0;
           }
 
           internal ulong Position
           {
             get
             {
-              return this.position;
+              return position;
             }
           }
 
@@ -875,7 +875,7 @@ namespace VistaDB.Engine.Core.IO
           {
             get
             {
-              return this.space;
+              return space;
             }
           }
 
@@ -883,23 +883,23 @@ namespace VistaDB.Engine.Core.IO
           {
             get
             {
-              return this.depth;
+              return depth;
             }
           }
 
           internal bool IncreaseDepth()
           {
-            if (this.depth < 0)
+            if (depth < 0)
               return false;
-            ++this.depth;
+            ++depth;
             return true;
           }
 
           internal bool DecreaseDepth()
           {
-            if (this.depth < 1)
+            if (depth < 1)
               return false;
-            --this.depth;
+            --depth;
             return true;
           }
         }
@@ -908,71 +908,71 @@ namespace VistaDB.Engine.Core.IO
 
     private class FreeSpaceCache
     {
-      private readonly Dictionary<int, LinkedList<StorageHandle.FreeSpaceCache.Cluster>> sizedClusters = new Dictionary<int, LinkedList<StorageHandle.FreeSpaceCache.Cluster>>(16);
-      private readonly Dictionary<ulong, LinkedList<StorageHandle.FreeSpaceCache.Cluster>> pending = new Dictionary<ulong, LinkedList<StorageHandle.FreeSpaceCache.Cluster>>();
-      private readonly Dictionary<ulong, StorageHandle.FreeSpaceCache.Cluster> freeClusters = new Dictionary<ulong, StorageHandle.FreeSpaceCache.Cluster>();
+      private readonly Dictionary<int, LinkedList<Cluster>> sizedClusters = new Dictionary<int, LinkedList<Cluster>>(16);
+      private readonly Dictionary<ulong, LinkedList<Cluster>> pending = new Dictionary<ulong, LinkedList<Cluster>>();
+      private readonly Dictionary<ulong, Cluster> freeClusters = new Dictionary<ulong, Cluster>();
       private int pendingCount;
       private int pendingCountHighWaterMark;
 
       internal void Clear()
       {
-        this.sizedClusters.Clear();
-        this.pending.Clear();
-        this.freeClusters.Clear();
-        this.pendingCount = 0;
-        this.pendingCountHighWaterMark = 0;
+        sizedClusters.Clear();
+        pending.Clear();
+        freeClusters.Clear();
+        pendingCount = 0;
+        pendingCountHighWaterMark = 0;
       }
 
       internal void RollbackRelease(ulong storageId)
       {
-        LinkedList<StorageHandle.FreeSpaceCache.Cluster> linkedList;
-        if (this.pending.Count == 0 || !this.pending.TryGetValue(storageId, out linkedList))
+        LinkedList<Cluster> linkedList;
+        if (pending.Count == 0 || !pending.TryGetValue(storageId, out linkedList))
           return;
-        this.pending.Remove(storageId);
-        this.pendingCount -= linkedList.Count;
+        pending.Remove(storageId);
+        pendingCount -= linkedList.Count;
       }
 
-      internal StorageHandle.FreeSpaceCache.Cluster[] CommitRelease()
+      internal Cluster[] CommitRelease()
       {
-        StorageHandle.FreeSpaceCache.Cluster[] clusterArray = new StorageHandle.FreeSpaceCache.Cluster[this.pendingCount];
+                Cluster[] clusterArray = new Cluster[pendingCount];
         int num = 0;
-        foreach (LinkedList<StorageHandle.FreeSpaceCache.Cluster> linkedList1 in this.pending.Values)
+        foreach (LinkedList<Cluster> linkedList1 in pending.Values)
         {
           if (linkedList1 != null)
           {
             while (linkedList1.Count > 0)
             {
-              LinkedListNode<StorageHandle.FreeSpaceCache.Cluster> first = linkedList1.First;
+              LinkedListNode<Cluster> first = linkedList1.First;
               linkedList1.Remove(first);
-              StorageHandle.FreeSpaceCache.Cluster cluster = first.Value;
+                            Cluster cluster = first.Value;
               if (cluster != null && cluster.PageCount > 0)
               {
-                LinkedList<StorageHandle.FreeSpaceCache.Cluster> linkedList2;
-                if (!this.sizedClusters.TryGetValue(cluster.PageCount, out linkedList2))
-                  this.sizedClusters.Add(cluster.PageCount, linkedList2 = new LinkedList<StorageHandle.FreeSpaceCache.Cluster>());
+                LinkedList<Cluster> linkedList2;
+                if (!sizedClusters.TryGetValue(cluster.PageCount, out linkedList2))
+                  sizedClusters.Add(cluster.PageCount, linkedList2 = new LinkedList<Cluster>());
                 linkedList2.AddLast(first);
-                this.freeClusters.Add(cluster.Position, cluster);
+                freeClusters.Add(cluster.Position, cluster);
                 clusterArray[num++] = cluster;
               }
             }
           }
         }
-        this.pending.Clear();
-        this.pendingCount = 0;
+        pending.Clear();
+        pendingCount = 0;
         return clusterArray;
       }
 
       internal ulong GetCluster(int pageCount)
       {
-        LinkedList<StorageHandle.FreeSpaceCache.Cluster> linkedList;
-        if (this.sizedClusters.TryGetValue(pageCount, out linkedList) && linkedList != null)
+        LinkedList<Cluster> linkedList;
+        if (sizedClusters.TryGetValue(pageCount, out linkedList) && linkedList != null)
         {
           while (linkedList.Count > 0)
           {
-            LinkedListNode<StorageHandle.FreeSpaceCache.Cluster> first = linkedList.First;
+            LinkedListNode<Cluster> first = linkedList.First;
             linkedList.Remove(first);
-            StorageHandle.FreeSpaceCache.Cluster cluster = first.Value;
-            if (cluster != null && cluster.PageCount == pageCount && this.freeClusters.Remove(cluster.Position))
+                        Cluster cluster = first.Value;
+            if (cluster != null && cluster.PageCount == pageCount && freeClusters.Remove(cluster.Position))
               return cluster.Position;
           }
         }
@@ -981,29 +981,29 @@ namespace VistaDB.Engine.Core.IO
 
       internal void PutCluster(ulong storageId, ulong position, int pageCount)
       {
-        if (this.freeClusters.ContainsKey(position) || pageCount == 0)
+        if (freeClusters.ContainsKey(position) || pageCount == 0)
           return;
-        StorageHandle.FreeSpaceCache.Cluster cluster = new StorageHandle.FreeSpaceCache.Cluster(position, pageCount);
-        LinkedList<StorageHandle.FreeSpaceCache.Cluster> linkedList;
-        if (!this.pending.TryGetValue(storageId, out linkedList))
-          this.pending.Add(storageId, linkedList = new LinkedList<StorageHandle.FreeSpaceCache.Cluster>());
-        ++this.pendingCount;
+                Cluster cluster = new Cluster(position, pageCount);
+        LinkedList<Cluster> linkedList;
+        if (!pending.TryGetValue(storageId, out linkedList))
+          pending.Add(storageId, linkedList = new LinkedList<Cluster>());
+        ++pendingCount;
         linkedList.AddLast(cluster);
-        if (this.pendingCount <= this.pendingCountHighWaterMark)
+        if (pendingCount <= pendingCountHighWaterMark)
           return;
-        this.pendingCountHighWaterMark = this.pendingCount;
+        pendingCountHighWaterMark = pendingCount;
       }
 
       internal void PutCluster(ulong position, int pageCount)
       {
-        if (this.freeClusters.ContainsKey(position) || pageCount == 0)
+        if (freeClusters.ContainsKey(position) || pageCount == 0)
           return;
-        StorageHandle.FreeSpaceCache.Cluster cluster = new StorageHandle.FreeSpaceCache.Cluster(position, pageCount);
-        LinkedList<StorageHandle.FreeSpaceCache.Cluster> linkedList;
-        if (!this.sizedClusters.TryGetValue(cluster.PageCount, out linkedList))
-          this.sizedClusters.Add(cluster.PageCount, linkedList = new LinkedList<StorageHandle.FreeSpaceCache.Cluster>());
+                Cluster cluster = new Cluster(position, pageCount);
+        LinkedList<Cluster> linkedList;
+        if (!sizedClusters.TryGetValue(cluster.PageCount, out linkedList))
+          sizedClusters.Add(cluster.PageCount, linkedList = new LinkedList<Cluster>());
         linkedList.AddLast(cluster);
-        this.freeClusters.Add(position, cluster);
+        freeClusters.Add(position, cluster);
       }
 
       internal class Cluster
@@ -1013,15 +1013,15 @@ namespace VistaDB.Engine.Core.IO
 
         internal Cluster(ulong pos, int count)
         {
-          this.position = pos;
-          this.pageCount = count;
+          position = pos;
+          pageCount = count;
         }
 
         internal ulong Position
         {
           get
           {
-            return this.position;
+            return position;
           }
         }
 
@@ -1029,7 +1029,7 @@ namespace VistaDB.Engine.Core.IO
         {
           get
           {
-            return this.pageCount;
+            return pageCount;
           }
         }
       }

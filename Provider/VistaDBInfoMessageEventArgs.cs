@@ -7,14 +7,14 @@ namespace VistaDB.Provider
   {
     internal VistaDBInfoMessageEventArgs(string message, string source)
     {
-      this.Message = message;
-      this.Source = source;
+      Message = message;
+      Source = source;
     }
 
     internal VistaDBInfoMessageEventArgs(VistaDBException exception)
       : this(exception.Message, exception.Source)
     {
-      this.Exception = exception;
+      Exception = exception;
     }
 
     private VistaDBException Exception { get; set; }

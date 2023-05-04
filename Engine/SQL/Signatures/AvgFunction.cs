@@ -14,50 +14,50 @@ namespace VistaDB.Engine.SQL.Signatures
     public AvgFunction(SQLParser parser)
       : base(parser, false)
     {
-      this.srcValue = (IColumn) null;
-      this.dstValue = (IColumn) null;
-      this.tmpValue = (IColumn) null;
-      this.count = 0L;
+      srcValue = (IColumn) null;
+      dstValue = (IColumn) null;
+      tmpValue = (IColumn) null;
+      count = 0L;
     }
 
     public override SignatureType OnPrepare()
     {
       SignatureType signatureType = base.OnPrepare();
-      if (Utils.IsCharacterDataType(this.expression.DataType))
+      if (Utils.IsCharacterDataType(expression.DataType))
       {
-        this.dataType = VistaDBType.Float;
+        dataType = VistaDBType.Float;
       }
       else
       {
-        if (!Utils.IsNumericDataType(this.expression.DataType))
-          throw new VistaDBSQLException(550, "AVG", this.lineNo, this.symbolNo);
-        this.dataType = this.expression.DataType;
+        if (!Utils.IsNumericDataType(expression.DataType))
+          throw new VistaDBSQLException(550, "AVG", lineNo, symbolNo);
+        dataType = expression.DataType;
       }
-      this.srcValue = this.CreateColumn(this.expression.DataType);
-      this.dstValue = this.CreateColumn(this.dataType);
-      this.tmpValue = this.CreateColumn(VistaDBType.BigInt);
+      srcValue = CreateColumn(expression.DataType);
+      dstValue = CreateColumn(dataType);
+      tmpValue = CreateColumn(VistaDBType.BigInt);
       return signatureType;
     }
 
     protected override void InternalSerialize(ref object serObj)
     {
-      AvgFunction.SerializedValue serializedValue;
+            SerializedValue serializedValue;
       if (serObj == null)
       {
-        serializedValue = new AvgFunction.SerializedValue();
+        serializedValue = new SerializedValue();
         serObj = (object) serializedValue;
       }
       else
-        serializedValue = (AvgFunction.SerializedValue) serObj;
-      serializedValue.Count = this.count;
-      serializedValue.Value = this.val;
+        serializedValue = (SerializedValue) serObj;
+      serializedValue.Count = count;
+      serializedValue.Value = val;
     }
 
     protected override void InternalDeserialize(object serObj)
     {
-      AvgFunction.SerializedValue serializedValue = (AvgFunction.SerializedValue) serObj;
-      this.val = serializedValue.Value;
-      this.count = serializedValue.Count;
+            SerializedValue serializedValue = (SerializedValue) serObj;
+      val = serializedValue.Value;
+      count = serializedValue.Count;
     }
 
     protected override object InternalCreateEmptyResult()
@@ -69,36 +69,36 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       if (newVal == null)
       {
-        this.count = 0L;
+        count = 0L;
         return (object) null;
       }
-      this.count = 1L;
-      ((IValue) this.srcValue).Value = newVal;
-      this.Convert((IValue) this.srcValue, (IValue) this.dstValue);
-      return ((IValue) this.dstValue).Value;
+      count = 1L;
+      ((IValue) srcValue).Value = newVal;
+      Convert((IValue) srcValue, (IValue) dstValue);
+      return ((IValue) dstValue).Value;
     }
 
     protected override object InternalAddRowToGroup(object newVal)
     {
       if (newVal == null)
-        return this.val;
-      ((IValue) this.srcValue).Value = newVal;
-      this.Convert((IValue) this.srcValue, (IValue) this.dstValue);
-      ++this.count;
-      if (this.val == null)
-        return ((IValue) this.dstValue).Value;
-      ((IValue) this.result).Value = this.val;
-      return ((Row.Column) this.result + (Row.Column) this.dstValue).Value;
+        return val;
+      ((IValue) srcValue).Value = newVal;
+      Convert((IValue) srcValue, (IValue) dstValue);
+      ++count;
+      if (val == null)
+        return ((IValue) dstValue).Value;
+      ((IValue) result).Value = val;
+      return ((Row.Column) result + (Row.Column) dstValue).Value;
     }
 
     protected override object InternalFinishGroup()
     {
-      if (this.val == null)
-        return this.val;
-      ((IValue) this.result).Value = this.val;
-      ((IValue) this.tmpValue).Value = (object) this.count;
-      this.Convert((IValue) ((Row.Column) this.result / (Row.Column) this.tmpValue), (IValue) this.result);
-      return ((IValue) this.result).Value;
+      if (val == null)
+        return val;
+      ((IValue) result).Value = val;
+      ((IValue) tmpValue).Value = (object) count;
+      Convert((IValue) ((Row.Column) result / (Row.Column) tmpValue), (IValue) result);
+      return ((IValue) result).Value;
     }
 
     private class SerializedValue

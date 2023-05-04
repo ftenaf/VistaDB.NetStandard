@@ -35,49 +35,49 @@ namespace VistaDB.Engine.SQL
       if (parser.IsToken(")"))
         parser.SkipToken(true);
       if (parser.IsToken("WITH"))
-        throw new VistaDBSQLException(660, "unsupported syntax", this.lineNo, this.symbolNo);
+        throw new VistaDBSQLException(660, "unsupported syntax", lineNo, symbolNo);
       if (signatureList.Count < 3)
-        throw new VistaDBSQLException(501, "RAISERROR requires three parameters, message | id, severity, state", this.lineNo, this.symbolNo);
-      this._message = signatureList[0];
+        throw new VistaDBSQLException(501, "RAISERROR requires three parameters, message | id, severity, state", lineNo, symbolNo);
+      _message = signatureList[0];
       signatureList.RemoveAt(0);
       IColumn column1 = signatureList[0].Execute();
       signatureList.RemoveAt(0);
       IColumn column2 = signatureList[0].Execute();
       signatureList.RemoveAt(0);
-      this._severity = (int) (long) ((IValue) column1).Value;
-      this._state = (int) (long) ((IValue) column2).Value;
-      this._arguments = signatureList.ToArray();
+      _severity = (int) (long) ((IValue) column1).Value;
+      _state = (int) (long) ((IValue) column2).Value;
+      _arguments = signatureList.ToArray();
     }
 
     protected override VistaDBType OnPrepareQuery()
     {
-      if (this._message.Prepare() == SignatureType.Constant && this._message.SignatureType != SignatureType.Constant)
-        this._message = (Signature) ConstantSignature.CreateSignature(this._message.Execute(), this.parent);
-      for (int index = 0; index < this._arguments.Length; ++index)
+      if (_message.Prepare() == SignatureType.Constant && _message.SignatureType != SignatureType.Constant)
+        _message = (Signature) ConstantSignature.CreateSignature(_message.Execute(), parent);
+      for (int index = 0; index < _arguments.Length; ++index)
       {
-        Signature signature = this._arguments[index];
+        Signature signature = _arguments[index];
         if (signature.Prepare() == SignatureType.Constant && signature.SignatureType != SignatureType.Constant)
-          this._arguments[index] = (Signature) ConstantSignature.CreateSignature(signature.Execute(), this.parent);
+          _arguments[index] = (Signature) ConstantSignature.CreateSignature(signature.Execute(), parent);
       }
       return VistaDBType.Unknown;
     }
 
     protected override IQueryResult OnExecuteQuery()
     {
-      this._message.SetChanged();
-      IColumn[] columnArray = new IColumn[this._arguments.Length];
-      for (int index = 0; index < this._arguments.Length; ++index)
+      _message.SetChanged();
+      IColumn[] columnArray = new IColumn[_arguments.Length];
+      for (int index = 0; index < _arguments.Length; ++index)
       {
-        Signature signature = this._arguments[index];
+        Signature signature = _arguments[index];
         signature.SetChanged();
         columnArray[index] = signature.Execute();
       }
-      string str = this._message.Execute().ToString();
+      string str = _message.Execute().ToString();
       int result;
       if (int.TryParse(str, out result))
-        this.connection.LastException = this.parent.Exception = (VistaDBException) new VistaDBSQLException(result, "Error #" + str, this.lineNo, this.symbolNo);
+        connection.LastException = parent.Exception = (VistaDBException) new VistaDBSQLException(result, "Error #" + str, lineNo, symbolNo);
       else
-        this.connection.LastException = this.parent.Exception = (VistaDBException) new VistaDBSQLException(50000, str, this.lineNo, this.symbolNo);
+        connection.LastException = parent.Exception = (VistaDBException) new VistaDBSQLException(50000, str, lineNo, symbolNo);
       return (IQueryResult) null;
     }
   }

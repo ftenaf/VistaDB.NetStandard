@@ -28,12 +28,12 @@ namespace VistaDB.Engine.SQL.Signatures
     private ParameterSignature(SQLParser parser)
       : base(parser)
     {
-      this.origParamName = parser.TokenValue.Token;
-      this.paramName = this.origParamName.Substring(1);
-      this.signatureType = SignatureType.Parameter;
-      this.isChanged = true;
-      this.optimizable = true;
-      this.val = (object) null;
+      origParamName = parser.TokenValue.Token;
+      paramName = origParamName.Substring(1);
+      signatureType = SignatureType.Parameter;
+      isChanged = true;
+      optimizable = true;
+      val = (object) null;
     }
 
     internal static bool IsParameter(string token)
@@ -45,27 +45,27 @@ namespace VistaDB.Engine.SQL.Signatures
 
     private void EvaluateResult()
     {
-      IParameter parameter = this.parent.DoGetParam(this.paramName);
-      this.val = parameter.Value;
-      this.dataType = parameter.DataType;
-      ((IValue) this.result).Value = this.val;
+      IParameter parameter = parent.DoGetParam(paramName);
+      val = parameter.Value;
+      dataType = parameter.DataType;
+      ((IValue) result).Value = val;
     }
 
     protected override IColumn InternalExecute()
     {
-      if (this.isChanged)
+      if (isChanged)
       {
-        this.EvaluateResult();
-        this.isChanged = false;
+        EvaluateResult();
+        isChanged = false;
       }
-      return this.result;
+      return result;
     }
 
     protected override void OnSimpleExecute()
     {
-      if (!this.isChanged)
+      if (!isChanged)
         return;
-      this.EvaluateResult();
+      EvaluateResult();
     }
 
     public override bool HasAggregateFunction(out bool distinct)
@@ -76,18 +76,18 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public override SignatureType OnPrepare()
     {
-      IParameter parameter = this.parent.DoGetParam(this.paramName);
+      IParameter parameter = parent.DoGetParam(paramName);
       if (parameter == null)
-        throw new VistaDBSQLException(616, this.origParamName, this.lineNo, this.symbolNo);
-      this.val = parameter.Value;
-      this.dataType = parameter.DataType;
-      return this.signatureType;
+        throw new VistaDBSQLException(616, origParamName, lineNo, symbolNo);
+      val = parameter.Value;
+      dataType = parameter.DataType;
+      return signatureType;
     }
 
     protected override bool IsEquals(Signature signature)
     {
       if (signature is ParameterSignature)
-        return this.parent.Connection.CompareString(this.paramName, ((ParameterSignature) signature).paramName, true) == 0;
+        return parent.Connection.CompareString(paramName, ((ParameterSignature) signature).paramName, true) == 0;
       return false;
     }
 
@@ -97,17 +97,17 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public override void SetChanged()
     {
-      this.isChanged = true;
+      isChanged = true;
     }
 
     public override void ClearChanged()
     {
-      this.isChanged = false;
+      isChanged = false;
     }
 
     protected override bool InternalGetIsChanged()
     {
-      return this.isChanged;
+      return isChanged;
     }
 
     public override void GetAggregateFunctions(List<AggregateFunction> list)
@@ -116,10 +116,10 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public override int GetWidth()
     {
-      if (!Utils.IsCharacterDataType(this.dataType))
+      if (!Utils.IsCharacterDataType(dataType))
         return base.GetWidth();
-      if (this.val != null)
-        return ((string) this.val).Length;
+      if (val != null)
+        return ((string) val).Length;
       return 0;
     }
 
@@ -141,7 +141,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public void SetOutParamValue(object val)
     {
-      this.parent.DoSetParam(this.paramName, val, this.dataType, ParameterDirection.Output);
+      parent.DoSetParam(paramName, val, dataType, ParameterDirection.Output);
     }
   }
 }

@@ -8,7 +8,7 @@
 
     public VistaDBInt32(int val)
     {
-      this.Value = (object) val;
+      Value = (object) val;
     }
 
     public override object Value
@@ -41,22 +41,22 @@
 
     public int GetValueOrDefault()
     {
-      if (this.HasValue)
-        return (int) this.Value;
+      if (HasValue)
+        return (int) Value;
       return 0;
     }
 
     public int GetValueOrDefault(int defaultValue)
     {
-      if (this.HasValue)
-        return (int) this.Value;
+      if (HasValue)
+        return (int) Value;
       return defaultValue;
     }
 
     public int GetValueOrDefault(VistaDBInt32 defaultValue)
     {
-      if (this.HasValue)
-        return (int) this.Value;
+      if (HasValue)
+        return (int) Value;
       return (int) defaultValue.Value;
     }
   }

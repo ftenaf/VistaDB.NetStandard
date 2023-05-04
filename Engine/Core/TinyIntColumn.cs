@@ -14,12 +14,12 @@ namespace VistaDB.Engine.Core
     }
 
     internal TinyIntColumn()
-      : base((object) null, VistaDBType.TinyInt, TinyIntColumn.ByteSize)
+      : base((object) null, VistaDBType.TinyInt, ByteSize)
     {
     }
 
     internal TinyIntColumn(byte val)
-      : base((object) val, VistaDBType.TinyInt, TinyIntColumn.ByteSize)
+      : base((object) val, VistaDBType.TinyInt, ByteSize)
     {
     }
 
@@ -67,90 +67,90 @@ namespace VistaDB.Engine.Core
 
     internal override int ConvertToByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      buffer[offset] = (byte) this.val;
-      return offset + TinyIntColumn.ByteSize;
+      buffer[offset] = (byte) val;
+      return offset + ByteSize;
     }
 
     internal override int ConvertFromByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      this.val = (object) buffer[offset];
-      return offset + TinyIntColumn.ByteSize;
+      val = (object) buffer[offset];
+      return offset + ByteSize;
     }
 
     protected override long Collate(Row.Column col)
     {
-      return (long) (byte) this.Value - (long) (byte) col.Value;
+      return (long) (byte) Value - (long) (byte) col.Value;
     }
 
     protected override Row.Column DoUnaryMinus()
     {
-      this.Value = (object) -(byte) this.Value;
+      Value = (object) -(byte) Value;
       return (Row.Column) this;
     }
 
     protected override Row.Column DoMinus(Row.Column col)
     {
-      this.Value = (object) (byte) ((uint) (byte) this.Value - (uint) TinyIntColumn.CustValue(col));
+      Value = (object) (byte) ((uint) (byte) Value - (uint)CustValue(col));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoPlus(Row.Column col)
     {
-      this.Value = (object) (byte) ((uint) (byte) this.Value + (uint) TinyIntColumn.CustValue(col));
+      Value = (object) (byte) ((uint) (byte) Value + (uint)CustValue(col));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoMultiplyBy(Row.Column col)
     {
-      this.Value = (object) (byte) ((uint) (byte) this.Value * (uint) TinyIntColumn.CustValue(col));
+      Value = (object) (byte) ((uint) (byte) Value * (uint)CustValue(col));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoDivideBy(Row.Column denominator)
     {
-      this.Value = (object) (byte) ((uint) (byte) this.Value / (uint) TinyIntColumn.CustValue(denominator));
+      Value = (object) (byte) ((uint) (byte) Value / (uint)CustValue(denominator));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoGetDividedBy(Row.Column numerator)
     {
-      this.Value = (object) (byte) ((uint) TinyIntColumn.CustValue(numerator) / (uint) (byte) this.Value);
+      Value = (object) (byte) ((uint)CustValue(numerator) / (uint) (byte) Value);
       return (Row.Column) this;
     }
 
     protected override Row.Column DoModBy(Row.Column denominator)
     {
-      this.Value = (object) (byte) ((uint) (byte) this.Value % (uint) TinyIntColumn.CustValue(denominator));
+      Value = (object) (byte) ((uint) (byte) Value % (uint)CustValue(denominator));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoGetModBy(Row.Column numerator)
     {
-      this.Value = (object) (byte) ((uint) TinyIntColumn.CustValue(numerator) % (uint) (byte) this.Value);
+      Value = (object) (byte) ((uint)CustValue(numerator) % (uint) (byte) Value);
       return (Row.Column) this;
     }
 
     protected override Row.Column DoBitwiseNot()
     {
-      this.Value = (object) ~(byte) this.Value;
+      Value = (object) ~(byte) Value;
       return (Row.Column) this;
     }
 
     protected override Row.Column DoBitwiseAnd(Row.Column denominator)
     {
-      this.Value = (object) (byte) ((uint) (byte) this.Value & (uint) TinyIntColumn.CustValue(denominator));
+      Value = (object) (byte) ((uint) (byte) Value & (uint)CustValue(denominator));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoBitwiseOr(Row.Column denominator)
     {
-      this.Value = (object) (byte) ((uint) (byte) this.Value | (uint) TinyIntColumn.CustValue(denominator));
+      Value = (object) (byte) ((uint) (byte) Value | (uint)CustValue(denominator));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoBitwiseXor(Row.Column denominator)
     {
-      this.Value = (object) (byte) ((uint) (byte) this.Value ^ (uint) TinyIntColumn.CustValue(denominator));
+      Value = (object) (byte) ((uint) (byte) Value ^ (uint)CustValue(denominator));
       return (Row.Column) this;
     }
   }

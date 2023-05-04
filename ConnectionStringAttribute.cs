@@ -11,23 +11,23 @@ internal sealed class ConnectionStringAttribute : Attribute
 
   public ConnectionStringAttribute(string name, string value)
   {
-    this._name = name;
-    this._value = value;
-    this._names = new string[0];
+    _name = name;
+    _value = value;
+    _names = new string[0];
   }
 
   public ConnectionStringAttribute(string name, string value, params string[] alternateNames)
   {
-    this._name = name;
-    this._value = value;
-    this._names = alternateNames;
+    _name = name;
+    _value = value;
+    _names = alternateNames;
   }
 
   public string Name
   {
     get
     {
-      return this._name;
+      return _name;
     }
   }
 
@@ -35,7 +35,7 @@ internal sealed class ConnectionStringAttribute : Attribute
   {
     get
     {
-      return this._value;
+      return _value;
     }
   }
 
@@ -43,7 +43,7 @@ internal sealed class ConnectionStringAttribute : Attribute
   {
     get
     {
-      return this._names;
+      return _names;
     }
   }
 }

@@ -12,11 +12,11 @@ namespace VistaDB
     {
       get
       {
-        return this.kind;
+        return kind;
       }
       set
       {
-        this.kind = value;
+        kind = value;
       }
     }
 
@@ -24,11 +24,11 @@ namespace VistaDB
     {
       get
       {
-        return this.fillMethod;
+        return fillMethod;
       }
       set
       {
-        this.fillMethod = value;
+        fillMethod = value;
       }
     }
   }

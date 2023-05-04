@@ -12,33 +12,33 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override IColumn InternalExecute()
     {
-      if (this.GetIsChanged())
+      if (GetIsChanged())
       {
-        IColumn column = this.operand.Execute();
+        IColumn column = operand.Execute();
         if (column.IsNull)
-          ((IValue) this.result).Value = (object) null;
+          ((IValue) result).Value = (object) null;
         else
-          ((IValue) this.result).Value = (object) !(bool) ((IValue) column).Value;
-        this.needsEvaluation = false;
+          ((IValue) result).Value = (object) !(bool) ((IValue) column).Value;
+        needsEvaluation = false;
       }
-      return this.result;
+      return result;
     }
 
     public override SignatureType OnPrepare()
     {
       SignatureType signatureType = base.OnPrepare();
-      this.dataType = VistaDBType.Bit;
-      this.optimizable = this.operand.Optimizable;
-      if (this.AlwaysNull)
+      dataType = VistaDBType.Bit;
+      optimizable = operand.Optimizable;
+      if (AlwaysNull)
         return SignatureType.Constant;
-      if (this.operand.DataType != VistaDBType.Bit)
-        throw new VistaDBSQLException(558, "NOT", this.lineNo, this.symbolNo);
+      if (operand.DataType != VistaDBType.Bit)
+        throw new VistaDBSQLException(558, "NOT", lineNo, symbolNo);
       return signatureType;
     }
 
     protected override bool OnOptimize(ConstraintOperations constrainOperations)
     {
-      if (this.operand.Optimize(constrainOperations))
+      if (operand.Optimize(constrainOperations))
         return constrainOperations.AddLogicalNot();
       return false;
     }
@@ -47,7 +47,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.operand.IsNull;
+        return operand.IsNull;
       }
     }
   }

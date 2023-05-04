@@ -14,8 +14,7 @@ namespace VistaDB.Engine.Core.Indexing
 {
   internal class RowsetIndex : Index
   {
-    private const int MaxKeyColumnCount = 255;
-    private ClusteredRowset rowSet;
+        private ClusteredRowset rowSet;
     private EvalStack findEvaluator;
     protected SortSpool spool;
     private bool buildingStatus;
@@ -36,11 +35,11 @@ namespace VistaDB.Engine.Core.Indexing
       this.keyExpression = keyExpression;
     }
 
-    internal RowsetIndex.RowsetIndexHeader Header
+    internal new RowsetIndexHeader Header
     {
       get
       {
-        return (RowsetIndex.RowsetIndexHeader) base.Header;
+        return (RowsetIndexHeader) base.Header;
       }
     }
 
@@ -48,7 +47,7 @@ namespace VistaDB.Engine.Core.Indexing
     {
       get
       {
-        return this.keyExpression;
+        return keyExpression;
       }
     }
 
@@ -56,7 +55,7 @@ namespace VistaDB.Engine.Core.Indexing
     {
       get
       {
-        return this.buildingStatus;
+        return buildingStatus;
       }
     }
 
@@ -64,25 +63,25 @@ namespace VistaDB.Engine.Core.Indexing
     {
       get
       {
-        return this.rowSet;
+        return rowSet;
       }
     }
 
     protected override Row OnCreateEmptyRowInstance()
     {
-      return Row.CreateInstance(0U, !this.Header.Descend, this.Encryption, (int[]) null);
+      return Row.CreateInstance(0U, !Header.Descend, Encryption, (int[]) null);
     }
 
     protected override Row OnCreateEmptyRowInstance(int maxColCount)
     {
-      return Row.CreateInstance(0U, !this.Header.Descend, this.Encryption, (int[]) null, maxColCount);
+      return Row.CreateInstance(0U, !Header.Descend, Encryption, (int[]) null, maxColCount);
     }
 
     internal override CrossConversion Conversion
     {
       get
       {
-        return this.ParentRowset.WrapperDatabase.Conversion;
+        return ParentRowset.WrapperDatabase.Conversion;
       }
     }
 
@@ -90,7 +89,7 @@ namespace VistaDB.Engine.Core.Indexing
     {
       get
       {
-        return this.keyPcode;
+        return keyPcode;
       }
     }
 
@@ -98,11 +97,11 @@ namespace VistaDB.Engine.Core.Indexing
     {
       try
       {
-        this.OnCreatePCode();
+        OnCreatePCode();
       }
       catch (Exception ex)
       {
-        this.keyPcode = (EvalStack) null;
+        keyPcode = (EvalStack) null;
         throw ex;
       }
     }
@@ -111,9 +110,9 @@ namespace VistaDB.Engine.Core.Indexing
     {
       try
       {
-        if (this.spool != null)
-          this.spool.Dispose();
-        this.spool = keyCount == 0U ? (SortSpool) new DummySpool() : new SortSpool(this.Handle.IsolatedStorage, keyCount, ref expectedKeyLen, this.BottomRow, this.ParentConnection.StorageManager, false);
+        if (spool != null)
+          spool.Dispose();
+        spool = keyCount == 0U ? (SortSpool) new DummySpool() : new SortSpool(Handle.IsolatedStorage, keyCount, ref expectedKeyLen, BottomRow, ParentConnection.StorageManager, false);
       }
       catch (Exception ex)
       {
@@ -135,20 +134,20 @@ namespace VistaDB.Engine.Core.Indexing
     {
       try
       {
-        this.SetRelationship((DataStorage) this, (DataStorage) this.ParentRowset, Relationships.Type.One_To_One, (EvalStack) null, false);
-        this.ParentRowset.SetRelationship((DataStorage) this.ParentRowset, (DataStorage) this, Relationships.Type.One_To_One, this.KeyPCode, true);
+        SetRelationship((DataStorage) this, (DataStorage) ParentRowset, Relationships.Type.One_To_One, (EvalStack) null, false);
+        ParentRowset.SetRelationship((DataStorage) ParentRowset, (DataStorage) this, Relationships.Type.One_To_One, KeyPCode, true);
       }
       finally
       {
-        this.DefreezeRelationships();
-        this.ParentRowset.DefreezeRelationships();
+        DefreezeRelationships();
+        ParentRowset.DefreezeRelationships();
       }
     }
 
     private void UnregisterRowset()
     {
-      this.ParentRowset.ResetRelationship((DataStorage) this.ParentRowset, (DataStorage) this);
-      this.ResetRelationship((DataStorage) this, (DataStorage) this.ParentRowset);
+      ParentRowset.ResetRelationship((DataStorage) ParentRowset, (DataStorage) this);
+      ResetRelationship((DataStorage) this, (DataStorage) ParentRowset);
     }
 
     internal bool IsCorrectPrimaryKeyExpr(string primaryKey)
@@ -158,14 +157,14 @@ namespace VistaDB.Engine.Core.Indexing
 
     internal void ReDeclareIndex()
     {
-      this.DeclareNewStorage((object) this.CollectIndexInformation());
+      DeclareNewStorage((object) CollectIndexInformation());
     }
 
     internal byte[] RowKeyStructure
     {
       get
       {
-        List<Row.Column> columnList = this.KeyPCode.EnumColumns();
+        List<Row.Column> columnList = KeyPCode.EnumColumns();
         byte[] numArray = new byte[columnList.Count * 2];
         for (int index1 = 0; index1 < columnList.Count; ++index1)
         {
@@ -173,7 +172,7 @@ namespace VistaDB.Engine.Core.Indexing
           short rowIndex = (short) columnList[index1].RowIndex;
           numArray[index2] = (byte) rowIndex;
           short num = (short) ((int) (short) ((int) rowIndex & 768) >> 7);
-          numArray[index2 + 1] = this.IsDescendKeyColumn(index1) ? (byte) (1U | (uint) (byte) num) : (byte) num;
+          numArray[index2 + 1] = IsDescendKeyColumn(index1) ? (byte) (1U | (uint) (byte) num) : (byte) num;
         }
         return numArray;
       }
@@ -181,228 +180,228 @@ namespace VistaDB.Engine.Core.Indexing
 
     internal IVistaDBIndexInformation CollectIndexInformation()
     {
-      return (IVistaDBIndexInformation) new Table.TableSchema.IndexCollection.IndexInformation(this.Name, this.Alias, this.KeyExpression, this.IsUnique, this.IsPrimary, this.Header.Descend, this.IsSparse, this.IsForeignKey, this.IsFts, false, this.StorageId, this.RowKeyStructure);
+      return (IVistaDBIndexInformation) new Table.TableSchema.IndexCollection.IndexInformation(Name, Alias, KeyExpression, IsUnique, IsPrimary, Header.Descend, IsSparse, IsForeignKey, IsFts, false, StorageId, RowKeyStructure);
     }
 
     internal void EvaluateSpoolKey(bool forceOutput)
     {
-      if (!this.buildingStatus)
+      if (!buildingStatus)
         return;
-      this.OnEvaluateSpoolKey(forceOutput);
+      OnEvaluateSpoolKey(forceOutput);
     }
 
     internal bool StartBuild(uint maxKeyCount, ref int expectedKeyLen)
     {
-      if (this.buildingStatus)
-        this.OnStartBuild(maxKeyCount, ref expectedKeyLen);
-      return this.buildingStatus;
+      if (buildingStatus)
+        OnStartBuild(maxKeyCount, ref expectedKeyLen);
+      return buildingStatus;
     }
 
     internal void FinishBuild()
     {
-      if (!this.buildingStatus)
+      if (!buildingStatus)
         return;
       bool flag = false;
-      bool isTemporary = this.IsTemporary;
+      bool isTemporary = IsTemporary;
       try
       {
-        this.OnFinishBuild();
-        this.FlushStorageVersion();
+        OnFinishBuild();
+        FlushStorageVersion();
         flag = true;
       }
       finally
       {
-        this.FinalizeChanges(!flag, isTemporary);
+        FinalizeChanges(!flag, isTemporary);
         if (flag)
-          this.RegisterRowset();
+          RegisterRowset();
       }
-      this.MinimizeMemoryCache(false);
+      MinimizeMemoryCache(false);
     }
 
     internal void RegisterInDatabase()
     {
-      if (!this.buildingStatus || this.WrapperDatabase == null)
+      if (!buildingStatus || WrapperDatabase == null)
         return;
-      this.WrapperDatabase.RegisterIndex(this);
+      WrapperDatabase.RegisterIndex(this);
     }
 
     internal void RegisterInDatabase(bool justResetBuildStatus)
     {
-      if (!this.buildingStatus)
+      if (!buildingStatus)
         return;
-      this.buildingStatus = false;
-      if (justResetBuildStatus || this.WrapperDatabase == null || this.WrapperDatabase == null)
+      buildingStatus = false;
+      if (justResetBuildStatus || WrapperDatabase == null || WrapperDatabase == null)
         return;
-      this.WrapperDatabase.RegisterIndex(this);
+      WrapperDatabase.RegisterIndex(this);
     }
 
     protected virtual void OnCreatePCode()
     {
-      this.SetParser(this.ParentRowset.WrapperDatabase.SqlKeyParser);
-      this.keyPcode = this.Parser.Compile(this.KeyExpression, (DataStorage) this.ParentRowset, false, false, this.CaseSensitive, (EvalStack) null);
-      if (this.keyPcode == null)
-        throw new VistaDBException(282, this.keyExpression);
-      if (this.ParentRowset != null)
-        this.ParentRowset.SatelliteRow.InitTop();
-      this.keyPcode.Exec(this.ParentRowset.SatelliteRow, this.CreateEmptyRowInstance());
+      SetParser(ParentRowset.WrapperDatabase.SqlKeyParser);
+      keyPcode = Parser.Compile(KeyExpression, (DataStorage) ParentRowset, false, false, CaseSensitive, (EvalStack) null);
+      if (keyPcode == null)
+        throw new VistaDBException(282, keyExpression);
+      if (ParentRowset != null)
+        ParentRowset.SatelliteRow.InitTop();
+      keyPcode.Exec(ParentRowset.SatelliteRow, CreateEmptyRowInstance());
     }
 
     protected virtual bool IsDescendKeyColumn(int index)
     {
-      return this.CurrentRow[index].Descending;
+      return CurrentRow[index].Descending;
     }
 
     protected virtual void OnEvaluateSpoolKey(bool forceOutput)
     {
-      Row currentRow = this.ParentRowset.CurrentRow;
+      Row currentRow = ParentRowset.CurrentRow;
       try
       {
-        this.KeyPCode.Exec(currentRow, this.CreateEmptyRowInstance(this.BottomRow.Count));
+        KeyPCode.Exec(currentRow, CreateEmptyRowInstance(BottomRow.Count));
       }
       catch (Exception ex)
       {
-        throw new VistaDBException(ex, 307, new string(this.KeyPCode.Expression));
+        throw new VistaDBException(ex, 307, new string(KeyPCode.Expression));
       }
-      this.spool.PushKey(this.KeyPCode.EvaluatedRow, forceOutput);
+      spool.PushKey(KeyPCode.EvaluatedRow, forceOutput);
     }
 
     internal virtual void OnStartBuild(uint maxKeyCount, ref int expectedKeyLen)
     {
-      this.CloseStorage();
-      StorageHandle.StorageMode accessMode = this.ParentRowset.Handle.Mode;
-      bool commit = this.Header.Temporary && !this.WrapperDatabase.IsTemporary;
+      CloseStorage();
+      StorageHandle.StorageMode accessMode = ParentRowset.Handle.Mode;
+      bool commit = Header.Temporary && !WrapperDatabase.IsTemporary;
       if (commit)
       {
         accessMode = new StorageHandle.StorageMode(FileMode.CreateNew, false, false, accessMode.Access | FileAccess.Write, false, accessMode.IsolatedStorage);
         accessMode.Temporary = true;
       }
-      ulong headerPosition = commit ? 0UL : this.WrapperDatabase.GetFreeCluster(1);
-      this.CreateStorage(accessMode, headerPosition, commit);
-      this.InitSpool(maxKeyCount, ref expectedKeyLen);
+      ulong headerPosition = commit ? 0UL : WrapperDatabase.GetFreeCluster(1);
+      CreateStorage(accessMode, headerPosition, commit);
+      InitSpool(maxKeyCount, ref expectedKeyLen);
     }
 
     internal virtual void OnFinishBuild()
     {
-      bool flag = !this.IsSparse;
-      this.CurrentRow.RowId = 0U;
-      using (this.spool)
+      bool flag = !IsSparse;
+      CurrentRow.RowId = 0U;
+      using (spool)
       {
-        this.spool.Sort();
-        Row row = this.BottomRow;
-        bool isUnique = this.IsUnique;
-        bool isPrimary = this.IsPrimary;
-        bool isFts = this.IsFts;
+        spool.Sort();
+        Row row = BottomRow;
+        bool isUnique = IsUnique;
+        bool isPrimary = IsPrimary;
+        bool isFts = IsFts;
         int num = 0;
-        int keyCount = this.spool.KeyCount;
+        int keyCount = spool.KeyCount;
         while (num < keyCount)
         {
-          Row key = this.spool.PopKey();
-          if (isUnique && num > 0 && key.EqualColumns(row, this.IsClustered))
+          Row key = spool.PopKey();
+          if (isUnique && num > 0 && key.EqualColumns(row, IsClustered))
           {
             if (flag)
-              throw new VistaDBException(309, this.Alias + ": " + row.ToString());
+              throw new VistaDBException(309, Alias + ": " + row.ToString());
           }
           else
           {
-            if (isPrimary && this.ContainsNulls(key))
-              throw new VistaDBException(142, this.Alias + ": " + key.ToString());
+            if (isPrimary && ContainsNulls(key))
+              throw new VistaDBException(142, Alias + ": " + key.ToString());
             if (!isFts || num <= 0 || key - row != 0)
-              this.Tree.AppendLeafKey(key);
+              Tree.AppendLeafKey(key);
           }
           ++num;
           row = key;
         }
-        this.Tree.FinalizeAppending();
+        Tree.FinalizeAppending();
       }
     }
 
     protected override Row DoAllocateCurrentRow()
     {
-      return this.KeyPCode.EvaluatedRow.CopyInstance();
+      return KeyPCode.EvaluatedRow.CopyInstance();
     }
 
     protected override Row DoAllocateCachedPkInstance()
     {
-      return this.KeyPCode.EvaluatedRow.CopyInstance();
+      return KeyPCode.EvaluatedRow.CopyInstance();
     }
 
     protected override void OnDeclareNewStorage(object hint)
     {
       if (hint == null)
-        throw new VistaDBException(133, this.Alias);
+        throw new VistaDBException(133, Alias);
       IVistaDBIndexInformation indexInformation = (IVistaDBIndexInformation) hint;
-      Index.Type type = Index.Type.Standard;
+            Type type = Type.Standard;
       bool fullTextSearch = indexInformation.FullTextSearch;
       if (fullTextSearch)
-        type |= Index.Type.Fts;
+        type |= Type.Fts;
       if (indexInformation.Primary)
-        type |= Index.Type.PrimaryKey;
+        type |= Type.PrimaryKey;
       if (indexInformation.FKConstraint)
-        type |= Index.Type.ForeignKey;
+        type |= Type.ForeignKey;
       if (indexInformation.Unique)
-        type |= Index.Type.Unique;
+        type |= Type.Unique;
       if (((Table.TableSchema.IndexCollection.IndexInformation) indexInformation).Sparse)
-        type = type | Index.Type.Sparse | Index.Type.Unique;
+        type = type | Type.Sparse | Type.Unique;
       if (indexInformation.Temporary)
-        type |= Index.Type.Temporary;
-      if (this.ParentRowset.WrapperDatabase.CaseSensitive)
-        type |= Index.Type.Sensitive;
-      this.Header.Signature = (uint) type;
-      this.Header.Descend = false;
-      this.CreatePCode();
-      List<Row.Column> columnList = this.KeyPCode.EnumColumns();
+        type |= Type.Temporary;
+      if (ParentRowset.WrapperDatabase.CaseSensitive)
+        type |= Type.Sensitive;
+      Header.Signature = (uint) type;
+      Header.Descend = false;
+      CreatePCode();
+      List<Row.Column> columnList = KeyPCode.EnumColumns();
       if (columnList.Count > (int) byte.MaxValue)
-        throw new VistaDBException(149, this.keyExpression);
+        throw new VistaDBException(149, keyExpression);
       foreach (Row.Column column in columnList)
       {
         if (fullTextSearch && column.InternalType != VistaDBType.NChar || column.InternalType == VistaDBType.VarBinary)
           throw new VistaDBException(150, column.Name);
       }
-      this.buildingStatus = true;
+      buildingStatus = true;
     }
 
     protected override StorageHandle OnAttachLockStorage(ulong headerPosition)
     {
-      return this.Handle;
+      return Handle;
     }
 
     protected override void OnOpenStorage(StorageHandle.StorageMode openMode, ulong headerPosition)
     {
       base.OnOpenStorage(openMode, headerPosition);
-      this.RegisterRowset();
+      RegisterRowset();
     }
 
     protected override StorageHeader DoCreateHeaderInstance(int pageSize, CultureInfo culture, DataStorage clonedStorage)
     {
       if (clonedStorage != null)
         return base.DoCreateHeaderInstance(pageSize, culture, clonedStorage);
-      return (StorageHeader) RowsetIndex.RowsetIndexHeader.CreateHeaderInstance((DataStorage) this, this.ParentRowset.PageSize, this.ParentRowset.Culture);
+      return (StorageHeader)RowsetIndexHeader.CreateHeaderInstance((DataStorage) this, ParentRowset.PageSize, ParentRowset.Culture);
     }
 
     protected override void OnActivateHeader(ulong position)
     {
       base.OnActivateHeader(position);
-      this.CreatePCode();
+      CreatePCode();
     }
 
     protected override void OnCloseStorage()
     {
-      this.UnregisterRowset();
+      UnregisterRowset();
       base.OnCloseStorage();
     }
 
     protected override bool DoAfterDeleteLinkFrom(DataStorage storage, bool deleted)
     {
-      if (storage != this.ParentRowset)
+      if (storage != ParentRowset)
         return base.DoAfterDeleteLinkFrom(storage, deleted);
       return true;
     }
 
     protected override void OnSynch(int asynchCounter)
     {
-      bool flag = asynchCounter != 0 && this.ParentRowset.PostponedSynchronization;
+      bool flag = asynchCounter != 0 && ParentRowset.PostponedSynchronization;
       if (flag)
-        this.FreezeRelationships();
+        FreezeRelationships();
       try
       {
         base.OnSynch(asynchCounter);
@@ -410,38 +409,38 @@ namespace VistaDB.Engine.Core.Indexing
       finally
       {
         if (flag)
-          this.DefreezeRelationships();
+          DefreezeRelationships();
       }
     }
 
     protected override void OnTop()
     {
-      this.ParentRowset.EndOfSet = false;
-      this.ParentRowset.BgnOfSet = false;
+      ParentRowset.EndOfSet = false;
+      ParentRowset.BgnOfSet = false;
       base.OnTop();
     }
 
     protected override void OnBottom()
     {
-      this.ParentRowset.EndOfSet = false;
-      this.ParentRowset.BgnOfSet = false;
+      ParentRowset.EndOfSet = false;
+      ParentRowset.BgnOfSet = false;
       base.OnBottom();
     }
 
-    protected override bool OnSetScope(Row lowValue, Row highValue, DataStorage.ScopeType scopes, bool exactMatching)
+    protected override bool OnSetScope(Row lowValue, Row highValue, ScopeType scopes, bool exactMatching)
     {
       return base.OnSetScope(lowValue, highValue, scopes, exactMatching);
     }
 
     protected override bool OnAssumeLink(Relationships.Relation link, bool toModify)
     {
-      this.LockStorage();
+      LockStorage();
       return true;
     }
 
     protected override bool OnResumeLink(Relationships.Relation link, bool toModify)
     {
-      this.UnlockStorage(!toModify);
+      UnlockStorage(!toModify);
       return true;
     }
 
@@ -457,25 +456,25 @@ namespace VistaDB.Engine.Core.Indexing
 
     protected override bool DoUpdateLinkFrom(DataStorage externalStorage, Relationships.Type type, Row oldKey, Row newKey)
     {
-      this.SavePrimaryKey(oldKey);
+      SavePrimaryKey(oldKey);
       if ((int) oldKey.RowVersion == (int) newKey.RowVersion && oldKey.EqualColumns(newKey, false) && !newKey.EditedExtensions)
       {
-        this.NoKeyUpdate = true;
+        NoKeyUpdate = true;
         return true;
       }
-      this.NoKeyUpdate = false;
+      NoKeyUpdate = false;
       return base.DoUpdateLinkFrom(externalStorage, type, oldKey, newKey);
     }
 
     protected override bool DoCreateLinkFrom(DataStorage externalStorage, Relationships.Type type, Row newRow)
     {
-      this.SavePrimaryKey(newRow);
+      SavePrimaryKey(newRow);
       return base.DoCreateLinkFrom(externalStorage, type, newRow);
     }
 
     protected override bool DoDeleteLinkFrom(DataStorage externalStorage, Relationships.Type type, Row row)
     {
-      this.SavePrimaryKey(row);
+      SavePrimaryKey(row);
       return base.DoDeleteLinkFrom(externalStorage, type, row);
     }
 
@@ -483,26 +482,26 @@ namespace VistaDB.Engine.Core.Indexing
     {
       try
       {
-        EvalStack evalStack = this.ParentRowset.WrapperDatabase.Parser.Compile(keyEvaluationExpression, (DataStorage) this.ParentRowset, false, false, this.CaseSensitive, this.findEvaluator);
-        if (this.findEvaluator == null)
-          this.findEvaluator = evalStack;
-        if (evalStack != this.findEvaluator)
+        EvalStack evalStack = ParentRowset.WrapperDatabase.Parser.Compile(keyEvaluationExpression, (DataStorage) ParentRowset, false, false, CaseSensitive, findEvaluator);
+        if (findEvaluator == null)
+          findEvaluator = evalStack;
+        if (evalStack != findEvaluator)
           return (Row) null;
-        Row contextRow = this.ParentRowset.CurrentRow.CopyInstance();
-        List<Row.Column> columnList = this.KeyPCode.EnumColumns();
+        Row contextRow = ParentRowset.CurrentRow.CopyInstance();
+        List<Row.Column> columnList = KeyPCode.EnumColumns();
         int index = 0;
         for (int count = columnList.Count; index < count; ++index)
         {
           Row.Column column = columnList[index];
-          contextRow[column.RowIndex].Descending = this.CurrentRow[index].Descending;
+          contextRow[column.RowIndex].Descending = CurrentRow[index].Descending;
         }
         if (initTop)
           contextRow.InitTop();
         else
           contextRow.InitBottom();
         evalStack.Exec(contextRow);
-        this.KeyPCode.Exec(contextRow, this.CreateEmptyRowInstance());
-        return this.KeyPCode.EvaluatedRow;
+        KeyPCode.Exec(contextRow, CreateEmptyRowInstance());
+        return KeyPCode.EvaluatedRow;
       }
       catch (Exception ex)
       {
@@ -515,7 +514,7 @@ namespace VistaDB.Engine.Core.Indexing
       if (base.OnSeekRow(row, partialMatching))
         return true;
       if (partialMatching)
-        return this.PartialKeyFound(row);
+        return PartialKeyFound(row);
       return false;
     }
 
@@ -524,14 +523,14 @@ namespace VistaDB.Engine.Core.Indexing
       foreach (Row.Column column in (List<Row.Column>) patternRow)
       {
         int rowIndex = column.RowIndex;
-        Row.Column b = this.CurrentRow[rowIndex];
+        Row.Column b = CurrentRow[rowIndex];
         long num = (long) column.MinusColumn(b);
         if (rowIndex == 0)
         {
           if (num != 0L)
           {
             if (b.InternalType == VistaDBType.NChar && !b.IsNull && !column.IsNull)
-              return ((string) b.Value).StartsWith((string) column.Value, !this.CaseSensitive, this.Culture);
+              return ((string) b.Value).StartsWith((string) column.Value, !CaseSensitive, Culture);
             return false;
           }
         }
@@ -543,17 +542,17 @@ namespace VistaDB.Engine.Core.Indexing
 
     protected override void OnCleanUpDiskSpace(bool commit)
     {
-      if (this.WrapperDatabase == null)
+      if (WrapperDatabase == null)
         return;
-      this.WrapperDatabase.LockStorage();
+      WrapperDatabase.LockStorage();
       try
       {
-        this.Tree.CleanUpNodeSpace(this.Tree.RootNode, true);
-        this.Tree.Modified = false;
+        Tree.CleanUpNodeSpace(Tree.RootNode, true);
+        Tree.Modified = false;
       }
       finally
       {
-        this.WrapperDatabase.UnlockStorage(false);
+        WrapperDatabase.UnlockStorage(false);
       }
     }
 
@@ -561,19 +560,19 @@ namespace VistaDB.Engine.Core.Indexing
     {
       get
       {
-        return this.ParentRowset.SuppressErrors;
+        return ParentRowset.SuppressErrors;
       }
       set
       {
-        this.ParentRowset.SuppressErrors = value;
+        ParentRowset.SuppressErrors = value;
       }
     }
 
     internal override bool DoCheckIfRelated(EvalStack fkEvaluator)
     {
-      if (!this.IsPrimary)
+      if (!IsPrimary)
         return false;
-      List<Row.Column> columnList1 = this.KeyPCode.EnumColumns();
+      List<Row.Column> columnList1 = KeyPCode.EnumColumns();
       List<Row.Column> columnList2 = fkEvaluator.EnumColumns();
       if (columnList1.Count != columnList2.Count)
         return false;
@@ -588,9 +587,9 @@ namespace VistaDB.Engine.Core.Indexing
 
     internal override bool DoCheckIfSame(EvalStack fkEvaluator)
     {
-      if (!this.IsPrimary)
+      if (!IsPrimary)
         return false;
-      List<Row.Column> columnList1 = this.KeyPCode.EnumColumns();
+      List<Row.Column> columnList1 = KeyPCode.EnumColumns();
       List<Row.Column> columnList2 = fkEvaluator.EnumColumns();
       try
       {
@@ -625,48 +624,48 @@ namespace VistaDB.Engine.Core.Indexing
 
     internal override bool DoCheckLinkedForeignKey(string primaryTable)
     {
-      Row satelliteRow = this.SatelliteRow;
-      if (this.ContainsNulls(satelliteRow) || this.ParentRowset.IsUpdateOperation && this.NoKeyUpdate)
+      Row satelliteRow = SatelliteRow;
+      if (ContainsNulls(satelliteRow) || ParentRowset.IsUpdateOperation && NoKeyUpdate)
         return true;
       Row key = satelliteRow.CopyInstance();
       key.RowId = 0U;
-      return this.WrapperDatabase.LookForReferencedKey(this.ParentRowset, key, primaryTable, (string) null);
+      return WrapperDatabase.LookForReferencedKey(ParentRowset, key, primaryTable, (string) null);
     }
 
     internal override bool DoCheckUnlinkedPrimaryKey(string foreignKeyTable, string foreignKeyIndex, VistaDBReferentialIntegrity integrity)
     {
-      bool isUpdateOperation = this.ParentRowset.IsUpdateOperation;
-      if (isUpdateOperation && this.NoKeyUpdate)
+      bool isUpdateOperation = ParentRowset.IsUpdateOperation;
+      if (isUpdateOperation && NoKeyUpdate)
         return true;
       if (integrity == VistaDBReferentialIntegrity.None)
       {
-        Row key = this.CurrentPrimaryKey.CopyInstance();
+        Row key = CurrentPrimaryKey.CopyInstance();
         key.RowId = 0U;
         key.RowVersion = 0U;
-        return !this.WrapperDatabase.LookForReferencedKey(this.ParentRowset, key, foreignKeyTable, foreignKeyIndex);
+        return !WrapperDatabase.LookForReferencedKey(ParentRowset, key, foreignKeyTable, foreignKeyIndex);
       }
-      this.WrapperDatabase.ModifyForeignTable(isUpdateOperation, (Index) this, foreignKeyTable, foreignKeyIndex, integrity);
+      WrapperDatabase.ModifyForeignTable(isUpdateOperation, (Index) this, foreignKeyTable, foreignKeyIndex, integrity);
       return true;
     }
 
     protected override void Destroy()
     {
-      if (this.spool != null)
+      if (spool != null)
       {
-        this.spool.Dispose();
-        this.spool = (SortSpool) null;
+        spool.Dispose();
+        spool = (SortSpool) null;
       }
-      this.findEvaluator = (EvalStack) null;
-      this.keyPcode = (EvalStack) null;
+      findEvaluator = (EvalStack) null;
+      keyPcode = (EvalStack) null;
       base.Destroy();
-      this.rowSet = (ClusteredRowset) null;
+      rowSet = (ClusteredRowset) null;
     }
 
     internal override uint TransactionId
     {
       get
       {
-        return this.ParentRowset.TransactionId;
+        return ParentRowset.TransactionId;
       }
     }
 
@@ -674,7 +673,7 @@ namespace VistaDB.Engine.Core.Indexing
     {
       get
       {
-        return this.ParentRowset.TpIsolationLevel;
+        return ParentRowset.TpIsolationLevel;
       }
       set
       {
@@ -685,13 +684,13 @@ namespace VistaDB.Engine.Core.Indexing
     {
       get
       {
-        return this.ParentRowset.RowCount;
+        return ParentRowset.RowCount;
       }
     }
 
     internal override TpStatus DoGettingAnotherTransactionStatus(uint transactionId)
     {
-      return this.ParentRowset.DoGettingAnotherTransactionStatus(transactionId);
+      return ParentRowset.DoGettingAnotherTransactionStatus(transactionId);
     }
 
     internal override void DoIncreaseRowCount()
@@ -706,15 +705,15 @@ namespace VistaDB.Engine.Core.Indexing
     {
     }
 
-    internal class RowsetIndexHeader : Index.IndexHeader
-    {
-      internal static RowsetIndex.RowsetIndexHeader CreateHeaderInstance(DataStorage parentStorage, int pageSize, CultureInfo culture)
+    internal class RowsetIndexHeader : IndexHeader
+        {
+      internal static RowsetIndexHeader CreateHeaderInstance(DataStorage parentStorage, int pageSize, CultureInfo culture)
       {
-        return new RowsetIndex.RowsetIndexHeader(parentStorage, pageSize, culture);
+        return new RowsetIndexHeader(parentStorage, pageSize, culture);
       }
 
       private RowsetIndexHeader(DataStorage parentIndex, int pageSize, CultureInfo culture)
-        : base(parentIndex, VistaDB.Engine.Core.Header.HeaderId.INDEX_HEADER, Index.Type.Standard, pageSize, culture)
+        : base(parentIndex, HeaderId.INDEX_HEADER, Type.Standard, pageSize, culture)
       {
       }
     }

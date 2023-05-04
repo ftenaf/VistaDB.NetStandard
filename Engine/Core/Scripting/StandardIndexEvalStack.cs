@@ -15,32 +15,32 @@ namespace VistaDB.Engine.Core.Scripting
 
     internal override void Exec(Row contextRow, Row targetResult)
     {
-      if (this.patternKey == null)
+      if (patternKey == null)
       {
         base.Exec(contextRow, targetResult);
-        this.patternKey = this.EvaluatedRow.CopyInstance();
-        this.map = this.EnumColumns();
+        patternKey = EvaluatedRow.CopyInstance();
+        map = EnumColumns();
       }
       else
       {
-        this.rowResult = targetResult;
+        rowResult = targetResult;
         targetResult.CopyMetaData(contextRow);
         if (targetResult.Count > 0)
         {
-          for (int index = 0; index < this.patternKey.Count; ++index)
+          for (int index = 0; index < patternKey.Count; ++index)
           {
-            Row.Column srcColumn = contextRow[this.map[index].RowIndex];
+            Row.Column srcColumn = contextRow[map[index].RowIndex];
             Row.Column column = targetResult[index];
             column.CreateFullCopy(srcColumn);
-            column.Descending = this.patternKey[index].Descending;
+            column.Descending = patternKey[index].Descending;
           }
         }
         else
         {
-          for (int index = 0; index < this.patternKey.Count; ++index)
+          for (int index = 0; index < patternKey.Count; ++index)
           {
-            Row.Column column = contextRow[this.map[index].RowIndex].Duplicate(false);
-            column.Descending = this.patternKey[index].Descending;
+            Row.Column column = contextRow[map[index].RowIndex].Duplicate(false);
+            column.Descending = patternKey[index].Descending;
             column.RowIndex = index;
             targetResult.AppendColumn((IColumn) column);
           }

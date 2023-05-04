@@ -15,131 +15,131 @@ namespace VistaDB.Engine.SQL.Signatures
     public LikeOperator(Signature expression, SQLParser parser)
       : base(parser)
     {
-      this.signatureType = SignatureType.Expression;
-      this.dataType = VistaDBType.Bit;
+      signatureType = SignatureType.Expression;
+      dataType = VistaDBType.Bit;
       this.expression = expression;
-      this.finder = (PatternFinder) null;
-      this.exprResult = (IColumn) null;
-      this.pattern = parser.NextSignature(true, true, 2);
+      finder = (PatternFinder) null;
+      exprResult = (IColumn) null;
+      pattern = parser.NextSignature(true, true, 2);
       if (parser.IsToken("ESCAPE"))
       {
         parser.SkipToken(true);
         if (parser.TokenValue.TokenType != TokenType.String)
-          throw new VistaDBSQLException(553, "", this.lineNo, this.symbolNo);
-        this.escapeCharacter = parser.TokenValue.Token;
-        if (this.escapeCharacter.Length != 1)
-          throw new VistaDBSQLException(553, "", this.lineNo, this.symbolNo);
+          throw new VistaDBSQLException(553, "", lineNo, symbolNo);
+        escapeCharacter = parser.TokenValue.Token;
+        if (escapeCharacter.Length != 1)
+          throw new VistaDBSQLException(553, "", lineNo, symbolNo);
         parser.SkipToken(false);
       }
       else
-        this.escapeCharacter = (string) null;
+        escapeCharacter = (string) null;
     }
 
     public override SignatureType OnPrepare()
     {
-      this.expression = ConstantSignature.PrepareAndCheckConstant(this.expression, VistaDBType.NChar);
-      if (!Utils.CompatibleTypes(this.expression.DataType, VistaDBType.NChar))
-        throw new VistaDBSQLException(559, "", this.lineNo, this.symbolNo);
-      if (!Utils.IsCharacterDataType(this.expression.DataType))
-        this.exprResult = this.CreateColumn(VistaDBType.NChar);
-      this.pattern = ConstantSignature.PrepareAndCheckConstant(this.pattern, VistaDBType.NChar);
-      if (!Utils.CompatibleTypes(this.pattern.DataType, VistaDBType.NChar))
-        throw new VistaDBSQLException(552, "", this.pattern.LineNo, this.pattern.SymbolNo);
-      this.CalcOptimizeLevel();
-      if (this.expression.SignatureType == SignatureType.Constant && this.pattern.SignatureType == SignatureType.Constant || (this.expression.AlwaysNull || this.pattern.AlwaysNull))
+      expression = ConstantSignature.PrepareAndCheckConstant(expression, VistaDBType.NChar);
+      if (!Utils.CompatibleTypes(expression.DataType, VistaDBType.NChar))
+        throw new VistaDBSQLException(559, "", lineNo, symbolNo);
+      if (!Utils.IsCharacterDataType(expression.DataType))
+        exprResult = CreateColumn(VistaDBType.NChar);
+      pattern = ConstantSignature.PrepareAndCheckConstant(pattern, VistaDBType.NChar);
+      if (!Utils.CompatibleTypes(pattern.DataType, VistaDBType.NChar))
+        throw new VistaDBSQLException(552, "", pattern.LineNo, pattern.SymbolNo);
+      CalcOptimizeLevel();
+      if (expression.SignatureType == SignatureType.Constant && pattern.SignatureType == SignatureType.Constant || (expression.AlwaysNull || pattern.AlwaysNull))
         return SignatureType.Constant;
-      return this.signatureType;
+      return signatureType;
     }
 
     protected override bool OnOptimize(ConstraintOperations constrainOperations)
     {
       int chunkCount;
-      if (!this.CreatePattern() || this.finder.GetOptimizationLevel(out chunkCount) != OptimizationLevel.Full)
+      if (!CreatePattern() || finder.GetOptimizationLevel(out chunkCount) != OptimizationLevel.Full)
         return false;
       Signature low;
       Signature high;
-      this.finder.GetOptimizationScopeSignatures(this.parent, out low, out high);
+      finder.GetOptimizationScopeSignatures(parent, out low, out high);
       if (chunkCount > 1)
-        return constrainOperations.AddLogicalBetween((ColumnSignature) this.expression, low, high, false);
-      return constrainOperations.AddLogicalCompare(this.expression, low, CompareOperation.Equal, CompareOperation.Equal, false);
+        return constrainOperations.AddLogicalBetween((ColumnSignature) expression, low, high, false);
+      return constrainOperations.AddLogicalCompare(expression, low, CompareOperation.Equal, CompareOperation.Equal, false);
     }
 
     protected override IColumn InternalExecute()
     {
-      if (!this.AlwaysNull && this.GetIsChanged())
+      if (!AlwaysNull && GetIsChanged())
       {
-        IColumn column = this.expression.Execute();
-        if (!this.CreatePattern())
+        IColumn column = expression.Execute();
+        if (!CreatePattern())
         {
-          ((IValue) this.result).Value = (object) false;
+          ((IValue) result).Value = (object) false;
         }
         else
         {
           string matchExpr;
-          if (this.exprResult != null)
+          if (exprResult != null)
           {
-            this.Convert((IValue) column, (IValue) this.exprResult);
-            matchExpr = (string) ((IValue) this.exprResult).Value;
+            Convert((IValue) column, (IValue) exprResult);
+            matchExpr = (string) ((IValue) exprResult).Value;
           }
           else
             matchExpr = (string) ((IValue) column).Value;
 			result.Value = column.IsNull ? false : (Compare(matchExpr) ? true : false);
         }
       }
-      return this.result;
+      return result;
     }
 
     protected virtual bool Compare(string matchExpr)
     {
-      return this.finder.CompareWithRegEx(matchExpr) > 0;
+      return finder.CompareWithRegEx(matchExpr) > 0;
     }
 
     protected override bool IsEquals(Signature signature)
     {
-      if (signature.GetType() != this.GetType())
+      if (signature.GetType() != GetType())
         return false;
       LikeOperator likeOperator = (LikeOperator) signature;
-      if (this.expression == likeOperator.expression && this.pattern == likeOperator.pattern)
-        return this.parent.Connection.CompareString(this.escapeCharacter, likeOperator.escapeCharacter, true) == 0;
+      if (expression == likeOperator.expression && pattern == likeOperator.pattern)
+        return parent.Connection.CompareString(escapeCharacter, likeOperator.escapeCharacter, true) == 0;
       return false;
     }
 
     protected override void RelinkParameters(Signature signature, ref int columnCount)
     {
-      this.expression = this.expression.Relink(signature, ref columnCount);
-      this.pattern = this.expression.Relink(signature, ref columnCount);
+      expression = expression.Relink(signature, ref columnCount);
+      pattern = expression.Relink(signature, ref columnCount);
     }
 
     public override void SetChanged()
     {
-      this.expression.SetChanged();
-      this.pattern.SetChanged();
+      expression.SetChanged();
+      pattern.SetChanged();
     }
 
     public override void ClearChanged()
     {
-      this.expression.ClearChanged();
-      this.pattern.ClearChanged();
+      expression.ClearChanged();
+      pattern.ClearChanged();
     }
 
     protected override bool InternalGetIsChanged()
     {
-      if (!this.expression.GetIsChanged())
-        return this.pattern.GetIsChanged();
+      if (!expression.GetIsChanged())
+        return pattern.GetIsChanged();
       return true;
     }
 
     public override void GetAggregateFunctions(List<AggregateFunction> list)
     {
-      this.expression.GetAggregateFunctions(list);
-      this.pattern.GetAggregateFunctions(list);
+      expression.GetAggregateFunctions(list);
+      pattern.GetAggregateFunctions(list);
     }
 
     public override int ColumnCount
     {
       get
       {
-        return this.expression.ColumnCount + this.pattern.ColumnCount;
+        return expression.ColumnCount + pattern.ColumnCount;
       }
     }
 
@@ -147,7 +147,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       bool distinct1;
       bool distinct2;
-      bool flag = this.expression.HasAggregateFunction(out distinct1) | this.expression.HasAggregateFunction(out distinct2);
+      bool flag = expression.HasAggregateFunction(out distinct1) | expression.HasAggregateFunction(out distinct2);
       distinct = distinct1 || distinct2;
       return flag;
     }
@@ -156,8 +156,8 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        if (!this.expression.AlwaysNull)
-          return this.pattern.AlwaysNull;
+        if (!expression.AlwaysNull)
+          return pattern.AlwaysNull;
         return true;
       }
     }
@@ -166,29 +166,29 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        if (!this.expression.IsNull)
-          return this.pattern.IsNull;
+        if (!expression.IsNull)
+          return pattern.IsNull;
         return true;
       }
     }
 
     private void CalcOptimizeLevel()
     {
-      if (this.expression.SignatureType != SignatureType.Column)
+      if (expression.SignatureType != SignatureType.Column)
       {
-        this.optimizable = false;
+        optimizable = false;
       }
       else
       {
-        switch (this.pattern.SignatureType)
+        switch (pattern.SignatureType)
         {
           case SignatureType.Constant:
           case SignatureType.Parameter:
           case SignatureType.ExternalColumn:
-            this.optimizable = true;
+            optimizable = true;
             break;
           default:
-            this.optimizable = false;
+            optimizable = false;
             break;
         }
       }
@@ -197,7 +197,7 @@ namespace VistaDB.Engine.SQL.Signatures
     protected bool CreatePattern()
     {
       if (!this.pattern.GetIsChanged())
-        return this.finder != null;
+        return finder != null;
       this.pattern.Execute();
       if (this.pattern.Result.IsNull)
         return false;
@@ -208,11 +208,11 @@ namespace VistaDB.Engine.SQL.Signatures
       }
       else
       {
-        IColumn column = this.CreateColumn(VistaDBType.NChar);
-        this.Convert((IValue) this.pattern.Result, (IValue) column);
+        IColumn column = CreateColumn(VistaDBType.NChar);
+        Convert((IValue) this.pattern.Result, (IValue) column);
         pattern = (string) ((IValue) column).Value;
       }
-      this.finder = new PatternFinder(this.pattern.LineNo, this.pattern.SymbolNo, pattern, this.escapeCharacter, this.parent.Connection);
+      finder = new PatternFinder(this.pattern.LineNo, this.pattern.SymbolNo, pattern, escapeCharacter, parent.Connection);
       return true;
     }
   }

@@ -122,13 +122,13 @@ namespace VistaDB.Engine.SQL
 
     public DataTable GetSchemaTable()
     {
-      if (this.schema != null)
-        return this.schema;
-      this.schema = BaseSelectStatement.GetSchemaTableInstance();
-      this.schema.BeginLoadData();
-      foreach (Row.Column column in (List<Row.Column>) this.patternRow)
+      if (schema != null)
+        return schema;
+      schema = BaseSelectStatement.GetSchemaTableInstance();
+      schema.BeginLoadData();
+      foreach (Row.Column column in (List<Row.Column>) patternRow)
       {
-        DataRow row = this.schema.NewRow();
+        DataRow row = schema.NewRow();
         row["ColumnName"] = (object) column.Name;
         row["ColumnOrdinal"] = (object) column.RowIndex;
         row["ColumnSize"] = (object) column.MaxLength;
@@ -152,18 +152,18 @@ namespace VistaDB.Engine.SQL
         row["IsReadOnly"] = (object) true;
         row["ProviderSpecificDataType"] = (object) column.SystemType;
         row["DataTypeName"] = (object) column.InternalType.ToString();
-        this.schema.Rows.Add(row);
+        schema.Rows.Add(row);
       }
-      this.schema.AcceptChanges();
-      this.schema.EndLoadData();
-      return this.schema;
+      schema.AcceptChanges();
+      schema.EndLoadData();
+      return schema;
     }
 
     public int ColumnCount
     {
       get
       {
-        return this.patternRow.Count;
+        return patternRow.Count;
       }
     }
   }

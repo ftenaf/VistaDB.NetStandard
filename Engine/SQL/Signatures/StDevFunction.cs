@@ -15,45 +15,45 @@ namespace VistaDB.Engine.SQL.Signatures
     public StDevFunction(SQLParser parser)
       : base(parser, false)
     {
-      this.srcValue = (IColumn) null;
-      this.dstValue = (IColumn) null;
-      this.squareSum = 0.0;
-      this.sum = 0.0;
-      this.count = 0L;
-      this.dataType = VistaDBType.Float;
+      srcValue = (IColumn) null;
+      dstValue = (IColumn) null;
+      squareSum = 0.0;
+      sum = 0.0;
+      count = 0L;
+      dataType = VistaDBType.Float;
     }
 
     public override SignatureType OnPrepare()
     {
       SignatureType signatureType = base.OnPrepare();
-      if (!Utils.CompatibleTypes(this.dataType, this.expression.DataType))
-        throw new VistaDBSQLException(550, "STDEV", this.lineNo, this.symbolNo);
-      this.srcValue = this.CreateColumn(this.expression.DataType);
-      this.dstValue = this.CreateColumn(this.dataType);
+      if (!Utils.CompatibleTypes(dataType, expression.DataType))
+        throw new VistaDBSQLException(550, "STDEV", lineNo, symbolNo);
+      srcValue = CreateColumn(expression.DataType);
+      dstValue = CreateColumn(dataType);
       return signatureType;
     }
 
     protected override void InternalSerialize(ref object serObj)
     {
-      StDevFunction.SerializedValue serializedValue;
+            SerializedValue serializedValue;
       if (serObj == null)
       {
-        serializedValue = new StDevFunction.SerializedValue();
+        serializedValue = new SerializedValue();
         serObj = (object) serializedValue;
       }
       else
-        serializedValue = (StDevFunction.SerializedValue) serObj;
-      serializedValue.SquareSum = this.squareSum;
-      serializedValue.Sum = this.sum;
-      serializedValue.Count = this.count;
+        serializedValue = (SerializedValue) serObj;
+      serializedValue.SquareSum = squareSum;
+      serializedValue.Sum = sum;
+      serializedValue.Count = count;
     }
 
     protected override void InternalDeserialize(object serObj)
     {
-      StDevFunction.SerializedValue serializedValue = (StDevFunction.SerializedValue) serObj;
-      this.squareSum = serializedValue.SquareSum;
-      this.sum = serializedValue.Sum;
-      this.count = serializedValue.Count;
+            SerializedValue serializedValue = (SerializedValue) serObj;
+      squareSum = serializedValue.SquareSum;
+      sum = serializedValue.Sum;
+      count = serializedValue.Count;
     }
 
     protected override object InternalCreateEmptyResult()
@@ -65,16 +65,16 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       if (newVal == null)
       {
-        this.count = 0L;
-        this.sum = 0.0;
-        this.squareSum = 0.0;
+        count = 0L;
+        sum = 0.0;
+        squareSum = 0.0;
         return (object) null;
       }
-      this.count = 1L;
-      ((IValue) this.srcValue).Value = newVal;
-      this.Convert((IValue) this.srcValue, (IValue) this.dstValue);
-      this.sum = (double) ((IValue) this.dstValue).Value;
-      this.squareSum = this.sum * this.sum;
+      count = 1L;
+      ((IValue) srcValue).Value = newVal;
+      Convert((IValue) srcValue, (IValue) dstValue);
+      sum = (double) ((IValue) dstValue).Value;
+      squareSum = sum * sum;
       return (object) null;
     }
 
@@ -82,20 +82,20 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       if (newVal == null)
         return (object) null;
-      ++this.count;
-      ((IValue) this.srcValue).Value = newVal;
-      this.Convert((IValue) this.srcValue, (IValue) this.dstValue);
-      double num = (double) ((IValue) this.dstValue).Value;
-      this.sum += num;
-      this.squareSum += num * num;
+      ++count;
+      ((IValue) srcValue).Value = newVal;
+      Convert((IValue) srcValue, (IValue) dstValue);
+      double num = (double) ((IValue) dstValue).Value;
+      sum += num;
+      squareSum += num * num;
       return (object) null;
     }
 
     protected override object InternalFinishGroup()
     {
-      if (this.count == 0L)
+      if (count == 0L)
         return (object) null;
-      return (object) Math.Sqrt((this.squareSum - this.sum * this.sum / (double) this.count) / (double) (this.count - 1L));
+      return (object) Math.Sqrt((squareSum - sum * sum / (double) count) / (double) (count - 1L));
     }
 
     private class SerializedValue

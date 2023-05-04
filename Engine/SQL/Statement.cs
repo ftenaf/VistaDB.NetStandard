@@ -31,12 +31,12 @@ namespace VistaDB.Engine.SQL
       this.connection = connection;
       this.parent = parent;
       parser.Parent = this;
-      this.lineNo = parser.TokenValue.RowNo;
-      this.symbolNo = parser.TokenValue.ColNo;
+      lineNo = parser.TokenValue.RowNo;
+      symbolNo = parser.TokenValue.ColNo;
       this.id = id;
-      this.DoBeforeParse();
-      this.Parse(connection, parser);
-      this.DoAfterParse(parser);
+      DoBeforeParse();
+      Parse(connection, parser);
+      DoAfterParse(parser);
     }
 
     private void Parse(LocalSQLConnection connection, SQLParser parser)
@@ -44,11 +44,11 @@ namespace VistaDB.Engine.SQL
       string token = parser.TokenValue.Token;
       try
       {
-        this.OnParse(connection, parser);
+        OnParse(connection, parser);
       }
-      catch (System.Exception ex)
+      catch (Exception ex)
       {
-        throw new VistaDBSQLException(ex, 509, token, this.lineNo, this.symbolNo);
+        throw new VistaDBSQLException(ex, 509, token, lineNo, symbolNo);
       }
     }
 
@@ -60,7 +60,7 @@ namespace VistaDB.Engine.SQL
 
     protected virtual void DoAfterParse(SQLParser parser)
     {
-      this.name = parser.TokenValue.Token;
+      name = parser.TokenValue.Token;
     }
 
     protected abstract VistaDBType OnPrepareQuery();
@@ -69,47 +69,47 @@ namespace VistaDB.Engine.SQL
 
     public virtual void DoSetParam(string paramName, object val, VistaDBType dataType, ParameterDirection direction)
     {
-      this.parent.DoSetParam(paramName, val, dataType, direction);
+      parent.DoSetParam(paramName, val, dataType, direction);
     }
 
     public virtual void DoSetParam(string paramName, IParameter parameter)
     {
-      this.parent.DoSetParam(paramName, parameter);
+      parent.DoSetParam(paramName, parameter);
     }
 
     public virtual IParameter DoGetParam(string paramName)
     {
-      return this.parent.DoGetParam(paramName);
+      return parent.DoGetParam(paramName);
     }
 
     public virtual IParameter DoGetReturnParameter()
     {
-      return this.parent.DoGetReturnParameter();
+      return parent.DoGetReturnParameter();
     }
 
     public virtual CreateTableStatement DoGetTemporaryTableName(string paramName)
     {
-      return this.parent.DoGetTemporaryTableName(paramName);
+      return parent.DoGetTemporaryTableName(paramName);
     }
 
     public virtual WhileStatement DoGetCycleStatement()
     {
-      return this.parent.DoGetCycleStatement();
+      return parent.DoGetCycleStatement();
     }
 
     public virtual void DoRegisterTemporaryTableName(string paramName, CreateTableStatement createTableStatement)
     {
-      this.parent.DoRegisterTemporaryTableName(paramName, createTableStatement);
+      parent.DoRegisterTemporaryTableName(paramName, createTableStatement);
     }
 
     public virtual void DoSetReturnParameter(IParameter param)
     {
-      this.parent.DoSetReturnParameter(param);
+      parent.DoSetReturnParameter(param);
     }
 
     public virtual void DoClearParams()
     {
-      this.parent.DoClearParams();
+      parent.DoClearParams();
     }
 
     public virtual SourceTable GetTableByAlias(string tableAlias)
@@ -164,9 +164,9 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        if (!this.connection.DatabaseOpened)
+        if (!connection.DatabaseOpened)
           throw new VistaDBSQLException(623, "", 0, 0);
-        return this.connection.Database;
+        return connection.Database;
       }
     }
 
@@ -174,7 +174,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.connection;
+        return connection;
       }
     }
 
@@ -182,11 +182,11 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.exception;
+        return exception;
       }
       set
       {
-        this.exception = value;
+        exception = value;
       }
     }
 
@@ -194,10 +194,10 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        if (this.parent is BatchStatement)
-          return this.parent as BatchStatement;
-        if (this.parent != null)
-          return this.parent.Batch;
+        if (parent is BatchStatement)
+          return parent as BatchStatement;
+        if (parent != null)
+          return parent.Batch;
         return (BatchStatement) null;
       }
     }
@@ -206,11 +206,11 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.commandText;
+        return commandText;
       }
       set
       {
-        this.commandText = value;
+        commandText = value;
       }
     }
 
@@ -218,7 +218,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.name;
+        return name;
       }
     }
 
@@ -226,20 +226,20 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.hasDDL;
+        return hasDDL;
       }
     }
 
     public VistaDBType PrepareQuery()
     {
-      if (!this.prepared)
+      if (!prepared)
       {
-        this.prepared = true;
-        return this.OnPrepareQuery();
+        prepared = true;
+        return OnPrepareQuery();
       }
-      if (this.alwaysPrepareList != null)
+      if (alwaysPrepareList != null)
       {
-        foreach (Signature alwaysPrepare in this.alwaysPrepareList)
+        foreach (Signature alwaysPrepare in alwaysPrepareList)
         {
           int num = (int) alwaysPrepare.Prepare();
         }
@@ -249,10 +249,10 @@ namespace VistaDB.Engine.SQL
 
     public IQueryResult ExecuteQuery()
     {
-      int num = (int) this.PrepareQuery();
-      IQueryResult queryResult = this.OnExecuteQuery();
-      if (this.parent is IFStatement && this.parent != null)
-        this.parent.AffectedRows = this.AffectedRows;
+      int num = (int) PrepareQuery();
+      IQueryResult queryResult = OnExecuteQuery();
+      if (parent is IFStatement && parent != null)
+        parent.AffectedRows = AffectedRows;
       return queryResult;
     }
 
@@ -260,7 +260,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.id;
+        return id;
       }
     }
 
@@ -268,11 +268,11 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.affectedRows;
+        return affectedRows;
       }
       set
       {
-        this.affectedRows = value;
+        affectedRows = value;
       }
     }
 
@@ -285,7 +285,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.isDisposed;
+        return isDisposed;
       }
     }
 
@@ -302,46 +302,46 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.disposingPostponed;
+        return disposingPostponed;
       }
       set
       {
-        this.disposingPostponed = value;
-        if (value || this.connection == null || !this.connection.QueryIsDisposed(this.Id))
+        disposingPostponed = value;
+        if (value || connection == null || !connection.QueryIsDisposed(Id))
           return;
-        lock (this.connection.SyncRoot)
-          this.connection.RemoveQuery(this.Id);
+        lock (connection.SyncRoot)
+          connection.RemoveQuery(Id);
       }
     }
 
     public virtual void Dispose()
     {
-      if (this.isDisposed)
+      if (isDisposed)
         return;
-      this.connection = (LocalSQLConnection) null;
-      this.alwaysPrepareList = (List<Signature>) null;
-      this.commandText = (string) null;
-      this.isDisposed = true;
+      connection = (LocalSQLConnection) null;
+      alwaysPrepareList = (List<Signature>) null;
+      commandText = (string) null;
+      isDisposed = true;
       GC.SuppressFinalize((object) this);
     }
 
     public void AlwaysPrepare(Signature signature)
     {
-      if (this.parent != null)
+      if (parent != null)
       {
-        this.parent.AlwaysPrepare(signature);
+        parent.AlwaysPrepare(signature);
       }
       else
       {
-        if (this.alwaysPrepareList == null)
-          this.alwaysPrepareList = new List<Signature>();
-        this.alwaysPrepareList.Add(signature);
+        if (alwaysPrepareList == null)
+          alwaysPrepareList = new List<Signature>();
+        alwaysPrepareList.Add(signature);
       }
     }
 
     public void SetHasDDL()
     {
-      this.hasDDL = true;
+      hasDDL = true;
     }
   }
 }

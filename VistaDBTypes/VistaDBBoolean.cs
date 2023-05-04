@@ -8,7 +8,7 @@
 
     public VistaDBBoolean(bool val)
     {
-      this.Value = (object) val;
+      Value = (object) val;
     }
 
     public override object Value
@@ -41,22 +41,22 @@
 
     public bool GetValueOrDefault()
     {
-      if (this.HasValue)
-        return (bool) this.Value;
+      if (HasValue)
+        return (bool) Value;
       return false;
     }
 
     public bool GetValueOrDefault(bool defaultValue)
     {
-      if (this.HasValue)
-        return (bool) this.Value;
+      if (HasValue)
+        return (bool) Value;
       return defaultValue;
     }
 
     public bool GetValueOrDefault(VistaDBBoolean defaultValue)
     {
-      if (this.HasValue)
-        return (bool) this.Value;
+      if (HasValue)
+        return (bool) Value;
       return (bool) defaultValue.Value;
     }
   }

@@ -12,36 +12,36 @@ namespace VistaDB.Engine.SQL.Signatures
     public SumFunction(SQLParser parser)
       : base(parser, false)
     {
-      this.srcValue = (IColumn) null;
-      this.dstValue = (IColumn) null;
+      srcValue = (IColumn) null;
+      dstValue = (IColumn) null;
     }
 
     public override SignatureType OnPrepare()
     {
       SignatureType signatureType = base.OnPrepare();
-      if (Utils.IsCharacterDataType(this.expression.DataType))
+      if (Utils.IsCharacterDataType(expression.DataType))
       {
-        this.dataType = VistaDBType.Float;
+        dataType = VistaDBType.Float;
       }
       else
       {
-        if (!Utils.IsNumericDataType(this.expression.DataType))
-          throw new VistaDBSQLException(550, "SUM", this.lineNo, this.symbolNo);
-        this.dataType = this.expression.DataType;
+        if (!Utils.IsNumericDataType(expression.DataType))
+          throw new VistaDBSQLException(550, "SUM", lineNo, symbolNo);
+        dataType = expression.DataType;
       }
-      this.srcValue = this.CreateColumn(this.expression.DataType);
-      this.dstValue = this.CreateColumn(this.dataType);
+      srcValue = CreateColumn(expression.DataType);
+      dstValue = CreateColumn(dataType);
       return signatureType;
     }
 
     protected override void InternalSerialize(ref object serObj)
     {
-      serObj = this.val;
+      serObj = val;
     }
 
     protected override void InternalDeserialize(object serObj)
     {
-      this.val = serObj;
+      val = serObj;
     }
 
     protected override object InternalCreateEmptyResult()
@@ -51,26 +51,26 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object InternalCreateNewGroup(object newVal)
     {
-      ((IValue) this.srcValue).Value = newVal;
-      this.Convert((IValue) this.srcValue, (IValue) this.dstValue);
-      return ((IValue) this.dstValue).Value;
+      ((IValue) srcValue).Value = newVal;
+      Convert((IValue) srcValue, (IValue) dstValue);
+      return ((IValue) dstValue).Value;
     }
 
     protected override object InternalAddRowToGroup(object newVal)
     {
       if (newVal == null)
-        return this.val;
-      ((IValue) this.srcValue).Value = newVal;
-      this.Convert((IValue) this.srcValue, (IValue) this.dstValue);
-      if (this.val == null)
-        return ((IValue) this.dstValue).Value;
-      ((IValue) this.result).Value = this.val;
-      return ((Row.Column) this.result + (Row.Column) this.dstValue).Value;
+        return val;
+      ((IValue) srcValue).Value = newVal;
+      Convert((IValue) srcValue, (IValue) dstValue);
+      if (val == null)
+        return ((IValue) dstValue).Value;
+      ((IValue) result).Value = val;
+      return ((Row.Column) result + (Row.Column) dstValue).Value;
     }
 
     protected override object InternalFinishGroup()
     {
-      return this.val;
+      return val;
     }
   }
 }

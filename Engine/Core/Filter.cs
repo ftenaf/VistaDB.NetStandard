@@ -5,27 +5,27 @@ namespace VistaDB.Engine.Core
   internal class Filter
   {
     private EvalStack evaluation;
-    public Filter.FilterType typeId;
+    public FilterType typeId;
     private bool autoDispose;
     private bool active;
     private ulong filteredCount;
     private int priority;
 
-    protected Filter(EvalStack evaluation, Filter.FilterType typeId, bool activate, bool autoDispose, int priority)
+    protected Filter(EvalStack evaluation, FilterType typeId, bool activate, bool autoDispose, int priority)
     {
       this.typeId = typeId;
-      this.active = activate;
+      active = activate;
       this.evaluation = evaluation;
       this.priority = priority;
       this.autoDispose = autoDispose;
-      this.filteredCount = 0UL;
+      filteredCount = 0UL;
     }
 
     internal EvalStack Evaluation
     {
       get
       {
-        return this.evaluation;
+        return evaluation;
       }
     }
 
@@ -33,19 +33,19 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.filteredCount;
+        return filteredCount;
       }
       set
       {
-        this.filteredCount = value;
+        filteredCount = value;
       }
     }
 
-    internal Filter.FilterType TypeId
+    internal FilterType TypeId
     {
       get
       {
-        return this.typeId;
+        return typeId;
       }
     }
 
@@ -53,7 +53,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.priority;
+        return priority;
       }
     }
 
@@ -61,7 +61,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.active;
+        return active;
       }
     }
 
@@ -69,8 +69,8 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        if (this.evaluation != null)
-          return new string(this.evaluation.Expression);
+        if (evaluation != null)
+          return new string(evaluation.Expression);
         return (string) null;
       }
     }
@@ -79,36 +79,36 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        if (this.evaluation == null)
+        if (evaluation == null)
           return (Row.Column) null;
-        return this.evaluation.FirstColumn;
+        return evaluation.FirstColumn;
       }
     }
 
     internal bool GetValidRowStatus(Row row)
     {
-      return this.OnGetValidRowStatus(row);
+      return OnGetValidRowStatus(row);
     }
 
     internal void SetRowStatus(Row row, bool valid)
     {
-      this.OnSetRowStatus(row, valid);
+      OnSetRowStatus(row, valid);
     }
 
     internal bool Activate(bool update)
     {
-      return this.OnActivate(update);
+      return OnActivate(update);
     }
 
     internal void Deactivate()
     {
-      this.OnDeactivate();
+      OnDeactivate();
     }
 
     protected virtual bool OnGetValidRowStatus(Row row)
     {
-      this.evaluation.Exec(row);
-      return this.evaluation.TrueBooleanValue;
+      evaluation.Exec(row);
+      return evaluation.TrueBooleanValue;
     }
 
     protected virtual void OnSetRowStatus(Row row, bool valid)
@@ -117,13 +117,13 @@ namespace VistaDB.Engine.Core
 
     protected virtual bool OnActivate(bool update)
     {
-      this.active = true;
-      return this.Active;
+      active = true;
+      return Active;
     }
 
     protected virtual void OnDeactivate()
     {
-      this.active = false;
+      active = false;
     }
 
     internal enum FilterType

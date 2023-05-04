@@ -15,20 +15,20 @@ namespace VistaDB.Engine.SQL.Signatures
     public override SignatureType OnPrepare()
     {
       SignatureType signatureType = base.OnPrepare();
-      this.dataType = this.expression.DataType;
-      this.tempValue = this.CreateColumn(this.dataType);
-      this.result = this.CreateColumn(this.dataType);
+      dataType = expression.DataType;
+      tempValue = CreateColumn(dataType);
+      result = CreateColumn(dataType);
       return signatureType;
     }
 
     protected override void InternalSerialize(ref object serObj)
     {
-      serObj = this.val;
+      serObj = val;
     }
 
     protected override void InternalDeserialize(object serObj)
     {
-      this.val = serObj;
+      val = serObj;
     }
 
     protected override object InternalCreateEmptyResult()
@@ -44,19 +44,19 @@ namespace VistaDB.Engine.SQL.Signatures
     protected override object InternalAddRowToGroup(object newVal)
     {
       if (newVal == null)
-        return this.val;
-      if (this.val == null)
+        return val;
+      if (val == null)
         return newVal;
-      ((IValue) this.result).Value = this.val;
-      ((IValue) this.tempValue).Value = newVal;
-      if (this.tempValue.Compare((IVistaDBColumn) this.result) <= 0)
-        return this.val;
+      ((IValue) result).Value = val;
+      ((IValue) tempValue).Value = newVal;
+      if (tempValue.Compare((IVistaDBColumn) result) <= 0)
+        return val;
       return newVal;
     }
 
     protected override object InternalFinishGroup()
     {
-      return this.val;
+      return val;
     }
   }
 }

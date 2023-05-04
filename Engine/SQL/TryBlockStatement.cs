@@ -16,17 +16,17 @@ namespace VistaDB.Engine.SQL
 
     internal void SetFirstCatchStatement(int statementIndex)
     {
-      this.firstCatchStatementIndex = statementIndex;
+      firstCatchStatementIndex = statementIndex;
     }
 
     protected override VistaDBType OnPrepareQuery()
     {
       int num = 0;
-      foreach (Statement statement in (List<Statement>) this.statements)
+      foreach (Statement statement in (List<Statement>) statements)
       {
-        if (num != this.firstCatchStatementIndex)
+        if (num != firstCatchStatementIndex)
         {
-          this.hasDDL = this.hasDDL || statement.HasDDLCommands;
+          hasDDL = hasDDL || statement.HasDDLCommands;
           ++num;
         }
         else
@@ -37,42 +37,42 @@ namespace VistaDB.Engine.SQL
 
     public override INextQueryResult NextResult(VistaDBPipe pipe)
     {
-      if (this.Exception != null)
+      if (Exception != null)
       {
-        this.currentStatement = this.firstCatchStatementIndex;
-        this.Exception = (VistaDBException) null;
+        currentStatement = firstCatchStatementIndex;
+        Exception = (VistaDBException) null;
       }
-      if (this.currentStatement >= this.statements.Count || this.breakBatch)
+      if (currentStatement >= statements.Count || breakBatch)
         return (INextQueryResult) null;
-      this.connection.PrepareCLRContext(pipe);
+      connection.PrepareCLRContext(pipe);
       Statement statement;
       IQueryResult resultSet;
       try
       {
-        statement = this.statements[this.currentStatement];
+        statement = statements[currentStatement];
         try
         {
           resultSet = statement.ExecuteQuery();
         }
         catch (VistaDBException ex)
         {
-          this.Connection.LastException = ex;
-          if (this.currentStatement < this.firstCatchStatementIndex)
+          Connection.LastException = ex;
+          if (currentStatement < firstCatchStatementIndex)
           {
-            this.currentStatement = this.firstCatchStatementIndex;
-            return this.NextResult(pipe);
+            currentStatement = firstCatchStatementIndex;
+            return NextResult(pipe);
           }
-          this.parent.Exception = ex;
+          parent.Exception = ex;
           return (INextQueryResult) null;
         }
-        if (++this.currentStatement == this.firstCatchStatementIndex)
-          this.currentStatement = this.statements.Count;
+        if (++currentStatement == firstCatchStatementIndex)
+          currentStatement = statements.Count;
       }
       finally
       {
-        this.connection.UnprepareCLRContext();
+        connection.UnprepareCLRContext();
       }
-      return (INextQueryResult) new BatchStatement.ResultSetData(resultSet, resultSet == null ? (IQuerySchemaInfo) null : statement.GetSchemaInfo(), statement.AffectedRows);
+      return (INextQueryResult) new ResultSetData(resultSet, resultSet == null ? (IQuerySchemaInfo) null : statement.GetSchemaInfo(), statement.AffectedRows);
     }
   }
 }

@@ -21,12 +21,12 @@ namespace VistaDB.Engine.Core
     }
 
     internal SmallIntColumn()
-      : base((object) null, VistaDBType.SmallInt, SmallIntColumn.Int16Size)
+      : base((object) null, VistaDBType.SmallInt, Int16Size)
     {
     }
 
     internal SmallIntColumn(short val)
-      : base((object) val, VistaDBType.SmallInt, SmallIntColumn.Int16Size)
+      : base((object) val, VistaDBType.SmallInt, Int16Size)
     {
     }
 
@@ -74,89 +74,89 @@ namespace VistaDB.Engine.Core
 
     internal override int ConvertToByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      return VdbBitConverter.GetBytes((ushort) (short) this.Value, buffer, offset, SmallIntColumn.Int16Size);
+      return VdbBitConverter.GetBytes((ushort) (short) Value, buffer, offset, Int16Size);
     }
 
     internal override int ConvertFromByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      this.val = (object) BitConverter.ToInt16(buffer, offset);
-      return offset + SmallIntColumn.Int16Size;
+      val = (object) BitConverter.ToInt16(buffer, offset);
+      return offset + Int16Size;
     }
 
     protected override long Collate(Row.Column col)
     {
-      return (long) ((int) (short) this.Value - (int) (short) col.Value);
+      return (long) ((int) (short) Value - (int) (short) col.Value);
     }
 
     protected override Row.Column DoUnaryMinus()
     {
-      this.Value = (object) -(short) this.Value;
+      Value = (object) -(short) Value;
       return (Row.Column) this;
     }
 
     protected override Row.Column DoMinus(Row.Column col)
     {
-      this.Value = (object) (short) ((int) (short) this.Value - (int) SmallIntColumn.CustValue(col));
+      Value = (object) (short) ((int) (short) Value - (int)CustValue(col));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoPlus(Row.Column col)
     {
-      this.Value = (object) (short) ((int) (short) this.Value + (int) SmallIntColumn.CustValue(col));
+      Value = (object) (short) ((int) (short) Value + (int)CustValue(col));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoMultiplyBy(Row.Column col)
     {
-      this.Value = (object) (short) ((int) (short) this.Value * (int) SmallIntColumn.CustValue(col));
+      Value = (object) (short) ((int) (short) Value * (int)CustValue(col));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoDivideBy(Row.Column denominator)
     {
-      this.Value = (object) (short) ((int) (short) this.Value / (int) SmallIntColumn.CustValue(denominator));
+      Value = (object) (short) ((int) (short) Value / (int)CustValue(denominator));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoGetDividedBy(Row.Column numerator)
     {
-      this.Value = (object) (short) ((int) SmallIntColumn.CustValue(numerator) / (int) (short) this.Value);
+      Value = (object) (short) ((int)CustValue(numerator) / (int) (short) Value);
       return (Row.Column) this;
     }
 
     protected override Row.Column DoModBy(Row.Column denominator)
     {
-      this.Value = (object) (short) ((int) (short) this.Value % (int) SmallIntColumn.CustValue(denominator));
+      Value = (object) (short) ((int) (short) Value % (int)CustValue(denominator));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoGetModBy(Row.Column numerator)
     {
-      this.Value = (object) (short) ((int) SmallIntColumn.CustValue(numerator) % (int) (short) this.Value);
+      Value = (object) (short) ((int)CustValue(numerator) % (int) (short) Value);
       return (Row.Column) this;
     }
 
     protected override Row.Column DoBitwiseNot()
     {
-      this.Value = (object) (int) ~(short) this.Value;
+      Value = (object) (int) ~(short) Value;
       return (Row.Column) this;
     }
 
     protected override Row.Column DoBitwiseAnd(Row.Column denominator)
     {
-      this.Value = (object) (short) ((int) (short) this.Value & (int) SmallIntColumn.CustValue(denominator));
+      Value = (object) (short) ((int) (short) Value & (int)CustValue(denominator));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoBitwiseOr(Row.Column denominator)
     {
-      this.Value = (object) (short) ((int) (ushort) (short) this.Value | (int) (ushort) SmallIntColumn.CustValue(denominator));
+      Value = (object) (short) ((int) (ushort) (short) Value | (int) (ushort)CustValue(denominator));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoBitwiseXor(Row.Column denominator)
     {
-      this.Value = (object) (short) ((int) (short) this.Value ^ (int) SmallIntColumn.CustValue(denominator));
+      Value = (object) (short) ((int) (short) Value ^ (int)CustValue(denominator));
       return (Row.Column) this;
     }
   }

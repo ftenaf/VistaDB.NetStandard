@@ -3,19 +3,19 @@
   internal class CurrentTokenContext
   {
     private string contextName;
-    private CurrentTokenContext.TokenContext context;
+    private TokenContext context;
 
-    internal CurrentTokenContext(CurrentTokenContext.TokenContext context, string contextName)
+    internal CurrentTokenContext(TokenContext context, string contextName)
     {
       this.context = context;
       this.contextName = contextName;
     }
 
-    internal CurrentTokenContext.TokenContext ContextType
+    internal TokenContext ContextType
     {
       get
       {
-        return this.context;
+        return context;
       }
     }
 
@@ -23,7 +23,7 @@
     {
       get
       {
-        return this.contextName;
+        return contextName;
       }
     }
 

@@ -13,7 +13,7 @@ namespace VistaDB.Engine.SQL
 
     protected override void DoBeforeParse()
     {
-      this.hasDDL = true;
+      hasDDL = true;
     }
 
     protected override VistaDBType OnPrepareQuery()
@@ -23,7 +23,7 @@ namespace VistaDB.Engine.SQL
 
     protected override IQueryResult OnExecuteQuery()
     {
-      this.connection.CloseAllPooledTables();
+      connection.CloseAllPooledTables();
       return (IQueryResult) null;
     }
 

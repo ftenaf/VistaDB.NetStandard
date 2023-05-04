@@ -17,7 +17,7 @@ namespace VistaDB.Engine.SQL
       do
       {
         parser.SkipToken(true);
-        this.tableNames.Add(parser.GetTableName((Statement) this));
+        tableNames.Add(parser.GetTableName((Statement) this));
         parser.SkipToken(false);
       }
       while (parser.IsToken(","));
@@ -26,8 +26,8 @@ namespace VistaDB.Engine.SQL
     protected override IQueryResult OnExecuteQuery()
     {
       base.OnExecuteQuery();
-      foreach (string tableName in this.tableNames)
-        this.Database.DropTable(tableName);
+      foreach (string tableName in tableNames)
+        Database.DropTable(tableName);
       return (IQueryResult) null;
     }
   }

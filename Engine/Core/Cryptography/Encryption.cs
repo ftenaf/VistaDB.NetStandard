@@ -11,18 +11,18 @@ namespace VistaDB.Engine.Core.Cryptography
 
     internal Encryption()
     {
-      this.encryptionKey = EncryptionKey.NullEncryptionKey;
+      encryptionKey = EncryptionKey.NullEncryptionKey;
     }
 
     protected Encryption(EncryptionKey encryptionKey, int minKeyLen, int maxKeyLen)
     {
-      this.isValid = false;
+      isValid = false;
       this.encryptionKey = encryptionKey;
       this.minKeyLen = minKeyLen;
       this.maxKeyLen = maxKeyLen;
       if (this.encryptionKey.Key == null || this.encryptionKey.Key.Length <= 0)
         return;
-      this.isValid = true;
+      isValid = true;
     }
 
     internal static Encryption CreateEncryption(EncryptionKey baseKey)
@@ -42,7 +42,7 @@ namespace VistaDB.Engine.Core.Cryptography
     {
       get
       {
-        return this.encryptionKey;
+        return encryptionKey;
       }
     }
 
@@ -50,7 +50,7 @@ namespace VistaDB.Engine.Core.Cryptography
     {
       get
       {
-        return this.encryptionKey.Key.Length;
+        return encryptionKey.Key.Length;
       }
     }
 
@@ -64,30 +64,30 @@ namespace VistaDB.Engine.Core.Cryptography
 
     internal void Encrypt(byte[] source, byte[] dest, int len)
     {
-      if (!this.isValid)
+      if (!isValid)
         return;
-      this.OnEncrypt(source, dest, 0, len);
+      OnEncrypt(source, dest, 0, len);
     }
 
     internal void Encrypt(byte[] buffer, int offset, int len)
     {
-      if (!this.isValid)
+      if (!isValid)
         return;
-      this.OnEncrypt(buffer, buffer, offset, len);
+      OnEncrypt(buffer, buffer, offset, len);
     }
 
     internal void Decrypt(byte[] source, byte[] dest, int len)
     {
-      if (!this.isValid)
+      if (!isValid)
         return;
-      this.OnDecrypt(source, dest, 0, len);
+      OnDecrypt(source, dest, 0, len);
     }
 
     internal void Decrypt(byte[] buffer, int offset, int len)
     {
-      if (!this.isValid)
+      if (!isValid)
         return;
-      this.OnDecrypt(buffer, buffer, offset, len);
+      OnDecrypt(buffer, buffer, offset, len);
     }
 
     protected virtual void OnEncrypt(byte[] source, byte[] destination, int offset, int len)

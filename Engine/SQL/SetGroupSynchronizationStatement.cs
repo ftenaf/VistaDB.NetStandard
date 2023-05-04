@@ -17,12 +17,12 @@ namespace VistaDB.Engine.SQL
       parser.SkipToken(true);
       if (parser.IsToken("ON"))
       {
-        this.synchronization = true;
+        synchronization = true;
       }
       else
       {
         parser.ExpectedExpression("OFF");
-        this.synchronization = false;
+        synchronization = false;
       }
       parser.SkipToken(false);
     }
@@ -34,7 +34,7 @@ namespace VistaDB.Engine.SQL
 
     protected override IQueryResult OnExecuteQuery()
     {
-      this.connection.SetGroupSynchronization(this.synchronization);
+      connection.SetGroupSynchronization(synchronization);
       return (IQueryResult) null;
     }
   }

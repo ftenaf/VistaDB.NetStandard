@@ -81,32 +81,32 @@ namespace VistaDB.Provider
 
     public VistaDBParameter()
     {
-      this.paramName = "";
-      this.nativeParamName = "";
-      this.direction = ParameterDirection.Input;
-      this.isNullable = true;
-      this.size = 0;
-      this.sourceColumn = (string) null;
-      this.sourceVersion = DataRowVersion.Default;
-      this.paramValue = (object) DBNull.Value;
-      this.paramType = VistaDBType.Unknown;
-      this.dataTypeSet = false;
-      this.prepared = false;
-      this.sourceColumnNullMapping = false;
+      paramName = "";
+      nativeParamName = "";
+      direction = ParameterDirection.Input;
+      isNullable = true;
+      size = 0;
+      sourceColumn = (string) null;
+      sourceVersion = DataRowVersion.Default;
+      paramValue = (object) DBNull.Value;
+      paramType = VistaDBType.Unknown;
+      dataTypeSet = false;
+      prepared = false;
+      sourceColumnNullMapping = false;
     }
 
     public VistaDBParameter(string parameterName, object value)
       : this()
     {
-      this.ParameterName = parameterName;
-      this.Value = value;
+      ParameterName = parameterName;
+      Value = value;
     }
 
     public VistaDBParameter(string parameterName, VistaDBType dataType)
       : this()
     {
-      this.ParameterName = parameterName;
-      this.VistaDBType = dataType;
+      ParameterName = parameterName;
+      VistaDBType = dataType;
     }
 
     public VistaDBParameter(string parameterName, VistaDBType dataType, int size)
@@ -127,7 +127,7 @@ namespace VistaDB.Provider
       this.direction = direction;
       this.isNullable = isNullable;
       this.sourceVersion = sourceVersion;
-      this.Value = value;
+      Value = value;
     }
 
     private VistaDBParameter(VistaDBParameter p)
@@ -139,11 +139,11 @@ namespace VistaDB.Provider
     {
       get
       {
-        return VistaDBParameter.ConvertVistaDBToDb(this.VistaDBType);
+        return ConvertVistaDBToDb(VistaDBType);
       }
       set
       {
-        this.VistaDBType = VistaDBParameter.ConvertDbToVistaDB(value);
+        VistaDBType = ConvertDbToVistaDB(value);
       }
     }
 
@@ -151,11 +151,11 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.direction;
+        return direction;
       }
       set
       {
-        this.direction = value;
+        direction = value;
       }
     }
 
@@ -163,11 +163,11 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.isNullable;
+        return isNullable;
       }
       set
       {
-        this.isNullable = value;
+        isNullable = value;
       }
     }
 
@@ -175,15 +175,15 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.paramName;
+        return paramName;
       }
       set
       {
-        this.paramName = value;
-        if (this.paramName == null || this.paramName.Length == 0 || this.paramName[0] != '@')
-          this.nativeParamName = this.paramName;
+        paramName = value;
+        if (paramName == null || paramName.Length == 0 || paramName[0] != '@')
+          nativeParamName = paramName;
         else
-          this.nativeParamName = this.paramName.Substring(1);
+          nativeParamName = paramName.Substring(1);
       }
     }
 
@@ -191,11 +191,11 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.size;
+        return size;
       }
       set
       {
-        this.size = value;
+        size = value;
       }
     }
 
@@ -203,11 +203,11 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.sourceColumn;
+        return sourceColumn;
       }
       set
       {
-        this.sourceColumn = value;
+        sourceColumn = value;
       }
     }
 
@@ -215,11 +215,11 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.sourceColumnNullMapping;
+        return sourceColumnNullMapping;
       }
       set
       {
-        this.sourceColumnNullMapping = value;
+        sourceColumnNullMapping = value;
       }
     }
 
@@ -227,11 +227,11 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.sourceVersion;
+        return sourceVersion;
       }
       set
       {
-        this.sourceVersion = value;
+        sourceVersion = value;
       }
     }
 
@@ -239,12 +239,12 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.paramValue;
+        return paramValue;
       }
       set
       {
-        this.paramValue = value;
-        this.prepared = false;
+        paramValue = value;
+        prepared = false;
       }
     }
 
@@ -252,63 +252,63 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.paramType;
+        return paramType;
       }
       set
       {
-        this.paramType = value;
-        this.dataTypeSet = true;
-        this.prepared = false;
+        paramType = value;
+        dataTypeSet = true;
+        prepared = false;
       }
     }
 
     public override void ResetDbType()
     {
-      this.paramValue = (object) DBNull.Value;
-      this.paramType = VistaDBType.Unknown;
-      this.dataTypeSet = false;
-      this.prepared = false;
+      paramValue = (object) DBNull.Value;
+      paramType = VistaDBType.Unknown;
+      dataTypeSet = false;
+      prepared = false;
     }
 
     private VistaDBType GetValueDataType()
     {
-      if (this.paramValue == DBNull.Value || this.paramValue == null)
+      if (paramValue == DBNull.Value || paramValue == null)
         return VistaDBType.Unknown;
-      switch (Type.GetTypeCode(this.paramValue.GetType()))
+      switch (Type.GetTypeCode(paramValue.GetType()))
       {
         case TypeCode.Empty:
         case TypeCode.DBNull:
           return VistaDBType.Unknown;
         case TypeCode.Object:
-          if (this.paramValue.GetType() == typeof (Guid))
+          if (paramValue.GetType() == typeof (Guid))
             return VistaDBType.UniqueIdentifier;
-          if (this.paramValue.GetType() == typeof (byte[]))
+          if (paramValue.GetType() == typeof (byte[]))
             return VistaDBType.Image;
           throw new SystemException("Value is of unknown data type");
         case TypeCode.Boolean:
           return VistaDBType.Bit;
         case TypeCode.Char:
-          this.paramValue = (object) ((char) this.paramValue).ToString();
+          paramValue = (object) ((char) paramValue).ToString();
           return VistaDBType.NChar;
         case TypeCode.SByte:
-          this.paramValue = (object) (byte) (sbyte) this.paramValue;
+          paramValue = (object) (byte) (sbyte) paramValue;
           return VistaDBType.TinyInt;
         case TypeCode.Byte:
           return VistaDBType.TinyInt;
         case TypeCode.Int16:
           return VistaDBType.SmallInt;
         case TypeCode.UInt16:
-          this.paramValue = (object) (short) (ushort) this.paramValue;
+          paramValue = (object) (short) (ushort) paramValue;
           return VistaDBType.SmallInt;
         case TypeCode.Int32:
           return VistaDBType.Int;
         case TypeCode.UInt32:
-          this.paramValue = (object) (int) (uint) this.paramValue;
+          paramValue = (object) (int) (uint) paramValue;
           return VistaDBType.Int;
         case TypeCode.Int64:
           return VistaDBType.BigInt;
         case TypeCode.UInt64:
-          this.paramValue = (object) (long) (ulong) this.paramValue;
+          paramValue = (object) (long) (ulong) paramValue;
           return VistaDBType.BigInt;
         case TypeCode.Single:
           return VistaDBType.Real;
@@ -330,45 +330,45 @@ namespace VistaDB.Provider
       if (dataType == VistaDBType.Unknown)
         return DbType.Object;
       int index = (int) dataType;
-      if (index < 0 || index >= VistaDBParameter.VistaDBToDb.Length)
+      if (index < 0 || index >= VistaDBToDb.Length)
         throw new VistaDBException(1002, dataType.ToString());
-      return VistaDBParameter.VistaDBToDb[index];
+      return VistaDBToDb[index];
     }
 
     private static VistaDBType ConvertDbToVistaDB(DbType dataType)
     {
       int index = (int) dataType;
-      if (index < 0 || index >= VistaDBParameter.DbToVistaDB.Length)
+      if (index < 0 || index >= DbToVistaDB.Length)
         throw new VistaDBException(1002, dataType.ToString());
-      return VistaDBParameter.DbToVistaDB[index];
+      return DbToVistaDB[index];
     }
 
     internal void Prepare()
     {
-      if (this.prepared)
+      if (prepared)
         return;
-      VistaDBType valueDataType = this.GetValueDataType();
-      this.prepared = true;
-      if (!this.dataTypeSet)
+      VistaDBType valueDataType = GetValueDataType();
+      prepared = true;
+      if (!dataTypeSet)
       {
         if (valueDataType == VistaDBType.Unknown)
         {
-          this.paramType = VistaDBType.NChar;
+          paramType = VistaDBType.NChar;
         }
         else
         {
-          this.paramType = valueDataType;
-          this.dataTypeSet = true;
+          paramType = valueDataType;
+          dataTypeSet = true;
         }
       }
       else
       {
-        if (valueDataType == VistaDBType.Unknown || Row.Column.GetInternalType(valueDataType) == Row.Column.GetInternalType(this.paramType))
+        if (valueDataType == VistaDBType.Unknown || Row.Column.GetInternalType(valueDataType) == Row.Column.GetInternalType(paramType))
           return;
-        VistaDBParameter.ParameterValue parameterValue1 = new VistaDBParameter.ParameterValue(valueDataType, this.paramValue);
-        VistaDBParameter.ParameterValue parameterValue2 = new VistaDBParameter.ParameterValue(this.paramType, (object) null);
+                ParameterValue parameterValue1 = new ParameterValue(valueDataType, paramValue);
+                ParameterValue parameterValue2 = new ParameterValue(paramType, (object) null);
         VistaDBConnection.Conversion.Convert((IValue) parameterValue1, (IValue) parameterValue2);
-        this.paramValue = parameterValue2.Value;
+        paramValue = parameterValue2.Value;
       }
     }
 
@@ -376,7 +376,7 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.nativeParamName;
+        return nativeParamName;
       }
     }
 
@@ -389,11 +389,11 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.paramType;
+        return paramType;
       }
       set
       {
-        this.paramType = value;
+        paramType = value;
       }
     }
 
@@ -401,14 +401,14 @@ namespace VistaDB.Provider
     {
       get
       {
-        if (this.paramValue == DBNull.Value)
+        if (paramValue == DBNull.Value)
           return (object) null;
-        return this.paramValue;
+        return paramValue;
       }
       set
       {
-        this.paramValue = value == null ? (object) DBNull.Value : value;
-        this.prepared = false;
+        paramValue = value == null ? (object) DBNull.Value : value;
+        prepared = false;
       }
     }
 
@@ -427,7 +427,7 @@ namespace VistaDB.Provider
       {
         get
         {
-          return this.value;
+          return value;
         }
         set
         {
@@ -439,7 +439,7 @@ namespace VistaDB.Provider
       {
         get
         {
-          return this.value;
+          return value;
         }
       }
 
@@ -447,7 +447,7 @@ namespace VistaDB.Provider
       {
         get
         {
-          return Row.Column.GetInternalType(this.dataType);
+          return Row.Column.GetInternalType(dataType);
         }
       }
 
@@ -455,7 +455,7 @@ namespace VistaDB.Provider
       {
         get
         {
-          return this.value == null;
+          return value == null;
         }
       }
 
@@ -463,11 +463,11 @@ namespace VistaDB.Provider
       {
         get
         {
-          return this.dataType;
+          return dataType;
         }
         set
         {
-          this.dataType = value;
+          dataType = value;
         }
       }
 

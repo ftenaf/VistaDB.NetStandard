@@ -11,14 +11,14 @@ namespace VistaDB.Provider
 
     internal VistaDBParameterCollection()
     {
-      this.parameters = new List<VistaDBParameter>();
+      parameters = new List<VistaDBParameter>();
     }
 
     public override int Count
     {
       get
       {
-        return this.parameters.Count;
+        return parameters.Count;
       }
     }
 
@@ -46,30 +46,30 @@ namespace VistaDB.Provider
       }
     }
 
-    public VistaDBParameter this[int index]
+    new public VistaDBParameter this[int index]
     {
       get
       {
-        return this.parameters[index];
+        return parameters[index];
       }
       set
       {
-        this.parameters[index] = value;
+        parameters[index] = value;
       }
     }
 
-    public VistaDBParameter this[string parameterName]
+    new public VistaDBParameter this[string parameterName]
     {
       get
       {
-        int parameter = this.FindParameter(parameterName);
+        int parameter = FindParameter(parameterName);
         if (parameter >= 0)
-          return this.parameters[parameter];
+          return parameters[parameter];
         return (VistaDBParameter) null;
       }
       set
       {
-        this.parameters[this.FindParameter(parameterName)] = value;
+        parameters[FindParameter(parameterName)] = value;
       }
     }
 
@@ -83,111 +83,111 @@ namespace VistaDB.Provider
 
     public override int Add(object value)
     {
-      this.parameters.Add((VistaDBParameter) value);
-      return this.parameters.Count - 1;
+      parameters.Add((VistaDBParameter) value);
+      return parameters.Count - 1;
     }
 
     public VistaDBParameter Add(VistaDBParameter parameter)
     {
-      this.Add((object) parameter);
+      Add((object) parameter);
       return parameter;
     }
 
     public VistaDBParameter Add(string parameterName, object value)
     {
-      return this.Add(new VistaDBParameter(parameterName, value));
+      return Add(new VistaDBParameter(parameterName, value));
     }
 
     public VistaDBParameter Add(string parameterName, VistaDBType dataType)
     {
-      return this.Add(new VistaDBParameter(parameterName, dataType));
+      return Add(new VistaDBParameter(parameterName, dataType));
     }
 
     public VistaDBParameter Add(string parameterName, VistaDBType dataType, int size)
     {
-      return this.Add(new VistaDBParameter(parameterName, dataType, size));
+      return Add(new VistaDBParameter(parameterName, dataType, size));
     }
 
     public VistaDBParameter Add(string parameterName, VistaDBType dataType, int size, string sourceColumn)
     {
-      return this.Add(new VistaDBParameter(parameterName, dataType, size, sourceColumn));
+      return Add(new VistaDBParameter(parameterName, dataType, size, sourceColumn));
     }
 
     public VistaDBParameter AddWithValue(string parameterName, object value)
     {
-      return this.Add(new VistaDBParameter(parameterName, value));
+      return Add(new VistaDBParameter(parameterName, value));
     }
 
     public override void AddRange(Array values)
     {
       int index = 0;
       for (int length = values.Length; index < length; ++index)
-        this.parameters.Add((VistaDBParameter) values.GetValue(index));
+        parameters.Add((VistaDBParameter) values.GetValue(index));
     }
 
     public override void Clear()
     {
-      this.parameters.Clear();
+      parameters.Clear();
     }
 
     public override bool Contains(object value)
     {
-      return this.parameters.Contains((VistaDBParameter) value);
+      return parameters.Contains((VistaDBParameter) value);
     }
 
     public override bool Contains(string parameterName)
     {
-      return this.FindParameter(parameterName) >= 0;
+      return FindParameter(parameterName) >= 0;
     }
 
     public override void CopyTo(Array array, int index)
     {
-      ((ICollection) this.parameters).CopyTo(array, index);
+      ((ICollection) parameters).CopyTo(array, index);
     }
 
     public override IEnumerator GetEnumerator()
     {
-      return (IEnumerator) new VistaDBParameterCollection.ParameterEnumerator(this);
+      return (IEnumerator) new ParameterEnumerator(this);
     }
 
     public override int IndexOf(object value)
     {
-      return this.parameters.IndexOf((VistaDBParameter) value);
+      return parameters.IndexOf((VistaDBParameter) value);
     }
 
     public override int IndexOf(string parameterName)
     {
-      return this.FindParameter(parameterName);
+      return FindParameter(parameterName);
     }
 
     public override void Insert(int index, object value)
     {
-      this.parameters.Insert(index, (VistaDBParameter) value);
+      parameters.Insert(index, (VistaDBParameter) value);
     }
 
     public void Insert(int index, VistaDBParameter parameter)
     {
-      this.parameters.Insert(index, parameter);
+      parameters.Insert(index, parameter);
     }
 
     public override void Remove(object value)
     {
-      this.parameters.Remove((VistaDBParameter) value);
+      parameters.Remove((VistaDBParameter) value);
     }
 
     public void Remove(VistaDBParameter parameter)
     {
-      this.parameters.Remove(parameter);
+      parameters.Remove(parameter);
     }
 
     public override void RemoveAt(int index)
     {
-      this.parameters.RemoveAt(index);
+      parameters.RemoveAt(index);
     }
 
     public override void RemoveAt(string parameterName)
     {
-      this.parameters.RemoveAt(this.FindParameter(parameterName));
+      parameters.RemoveAt(FindParameter(parameterName));
     }
 
     protected override DbParameter GetParameter(int index)
@@ -213,9 +213,9 @@ namespace VistaDB.Provider
     private int FindParameter(string name)
     {
       name = name.ToUpperInvariant();
-      for (int index = 0; index < this.parameters.Count; ++index)
+      for (int index = 0; index < parameters.Count; ++index)
       {
-        if (string.Compare(this.parameters[index].ParameterName, name, StringComparison.OrdinalIgnoreCase) == 0)
+        if (string.Compare(parameters[index].ParameterName, name, StringComparison.OrdinalIgnoreCase) == 0)
           return index;
       }
       return -1;
@@ -229,30 +229,30 @@ namespace VistaDB.Provider
       internal ParameterEnumerator(VistaDBParameterCollection parent)
       {
         this.parent = parent;
-        this.index = -1;
+        index = -1;
       }
 
       public object Current
       {
         get
         {
-          if (this.index >= 0)
-            return (object) this.parent.parameters[this.index];
+          if (index >= 0)
+            return (object) parent.parameters[index];
           return (object) null;
         }
       }
 
       public bool MoveNext()
       {
-        if (this.index == this.parent.parameters.Count - 1)
+        if (index == parent.parameters.Count - 1)
           return false;
-        ++this.index;
+        ++index;
         return true;
       }
 
       public void Reset()
       {
-        this.index = -1;
+        index = -1;
       }
     }
   }

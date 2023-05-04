@@ -6,7 +6,7 @@ namespace VistaDB.Engine.Core.Scripting
   internal class GetDate : Signature
   {
     internal GetDate(string name, int groupId, int endOfGroupId)
-      : base(name, groupId, Signature.Operations.BgnGroup, Signature.Priorities.StdOperator, VistaDBType.DateTime, endOfGroupId)
+      : base(name, groupId, Operations.BgnGroup, Priorities.StdOperator, VistaDBType.DateTime, endOfGroupId)
     {
     }
 

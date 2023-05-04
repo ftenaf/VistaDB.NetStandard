@@ -14,14 +14,14 @@ namespace VistaDB
       this.modificationTables = modificationTables;
       this.action = action;
       this.columnCount = columnCount;
-      this.ordinalsCollection = new byte[columnCount];
+      ordinalsCollection = new byte[columnCount];
     }
 
     internal Table[] ModificationTables
     {
       get
       {
-        return this.modificationTables;
+        return modificationTables;
       }
     }
 
@@ -29,7 +29,7 @@ namespace VistaDB
     {
       get
       {
-        return this.columnCount;
+        return columnCount;
       }
     }
 
@@ -37,22 +37,22 @@ namespace VistaDB
     {
       get
       {
-        return this.action;
+        return action;
       }
     }
 
     public bool IsUpdatedColumn(int columnOrdinal)
     {
-      if (this.ordinalsCollection != null)
-        return this.ordinalsCollection[columnOrdinal] != (byte) 0;
+      if (ordinalsCollection != null)
+        return ordinalsCollection[columnOrdinal] != (byte) 0;
       return false;
     }
 
     internal void SetUpdatedColumn(int columnOrdinal)
     {
-      if (this.ordinalsCollection == null)
+      if (ordinalsCollection == null)
         return;
-      this.ordinalsCollection[columnOrdinal] = (byte) 1;
+      ordinalsCollection[columnOrdinal] = (byte) 1;
     }
   }
 }

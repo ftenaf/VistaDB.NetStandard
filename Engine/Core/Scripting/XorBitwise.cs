@@ -5,10 +5,10 @@ namespace VistaDB.Engine.Core.Scripting
   internal class XorBitwise : Signature
   {
     internal XorBitwise(string name, int groupId)
-      : base(name, groupId, Signature.Operations.Xor, Signature.Priorities.Bitwise, VistaDBType.Bit)
+      : base(name, groupId, Operations.Xor, Priorities.Bitwise, VistaDBType.Bit)
     {
-      this.AddParameter(VistaDBType.Bit);
-      this.AddParameter(VistaDBType.Bit);
+      AddParameter(VistaDBType.Bit);
+      AddParameter(VistaDBType.Bit);
     }
 
     protected override void OnExecute(ProcedureCode pcode, int entry, Connection connection, DataStorage contextStorage, Row contextRow, ref bool bypassNextGroup, Row rowResult)

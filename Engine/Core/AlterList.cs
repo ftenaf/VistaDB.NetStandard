@@ -37,12 +37,12 @@ namespace VistaDB.Engine.Core
       this.newSchema = newSchema;
     }
 
-    internal new AlterList.AlterInformation this[string name]
+    internal new AlterInformation this[string name]
     {
       get
       {
-        if (!this.ContainsKey(name))
-          return (AlterList.AlterInformation) null;
+        if (!ContainsKey(name))
+          return (AlterInformation) null;
         return base[name];
       }
     }
@@ -51,7 +51,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.oldSchema;
+        return oldSchema;
       }
     }
 
@@ -59,7 +59,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.newSchema;
+        return newSchema;
       }
     }
 
@@ -67,7 +67,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.droppedIndexes;
+        return droppedIndexes;
       }
     }
 
@@ -75,7 +75,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.updatedIndexes;
+        return updatedIndexes;
       }
     }
 
@@ -83,7 +83,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.persistentIndexes;
+        return persistentIndexes;
       }
     }
 
@@ -91,7 +91,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.newIndexes;
+        return newIndexes;
       }
     }
 
@@ -99,7 +99,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.droppedDefaults;
+        return droppedDefaults;
       }
     }
 
@@ -107,7 +107,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.updatedDefaults;
+        return updatedDefaults;
       }
     }
 
@@ -115,7 +115,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.persistentDefaults;
+        return persistentDefaults;
       }
     }
 
@@ -123,7 +123,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.newDefaults;
+        return newDefaults;
       }
     }
 
@@ -131,7 +131,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.droppedIdentities;
+        return droppedIdentities;
       }
     }
 
@@ -139,7 +139,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.updatedIdentities;
+        return updatedIdentities;
       }
     }
 
@@ -147,7 +147,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.persistentIdentities;
+        return persistentIdentities;
       }
     }
 
@@ -155,7 +155,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.newIdentities;
+        return newIdentities;
       }
     }
 
@@ -163,7 +163,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.droppedConstraints;
+        return droppedConstraints;
       }
     }
 
@@ -171,7 +171,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.updatedConstraints;
+        return updatedConstraints;
       }
     }
 
@@ -179,7 +179,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.persistentConstraints;
+        return persistentConstraints;
       }
     }
 
@@ -187,7 +187,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.newConstraints;
+        return newConstraints;
       }
     }
 
@@ -195,7 +195,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.primaryKeyAffected;
+        return primaryKeyAffected;
       }
     }
 
@@ -203,43 +203,43 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.foreignKeyAffected;
+        return foreignKeyAffected;
       }
     }
 
     internal bool AnalyzeChanges()
     {
-      bool flag = this.AnalyzeColumnsChanges();
-      if (!this.AnalyzeMetaObjects())
+      bool flag = AnalyzeColumnsChanges();
+      if (!AnalyzeMetaObjects())
         return flag;
       return true;
     }
 
     internal bool TakeNewTableDecision(bool forceAlter, Database db)
     {
-      if (this.primaryKeyAffected)
+      if (primaryKeyAffected)
       {
         string relation = (string) null;
-        if (db.IsReferencedPK(this.oldSchema.Name, ref relation))
-          throw new VistaDBException(321, this.oldSchema.Name);
+        if (db.IsReferencedPK(oldSchema.Name, ref relation))
+          throw new VistaDBException(321, oldSchema.Name);
       }
-      if (!this.foreignKeyAffected)
-        return this.hardChanges;
+      if (!foreignKeyAffected)
+        return hardChanges;
       if (forceAlter)
         return true;
-      throw new VistaDBException(321, this.oldSchema.Name);
+      throw new VistaDBException(321, oldSchema.Name);
     }
 
     internal IVistaDBColumnAttributes GetNewColumn(string oldColumnName)
     {
-      if (!this.ContainsKey(oldColumnName))
+      if (!ContainsKey(oldColumnName))
         return (IVistaDBColumnAttributes) null;
       return this[oldColumnName].NewColumn;
     }
 
     internal IVistaDBColumnAttributes GetOldColumn(string oldColumnName)
     {
-      if (!this.ContainsKey(oldColumnName))
+      if (!ContainsKey(oldColumnName))
         return (IVistaDBColumnAttributes) null;
       return this[oldColumnName].OldColumn;
     }
@@ -247,29 +247,29 @@ namespace VistaDB.Engine.Core
     internal void FillTemporarySchema(IVistaDBTableSchema temporary)
     {
       ((Table.TableSchema) temporary).TemporarySchema = true;
-      foreach (IVistaDBColumnAttributes columnAttributes in (List<Row.Column>) this.newSchema)
+      foreach (IVistaDBColumnAttributes columnAttributes in (List<Row.Column>) newSchema)
       {
         ((Table.TableSchema) temporary).AddColumn(columnAttributes.Name, columnAttributes.Type, columnAttributes.MaxLength, columnAttributes.CodePage, ((Row.Column) columnAttributes).IsSync);
         temporary.DefineColumnAttributes(columnAttributes.Name, columnAttributes.AllowNull, columnAttributes.ReadOnly, columnAttributes.Encrypted, columnAttributes.Packed, columnAttributes.Caption, columnAttributes.Description);
       }
-      foreach (Table.TableSchema.ConstraintCollection.ConstraintInformation constraintInformation in this.newSchema.Constraints.Values)
+      foreach (Table.TableSchema.ConstraintCollection.ConstraintInformation constraintInformation in newSchema.Constraints.Values)
       {
-        if (!this.droppedConstraints.ContainsKey(constraintInformation.Name))
+        if (!droppedConstraints.ContainsKey(constraintInformation.Name))
           ((Dictionary<string, IVistaDBConstraintInformation>) temporary.Constraints).Add(constraintInformation.Name, (IVistaDBConstraintInformation) constraintInformation);
       }
-      foreach (IVistaDBDefaultValueInformation valueInformation in this.newSchema.Defaults.Values)
+      foreach (IVistaDBDefaultValueInformation valueInformation in newSchema.Defaults.Values)
       {
-        if (!this.droppedDefaults.ContainsKey(valueInformation.Name))
+        if (!droppedDefaults.ContainsKey(valueInformation.Name))
           ((Dictionary<string, IVistaDBDefaultValueInformation>) temporary.DefaultValues).Add(valueInformation.Name, valueInformation);
       }
-      foreach (IVistaDBIdentityInformation identityInformation in this.newSchema.Identities.Values)
+      foreach (IVistaDBIdentityInformation identityInformation in newSchema.Identities.Values)
       {
-        if (!this.droppedIdentities.ContainsKey(identityInformation.Name))
+        if (!droppedIdentities.ContainsKey(identityInformation.Name))
           ((Dictionary<string, IVistaDBIdentityInformation>) temporary.Identities).Add(identityInformation.Name, identityInformation);
       }
-      foreach (IVistaDBIndexInformation indexInformation in this.newSchema.Indexes.Values)
+      foreach (IVistaDBIndexInformation indexInformation in newSchema.Indexes.Values)
       {
-        if (this.droppedIndexes.ContainsKey(indexInformation.Name))
+        if (droppedIndexes.ContainsKey(indexInformation.Name))
           ((Dictionary<string, IVistaDBIndexInformation>) temporary.Indexes).Remove(indexInformation.Name);
         ((Dictionary<string, IVistaDBIndexInformation>) temporary.Indexes).Add(indexInformation.Name, indexInformation);
       }
@@ -277,53 +277,53 @@ namespace VistaDB.Engine.Core
 
     private bool AnalyzeColumnsChanges()
     {
-      Dictionary<int, string> droppedColumns = this.newSchema.DroppedColumns;
+      Dictionary<int, string> droppedColumns = newSchema.DroppedColumns;
       foreach (string index in droppedColumns.Values)
       {
-        Row.Column column = this.oldSchema[index];
-        this.Add(column.Name, new AlterList.AlterInformation((IVistaDBColumnAttributes) column, (IVistaDBColumnAttributes) null));
+        Row.Column column = oldSchema[index];
+        Add(column.Name, new AlterInformation((IVistaDBColumnAttributes) column, (IVistaDBColumnAttributes) null));
       }
-      Dictionary<int, string> renamedColumns = this.newSchema.RenamedColumns;
-      foreach (Row.Column column1 in (List<Row.Column>) this.newSchema)
+      Dictionary<int, string> renamedColumns = newSchema.RenamedColumns;
+      foreach (Row.Column column1 in (List<Row.Column>) newSchema)
       {
         string key;
         if (renamedColumns.TryGetValue(column1.UniqueID, out key))
         {
-          Row.Column column2 = this.oldSchema[key];
-          this.Add(key, new AlterList.AlterInformation((IVistaDBColumnAttributes) column2, (IVistaDBColumnAttributes) column1));
+          Row.Column column2 = oldSchema[key];
+          Add(key, new AlterInformation((IVistaDBColumnAttributes) column2, (IVistaDBColumnAttributes) column1));
         }
-        else if (this.ContainsKey(column1.Name))
+        else if (ContainsKey(column1.Name))
         {
-          this.newColumns.Add(column1);
+          newColumns.Add(column1);
         }
         else
         {
-          Row.Column column2 = this.oldSchema[column1.Name];
+          Row.Column column2 = oldSchema[column1.Name];
           if (column2 == (Row.Column) null)
-            this.newColumns.Add(column1);
+            newColumns.Add(column1);
           else
-            this.Add(column2.Name, new AlterList.AlterInformation((IVistaDBColumnAttributes) column2, (IVistaDBColumnAttributes) column1));
+            Add(column2.Name, new AlterInformation((IVistaDBColumnAttributes) column2, (IVistaDBColumnAttributes) column1));
         }
       }
-      this.primaryKeyAffected = false;
-      this.foreignKeyAffected = false;
-      this.hardChanges = this.newColumns.Count != 0 || droppedColumns.Count != 0;
+      primaryKeyAffected = false;
+      foreignKeyAffected = false;
+      hardChanges = newColumns.Count != 0 || droppedColumns.Count != 0;
       bool flag = false;
-      foreach (AlterList.AlterInformation alterInformation in this.Values)
+      foreach (AlterInformation alterInformation in Values)
       {
-        alterInformation.AnalyzePropertiesChanges((IVistaDBIndexCollection) this.oldSchema.Indexes);
-        this.hardChanges = this.hardChanges || alterInformation.HardChanges;
-        this.primaryKeyAffected = this.primaryKeyAffected || alterInformation.PrimaryKeyAffected;
-        this.foreignKeyAffected = this.foreignKeyAffected || alterInformation.ForeignKeyAffected;
+        alterInformation.AnalyzePropertiesChanges((IVistaDBIndexCollection) oldSchema.Indexes);
+        hardChanges = hardChanges || alterInformation.HardChanges;
+        primaryKeyAffected = primaryKeyAffected || alterInformation.PrimaryKeyAffected;
+        foreignKeyAffected = foreignKeyAffected || alterInformation.ForeignKeyAffected;
         flag = flag || alterInformation.PersistentChanges;
       }
-      foreach (Row.Column newColumn in this.newColumns)
+      foreach (Row.Column newColumn in newColumns)
       {
         IVistaDBDefaultValueInformation toDefaults;
-        if (this.newSchema.Defaults.TryGetValue(newColumn.Name, out toDefaults))
-          this.Add("New_" + newColumn.Name, new AlterList.AlterInformation(toDefaults, (IVistaDBColumnAttributes) newColumn));
+        if (newSchema.Defaults.TryGetValue(newColumn.Name, out toDefaults))
+          Add("New_" + newColumn.Name, new AlterInformation(toDefaults, (IVistaDBColumnAttributes) newColumn));
       }
-      if (!this.hardChanges && !this.primaryKeyAffected && !this.foreignKeyAffected)
+      if (!hardChanges && !primaryKeyAffected && !foreignKeyAffected)
         return flag;
       return true;
     }
@@ -390,7 +390,7 @@ namespace VistaDB.Engine.Core
       foreach (Table.TableSchema.DefaultValueCollection.DefaultValueInformation valueInformation1 in (IEnumerable<IVistaDBDefaultValueInformation>) oldList.Values)
       {
         string name1 = valueInformation1.Name;
-        AlterList.AlterInformation alterInformation = this[name1];
+                AlterInformation alterInformation = this[name1];
         if (alterInformation.NewColumn == null)
         {
           droppedItems.Add(name1, (IVistaDBDefaultValueInformation) valueInformation1);
@@ -423,7 +423,7 @@ namespace VistaDB.Engine.Core
       foreach (Table.TableSchema.IdentityCollection.IdentityInformation originalIdentity in (IEnumerable<IVistaDBIdentityInformation>) oldList.Values)
       {
         string name1 = originalIdentity.Name;
-        AlterList.AlterInformation alterInformation = this[name1];
+                AlterInformation alterInformation = this[name1];
         if (alterInformation.NewColumn == null)
         {
           droppedItems.Add(name1, (IVistaDBIdentityInformation) originalIdentity);
@@ -436,7 +436,7 @@ namespace VistaDB.Engine.Core
             droppedItems.Add(name1, (IVistaDBIdentityInformation) originalIdentity);
           else if (!originalIdentity.Equals((object) identityInformation))
           {
-            if (!object.ReferenceEquals((object) originalIdentity, (object) identityInformation))
+            if (!ReferenceEquals((object) originalIdentity, (object) identityInformation))
               identityInformation.CopySeedValue(originalIdentity);
             updatedItems.Add(name1, (IVistaDBIdentityInformation) identityInformation);
           }
@@ -454,14 +454,14 @@ namespace VistaDB.Engine.Core
     private bool AnalyzeMetaObjects()
     {
       bool flag1 = false;
-      this.ProcessDefaultsChanges((IVistaDBDefaultValueCollection) this.oldSchema.Defaults, (IVistaDBDefaultValueCollection) this.newSchema.Defaults, out this.droppedDefaults, out this.updatedDefaults, out this.persistentDefaults, out this.newDefaults);
-      bool flag2 = flag1 || this.updatedDefaults.Count > 0 || this.newDefaults.Count > 0;
-      this.ProcessIdentitiesChanges((IVistaDBIdentityCollection) this.oldSchema.Identities, (IVistaDBIdentityCollection) this.newSchema.Identities, out this.droppedIdentities, out this.updatedIdentities, out this.persistentIdentities, out this.newIdentities);
-      bool flag3 = flag2 || this.updatedIdentities.Count > 0 || this.newIdentities.Count > 0;
-      this.ProcessIndexChanges((IVistaDBIndexCollection) this.oldSchema.Indexes, (IVistaDBIndexCollection) this.newSchema.Indexes, out this.droppedIndexes, out this.updatedIndexes, out this.persistentIndexes, out this.newIndexes);
-      bool flag4 = flag3 || this.updatedIndexes.Count > 0 || this.newIndexes.Count > 0;
-      this.ProcessConstraintChanges((IVistaDBConstraintCollection) this.oldSchema.Constraints, (IVistaDBConstraintCollection) this.newSchema.Constraints, out this.droppedConstraints, out this.updatedConstraints, out this.persistentConstraints, out this.newConstraints);
-      return this.DecideAboutForeignKeyChanges() || (flag4 || this.updatedConstraints.Count > 0 || this.newConstraints.Count > 0);
+      ProcessDefaultsChanges((IVistaDBDefaultValueCollection) oldSchema.Defaults, (IVistaDBDefaultValueCollection) newSchema.Defaults, out droppedDefaults, out updatedDefaults, out persistentDefaults, out newDefaults);
+      bool flag2 = flag1 || updatedDefaults.Count > 0 || newDefaults.Count > 0;
+      ProcessIdentitiesChanges((IVistaDBIdentityCollection) oldSchema.Identities, (IVistaDBIdentityCollection) newSchema.Identities, out droppedIdentities, out updatedIdentities, out persistentIdentities, out newIdentities);
+      bool flag3 = flag2 || updatedIdentities.Count > 0 || newIdentities.Count > 0;
+      ProcessIndexChanges((IVistaDBIndexCollection) oldSchema.Indexes, (IVistaDBIndexCollection) newSchema.Indexes, out droppedIndexes, out updatedIndexes, out persistentIndexes, out newIndexes);
+      bool flag4 = flag3 || updatedIndexes.Count > 0 || newIndexes.Count > 0;
+      ProcessConstraintChanges((IVistaDBConstraintCollection) oldSchema.Constraints, (IVistaDBConstraintCollection) newSchema.Constraints, out droppedConstraints, out updatedConstraints, out persistentConstraints, out newConstraints);
+      return DecideAboutForeignKeyChanges() || (flag4 || updatedConstraints.Count > 0 || newConstraints.Count > 0);
     }
 
     internal class AlterInformation
@@ -478,18 +478,18 @@ namespace VistaDB.Engine.Core
 
       internal AlterInformation(IVistaDBColumnAttributes fromColumn, IVistaDBColumnAttributes toColumn)
       {
-        this.oldColumn = fromColumn;
-        this.newColumn = toColumn;
-        this.deleted = toColumn == null;
-        this.difference = this.deleted ? (IVistaDBColumnAttributesDifference) null : fromColumn.Compare(toColumn);
+        oldColumn = fromColumn;
+        newColumn = toColumn;
+        deleted = toColumn == null;
+        difference = deleted ? (IVistaDBColumnAttributesDifference) null : fromColumn.Compare(toColumn);
       }
 
       internal AlterInformation(IVistaDBDefaultValueInformation toDefaults, IVistaDBColumnAttributes toColumn)
       {
-        this.newDefaults = toDefaults;
-        this.newColumn = toColumn;
-        this.deleted = false;
-        this.difference = (IVistaDBColumnAttributesDifference) null;
+        newDefaults = toDefaults;
+        newColumn = toColumn;
+        deleted = false;
+        difference = (IVistaDBColumnAttributesDifference) null;
       }
 
       internal void AnalyzePropertiesChanges(IVistaDBIndexCollection indexes)
@@ -501,24 +501,24 @@ namespace VistaDB.Engine.Core
           {
             foreach (IVistaDBKeyColumn vistaDbKeyColumn in keyStructure)
             {
-              if (this.oldColumn.RowIndex == vistaDbKeyColumn.RowIndex)
+              if (oldColumn.RowIndex == vistaDbKeyColumn.RowIndex)
               {
-                this.participatePrimary = indexInformation.Primary;
-                this.participateForeignKey = indexInformation.FKConstraint;
+                participatePrimary = indexInformation.Primary;
+                participateForeignKey = indexInformation.FKConstraint;
                 break;
               }
             }
           }
         }
-        this.hardChanges = this.deleted || this.difference.IsMaxLengthDiffers || (this.difference.IsPackedDiffers || this.difference.IsEncryptedDiffers) || (this.difference.IsTypeDiffers || this.difference.IsCodePageDiffers) || this.difference.IsOrderDiffers;
-        this.persistentChanges = !this.hardChanges && (this.difference.IsRenamed || this.difference.IsReadOnlyDiffers || (this.difference.IsNullDiffers || this.difference.IsCaptionDiffers) || this.difference.IsDescriptionDiffers);
+        hardChanges = deleted || difference.IsMaxLengthDiffers || (difference.IsPackedDiffers || difference.IsEncryptedDiffers) || (difference.IsTypeDiffers || difference.IsCodePageDiffers) || difference.IsOrderDiffers;
+        persistentChanges = !hardChanges && (difference.IsRenamed || difference.IsReadOnlyDiffers || (difference.IsNullDiffers || difference.IsCaptionDiffers) || difference.IsDescriptionDiffers);
       }
 
       internal IVistaDBDefaultValueInformation NewDefaults
       {
         get
         {
-          return this.newDefaults;
+          return newDefaults;
         }
       }
 
@@ -526,7 +526,7 @@ namespace VistaDB.Engine.Core
       {
         get
         {
-          return this.oldColumn;
+          return oldColumn;
         }
       }
 
@@ -534,7 +534,7 @@ namespace VistaDB.Engine.Core
       {
         get
         {
-          return this.newColumn;
+          return newColumn;
         }
       }
 
@@ -542,7 +542,7 @@ namespace VistaDB.Engine.Core
       {
         get
         {
-          return this.hardChanges;
+          return hardChanges;
         }
       }
 
@@ -550,7 +550,7 @@ namespace VistaDB.Engine.Core
       {
         get
         {
-          return this.persistentChanges;
+          return persistentChanges;
         }
       }
 
@@ -558,7 +558,7 @@ namespace VistaDB.Engine.Core
       {
         get
         {
-          return this.difference.IsRenamed;
+          return difference.IsRenamed;
         }
       }
 
@@ -566,10 +566,10 @@ namespace VistaDB.Engine.Core
       {
         get
         {
-          if (!this.participateForeignKey)
+          if (!participateForeignKey)
             return false;
-          if (!this.deleted && !this.difference.IsTypeDiffers)
-            return this.difference.IsMaxLengthDiffers;
+          if (!deleted && !difference.IsTypeDiffers)
+            return difference.IsMaxLengthDiffers;
           return true;
         }
       }
@@ -578,10 +578,10 @@ namespace VistaDB.Engine.Core
       {
         get
         {
-          if (!this.participatePrimary)
+          if (!participatePrimary)
             return false;
-          if (!this.deleted && !this.difference.IsTypeDiffers)
-            return this.difference.IsMaxLengthDiffers;
+          if (!deleted && !difference.IsTypeDiffers)
+            return difference.IsMaxLengthDiffers;
           return true;
         }
       }

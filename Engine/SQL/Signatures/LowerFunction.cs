@@ -7,13 +7,13 @@ namespace VistaDB.Engine.SQL.Signatures
     public LowerFunction(SQLParser parser)
       : base(parser, 1, true)
     {
-      this.dataType = VistaDBType.NChar;
-      this.parameterTypes[0] = VistaDBType.NChar;
+      dataType = VistaDBType.NChar;
+      parameterTypes[0] = VistaDBType.NChar;
     }
 
     protected override object ExecuteSubProgram()
     {
-      return (object) this.parent.Connection.StringLower((string) ((IValue) this.paramValues[0]).Value);
+      return (object) parent.Connection.StringLower((string) ((IValue) paramValues[0]).Value);
     }
 
     public override int GetWidth()

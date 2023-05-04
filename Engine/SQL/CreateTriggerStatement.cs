@@ -23,19 +23,19 @@ namespace VistaDB.Engine.SQL
     protected override void OnParse(LocalSQLConnection connection, SQLParser parser)
     {
       parser.SkipToken(true);
-      this.triggerName = parser.TokenValue.Token;
+      triggerName = parser.TokenValue.Token;
       parser.SkipToken(true);
       if (parser.IsToken("DESCRIPTION"))
       {
         parser.SkipToken(true);
-        this.description = parser.TokenValue.Token;
+        description = parser.TokenValue.Token;
         parser.SkipToken(true);
       }
       else
-        this.description = (string) null;
+        description = (string) null;
       parser.ExpectedExpression("ON");
       parser.SkipToken(true);
-      this.tableName = parser.GetTableName((Statement) this);
+      tableName = parser.GetTableName((Statement) this);
       parser.SkipToken(true);
       string token1 = parser.TokenValue.Token;
       if (token1 == null)
@@ -44,11 +44,11 @@ namespace VistaDB.Engine.SQL
       {
         case "FOR":
         case "AFTER":
-          this.insteadOf = false;
+          insteadOf = false;
           break;
         case "INSTEAD":
           parser.ExpectedExpression("OF");
-          this.insteadOf = true;
+          insteadOf = true;
           break;
         default:
           throw new VistaDBSQLException(631, token1, parser.TokenValue.RowNo, parser.TokenValue.ColNo);
@@ -60,19 +60,19 @@ namespace VistaDB.Engine.SQL
         switch (tokenValue.Token.ToUpperInvariant())
         {
           case "INSERT":
-            if (this.onInsert)
+            if (onInsert)
               throw new VistaDBSQLException(630, "INSERT", tokenValue.RowNo, tokenValue.ColNo);
-            this.onInsert = true;
+            onInsert = true;
             break;
           case "UPDATE":
-            if (this.onUpdate)
+            if (onUpdate)
               throw new VistaDBSQLException(630, "UPDATE", tokenValue.RowNo, tokenValue.ColNo);
-            this.onUpdate = true;
+            onUpdate = true;
             break;
           case "DELETE":
-            if (this.onDelete)
+            if (onDelete)
               throw new VistaDBSQLException(630, "DELETE", tokenValue.RowNo, tokenValue.ColNo);
-            this.onDelete = true;
+            onDelete = true;
             break;
           default:
             throw new VistaDBSQLException(632, string.Format("{0}{1}{0}", (object) '\'', (object) tokenValue.Token), tokenValue.RowNo, tokenValue.ColNo);
@@ -93,9 +93,9 @@ namespace VistaDB.Engine.SQL
           string token2 = parser.TokenValue.Token;
           int length = token2.IndexOf(".");
           if (length <= 0)
-            throw new VistaDBSQLException(613, this.methodName, parser.TokenValue.RowNo, parser.TokenValue.ColNo);
-          this.assemblyName = token2.Substring(0, length);
-          this.methodName = token2.Substring(length + 1, token2.Length - length - 1);
+            throw new VistaDBSQLException(613, methodName, parser.TokenValue.RowNo, parser.TokenValue.ColNo);
+          assemblyName = token2.Substring(0, length);
+          methodName = token2.Substring(length + 1, token2.Length - length - 1);
           parser.SkipToken(false);
           return;
         }
@@ -107,16 +107,16 @@ namespace VistaDB.Engine.SQL
     {
       base.OnExecuteQuery();
       TriggerAction triggerAction = (TriggerAction) 0;
-      if (!this.insteadOf)
+      if (!insteadOf)
       {
-        if (this.onInsert)
+        if (onInsert)
           triggerAction |= TriggerAction.AfterInsert;
-        if (this.onUpdate)
+        if (onUpdate)
           triggerAction |= TriggerAction.AfterUpdate;
-        if (this.onDelete)
+        if (onDelete)
           triggerAction |= TriggerAction.AfterDelete;
       }
-      this.Database.RegisterClrTrigger(this.triggerName, this.methodName, this.assemblyName, this.tableName, triggerAction, this.description);
+      Database.RegisterClrTrigger(triggerName, methodName, assemblyName, tableName, triggerAction, description);
       return (IQueryResult) null;
     }
   }

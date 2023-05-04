@@ -6,9 +6,9 @@ namespace VistaDB.Engine.Core
   {
     internal RowIdFilter GetFilter(Row lowConstant, Row highConstant, bool excludeNulls)
     {
-      if (!this.ContainsKey(lowConstant.RowId))
+      if (!ContainsKey(lowConstant.RowId))
         return (RowIdFilter) null;
-      RowIdFilterCollection.FilterItem filterItem = this[lowConstant.RowId];
+            FilterItem filterItem = this[lowConstant.RowId];
       if (!excludeNulls || !filterItem.Nulls || highConstant - filterItem.High != 0)
         return (RowIdFilter) null;
       return filterItem.Filter.Clone();
@@ -16,10 +16,10 @@ namespace VistaDB.Engine.Core
 
     internal void PutFilter(RowIdFilter filter, Row lowConstant, Row highConstant, bool excludeNulls)
     {
-      if (this.ContainsKey(lowConstant.RowId))
+      if (ContainsKey(lowConstant.RowId))
         return;
-      RowIdFilterCollection.FilterItem filterItem = new RowIdFilterCollection.FilterItem(filter.Clone(), highConstant, excludeNulls);
-      this.Add(lowConstant.RowId, filterItem);
+            FilterItem filterItem = new FilterItem(filter.Clone(), highConstant, excludeNulls);
+      Add(lowConstant.RowId, filterItem);
     }
 
     internal struct FilterItem
@@ -39,7 +39,7 @@ namespace VistaDB.Engine.Core
       {
         get
         {
-          return this.filter;
+          return filter;
         }
       }
 
@@ -47,7 +47,7 @@ namespace VistaDB.Engine.Core
       {
         get
         {
-          return this.high;
+          return high;
         }
       }
 
@@ -55,7 +55,7 @@ namespace VistaDB.Engine.Core
       {
         get
         {
-          return this.nulls;
+          return nulls;
         }
       }
     }

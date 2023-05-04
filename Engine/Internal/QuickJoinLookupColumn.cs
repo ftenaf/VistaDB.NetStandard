@@ -14,25 +14,25 @@ namespace VistaDB.Engine.Internal
     {
       this.lookupTable = lookupTable;
       this.dataIndex = dataIndex;
-      this.dataVersion = -1L;
-      this.optimizable = false;
+      dataVersion = -1L;
+      optimizable = false;
     }
 
     protected override bool InternalGetIsChanged()
     {
-      if (this.dataVersion >= 0L)
-        return this.dataVersion != this.lookupTable.TableVersion;
+      if (dataVersion >= 0L)
+        return dataVersion != lookupTable.TableVersion;
       return true;
     }
 
     protected override IColumn InternalExecute()
     {
-      if (this.InternalGetIsChanged())
+      if (InternalGetIsChanged())
       {
-        ((IValue) this.result).Value = this.lookupTable.GetValue(this.dataIndex);
-        this.dataVersion = this.lookupTable.TableVersion;
+        ((IValue) result).Value = lookupTable.GetValue(dataIndex);
+        dataVersion = lookupTable.TableVersion;
       }
-      return this.result;
+      return result;
     }
   }
 }

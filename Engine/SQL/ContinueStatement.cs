@@ -22,9 +22,9 @@ namespace VistaDB.Engine.SQL
 
     protected override IQueryResult OnExecuteQuery()
     {
-      WhileStatement cycleStatement = this.DoGetCycleStatement();
+      WhileStatement cycleStatement = DoGetCycleStatement();
       if (cycleStatement == null)
-        throw new VistaDBSQLException(643, (string) null, this.lineNo, this.symbolNo);
+        throw new VistaDBSQLException(643, (string) null, lineNo, symbolNo);
       cycleStatement.Continue();
       return (IQueryResult) null;
     }

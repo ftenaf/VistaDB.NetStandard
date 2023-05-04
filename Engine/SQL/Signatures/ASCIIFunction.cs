@@ -7,13 +7,13 @@ namespace VistaDB.Engine.SQL.Signatures
     public ASCIIFunction(SQLParser parser)
       : base(parser, 1, true)
     {
-      this.dataType = VistaDBType.TinyInt;
-      this.parameterTypes[0] = VistaDBType.NChar;
+      dataType = VistaDBType.TinyInt;
+      parameterTypes[0] = VistaDBType.NChar;
     }
 
     protected override object ExecuteSubProgram()
     {
-      string str = (string) ((IValue) this.paramValues[0]).Value;
+      string str = (string) ((IValue) paramValues[0]).Value;
       if (str.Length == 0 || str[0] > 'ÿ')
         return (object) null;
       return (object) (byte) str[0];

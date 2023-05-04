@@ -17,7 +17,7 @@ namespace VistaDB.Engine.SQL.Signatures
     public VistaDBType[] GetResultColumnTypes()
     {
       ArrayList arrayList = new ArrayList();
-      using (IVistaDBTableSchema vistaDbTableSchema = this.parent.Database.TableSchema(this.resultTableStatement.TableName))
+      using (IVistaDBTableSchema vistaDbTableSchema = parent.Database.TableSchema(resultTableStatement.TableName))
       {
         foreach (IVistaDBColumnAttributes columnAttributes in (IEnumerable<IVistaDBColumnAttributes>) vistaDbTableSchema)
           arrayList.Add((object) columnAttributes.Type);
@@ -28,7 +28,7 @@ namespace VistaDB.Engine.SQL.Signatures
     public string[] GetResultColumnNames()
     {
       ArrayList arrayList = new ArrayList();
-      using (IVistaDBTableSchema vistaDbTableSchema = this.parent.Database.TableSchema(this.resultTableStatement.TableName))
+      using (IVistaDBTableSchema vistaDbTableSchema = parent.Database.TableSchema(resultTableStatement.TableName))
       {
         foreach (IVistaDBColumnAttributes columnAttributes in (IEnumerable<IVistaDBColumnAttributes>) vistaDbTableSchema)
           arrayList.Add((object) columnAttributes.Name);
@@ -39,16 +39,16 @@ namespace VistaDB.Engine.SQL.Signatures
     public void Open()
     {
       object resValue;
-      this.PrepareExecute(out resValue);
-      this.tableInstance = this.parent.Database.OpenTable(this.resultTableStatement.TableName, true, true);
+      PrepareExecute(out resValue);
+      tableInstance = parent.Database.OpenTable(resultTableStatement.TableName, true, true);
     }
 
     public bool First(IRow row)
     {
-      this.tableInstance.First();
-      if (this.tableInstance.EndOfTable || this.tableInstance == null)
+      tableInstance.First();
+      if (tableInstance.EndOfTable || tableInstance == null)
         return false;
-      IVistaDBRow currentRow = this.tableInstance.CurrentRow;
+      IVistaDBRow currentRow = tableInstance.CurrentRow;
       int index = 0;
       for (int count = row.Count; index < count; ++index)
         ((IValue) row[index]).Value = currentRow[index].Value;
@@ -57,10 +57,10 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public bool GetNextResult(IRow row)
     {
-      this.tableInstance.Next();
-      if (this.tableInstance.EndOfTable)
+      tableInstance.Next();
+      if (tableInstance.EndOfTable)
         return false;
-      IVistaDBRow currentRow = this.tableInstance.CurrentRow;
+      IVistaDBRow currentRow = tableInstance.CurrentRow;
       int index = 0;
       for (int count = row.Count; index < count; ++index)
         ((IValue) row[index]).Value = currentRow[index].Value;
@@ -69,12 +69,12 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public void Close()
     {
-      if (this.tableInstance != null)
+      if (tableInstance != null)
       {
-        this.tableInstance.Close();
-        this.tableInstance = (IVistaDBTable) null;
+        tableInstance.Close();
+        tableInstance = (IVistaDBTable) null;
       }
-      this.parent.Database.DropTable(this.resultTableStatement.TableName);
+      parent.Database.DropTable(resultTableStatement.TableName);
     }
   }
 }

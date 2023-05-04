@@ -52,16 +52,16 @@ namespace VistaDB.Engine.SQL
     protected override void OnParse(LocalSQLConnection connection, SQLParser parser)
     {
       parser.SkipToken(true);
-      parser.ParseComplexName(out this.name);
+      parser.ParseComplexName(out name);
       parser.SkipToken(true);
       if (parser.IsToken("DESCRIPTION"))
       {
         parser.SkipToken(true);
-        this.description = parser.TokenValue.Token;
+        description = parser.TokenValue.Token;
         parser.SkipToken(true);
       }
       else
-        this.description = (string) null;
+        description = (string) null;
       bool flag = false;
       if (parser.IsToken("("))
       {
@@ -77,11 +77,11 @@ namespace VistaDB.Engine.SQL
       }
       parser.ExpectedExpression("AS");
       parser.SkipToken(true);
-      if (CreateProcedureStatement.ParseExternalName(this.name, parser, out this.assemblyName, out this.externalName))
+      if (ParseExternalName(name, parser, out assemblyName, out externalName))
         return;
       parser.ExpectedExpression("BEGIN");
-      connection.ParseStatement((Statement) this, this.id);
-      this.storedProcedure = this.Database.CreateStoredProcedureInstance(this.name, parser.Text.Substring(symbolNo, parser.SymbolNo - symbolNo), this.description);
+      connection.ParseStatement((Statement) this, id);
+      storedProcedure = Database.CreateStoredProcedureInstance(name, parser.Text.Substring(symbolNo, parser.SymbolNo - symbolNo), description);
     }
 
     protected override VistaDBType OnPrepareQuery()
@@ -91,10 +91,10 @@ namespace VistaDB.Engine.SQL
 
     protected override IQueryResult OnExecuteQuery()
     {
-      if (this.storedProcedure == null)
-        this.Database.RegisterClrProcedure(this.name, this.externalName, this.assemblyName, this.description);
+      if (storedProcedure == null)
+        Database.RegisterClrProcedure(name, externalName, assemblyName, description);
       else
-        this.Database.CreateStoredProcedureObject(this.storedProcedure);
+        Database.CreateStoredProcedureObject(storedProcedure);
       return (IQueryResult) null;
     }
   }

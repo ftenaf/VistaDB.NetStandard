@@ -3,12 +3,12 @@ using VistaDB.DDA;
 
 namespace VistaDB.Engine.Internal
 {
-  internal interface IRow : IVistaDBRow, IEnumerable
-  {
-    IColumn this[int index] { get; }
+    internal interface IRow : IVistaDBRow, IEnumerable
+    {
+        new IColumn this[int index] { get; }
 
-    IRow CopyInstance();
+        IRow CopyInstance();
 
-    uint RowId { get; set; }
-  }
+        new uint RowId { get; set; }
+    }
 }

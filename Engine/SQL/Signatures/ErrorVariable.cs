@@ -8,19 +8,19 @@ namespace VistaDB.Engine.SQL.Signatures
     internal ErrorVariable(SQLParser parser)
       : base(parser)
     {
-      this.dataType = VistaDBType.Int;
+      dataType = VistaDBType.Int;
     }
 
     protected override IColumn InternalExecute()
     {
-      VistaDBException lastException = this.parent.Connection.LastException;
-      ((IValue) this.result).Value = (object) (lastException == null ? 0 : lastException.ErrorId);
-      return this.result;
+      VistaDBException lastException = parent.Connection.LastException;
+      ((IValue) result).Value = (object) (lastException == null ? 0 : lastException.ErrorId);
+      return result;
     }
 
     public override SignatureType OnPrepare()
     {
-      return this.signatureType;
+      return signatureType;
     }
 
     protected override bool InternalGetIsChanged()

@@ -22,19 +22,19 @@ namespace VistaDB.Engine.SQL
         Signature signature = parser.NextSignature(needSkip, true, -1);
         if (signature.SignatureType == SignatureType.Parameter)
         {
-          this.returnParameterName = signature.Text.Substring(1);
-          if (this.parent.DoGetParam(this.returnParameterName) == null)
-            throw new VistaDBSQLException(616, signature.Text, this.lineNo, this.symbolNo);
+          returnParameterName = signature.Text.Substring(1);
+          if (parent.DoGetParam(returnParameterName) == null)
+            throw new VistaDBSQLException(616, signature.Text, lineNo, symbolNo);
           signature = parser.NextSignature(true, true, 6);
         }
         else
-          this.returnParameterName = (string) null;
-        this.subProgramSignature = signature as ProgrammabilitySignature;
-        if ((Signature) this.subProgramSignature == (Signature) null)
+          returnParameterName = (string) null;
+        subProgramSignature = signature as ProgrammabilitySignature;
+        if ((Signature) subProgramSignature == (Signature) null)
         {
           if (!connection.DatabaseOpened)
             throw new VistaDBSQLException(1012, string.Empty, 0, 0);
-          throw new VistaDBSQLException(607, signature.Text, this.lineNo, this.symbolNo);
+          throw new VistaDBSQLException(607, signature.Text, lineNo, symbolNo);
         }
       }
       while (parser.IsToken(",") && parser.SkipToken(true));
@@ -42,17 +42,17 @@ namespace VistaDB.Engine.SQL
 
     protected override VistaDBType OnPrepareQuery()
     {
-      int num = (int) this.subProgramSignature.Prepare();
+      int num = (int) subProgramSignature.Prepare();
       return VistaDBType.Unknown;
     }
 
     protected override IQueryResult OnExecuteQuery()
     {
-      IParameter parameter = this.returnParameterName == null ? this.parent.DoGetReturnParameter() : this.parent.DoGetParam(this.returnParameterName);
+      IParameter parameter = returnParameterName == null ? parent.DoGetReturnParameter() : parent.DoGetParam(returnParameterName);
       if (parameter != null)
-        this.subProgramSignature.SetReturnParameter(parameter);
-      this.subProgramSignature.Execute();
-      this.prepared = false;
+        subProgramSignature.SetReturnParameter(parameter);
+      subProgramSignature.Execute();
+      prepared = false;
       return (IQueryResult) null;
     }
 
@@ -60,9 +60,9 @@ namespace VistaDB.Engine.SQL
     {
       try
       {
-        if (!((Signature) this.subProgramSignature != (Signature) null))
+        if (!((Signature) subProgramSignature != (Signature) null))
           return;
-        this.subProgramSignature.DisposeSubProgramStatement();
+        subProgramSignature.DisposeSubProgramStatement();
       }
       finally
       {

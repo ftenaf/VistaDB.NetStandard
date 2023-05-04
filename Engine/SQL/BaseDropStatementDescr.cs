@@ -7,18 +7,18 @@ namespace VistaDB.Engine.SQL
   {
     public BaseDropStatementDescr()
     {
-      this.statements = new Hashtable();
-      BaseDropStatementDescr.DropIndexStatementDescr indexStatementDescr = new BaseDropStatementDescr.DropIndexStatementDescr();
-      this.statements.Add((object) "FULLTEXT", (object) indexStatementDescr);
-      this.statements.Add((object) "INDEX", (object) indexStatementDescr);
-      this.statements.Add((object) "TABLE", (object) new BaseDropStatementDescr.DropTableStatementDescr());
-      this.statements.Add((object) "VIEW", (object) new BaseDropStatementDescr.DropViewStatementDescr());
-      this.statements.Add((object) "ASSEMBLY", (object) new BaseDropStatementDescr.DropAssemblyStatementDescr());
-      this.statements.Add((object) "TRIGGER", (object) new BaseDropStatementDescr.DropTriggerStatementDescr());
-      IStatementDescr statementDescr = (IStatementDescr) new BaseDropStatementDescr.DropProcStatementDescr();
-      this.statements.Add((object) "PROC", (object) statementDescr);
-      this.statements.Add((object) "PROCEDURE", (object) statementDescr);
-      this.statements.Add((object) "FUNCTION", (object) new BaseDropStatementDescr.DropFunctionStatementDescr());
+      statements = new Hashtable();
+            DropIndexStatementDescr indexStatementDescr = new DropIndexStatementDescr();
+      statements.Add((object) "FULLTEXT", (object) indexStatementDescr);
+      statements.Add((object) "INDEX", (object) indexStatementDescr);
+      statements.Add((object) "TABLE", (object) new DropTableStatementDescr());
+      statements.Add((object) "VIEW", (object) new DropViewStatementDescr());
+      statements.Add((object) "ASSEMBLY", (object) new DropAssemblyStatementDescr());
+      statements.Add((object) "TRIGGER", (object) new DropTriggerStatementDescr());
+      IStatementDescr statementDescr = (IStatementDescr) new DropProcStatementDescr();
+      statements.Add((object) "PROC", (object) statementDescr);
+      statements.Add((object) "PROCEDURE", (object) statementDescr);
+      statements.Add((object) "FUNCTION", (object) new DropFunctionStatementDescr());
     }
 
     private class DropIndexStatementDescr : IStatementDescr

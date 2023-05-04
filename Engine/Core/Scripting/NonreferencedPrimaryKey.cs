@@ -8,11 +8,11 @@ namespace VistaDB.Engine.Core.Scripting
     internal static readonly string NonReferencedKey = "PRIMARY KEY REFERENCED ";
 
     internal NonreferencedPrimaryKey(int groupId, int endOfGroupId)
-      : base(NonreferencedPrimaryKey.NonReferencedKey, groupId, Signature.Operations.BgnGroup, Signature.Priorities.StdOperator, VistaDBType.Bit, endOfGroupId)
+      : base(NonReferencedKey, groupId, Operations.BgnGroup, Priorities.StdOperator, VistaDBType.Bit, endOfGroupId)
     {
-      this.AddParameter(VistaDBType.NChar);
-      this.AddParameter(VistaDBType.NChar);
-      this.AddParameter(VistaDBType.SmallInt);
+      AddParameter(VistaDBType.NChar);
+      AddParameter(VistaDBType.NChar);
+      AddParameter(VistaDBType.SmallInt);
     }
 
     protected override void OnExecute(ProcedureCode pcode, int entry, Connection connection, DataStorage contextStorage, Row contextRow, ref bool bypassNextGroup, Row rowResult)
@@ -20,7 +20,7 @@ namespace VistaDB.Engine.Core.Scripting
       PCodeUnit pcodeUnit1 = pcode[entry];
       PCodeUnit pcodeUnit2 = pcode[entry + 1];
       PCodeUnit pcodeUnit3 = pcode[entry + 2];
-      bool flag = ((VistaDB.Engine.Core.Indexing.Index) contextStorage).DoCheckUnlinkedPrimaryKey(pcodeUnit1.ResultColumn.Value.ToString(), pcodeUnit2.ResultColumn.Value.ToString(), (VistaDBReferentialIntegrity) (short) pcodeUnit3.ResultColumn.Value);
+      bool flag = ((Indexing.Index) contextStorage).DoCheckUnlinkedPrimaryKey(pcodeUnit1.ResultColumn.Value.ToString(), pcodeUnit2.ResultColumn.Value.ToString(), (VistaDBReferentialIntegrity) (short) pcodeUnit3.ResultColumn.Value);
       pcodeUnit1.ResultColumn = flag ? TrueSignature.True : FalseSignature.False;
     }
   }

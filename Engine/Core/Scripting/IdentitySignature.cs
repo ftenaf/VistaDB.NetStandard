@@ -5,10 +5,10 @@ namespace VistaDB.Engine.Core.Scripting
   internal class IdentitySignature : Signature
   {
     internal IdentitySignature(int groupId, int endOfGroupId)
-      : base(Identity.SystemName, groupId, Signature.Operations.BgnGroup, Signature.Priorities.StdOperator, VistaDBType.Bit, endOfGroupId)
+      : base(Identity.SystemName, groupId, Operations.BgnGroup, Priorities.StdOperator, VistaDBType.Bit, endOfGroupId)
     {
-      this.AddParameter(VistaDBType.Unknown);
-      this.AddParameter(VistaDBType.Unknown);
+      AddParameter(VistaDBType.Unknown);
+      AddParameter(VistaDBType.Unknown);
     }
 
     protected override void OnExecute(ProcedureCode pcode, int entry, Connection connection, DataStorage contextStorage, Row contextRow, ref bool bypassNextGroup, Row rowResult)

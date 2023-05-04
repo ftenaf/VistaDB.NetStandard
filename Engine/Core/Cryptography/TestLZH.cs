@@ -13,9 +13,9 @@ namespace VistaDB.Engine.Core.Cryptography
     internal TestLZH(string text)
     {
       this.text = text;
-      this.lzhCoding = new Lzh(new Lzh.LzhStreaming(this.ReadStreaming), new Lzh.LzhStreaming(this.WriteStreaming));
-      this.encoding = Encoding.Unicode;
-      this.Reset();
+      lzhCoding = new Lzh(new Lzh.LzhStreaming(ReadStreaming), new Lzh.LzhStreaming(WriteStreaming));
+      encoding = Encoding.Unicode;
+      Reset();
     }
 
     private int ReadStreaming(ref byte input, byte[] readBuffer, ref int offset)
@@ -36,8 +36,8 @@ namespace VistaDB.Engine.Core.Cryptography
 
     private void Reset()
     {
-      this.unpackedBuffer = this.encoding.GetBytes(this.text);
-      this.packedBuffer = new byte[this.unpackedBuffer.Length * 4];
+      unpackedBuffer = encoding.GetBytes(text);
+      packedBuffer = new byte[unpackedBuffer.Length * 4];
     }
   }
 }

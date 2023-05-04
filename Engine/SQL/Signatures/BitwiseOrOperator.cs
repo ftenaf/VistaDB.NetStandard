@@ -11,7 +11,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object GetResult()
     {
-      return ((Row.Column) this.leftValue | (Row.Column) this.rightValue).Value;
+      return ((Row.Column) leftValue | (Row.Column) rightValue).Value;
     }
   }
 }

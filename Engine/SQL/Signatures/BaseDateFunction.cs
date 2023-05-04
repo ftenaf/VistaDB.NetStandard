@@ -13,22 +13,22 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       parser.SkipToken(true);
       if (!parser.IsToken("("))
-        throw new VistaDBSQLException(500, "\"(\"", this.lineNo, this.symbolNo);
+        throw new VistaDBSQLException(500, "\"(\"", lineNo, symbolNo);
       parser.SkipToken(true);
       if (parser.TokenValue.TokenType != TokenType.Unknown)
-        throw new VistaDBSQLException(550, "DATEADD", this.lineNo, this.symbolNo);
-      this.datePart = this.GetDatePart(parser.TokenValue.Token);
+        throw new VistaDBSQLException(550, "DATEADD", lineNo, symbolNo);
+      datePart = GetDatePart(parser.TokenValue.Token);
       parser.SkipToken(true);
       for (int index = 0; index < paramCount; ++index)
       {
         parser.ExpectedExpression(",");
-        this.parameters.Add(parser.NextSignature(true, true, 6));
+        parameters.Add(parser.NextSignature(true, true, 6));
       }
       parser.ExpectedExpression(")");
-      this.paramValues = new IColumn[paramCount];
-      this.parameterTypes = new VistaDBType[paramCount];
-      this.signatureType = SignatureType.Expression;
-      this.skipNull = true;
+      paramValues = new IColumn[paramCount];
+      parameterTypes = new VistaDBType[paramCount];
+      signatureType = SignatureType.Expression;
+      skipNull = true;
     }
 
     private DatePart GetDatePart(string name)
@@ -55,14 +55,14 @@ namespace VistaDB.Engine.SQL.Signatures
         return DatePart.Second;
       if (string.Compare(name, "MILLISECOND", StringComparison.OrdinalIgnoreCase) == 0 || string.Compare(name, "MS", StringComparison.OrdinalIgnoreCase) == 0)
         return DatePart.Millisecond;
-      throw new VistaDBSQLException(550, this.text, this.lineNo, this.symbolNo);
+      throw new VistaDBSQLException(550, text, lineNo, symbolNo);
     }
 
     protected override bool IsEquals(Signature signature)
     {
       if (!base.IsEquals(signature))
         return false;
-      return this.datePart == ((BaseDateFunction) signature).datePart;
+      return datePart == ((BaseDateFunction) signature).datePart;
     }
   }
 }

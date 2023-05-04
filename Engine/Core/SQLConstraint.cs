@@ -8,7 +8,7 @@ namespace VistaDB.Engine.Core
     private CheckStatement checkConstraint;
     private string expression;
 
-    internal SQLConstraint(string name, Filter.FilterType typeId, CheckStatement checkConstraint, string expression)
+    internal SQLConstraint(string name, FilterType typeId, CheckStatement checkConstraint, string expression)
       : base(name, (EvalStack) null, typeId)
     {
       this.checkConstraint = checkConstraint;
@@ -17,14 +17,14 @@ namespace VistaDB.Engine.Core
 
     protected override bool OnGetValidRowStatus(Row row)
     {
-      return this.checkConstraint.Evaluate(row);
+      return checkConstraint.Evaluate(row);
     }
 
     internal override string Expression
     {
       get
       {
-        return this.expression;
+        return expression;
       }
     }
   }

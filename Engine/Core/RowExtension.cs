@@ -9,7 +9,7 @@ namespace VistaDB.Engine.Core
 
     internal RowExtension(Row originRow)
     {
-      this.parentRow = originRow;
+      parentRow = originRow;
     }
   }
 }

@@ -12,9 +12,9 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override bool CompareOperands()
     {
-      if (this.rightOperandIsSubQuery)
-        return ((SubQuerySignature) this.rightOperand).IsValuePresent(this.leftValue, this.checkAll, CompareOperation.NotEqual);
-      return this.leftValue.Compare((IVistaDBColumn) this.rightValue) != 0;
+      if (rightOperandIsSubQuery)
+        return ((SubQuerySignature) rightOperand).IsValuePresent(leftValue, checkAll, CompareOperation.NotEqual);
+      return leftValue.Compare((IVistaDBColumn) rightValue) != 0;
     }
 
     protected override CompareOperation GetCompareOperation()

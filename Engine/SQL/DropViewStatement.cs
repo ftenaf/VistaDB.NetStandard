@@ -12,13 +12,13 @@ namespace VistaDB.Engine.SQL
 
     protected override IQueryResult OnExecuteQuery()
     {
-      IViewList viewList = this.Database.EnumViews();
-      foreach (string tableName in this.tableNames)
+      IViewList viewList = Database.EnumViews();
+      foreach (string tableName in tableNames)
       {
         IView view = (IView) viewList[(object) tableName];
         if (view == null)
-          throw new VistaDBSQLException(606, tableName, this.lineNo, this.symbolNo);
-        this.Database.DeleteViewObject(view);
+          throw new VistaDBSQLException(606, tableName, lineNo, symbolNo);
+        Database.DeleteViewObject(view);
       }
       return (IQueryResult) null;
     }

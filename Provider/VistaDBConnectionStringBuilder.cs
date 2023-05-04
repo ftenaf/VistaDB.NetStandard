@@ -11,28 +11,13 @@ using VistaDB.Diagnostic;
 
 namespace VistaDB.Provider
 {
-  [TypeConverter(typeof (VistaDBConnectionStringBuilder.VistaDBConnectionStringBuilderConvertor))]
+  [TypeConverter(typeof (VistaDBConnectionStringBuilderConvertor))]
   [DefaultProperty("DataSource")]
   public sealed class VistaDBConnectionStringBuilder : DbConnectionStringBuilder
   {
-    private static readonly Dictionary<string, VistaDBConnectionStringBuilder.ConnectionKeyword> keywords = new Dictionary<string, VistaDBConnectionStringBuilder.ConnectionKeyword>((IEqualityComparer<string>) StringComparer.OrdinalIgnoreCase);
+    private static readonly Dictionary<string, ConnectionKeyword> keywords = new Dictionary<string, ConnectionKeyword>((IEqualityComparer<string>) StringComparer.OrdinalIgnoreCase);
     private static readonly int KEYWORD_COUNT = 12;
-    private const string DATABASE_KEYWORD = "Database";
-    private const string DATA_SOURCE_KEYWORD = "Data Source";
-    private const string OPEN_MODE_KEYWORD = "Open Mode";
-    private const string PASSWORD_KEYWORD = "Password";
-    private const string CONTEXT_CONN_KEYWORD = "Context Connection";
-    private const string POOLING_KEYWORD = "Pooling";
-    private const string MIN_POOL_SIZE_KEYWORD = "Min Pool Size";
-    private const string MAX_POOL_SIZE_KEYWORD = "Max Pool Size";
-    private const string ISOLATED_STORAGE_KEYWORD = "Isolated Storage";
-    private const string CONNECT_TIMEOUT_KEYWORD = "Connect Timeout";
-    private const string TRANSACTIONMODE_KEYWORD = "Transaction Mode";
-    private const string ENCRYPTDATABASE_KEYWORD = "Encrypt Database";
-    private const int MIN_POOL_SIZE = 1;
-    private const int MAX_POOL_SIZE = 100;
-    private const int CONNECT_TIMEOUT_IMMEDIATE = 0;
-    private static readonly ArrayList validKeywords;
+        private static readonly ArrayList validKeywords;
     private string database;
     private string dataSource;
     private VistaDBDatabaseOpenMode openMode;
@@ -48,42 +33,42 @@ namespace VistaDB.Provider
 
     static VistaDBConnectionStringBuilder()
     {
-      VistaDBConnectionStringBuilder.keywords = new Dictionary<string, VistaDBConnectionStringBuilder.ConnectionKeyword>(VistaDBConnectionStringBuilder.KEYWORD_COUNT, (IEqualityComparer<string>) StringComparer.OrdinalIgnoreCase);
-      VistaDBConnectionStringBuilder.keywords.Add(nameof (Database), VistaDBConnectionStringBuilder.ConnectionKeyword.Database);
-      VistaDBConnectionStringBuilder.keywords.Add("Data Source", VistaDBConnectionStringBuilder.ConnectionKeyword.DataSource);
-      VistaDBConnectionStringBuilder.keywords.Add("Open Mode", VistaDBConnectionStringBuilder.ConnectionKeyword.OpenMode);
-      VistaDBConnectionStringBuilder.keywords.Add(nameof (Password), VistaDBConnectionStringBuilder.ConnectionKeyword.Password);
-      VistaDBConnectionStringBuilder.keywords.Add("Context Connection", VistaDBConnectionStringBuilder.ConnectionKeyword.ContextConnection);
-      VistaDBConnectionStringBuilder.keywords.Add("Min Pool Size", VistaDBConnectionStringBuilder.ConnectionKeyword.MinPoolSize);
-      VistaDBConnectionStringBuilder.keywords.Add("Max Pool Size", VistaDBConnectionStringBuilder.ConnectionKeyword.MaxPoolSize);
-      VistaDBConnectionStringBuilder.keywords.Add("Isolated Storage", VistaDBConnectionStringBuilder.ConnectionKeyword.IsolatedStorage);
-      VistaDBConnectionStringBuilder.keywords.Add("Connect Timeout", VistaDBConnectionStringBuilder.ConnectionKeyword.ConnectTimeout);
-      VistaDBConnectionStringBuilder.keywords.Add(nameof (Pooling), VistaDBConnectionStringBuilder.ConnectionKeyword.Pooling);
-      VistaDBConnectionStringBuilder.keywords.Add("Transaction Mode", VistaDBConnectionStringBuilder.ConnectionKeyword.TransactionMode);
-      VistaDBConnectionStringBuilder.keywords.Add("Encrypt Database", VistaDBConnectionStringBuilder.ConnectionKeyword.EncryptDatabase);
-      VistaDBConnectionStringBuilder.validKeywords = new ArrayList(VistaDBConnectionStringBuilder.KEYWORD_COUNT);
-      VistaDBConnectionStringBuilder.validKeywords.Add((object) nameof (Database));
-      VistaDBConnectionStringBuilder.validKeywords.Add((object) "Data Source");
-      VistaDBConnectionStringBuilder.validKeywords.Add((object) "Open Mode");
-      VistaDBConnectionStringBuilder.validKeywords.Add((object) nameof (Password));
-      VistaDBConnectionStringBuilder.validKeywords.Add((object) "Context Connection");
-      VistaDBConnectionStringBuilder.validKeywords.Add((object) "Min Pool Size");
-      VistaDBConnectionStringBuilder.validKeywords.Add((object) "Max Pool Size");
-      VistaDBConnectionStringBuilder.validKeywords.Add((object) "Isolated Storage");
-      VistaDBConnectionStringBuilder.validKeywords.Add((object) "Connect Timeout");
-      VistaDBConnectionStringBuilder.validKeywords.Add((object) nameof (Pooling));
-      VistaDBConnectionStringBuilder.validKeywords.Add((object) "Transaction Mode");
-      VistaDBConnectionStringBuilder.validKeywords.Add((object) "Encrypt Database");
+            keywords = new Dictionary<string, ConnectionKeyword>(KEYWORD_COUNT, (IEqualityComparer<string>) StringComparer.OrdinalIgnoreCase);
+            keywords.Add(nameof (Database), ConnectionKeyword.Database);
+            keywords.Add("Data Source", ConnectionKeyword.DataSource);
+            keywords.Add("Open Mode", ConnectionKeyword.OpenMode);
+            keywords.Add(nameof (Password), ConnectionKeyword.Password);
+            keywords.Add("Context Connection", ConnectionKeyword.ContextConnection);
+            keywords.Add("Min Pool Size", ConnectionKeyword.MinPoolSize);
+            keywords.Add("Max Pool Size", ConnectionKeyword.MaxPoolSize);
+            keywords.Add("Isolated Storage", ConnectionKeyword.IsolatedStorage);
+            keywords.Add("Connect Timeout", ConnectionKeyword.ConnectTimeout);
+            keywords.Add(nameof (Pooling), ConnectionKeyword.Pooling);
+            keywords.Add("Transaction Mode", ConnectionKeyword.TransactionMode);
+            keywords.Add("Encrypt Database", ConnectionKeyword.EncryptDatabase);
+            validKeywords = new ArrayList(KEYWORD_COUNT);
+            validKeywords.Add((object) nameof (Database));
+            validKeywords.Add((object) "Data Source");
+            validKeywords.Add((object) "Open Mode");
+            validKeywords.Add((object) nameof (Password));
+            validKeywords.Add((object) "Context Connection");
+            validKeywords.Add((object) "Min Pool Size");
+            validKeywords.Add((object) "Max Pool Size");
+            validKeywords.Add((object) "Isolated Storage");
+            validKeywords.Add((object) "Connect Timeout");
+            validKeywords.Add((object) nameof (Pooling));
+            validKeywords.Add((object) "Transaction Mode");
+            validKeywords.Add((object) "Encrypt Database");
     }
 
     public VistaDBConnectionStringBuilder()
     {
-      this.Clear();
+      Clear();
     }
 
     public VistaDBConnectionStringBuilder(string connectionString)
     {
-      this.ConnectionString = connectionString;
+      ConnectionString = connectionString;
     }
 
     [Browsable(false)]
@@ -92,12 +77,12 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.contextConnection;
+        return contextConnection;
       }
       set
       {
-        this.SetValue("Context Connection", (object) value);
-        this.contextConnection = value;
+        SetValue("Context Connection", (object) value);
+        contextConnection = value;
       }
     }
 
@@ -107,18 +92,18 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.database;
+        return database;
       }
       set
       {
         if (value.Contains(Path.PathSeparator.ToString()) || value.Contains("|"))
         {
-          this.DataSource = value;
+          DataSource = value;
         }
         else
         {
-          this.SetValue(nameof (Database), (object) value);
-          this.database = value;
+          SetValue(nameof (Database), (object) value);
+          database = value;
         }
       }
     }
@@ -131,12 +116,12 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.dataSource;
+        return dataSource;
       }
       set
       {
-        this.SetValue("Data Source", (object) value);
-        this.dataSource = value;
+        SetValue("Data Source", (object) value);
+        dataSource = value;
       }
     }
 
@@ -155,12 +140,12 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.isolatedStorage;
+        return isolatedStorage;
       }
       set
       {
-        this.SetValue("Isolated Storage", (object) value);
-        this.isolatedStorage = value;
+        SetValue("Isolated Storage", (object) value);
+        isolatedStorage = value;
       }
     }
 
@@ -168,49 +153,49 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.GetAt(this.GetIndex(keyword));
+        return GetAt(GetIndex(keyword));
       }
       set
       {
-        switch (this.GetIndex(keyword))
+        switch (GetIndex(keyword))
         {
-          case VistaDBConnectionStringBuilder.ConnectionKeyword.Database:
-            this.Database = this.ConvertToString(value);
+          case ConnectionKeyword.Database:
+            Database = ConvertToString(value);
             break;
-          case VistaDBConnectionStringBuilder.ConnectionKeyword.DataSource:
-            this.DataSource = this.ConvertToString(value);
+          case ConnectionKeyword.DataSource:
+            DataSource = ConvertToString(value);
             break;
-          case VistaDBConnectionStringBuilder.ConnectionKeyword.OpenMode:
-            this.OpenMode = this.ConvertToOpenMode((string) value);
+          case ConnectionKeyword.OpenMode:
+            OpenMode = ConvertToOpenMode((string) value);
             break;
-          case VistaDBConnectionStringBuilder.ConnectionKeyword.Password:
-            this.Password = this.ConvertToString(value);
+          case ConnectionKeyword.Password:
+            Password = ConvertToString(value);
             break;
-          case VistaDBConnectionStringBuilder.ConnectionKeyword.ContextConnection:
-            this.ContextConnection = this.ConvertToBoolean(value);
+          case ConnectionKeyword.ContextConnection:
+            ContextConnection = ConvertToBoolean(value);
             break;
-          case VistaDBConnectionStringBuilder.ConnectionKeyword.MinPoolSize:
-            this.MinPoolSize = this.ConvertToInt(value);
+          case ConnectionKeyword.MinPoolSize:
+            MinPoolSize = ConvertToInt(value);
             break;
-          case VistaDBConnectionStringBuilder.ConnectionKeyword.MaxPoolSize:
-            this.MaxPoolSize = this.ConvertToInt(value);
+          case ConnectionKeyword.MaxPoolSize:
+            MaxPoolSize = ConvertToInt(value);
             break;
-          case VistaDBConnectionStringBuilder.ConnectionKeyword.IsolatedStorage:
-            this.IsolatedStorage = this.ConvertToBoolean(value);
+          case ConnectionKeyword.IsolatedStorage:
+            IsolatedStorage = ConvertToBoolean(value);
             break;
-          case VistaDBConnectionStringBuilder.ConnectionKeyword.ConnectTimeout:
-            this.ConnectTimeout = this.ConvertToInt(value);
+          case ConnectionKeyword.ConnectTimeout:
+            ConnectTimeout = ConvertToInt(value);
             break;
-          case VistaDBConnectionStringBuilder.ConnectionKeyword.Pooling:
-            this.Pooling = this.ConvertToBoolean(value);
+          case ConnectionKeyword.Pooling:
+            Pooling = ConvertToBoolean(value);
             break;
-          case VistaDBConnectionStringBuilder.ConnectionKeyword.TransactionMode:
-            this.TransactionMode = this.ConvertToTransactionMode(value);
+          case ConnectionKeyword.TransactionMode:
+            TransactionMode = ConvertToTransactionMode(value);
             break;
-          case VistaDBConnectionStringBuilder.ConnectionKeyword.END_KEYWORDS:
+          case ConnectionKeyword.END_KEYWORDS:
             throw new ArgumentException("Invalid keyword", (Exception) new VistaDBException(1014, keyword));
           default:
-            this.Remove(keyword);
+            Remove(keyword);
             break;
         }
       }
@@ -221,7 +206,7 @@ namespace VistaDB.Provider
     {
       get
       {
-        return (ICollection) VistaDBConnectionStringBuilder.validKeywords;
+        return (ICollection)validKeywords;
       }
     }
 
@@ -232,13 +217,13 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.transactionMode;
+        return transactionMode;
       }
       set
       {
         if (value != VistaDBTransaction.TransactionMode.On)
-          this.SetValue("Transaction Mode", (object) value);
-        this.transactionMode = value;
+          SetValue("Transaction Mode", (object) value);
+        transactionMode = value;
       }
     }
 
@@ -249,13 +234,13 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.pooling;
+        return pooling;
       }
       set
       {
         if (value)
-          this.SetValue(nameof (Pooling), (object) value);
-        this.pooling = value;
+          SetValue(nameof (Pooling), (object) value);
+        pooling = value;
       }
     }
 
@@ -266,7 +251,7 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.minPoolSize;
+        return minPoolSize;
       }
       set
       {
@@ -276,8 +261,8 @@ namespace VistaDB.Provider
           value = 1;
         if (value > 100)
           value = 100;
-        this.SetValue("Min Pool Size", (object) value);
-        this.minPoolSize = value;
+        SetValue("Min Pool Size", (object) value);
+        minPoolSize = value;
       }
     }
 
@@ -288,16 +273,16 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.maxPoolSize;
+        return maxPoolSize;
       }
       set
       {
         if (value < 1 || value > 100)
           throw new ArgumentOutOfRangeException("Max Pool Size", "Invalid Value for Max Pool Size");
-        if (value < this.minPoolSize)
+        if (value < minPoolSize)
           throw new ArgumentOutOfRangeException("Max Pool Size", "Max Pool Size cannot be less than Min Pool Size");
-        this.SetValue("Max Pool Size", (object) value);
-        this.maxPoolSize = value;
+        SetValue("Max Pool Size", (object) value);
+        maxPoolSize = value;
       }
     }
 
@@ -308,12 +293,12 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.connectTimeout;
+        return connectTimeout;
       }
       set
       {
-        this.SetValue("Connect Timeout", (object) value);
-        this.connectTimeout = value;
+        SetValue("Connect Timeout", (object) value);
+        connectTimeout = value;
       }
     }
 
@@ -324,12 +309,12 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.openMode;
+        return openMode;
       }
       set
       {
-        this.SetValue("Open Mode", (object) value);
-        this.openMode = value;
+        SetValue("Open Mode", (object) value);
+        openMode = value;
       }
     }
 
@@ -341,30 +326,30 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.passphrase;
+        return passphrase;
       }
       set
       {
         if (value != null)
         {
-          this.passphrase = value.Trim();
-          if (this.passphrase.Length > 0)
+          passphrase = value.Trim();
+          if (passphrase.Length > 0)
           {
-            this.encryptDatabase = true;
-            this.SetValue(nameof (Password), (object) value);
-            this.passphrase = value;
+            encryptDatabase = true;
+            SetValue(nameof (Password), (object) value);
+            passphrase = value;
           }
           else
           {
-            this.passphrase = (string) null;
-            this.SetValue(nameof (Password), (object) null);
+            passphrase = (string) null;
+            SetValue(nameof (Password), (object) null);
           }
         }
         else
         {
-          this.encryptDatabase = false;
-          this.passphrase = (string) null;
-          this.SetValue(nameof (Password), (object) null);
+          encryptDatabase = false;
+          passphrase = (string) null;
+          SetValue(nameof (Password), (object) null);
         }
       }
     }
@@ -376,12 +361,12 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.encryptDatabase;
+        return encryptDatabase;
       }
       set
       {
-        this.SetValue("Encrypt Database", (object) value);
-        this.encryptDatabase = value;
+        SetValue("Encrypt Database", (object) value);
+        encryptDatabase = value;
       }
     }
 
@@ -389,9 +374,9 @@ namespace VistaDB.Provider
     {
       get
       {
-        ArrayList arrayList = new ArrayList(VistaDBConnectionStringBuilder.KEYWORD_COUNT);
-        for (int index = 0; index < VistaDBConnectionStringBuilder.KEYWORD_COUNT; ++index)
-          arrayList[index] = this.GetAt((VistaDBConnectionStringBuilder.ConnectionKeyword) index);
+        ArrayList arrayList = new ArrayList(KEYWORD_COUNT);
+        for (int index = 0; index < KEYWORD_COUNT; ++index)
+          arrayList[index] = GetAt((ConnectionKeyword) index);
         return (ICollection) arrayList;
       }
     }
@@ -399,38 +384,38 @@ namespace VistaDB.Provider
     public override void Clear()
     {
       base.Clear();
-      for (int index = 0; index < VistaDBConnectionStringBuilder.KEYWORD_COUNT; ++index)
-        this.Reset((VistaDBConnectionStringBuilder.ConnectionKeyword) index);
+      for (int index = 0; index < KEYWORD_COUNT; ++index)
+        Reset((ConnectionKeyword) index);
     }
 
     public override bool ContainsKey(string keyword)
     {
-      return VistaDBConnectionStringBuilder.keywords.ContainsKey(keyword);
+      return keywords.ContainsKey(keyword);
     }
 
     public override bool Remove(string keyword)
     {
-      VistaDBConnectionStringBuilder.ConnectionKeyword index;
-      if (!VistaDBConnectionStringBuilder.keywords.TryGetValue(keyword, out index) || !base.Remove((string) VistaDBConnectionStringBuilder.validKeywords[(int) index]))
+            ConnectionKeyword index;
+      if (!keywords.TryGetValue(keyword, out index) || !base.Remove((string)validKeywords[(int) index]))
         return false;
-      this.Reset(index);
+      Reset(index);
       return true;
     }
 
     public override bool ShouldSerialize(string keyword)
     {
-      VistaDBConnectionStringBuilder.ConnectionKeyword connectionKeyword;
-      if (VistaDBConnectionStringBuilder.keywords.TryGetValue(keyword, out connectionKeyword))
-        return base.ShouldSerialize((string) VistaDBConnectionStringBuilder.validKeywords[(int) connectionKeyword]);
+            ConnectionKeyword connectionKeyword;
+      if (keywords.TryGetValue(keyword, out connectionKeyword))
+        return base.ShouldSerialize((string)validKeywords[(int) connectionKeyword]);
       return false;
     }
 
     public override bool TryGetValue(string keyword, out object value)
     {
-      VistaDBConnectionStringBuilder.ConnectionKeyword index;
-      if (VistaDBConnectionStringBuilder.keywords.TryGetValue(keyword, out index))
+            ConnectionKeyword index;
+      if (keywords.TryGetValue(keyword, out index))
       {
-        value = this.GetAt(index);
+        value = GetAt(index);
         return true;
       }
       value = (object) null;
@@ -442,88 +427,88 @@ namespace VistaDB.Provider
       base[keyword] = value;
     }
 
-    private void Reset(VistaDBConnectionStringBuilder.ConnectionKeyword index)
+    private void Reset(ConnectionKeyword index)
     {
       switch (index)
       {
-        case VistaDBConnectionStringBuilder.ConnectionKeyword.Database:
-          this.database = string.Empty;
+        case ConnectionKeyword.Database:
+          database = string.Empty;
           break;
-        case VistaDBConnectionStringBuilder.ConnectionKeyword.DataSource:
-          this.dataSource = string.Empty;
+        case ConnectionKeyword.DataSource:
+          dataSource = string.Empty;
           break;
-        case VistaDBConnectionStringBuilder.ConnectionKeyword.OpenMode:
-          this.openMode = VistaDBDatabaseOpenMode.NonexclusiveReadWrite;
+        case ConnectionKeyword.OpenMode:
+          openMode = VistaDBDatabaseOpenMode.NonexclusiveReadWrite;
           break;
-        case VistaDBConnectionStringBuilder.ConnectionKeyword.Password:
-          this.passphrase = string.Empty;
+        case ConnectionKeyword.Password:
+          passphrase = string.Empty;
           break;
-        case VistaDBConnectionStringBuilder.ConnectionKeyword.ContextConnection:
-          this.contextConnection = false;
+        case ConnectionKeyword.ContextConnection:
+          contextConnection = false;
           break;
-        case VistaDBConnectionStringBuilder.ConnectionKeyword.MinPoolSize:
-          this.minPoolSize = 1;
+        case ConnectionKeyword.MinPoolSize:
+          minPoolSize = 1;
           break;
-        case VistaDBConnectionStringBuilder.ConnectionKeyword.MaxPoolSize:
-          this.maxPoolSize = 100;
+        case ConnectionKeyword.MaxPoolSize:
+          maxPoolSize = 100;
           break;
-        case VistaDBConnectionStringBuilder.ConnectionKeyword.IsolatedStorage:
-          this.isolatedStorage = false;
+        case ConnectionKeyword.IsolatedStorage:
+          isolatedStorage = false;
           break;
-        case VistaDBConnectionStringBuilder.ConnectionKeyword.ConnectTimeout:
-          this.connectTimeout = 0;
+        case ConnectionKeyword.ConnectTimeout:
+          connectTimeout = 0;
           break;
-        case VistaDBConnectionStringBuilder.ConnectionKeyword.Pooling:
-          this.Pooling = false;
+        case ConnectionKeyword.Pooling:
+          Pooling = false;
           break;
-        case VistaDBConnectionStringBuilder.ConnectionKeyword.TransactionMode:
-          this.transactionMode = VistaDBTransaction.TransactionMode.On;
+        case ConnectionKeyword.TransactionMode:
+          transactionMode = VistaDBTransaction.TransactionMode.On;
           break;
-        case VistaDBConnectionStringBuilder.ConnectionKeyword.EncryptDatabase:
-          this.encryptDatabase = false;
+        case ConnectionKeyword.EncryptDatabase:
+          encryptDatabase = false;
           break;
       }
     }
 
-    private object GetAt(VistaDBConnectionStringBuilder.ConnectionKeyword index)
+    private object GetAt(ConnectionKeyword index)
     {
       switch (index)
       {
-        case VistaDBConnectionStringBuilder.ConnectionKeyword.Database:
-          return (object) this.database;
-        case VistaDBConnectionStringBuilder.ConnectionKeyword.DataSource:
-          return (object) this.dataSource;
-        case VistaDBConnectionStringBuilder.ConnectionKeyword.OpenMode:
-          return (object) this.openMode;
-        case VistaDBConnectionStringBuilder.ConnectionKeyword.Password:
-          return (object) this.passphrase;
-        case VistaDBConnectionStringBuilder.ConnectionKeyword.ContextConnection:
-          return (object) this.contextConnection;
-        case VistaDBConnectionStringBuilder.ConnectionKeyword.MinPoolSize:
-          return (object) this.minPoolSize;
-        case VistaDBConnectionStringBuilder.ConnectionKeyword.MaxPoolSize:
-          return (object) this.maxPoolSize;
-        case VistaDBConnectionStringBuilder.ConnectionKeyword.IsolatedStorage:
-          return (object) this.isolatedStorage;
-        case VistaDBConnectionStringBuilder.ConnectionKeyword.ConnectTimeout:
-          return (object) this.connectTimeout;
-        case VistaDBConnectionStringBuilder.ConnectionKeyword.Pooling:
-          return (object) this.Pooling;
-        case VistaDBConnectionStringBuilder.ConnectionKeyword.TransactionMode:
-          return (object) this.transactionMode;
-        case VistaDBConnectionStringBuilder.ConnectionKeyword.EncryptDatabase:
-          return (object) this.encryptDatabase;
+        case ConnectionKeyword.Database:
+          return (object) database;
+        case ConnectionKeyword.DataSource:
+          return (object) dataSource;
+        case ConnectionKeyword.OpenMode:
+          return (object) openMode;
+        case ConnectionKeyword.Password:
+          return (object) passphrase;
+        case ConnectionKeyword.ContextConnection:
+          return (object) contextConnection;
+        case ConnectionKeyword.MinPoolSize:
+          return (object) minPoolSize;
+        case ConnectionKeyword.MaxPoolSize:
+          return (object) maxPoolSize;
+        case ConnectionKeyword.IsolatedStorage:
+          return (object) isolatedStorage;
+        case ConnectionKeyword.ConnectTimeout:
+          return (object) connectTimeout;
+        case ConnectionKeyword.Pooling:
+          return (object) Pooling;
+        case ConnectionKeyword.TransactionMode:
+          return (object) transactionMode;
+        case ConnectionKeyword.EncryptDatabase:
+          return (object) encryptDatabase;
         default:
           return (object) null;
       }
     }
 
-    private VistaDBConnectionStringBuilder.ConnectionKeyword GetIndex(string keyword)
+    private ConnectionKeyword GetIndex(string keyword)
     {
-      VistaDBConnectionStringBuilder.ConnectionKeyword connectionKeyword;
-      if (VistaDBConnectionStringBuilder.keywords.TryGetValue(keyword, out connectionKeyword))
+            ConnectionKeyword connectionKeyword;
+      if (keywords.TryGetValue(keyword, out connectionKeyword))
         return connectionKeyword;
-      return VistaDBConnectionStringBuilder.ConnectionKeyword.END_KEYWORDS;
+      return ConnectionKeyword.END_KEYWORDS;
     }
 
     private int ConvertToInt(object value)
@@ -593,7 +578,7 @@ namespace VistaDB.Provider
         {
           VistaDBConnectionStringBuilder options = value as VistaDBConnectionStringBuilder;
           if (options != null)
-            return (object) this.ConvertToInstanceDescriptor(options);
+            return (object) ConvertToInstanceDescriptor(options);
         }
         return base.ConvertTo(context, culture, value, destinationType);
       }

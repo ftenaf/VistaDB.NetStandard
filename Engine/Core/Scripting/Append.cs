@@ -8,11 +8,11 @@ namespace VistaDB.Engine.Core.Scripting
     private List<Row.Column> tmpList;
 
     internal Append(string name, int groupId)
-      : base(name, groupId, Signature.Operations.Nomark, Signature.Priorities.Endline, VistaDBType.Unknown)
+      : base(name, groupId, Operations.Nomark, Priorities.Endline, VistaDBType.Unknown)
     {
-      this.AddParameter(VistaDBType.Unknown);
-      this.AddParameter(VistaDBType.Unknown);
-      this.tmpList = new List<Row.Column>(64);
+      AddParameter(VistaDBType.Unknown);
+      AddParameter(VistaDBType.Unknown);
+      tmpList = new List<Row.Column>(64);
     }
 
     protected override void OnExecute(ProcedureCode pcode, int entry, Connection connection, DataStorage contextStorage, Row contextRow, ref bool bypassNextGroup, Row rowResult)
@@ -29,23 +29,23 @@ namespace VistaDB.Engine.Core.Scripting
       {
         Row resultRow1 = pcodeUnit1.ResultRow;
         Row resultRow2 = pcodeUnit2.ResultRow;
-        this.tmpList.Clear();
+        tmpList.Clear();
         if (resultRow1 != null)
         {
           foreach (Row.Column column in (List<Row.Column>) resultRow1)
-            this.tmpList.Add(column);
+            tmpList.Add(column);
         }
         else
-          this.tmpList.Add(pcodeUnit1.ResultColumn);
+          tmpList.Add(pcodeUnit1.ResultColumn);
         if (resultRow2 != null)
         {
           foreach (Row.Column column in (List<Row.Column>) resultRow2)
-            this.tmpList.Add(column);
+            tmpList.Add(column);
         }
         else
-          this.tmpList.Add(pcodeUnit2.ResultColumn);
+          tmpList.Add(pcodeUnit2.ResultColumn);
         rowResult.Clear();
-        foreach (Row.Column tmp in this.tmpList)
+        foreach (Row.Column tmp in tmpList)
           rowResult.AppendColumn((IColumn) tmp);
         pcodeUnit1.ResultRow = rowResult;
       }

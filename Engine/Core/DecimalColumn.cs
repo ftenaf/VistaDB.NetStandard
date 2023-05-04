@@ -8,7 +8,7 @@ namespace VistaDB.Engine.Core
     private static readonly int IntSize = 4;
     private static readonly int BoolSize = 1;
     private static readonly int ScaleSize = 1;
-    private static readonly int DecSize = DecimalColumn.IntSize + DecimalColumn.IntSize + DecimalColumn.IntSize + DecimalColumn.BoolSize + DecimalColumn.ScaleSize;
+    private static readonly int DecSize = IntSize + IntSize + IntSize + BoolSize + ScaleSize;
 
     internal static Decimal CustValue(Row.Column col)
     {
@@ -30,12 +30,12 @@ namespace VistaDB.Engine.Core
     }
 
     internal DecimalColumn()
-      : base((object) null, VistaDBType.Decimal, DecimalColumn.DecSize)
+      : base((object) null, VistaDBType.Decimal, DecSize)
     {
     }
 
     internal DecimalColumn(Decimal val)
-      : base((object) val, VistaDBType.Decimal, DecimalColumn.DecSize)
+      : base((object) val, VistaDBType.Decimal, DecSize)
     {
     }
 
@@ -96,84 +96,84 @@ namespace VistaDB.Engine.Core
 
     internal override int ConvertToByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      int[] bits = Decimal.GetBits((Decimal) this.Value);
-      offset = VdbBitConverter.GetBytes((uint) bits[0], buffer, offset, DecimalColumn.IntSize);
-      offset = VdbBitConverter.GetBytes((uint) bits[1], buffer, offset, DecimalColumn.IntSize);
-      offset = VdbBitConverter.GetBytes((uint) bits[2], buffer, offset, DecimalColumn.IntSize);
+      int[] bits = Decimal.GetBits((Decimal) Value);
+      offset = VdbBitConverter.GetBytes((uint) bits[0], buffer, offset, IntSize);
+      offset = VdbBitConverter.GetBytes((uint) bits[1], buffer, offset, IntSize);
+      offset = VdbBitConverter.GetBytes((uint) bits[2], buffer, offset, IntSize);
       byte[] bytes = BitConverter.GetBytes(bits[3]);
-      Array.Copy((Array) bytes, 2, (Array) buffer, offset, DecimalColumn.ScaleSize);
-      offset += DecimalColumn.ScaleSize;
-      Array.Copy((Array) bytes, 3, (Array) buffer, offset, DecimalColumn.BoolSize);
-      offset += DecimalColumn.BoolSize;
+      Array.Copy((Array) bytes, 2, (Array) buffer, offset, ScaleSize);
+      offset += ScaleSize;
+      Array.Copy((Array) bytes, 3, (Array) buffer, offset, BoolSize);
+      offset += BoolSize;
       return offset;
     }
 
     internal override int ConvertFromByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
       int int32_1 = BitConverter.ToInt32(buffer, offset);
-      offset += DecimalColumn.IntSize;
+      offset += IntSize;
       int int32_2 = BitConverter.ToInt32(buffer, offset);
-      offset += DecimalColumn.IntSize;
+      offset += IntSize;
       int int32_3 = BitConverter.ToInt32(buffer, offset);
-      offset += DecimalColumn.IntSize;
+      offset += IntSize;
       byte scale = buffer[offset];
-      offset += DecimalColumn.ScaleSize;
+      offset += ScaleSize;
       bool boolean = BitConverter.ToBoolean(buffer, offset);
-      offset += DecimalColumn.BoolSize;
-      this.val = (object) new Decimal(int32_1, int32_2, int32_3, boolean, scale);
+      offset += BoolSize;
+      val = (object) new Decimal(int32_1, int32_2, int32_3, boolean, scale);
       return offset;
     }
 
     protected override long Collate(Row.Column col)
     {
-      return (long) Decimal.Compare((Decimal) this.Value, (Decimal) col.Value);
+      return (long) Decimal.Compare((Decimal) Value, (Decimal) col.Value);
     }
 
     protected override Row.Column DoUnaryMinus()
     {
-      this.Value = (object) Decimal.Negate((Decimal) this.Value);
+      Value = (object) Decimal.Negate((Decimal) Value);
       return (Row.Column) this;
     }
 
     protected override Row.Column DoMinus(Row.Column column)
     {
-      this.Value = (object) ((Decimal) this.Value - DecimalColumn.CustValue(column));
+      Value = (object) ((Decimal) Value - CustValue(column));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoPlus(Row.Column column)
     {
-      this.Value = (object) ((Decimal) this.Value + DecimalColumn.CustValue(column));
+      Value = (object) ((Decimal) Value + CustValue(column));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoMultiplyBy(Row.Column col)
     {
-      this.Value = (object) Decimal.Multiply((Decimal) this.Value, DecimalColumn.CustValue(col));
+      Value = (object) Decimal.Multiply((Decimal) Value, CustValue(col));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoDivideBy(Row.Column denominator)
     {
-      this.Value = (object) Decimal.Divide((Decimal) this.Value, DecimalColumn.CustValue(denominator));
+      Value = (object) Decimal.Divide((Decimal) Value, CustValue(denominator));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoGetDividedBy(Row.Column numerator)
     {
-      this.Value = (object) Decimal.Divide(DecimalColumn.CustValue(numerator), (Decimal) this.Value);
+      Value = (object) Decimal.Divide(CustValue(numerator), (Decimal) Value);
       return (Row.Column) this;
     }
 
     protected override Row.Column DoModBy(Row.Column denominator)
     {
-      this.Value = (object) ((Decimal) this.Value % DecimalColumn.CustValue(denominator));
+      Value = (object) ((Decimal) Value % CustValue(denominator));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoGetModBy(Row.Column numerator)
     {
-      this.Value = (object) (DecimalColumn.CustValue(numerator) % (Decimal) this.Value);
+      Value = (object) (CustValue(numerator) % (Decimal) Value);
       return (Row.Column) this;
     }
   }

@@ -6,7 +6,7 @@ namespace VistaDB.Engine.Internal
 {
   internal class Context
   {
-    private Dictionary<int, Context.ContextStack> threadsContext = new Dictionary<int, Context.ContextStack>();
+    private Dictionary<int, ContextStack> threadsContext = new Dictionary<int, ContextStack>();
     private bool active = true;
 
     private static int ThreadId
@@ -17,26 +17,26 @@ namespace VistaDB.Engine.Internal
       }
     }
 
-    private Context.ContextStack GetStack()
+    private ContextStack GetStack()
     {
-      if (this.threadsContext.ContainsKey(Context.ThreadId))
-        return this.threadsContext[Context.ThreadId];
-      Context.ContextStack contextStack = new Context.ContextStack();
-      this.threadsContext.Add(Context.ThreadId, contextStack);
+      if (threadsContext.ContainsKey(ThreadId))
+        return threadsContext[ThreadId];
+            ContextStack contextStack = new ContextStack();
+      threadsContext.Add(ThreadId, contextStack);
       return contextStack;
     }
 
     private void ReleaseStack()
     {
-      this.threadsContext.Remove(Context.ThreadId);
+      threadsContext.Remove(ThreadId);
     }
 
     internal bool Available
     {
       get
       {
-        if (this.active)
-          return this.CurrentContext != null;
+        if (active)
+          return CurrentContext != null;
         return false;
       }
     }
@@ -45,31 +45,31 @@ namespace VistaDB.Engine.Internal
     {
       get
       {
-        lock (this.threadsContext)
+        lock (threadsContext)
         {
-          if (!this.active)
+          if (!active)
             return (IDisposable) null;
-          return this.GetStack().Current;
+          return GetStack().Current;
         }
       }
       set
       {
-        lock (this.threadsContext)
-          this.GetStack().Current = value;
+        lock (threadsContext)
+          GetStack().Current = value;
       }
     }
 
     internal void PushContext(IDisposable newContext)
     {
-      lock (this.threadsContext)
-        this.GetStack().Push(newContext);
+      lock (threadsContext)
+        GetStack().Push(newContext);
     }
 
     internal void PopContext()
     {
-      lock (this.threadsContext)
+      lock (threadsContext)
       {
-        Context.ContextStack stack = this.GetStack();
+                ContextStack stack = GetStack();
         try
         {
           stack.Pop()?.Dispose();
@@ -77,7 +77,7 @@ namespace VistaDB.Engine.Internal
         finally
         {
           if (stack.Count == 0)
-            this.ReleaseStack();
+            ReleaseStack();
         }
       }
     }
@@ -86,14 +86,14 @@ namespace VistaDB.Engine.Internal
     {
       public void Push(IDisposable o)
       {
-        this.Add(o);
+        Add(o);
       }
 
       public IDisposable Pop()
       {
-        IDisposable current = this.Current;
-        if (this.Count > 0)
-          this.RemoveAt(this.Count - 1);
+        IDisposable current = Current;
+        if (Count > 0)
+          RemoveAt(Count - 1);
         return current;
       }
 
@@ -101,13 +101,13 @@ namespace VistaDB.Engine.Internal
       {
         get
         {
-          if (this.Count <= 0)
+          if (Count <= 0)
             return (IDisposable) null;
-          return this[this.Count - 1];
+          return this[Count - 1];
         }
         set
         {
-          this[this.Count - 1] = value;
+          this[Count - 1] = value;
         }
       }
     }

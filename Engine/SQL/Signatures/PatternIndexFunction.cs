@@ -9,22 +9,22 @@ namespace VistaDB.Engine.SQL.Signatures
     public PatternIndexFunction(SQLParser parser)
       : base(parser, 2, true)
     {
-      this.dataType = VistaDBType.Int;
-      this.parameterTypes[0] = VistaDBType.NChar;
-      this.parameterTypes[1] = VistaDBType.NChar;
-      this.finder = (PatternFinder) null;
+      dataType = VistaDBType.Int;
+      parameterTypes[0] = VistaDBType.NChar;
+      parameterTypes[1] = VistaDBType.NChar;
+      finder = (PatternFinder) null;
     }
 
     protected override object ExecuteSubProgram()
     {
-      string matchExpr = (string) ((IValue) this.paramValues[1]).Value;
-      this.CreatePattern();
-      return (object) this.finder.Compare(matchExpr);
+      string matchExpr = (string) ((IValue) paramValues[1]).Value;
+      CreatePattern();
+      return (object) finder.Compare(matchExpr);
     }
 
     public override void SetChanged()
     {
-      this.finder = (PatternFinder) null;
+      finder = (PatternFinder) null;
       base.SetChanged();
     }
 
@@ -35,12 +35,12 @@ namespace VistaDB.Engine.SQL.Signatures
       {
         case SignatureType.Constant:
         case SignatureType.Parameter:
-          if (this.finder != null)
+          if (finder != null)
             return;
           break;
       }
-      string pattern = (string) ((IValue) this.paramValues[0]).Value;
-      this.finder = new PatternFinder(signature.LineNo, signature.SymbolNo, pattern, (string) null, this.parent.Connection);
+      string pattern = (string) ((IValue) paramValues[0]).Value;
+      finder = new PatternFinder(signature.LineNo, signature.SymbolNo, pattern, (string) null, parent.Connection);
     }
   }
 }

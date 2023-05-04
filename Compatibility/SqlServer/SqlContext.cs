@@ -7,7 +7,7 @@ namespace VistaDB.Compatibility.SqlServer
   {
     static SqlContext()
     {
-      SqlContext.WindowsIdentity = WindowsIdentity.GetCurrent();
+            WindowsIdentity = WindowsIdentity.GetCurrent();
     }
 
     public static bool IsAvailable

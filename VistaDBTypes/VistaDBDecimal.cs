@@ -10,7 +10,7 @@ namespace VistaDB.VistaDBTypes
 
     public VistaDBDecimal(Decimal val)
     {
-      this.Value = (object) val;
+      Value = (object) val;
     }
 
     public override object Value
@@ -33,7 +33,7 @@ namespace VistaDB.VistaDBTypes
       }
     }
 
-    public override System.Type SystemType
+    public override Type SystemType
     {
       get
       {
@@ -43,22 +43,22 @@ namespace VistaDB.VistaDBTypes
 
     public Decimal GetValueOrDefault()
     {
-      if (this.HasValue)
-        return (Decimal) this.Value;
+      if (HasValue)
+        return (Decimal) Value;
       return new Decimal(0);
     }
 
     public Decimal GetValueOrDefault(Decimal defaultValue)
     {
-      if (this.HasValue)
-        return (Decimal) this.Value;
+      if (HasValue)
+        return (Decimal) Value;
       return defaultValue;
     }
 
     public Decimal GetValueOrDefault(VistaDBDecimal defaultValue)
     {
-      if (this.HasValue)
-        return (Decimal) this.Value;
+      if (HasValue)
+        return (Decimal) Value;
       return (Decimal) defaultValue.Value;
     }
   }

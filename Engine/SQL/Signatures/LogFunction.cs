@@ -8,13 +8,13 @@ namespace VistaDB.Engine.SQL.Signatures
     public LogFunction(SQLParser parser)
       : base(parser, 1, true)
     {
-      this.dataType = VistaDBType.Float;
-      this.parameterTypes[0] = VistaDBType.Float;
+      dataType = VistaDBType.Float;
+      parameterTypes[0] = VistaDBType.Float;
     }
 
     protected override object ExecuteSubProgram()
     {
-      return (object) Math.Log((double) ((IValue) this.paramValues[0]).Value);
+      return (object) Math.Log((double) ((IValue) paramValues[0]).Value);
     }
   }
 }

@@ -8,13 +8,13 @@ namespace VistaDB.Engine.SQL.Signatures
     public DegreesFunction(SQLParser parser)
       : base(parser, 1, true)
     {
-      this.dataType = VistaDBType.Float;
-      this.parameterTypes[0] = VistaDBType.Float;
+      dataType = VistaDBType.Float;
+      parameterTypes[0] = VistaDBType.Float;
     }
 
     protected override object ExecuteSubProgram()
     {
-      return (object) ((double) ((IValue) this.paramValues[0]).Value * 180.0 / Math.PI);
+      return (object) ((double) ((IValue) paramValues[0]).Value * 180.0 / Math.PI);
     }
   }
 }

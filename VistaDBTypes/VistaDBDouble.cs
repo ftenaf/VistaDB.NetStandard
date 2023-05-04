@@ -8,7 +8,7 @@
 
     public VistaDBDouble(double val)
     {
-      this.Value = (object) val;
+      Value = (object) val;
     }
 
     public override object Value
@@ -41,22 +41,22 @@
 
     public double GetValueOrDefault()
     {
-      if (this.HasValue)
-        return (double) this.Value;
+      if (HasValue)
+        return (double) Value;
       return 0.0;
     }
 
     public double GetValueOrDefault(double defaultValue)
     {
-      if (this.HasValue)
-        return (double) this.Value;
+      if (HasValue)
+        return (double) Value;
       return defaultValue;
     }
 
     public double GetValueOrDefault(VistaDBDouble defaultValue)
     {
-      if (this.HasValue)
-        return (double) this.Value;
+      if (HasValue)
+        return (double) Value;
       return (double) defaultValue.Value;
     }
   }

@@ -10,72 +10,72 @@ namespace VistaDB.Engine.SQL.Signatures
     public UnaryOperator(SQLParser parser, int priority)
       : base(parser)
     {
-      this.operand = parser.NextSignature(true, true, priority);
-      this.signatureType = SignatureType.Expression;
+      operand = parser.NextSignature(true, true, priority);
+      signatureType = SignatureType.Expression;
     }
 
     public override SignatureType OnPrepare()
     {
-      this.operand = ConstantSignature.PrepareAndCheckConstant(this.operand, VistaDBType.Unknown);
-      if (this.operand.SignatureType == SignatureType.Constant || this.operand.AlwaysNull)
+      operand = ConstantSignature.PrepareAndCheckConstant(operand, VistaDBType.Unknown);
+      if (operand.SignatureType == SignatureType.Constant || operand.AlwaysNull)
         return SignatureType.Constant;
-      return this.signatureType;
+      return signatureType;
     }
 
     protected override bool IsEquals(Signature signature)
     {
-      if (this.GetType() == signature.GetType())
-        return this.operand == ((UnaryOperator) signature).operand;
+      if (GetType() == signature.GetType())
+        return operand == ((UnaryOperator) signature).operand;
       return false;
     }
 
     protected override void RelinkParameters(Signature signature, ref int columnCount)
     {
-      this.operand = this.operand.Relink(signature, ref columnCount);
+      operand = operand.Relink(signature, ref columnCount);
     }
 
     public override void SetChanged()
     {
-      this.needsEvaluation = true;
-      this.operand.SetChanged();
+      needsEvaluation = true;
+      operand.SetChanged();
     }
 
     public override void ClearChanged()
     {
-      this.needsEvaluation = false;
-      this.operand.ClearChanged();
+      needsEvaluation = false;
+      operand.ClearChanged();
     }
 
     protected override bool InternalGetIsChanged()
     {
-      if (!this.needsEvaluation)
-        return this.operand.GetIsChanged();
+      if (!needsEvaluation)
+        return operand.GetIsChanged();
       return true;
     }
 
     public override void GetAggregateFunctions(List<AggregateFunction> list)
     {
-      this.operand.GetAggregateFunctions(list);
+      operand.GetAggregateFunctions(list);
     }
 
     public override int ColumnCount
     {
       get
       {
-        return this.operand.ColumnCount;
+        return operand.ColumnCount;
       }
     }
 
     public override bool HasAggregateFunction(out bool distinct)
     {
-      return this.operand.HasAggregateFunction(out distinct);
+      return operand.HasAggregateFunction(out distinct);
     }
 
     public override bool AlwaysNull
     {
       get
       {
-        return this.operand.AlwaysNull;
+        return operand.AlwaysNull;
       }
     }
   }

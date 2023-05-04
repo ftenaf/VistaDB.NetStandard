@@ -8,7 +8,7 @@
 
     public VistaDBInt16(short val)
     {
-      this.Value = (object) val;
+      Value = (object) val;
     }
 
     public override object Value
@@ -41,22 +41,22 @@
 
     public short GetValueOrDefault()
     {
-      if (this.HasValue)
-        return (short) this.Value;
+      if (HasValue)
+        return (short) Value;
       return short.MinValue;
     }
 
     public short GetValueOrDefault(short defaultValue)
     {
-      if (this.HasValue)
-        return (short) this.Value;
+      if (HasValue)
+        return (short) Value;
       return defaultValue;
     }
 
     public short GetValueOrDefault(VistaDBInt16 defaultValue)
     {
-      if (this.HasValue)
-        return (short) this.Value;
+      if (HasValue)
+        return (short) Value;
       return (short) defaultValue.Value;
     }
   }

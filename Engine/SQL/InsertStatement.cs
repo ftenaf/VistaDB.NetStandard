@@ -9,7 +9,7 @@ namespace VistaDB.Engine.SQL
 {
   internal class InsertStatement : Statement
   {
-    private List<InsertStatement.Column> columns = new List<InsertStatement.Column>();
+    private List<Column> columns = new List<Column>();
     private SelectStatement select;
     private SourceTable table;
     private List<Signature> values;
@@ -31,9 +31,9 @@ namespace VistaDB.Engine.SQL
         parser.SkipToken(true);
       if (tokenValue.TokenType != TokenType.Unknown && tokenValue.TokenType != TokenType.Name && tokenValue.TokenType != TokenType.ComplexName)
         throw new VistaDBSQLException(585, tokenValue.Token, tokenValue.RowNo, tokenValue.ColNo);
-      this.tableName = parser.GetTableName((Statement) this);
-      this.tableLineNo = tokenValue.RowNo;
-      this.tableSymbolNo = tokenValue.ColNo;
+      tableName = parser.GetTableName((Statement) this);
+      tableLineNo = tokenValue.RowNo;
+      tableSymbolNo = tokenValue.ColNo;
       parser.SkipToken(true);
       if (parser.IsToken("DEFAULT"))
       {
@@ -46,18 +46,18 @@ namespace VistaDB.Engine.SQL
         {
           parser.SkipToken(true);
           if (tokenValue.TokenType != TokenType.Unknown || !parser.IsToken("SELECT"))
-            this.ParseColumns(parser);
+            ParseColumns(parser);
           else
             flag = true;
         }
         if (flag)
         {
-          this.select = new SelectStatement(connection, (Statement) this, parser, 0L);
+          select = new SelectStatement(connection, (Statement) this, parser, 0L);
           parser.Parent = (Statement) this;
           parser.ExpectedExpression(")");
         }
         else
-          this.ParseValues(parser);
+          ParseValues(parser);
       }
       parser.SkipToken(false);
     }
@@ -67,7 +67,7 @@ namespace VistaDB.Engine.SQL
       SQLParser.TokenValueClass tokenValue = parser.TokenValue;
       while (tokenValue.TokenType == TokenType.Unknown || tokenValue.TokenType == TokenType.Name || tokenValue.TokenType == TokenType.ComplexName)
       {
-        this.columns.Add(new InsertStatement.Column(this, tokenValue.Token, tokenValue.RowNo, tokenValue.ColNo));
+        columns.Add(new Column(this, tokenValue.Token, tokenValue.RowNo, tokenValue.ColNo));
         parser.SkipToken(true);
         if (parser.IsToken(","))
         {
@@ -89,13 +89,13 @@ namespace VistaDB.Engine.SQL
       if (parser.IsToken("("))
       {
         parser.SkipToken(true);
-        this.select = new SelectStatement(this.connection, (Statement) this, parser, 0L);
+        select = new SelectStatement(connection, (Statement) this, parser, 0L);
         parser.Parent = (Statement) this;
         parser.ExpectedExpression(")");
       }
       else if (tokenValue.TokenType == TokenType.Unknown && parser.IsToken("SELECT"))
       {
-        this.select = new SelectStatement(this.connection, (Statement) this, parser, 0L);
+        select = new SelectStatement(connection, (Statement) this, parser, 0L);
         parser.Parent = (Statement) this;
       }
       else
@@ -104,10 +104,10 @@ namespace VistaDB.Engine.SQL
           throw new VistaDBSQLException(576, "VALUES", tokenValue.RowNo, tokenValue.ColNo);
         parser.SkipToken(true);
         parser.ExpectedExpression("(");
-        this.values = new List<Signature>();
+        values = new List<Signature>();
         do
         {
-          this.values.Add(parser.NextSignature(true, true, 6));
+          values.Add(parser.NextSignature(true, true, 6));
         }
         while (parser.IsToken(","));
         parser.ExpectedExpression(")");
@@ -117,137 +117,137 @@ namespace VistaDB.Engine.SQL
     protected override VistaDBType OnPrepareQuery()
     {
       int tableIndex = 0;
-      this.table = (SourceTable) new NativeSourceTable((Statement) this, this.tableName, this.tableName, 0, this.tableLineNo, this.tableSymbolNo);
-      this.table = (SourceTable) this.table.PrepareTables((IVistaDBTableNameCollection) null, (IViewList) null, (TableCollection) null, false, ref tableIndex);
-      this.table.ReadOnly = false;
-      this.table.Prepare();
-      this.PrepareColumns();
-      this.PrepareValues();
-      this.table.Unprepare();
+      table = (SourceTable) new NativeSourceTable((Statement) this, tableName, tableName, 0, tableLineNo, tableSymbolNo);
+      table = (SourceTable) table.PrepareTables((IVistaDBTableNameCollection) null, (IViewList) null, (TableCollection) null, false, ref tableIndex);
+      table.ReadOnly = false;
+      table.Prepare();
+      PrepareColumns();
+      PrepareValues();
+      table.Unprepare();
       return VistaDBType.Unknown;
     }
 
     protected override IQueryResult OnExecuteQuery()
     {
-      this.affectedRows = 0L;
-      if (!this.table.Opened)
-        this.table.Open();
-      this.table.DoOpenExternalRelationships(true, false);
+      affectedRows = 0L;
+      if (!table.Opened)
+        table.Open();
+      table.DoOpenExternalRelationships(true, false);
       try
       {
         try
         {
-          this.table.PrepareTriggers(TriggerAction.AfterInsert);
+          table.PrepareTriggers(TriggerAction.AfterInsert);
           bool justReset = true;
           try
           {
-            if (this.values != null)
-              this.ExecuteValues();
-            else if (this.select != null)
-              this.ExecuteSelect();
+            if (values != null)
+              ExecuteValues();
+            else if (select != null)
+              ExecuteSelect();
             else
-              this.ExecuteDefaultValues();
+              ExecuteDefaultValues();
             justReset = false;
           }
           finally
           {
-            this.table.ExecuteTriggers(TriggerAction.AfterInsert, justReset);
+            table.ExecuteTriggers(TriggerAction.AfterInsert, justReset);
           }
         }
         finally
         {
-          this.table.DoFreeExternalRelationships();
-          this.Connection.CachedAffectedRows = this.affectedRows;
+          table.DoFreeExternalRelationships();
+          Connection.CachedAffectedRows = affectedRows;
         }
       }
       catch
       {
-        this.table.Close();
+        table.Close();
         throw;
       }
-      this.table.FreeTable();
+      table.FreeTable();
       return (IQueryResult) null;
     }
 
     private void PrepareColumns()
     {
-      IQuerySchemaInfo schema = this.table.Schema;
-      if (this.columns.Count != 0)
+      IQuerySchemaInfo schema = table.Schema;
+      if (columns.Count != 0)
       {
-        foreach (InsertStatement.Column column in this.columns)
+        foreach (Column column in columns)
           column.Prepare(schema);
       }
       else
       {
         int num = 0;
         for (int columnCount = schema.ColumnCount; num < columnCount; ++num)
-          this.columns.Add(new InsertStatement.Column(this, num, schema.GetColumnVistaDBType(num)));
+          columns.Add(new Column(this, num, schema.GetColumnVistaDBType(num)));
       }
     }
 
     private void PrepareValues()
     {
-      if (this.values == null && this.select == null)
+      if (values == null && select == null)
         return;
-      if (this.values != null)
+      if (values != null)
       {
-        if (this.columns.Count < this.values.Count)
-          throw new VistaDBSQLException(587, "", this.lineNo, this.symbolNo);
-        if (this.columns.Count > this.values.Count)
-          throw new VistaDBSQLException(588, "", this.lineNo, this.symbolNo);
-        for (int index = 0; index < this.values.Count; ++index)
+        if (columns.Count < values.Count)
+          throw new VistaDBSQLException(587, "", lineNo, symbolNo);
+        if (columns.Count > values.Count)
+          throw new VistaDBSQLException(588, "", lineNo, symbolNo);
+        for (int index = 0; index < values.Count; ++index)
         {
-          Signature signature = this.values[index];
+          Signature signature = values[index];
           if (signature.Prepare() == SignatureType.Constant && signature.SignatureType != SignatureType.Constant)
-            this.values[index] = (Signature) ConstantSignature.CreateSignature(signature.Execute(), this.columns[index].DataType, (Statement) this);
+            values[index] = (Signature) ConstantSignature.CreateSignature(signature.Execute(), columns[index].DataType, (Statement) this);
         }
       }
       else
       {
-        int num = (int) this.select.PrepareQuery();
-        int columnCount = this.select.ColumnCount;
-        if (this.columns.Count < columnCount)
-          throw new VistaDBSQLException(589, "", this.lineNo, this.symbolNo);
-        if (this.columns.Count > columnCount)
-          throw new VistaDBSQLException(590, "", this.lineNo, this.symbolNo);
+        int num = (int) select.PrepareQuery();
+        int columnCount = select.ColumnCount;
+        if (columns.Count < columnCount)
+          throw new VistaDBSQLException(589, "", lineNo, symbolNo);
+        if (columns.Count > columnCount)
+          throw new VistaDBSQLException(590, "", lineNo, symbolNo);
       }
     }
 
     private void ExecuteDefaultValues()
     {
-      this.table.Insert();
-      this.table.Post();
-      this.affectedRows = 1L;
+      table.Insert();
+      table.Post();
+      affectedRows = 1L;
     }
 
     private void ExecuteValues()
     {
-      this.table.Insert();
-      for (int index = 0; index < this.values.Count; ++index)
+      table.Insert();
+      for (int index = 0; index < values.Count; ++index)
       {
-        Signature signature = this.values[index];
+        Signature signature = values[index];
         IColumn columnValue = signature.Execute();
-        this.table.PutValue(this.columns[index].ColumnIndex, columnValue);
+        table.PutValue(columns[index].ColumnIndex, columnValue);
         signature.SetChanged();
       }
-      this.table.Post();
-      this.affectedRows = 1L;
+      table.Post();
+      affectedRows = 1L;
     }
 
     private void ExecuteSelect()
     {
-      IQueryResult queryResult = this.select.SourceTableCount != 1 || this.select.HasWhereClause || !this.select.GetSourceTable(0).TableName.Equals(this.table.TableName, StringComparison.OrdinalIgnoreCase) ? this.select.ExecuteQuery() : this.select.ExecuteNonLiveQuery();
+      IQueryResult queryResult = select.SourceTableCount != 1 || select.HasWhereClause || !select.GetSourceTable(0).TableName.Equals(table.TableName, StringComparison.OrdinalIgnoreCase) ? select.ExecuteQuery() : select.ExecuteNonLiveQuery();
       try
       {
         queryResult.FirstRow();
         while (!queryResult.EndOfTable)
         {
-          this.table.Insert();
-          for (int index = 0; index < this.columns.Count; ++index)
-            this.table.PutValue(this.columns[index].ColumnIndex, queryResult.GetColumn(index));
-          this.table.Post();
+          table.Insert();
+          for (int index = 0; index < columns.Count; ++index)
+            table.PutValue(columns[index].ColumnIndex, queryResult.GetColumn(index));
+          table.Post();
           queryResult.NextRow();
-          ++this.affectedRows;
+          ++affectedRows;
         }
       }
       finally
@@ -259,9 +259,9 @@ namespace VistaDB.Engine.SQL
     public override void Dispose()
     {
       base.Dispose();
-      if (this.select == null)
+      if (select == null)
         return;
-      this.select.Dispose();
+      select.Dispose();
     }
 
     private class Column
@@ -276,8 +276,8 @@ namespace VistaDB.Engine.SQL
       public Column(InsertStatement parent, string columnName, int lineNo, int symbolNo)
       {
         this.columnName = columnName;
-        this.columnIndex = -1;
-        this.dataType = VistaDBType.Unknown;
+        columnIndex = -1;
+        dataType = VistaDBType.Unknown;
         this.lineNo = lineNo;
         this.symbolNo = symbolNo;
         this.parent = parent;
@@ -286,26 +286,26 @@ namespace VistaDB.Engine.SQL
       public Column(InsertStatement parent, int columnIndex, VistaDBType dataType)
       {
         this.parent = parent;
-        this.columnName = (string) null;
+        columnName = (string) null;
         this.columnIndex = columnIndex;
         this.dataType = dataType;
-        this.lineNo = -1;
-        this.symbolNo = -1;
+        lineNo = -1;
+        symbolNo = -1;
       }
 
       public void Prepare(IQuerySchemaInfo schema)
       {
-        this.columnIndex = schema.GetColumnOrdinal(this.columnName);
-        if (this.columnIndex < 0)
-          throw new VistaDBSQLException(567, this.columnName, this.lineNo, this.symbolNo);
-        this.dataType = schema.GetColumnVistaDBType(this.columnIndex);
+        columnIndex = schema.GetColumnOrdinal(columnName);
+        if (columnIndex < 0)
+          throw new VistaDBSQLException(567, columnName, lineNo, symbolNo);
+        dataType = schema.GetColumnVistaDBType(columnIndex);
       }
 
       public int ColumnIndex
       {
         get
         {
-          return this.columnIndex;
+          return columnIndex;
         }
       }
 
@@ -313,7 +313,7 @@ namespace VistaDB.Engine.SQL
       {
         get
         {
-          return this.dataType;
+          return dataType;
         }
       }
     }

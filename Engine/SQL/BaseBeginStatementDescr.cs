@@ -7,12 +7,12 @@ namespace VistaDB.Engine.SQL
   {
     public BaseBeginStatementDescr()
     {
-      IStatementDescr statementDescr = (IStatementDescr) new BaseBeginStatementDescr.BeginTransactionStatementDescr();
-      this.statements = new Hashtable();
-      this.statements.Add((object) "TRANS", (object) statementDescr);
-      this.statements.Add((object) "TRANSACTION", (object) statementDescr);
-      this.statements.Add((object) "TRY", (object) new BaseBeginStatementDescr.BeginTryBlockStatementDescr());
-      this.elseStatementDescr = (IStatementDescr) new BaseBeginStatementDescr.BeginBlockStatementDescr();
+      IStatementDescr statementDescr = (IStatementDescr) new BeginTransactionStatementDescr();
+      statements = new Hashtable();
+      statements.Add((object) "TRANS", (object) statementDescr);
+      statements.Add((object) "TRANSACTION", (object) statementDescr);
+      statements.Add((object) "TRY", (object) new BeginTryBlockStatementDescr());
+      elseStatementDescr = (IStatementDescr) new BeginBlockStatementDescr();
     }
 
     private class BeginBlockStatementDescr : IStatementDescr

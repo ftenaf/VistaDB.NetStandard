@@ -8,11 +8,11 @@
     {
       get
       {
-        return this.val;
+        return val;
       }
       set
       {
-        this.val = value;
+        val = value;
       }
     }
 
@@ -20,7 +20,7 @@
     {
       get
       {
-        return this.val != null;
+        return val != null;
       }
     }
 
@@ -28,7 +28,7 @@
     {
       get
       {
-        return this.val == null;
+        return val == null;
       }
     }
 

@@ -15,14 +15,14 @@ namespace VistaDB.Engine.SQL
     internal StoredProcedureBody(LocalSQLConnection connection, Statement parent, SQLParser parser, long id)
       : base(connection, parent, parser, id)
     {
-      this.ReturnParamCascade = false;
+      ReturnParamCascade = false;
     }
 
     public override IParameter DoGetParam(string paramName)
     {
-      if (!this.prms.ContainsKey(paramName))
+      if (!prms.ContainsKey(paramName))
         return (IParameter) null;
-      return this.prms[paramName];
+      return prms[paramName];
     }
 
     public override WhileStatement DoGetCycleStatement()

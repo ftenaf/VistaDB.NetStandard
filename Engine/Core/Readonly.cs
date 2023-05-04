@@ -7,7 +7,7 @@ namespace VistaDB.Engine.Core
     internal static readonly string SystemName = "READONLY";
 
     internal Readonly(string name, EvalStack evaluation)
-      : base(name, evaluation, Filter.FilterType.ReadOnly)
+      : base(name, evaluation, FilterType.ReadOnly)
     {
     }
   }

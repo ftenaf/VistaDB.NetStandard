@@ -12,20 +12,20 @@ namespace VistaDB.Engine.Internal
     internal readonly object syncRoot = new object();
     private VistaDBEngine parentEngine;
     private long connectionId;
-    private Connection.Environment environment;
+    private Environment environment;
 
     protected Connection(VistaDBEngine engine, long id)
     {
-      this.parentEngine = engine;
-      this.connectionId = id;
-      this.environment = new Connection.Environment();
+      parentEngine = engine;
+      connectionId = id;
+      environment = new Environment();
     }
 
     internal VistaDBEngine ParentEngine
     {
       get
       {
-        return this.parentEngine;
+        return parentEngine;
       }
     }
 
@@ -33,36 +33,36 @@ namespace VistaDB.Engine.Internal
     {
       get
       {
-        return this.syncRoot;
+        return syncRoot;
       }
     }
 
     internal void AddNotification(DataStorage dataStorage)
     {
-      this.environment.AddNotification(dataStorage);
+      environment.AddNotification(dataStorage);
     }
 
     internal void RemoveNotification(DataStorage dataStorage)
     {
-      if (this.environment == null)
+      if (environment == null)
         return;
-      this.environment.RemoveNotification(dataStorage);
+      environment.RemoveNotification(dataStorage);
     }
 
     protected virtual void Dispose(bool disposing)
     {
-      lock (this.syncRoot)
+      lock (syncRoot)
       {
         if (disposing)
         {
           GC.SuppressFinalize((object) this);
-          if (this.environment != null)
-            this.environment.Clear();
-          if (this.parentEngine != null)
-            this.parentEngine.Remove(this.Id);
+          if (environment != null)
+            environment.Clear();
+          if (parentEngine != null)
+            parentEngine.Remove(Id);
         }
-        this.environment = (Connection.Environment) null;
-        this.parentEngine = (VistaDBEngine) null;
+        environment = (Environment) null;
+        parentEngine = (VistaDBEngine) null;
       }
     }
 
@@ -70,7 +70,7 @@ namespace VistaDB.Engine.Internal
     {
       get
       {
-        return this.connectionId;
+        return connectionId;
       }
     }
 
@@ -78,15 +78,15 @@ namespace VistaDB.Engine.Internal
     {
       get
       {
-        return (int) this.environment.Get(Connection.Settings.LOCKTIMEOUT);
+        return (int) environment.Get(Settings.LOCKTIMEOUT);
       }
       set
       {
         if (value < 0)
-          value = Connection.Environment.DEFAULT_LOCK_TIMEOUT;
+          value = Environment.DEFAULT_LOCK_TIMEOUT;
         if (value > 3600)
           value = 3600;
-        this.environment.Set(Connection.Settings.LOCKTIMEOUT, (object) value);
+        environment.Set(Settings.LOCKTIMEOUT, (object) value);
       }
     }
 
@@ -94,11 +94,11 @@ namespace VistaDB.Engine.Internal
     {
       get
       {
-        return (int) this.environment.Get(Connection.Settings.PAGESIZE);
+        return (int) environment.Get(Settings.PAGESIZE);
       }
       set
       {
-        this.environment.Set(Connection.Settings.PAGESIZE, (object) (value <= 0 ? Connection.Environment.DEFAULT_PAGELEN : value));
+        environment.Set(Settings.PAGESIZE, (object) (value <= 0 ? Environment.DEFAULT_PAGELEN : value));
       }
     }
 
@@ -106,11 +106,11 @@ namespace VistaDB.Engine.Internal
     {
       get
       {
-        return (bool) this.environment.Get(Connection.Settings.PERSISTENTLOCKS);
+        return (bool) environment.Get(Settings.PERSISTENTLOCKS);
       }
       set
       {
-        this.environment.Set(Connection.Settings.PERSISTENTLOCKS, (object) value);
+        environment.Set(Settings.PERSISTENTLOCKS, (object) value);
       }
     }
 
@@ -118,17 +118,17 @@ namespace VistaDB.Engine.Internal
     {
       get
       {
-        return (int) this.environment.Get(Connection.Settings.LCID);
+        return (int) environment.Get(Settings.LCID);
       }
       set
       {
-        this.environment.Set(Connection.Settings.LCID, (object) (value <= 0 ? Connection.Environment.DEFAULT_LCID : value));
+        environment.Set(Settings.LCID, (object) (value <= 0 ? Environment.DEFAULT_LCID : value));
       }
     }
 
     void IDisposable.Dispose()
     {
-      this.Dispose(true);
+      Dispose(true);
     }
 
     internal enum Settings
@@ -139,35 +139,35 @@ namespace VistaDB.Engine.Internal
       PAGESIZE,
     }
 
-    private class Environment : Dictionary<Connection.Settings, object>
+    private class Environment : Dictionary<Settings, object>
     {
       internal static readonly int DEFAULT_PAGELEN = 8;
       internal static readonly int DEFAULT_LCID = CultureInfo.CurrentCulture.LCID;
       internal static readonly int DEFAULT_LOCK_TIMEOUT = 10;
       private static readonly bool DEFAULT_PERSISTENTLOCKS = false;
-      private Connection.Environment.NotifyList notifications;
+      private NotifyList notifications;
 
       internal Environment()
       {
-        this.notifications = new Connection.Environment.NotifyList();
-        this.InitDefault();
+        notifications = new NotifyList();
+        InitDefault();
       }
 
-      internal Environment(Connection.Environment parent)
+      internal Environment(Environment parent)
         : this()
       {
-        foreach (Connection.Settings key in parent.Keys)
+        foreach (Settings key in parent.Keys)
         {
-          if (!this.ContainsKey(key))
-            this.Add(key, parent[key]);
+          if (!ContainsKey(key))
+            Add(key, parent[key]);
           else
             this[key] = parent[key];
         }
       }
 
-      private bool Notify(Connection.Settings variable, object newValue)
+      private bool Notify(Settings variable, object newValue)
       {
-        foreach (DataStorage notification in (List<DataStorage>) this.notifications)
+        foreach (DataStorage notification in (List<DataStorage>) notifications)
         {
           if (!notification.NotifyChangedEnvironment(variable, newValue))
             return false;
@@ -175,44 +175,44 @@ namespace VistaDB.Engine.Internal
         return true;
       }
 
-      private string ConvertToString(Connection.Settings variable)
+      private string ConvertToString(Settings variable)
       {
         return (string) null;
       }
 
       private void InitDefault()
       {
-        this.Add(Connection.Settings.LOCKTIMEOUT, (object) Connection.Environment.DEFAULT_LOCK_TIMEOUT);
-        this.Add(Connection.Settings.PAGESIZE, (object) Connection.Environment.DEFAULT_PAGELEN);
-        this.Add(Connection.Settings.LCID, (object) Connection.Environment.DEFAULT_LCID);
-        this.Add(Connection.Settings.PERSISTENTLOCKS, (object) Connection.Environment.DEFAULT_PERSISTENTLOCKS);
+        Add(Settings.LOCKTIMEOUT, (object)DEFAULT_LOCK_TIMEOUT);
+        Add(Settings.PAGESIZE, (object)DEFAULT_PAGELEN);
+        Add(Settings.LCID, (object)DEFAULT_LCID);
+        Add(Settings.PERSISTENTLOCKS, (object)DEFAULT_PERSISTENTLOCKS);
       }
 
       internal void AddNotification(DataStorage storage)
       {
-        this.notifications.AddNotification(storage);
+        notifications.AddNotification(storage);
       }
 
       internal void RemoveNotification(DataStorage storage)
       {
-        this.notifications.RemoveNotification(storage);
+        notifications.RemoveNotification(storage);
       }
 
-      internal void Set(Connection.Settings variable, object newValue)
+      internal void Set(Settings variable, object newValue)
       {
         try
         {
-          if (this[variable].Equals(newValue) || !this.Notify(variable, newValue))
+          if (this[variable].Equals(newValue) || !Notify(variable, newValue))
             return;
           this[variable] = newValue;
         }
         catch (Exception ex)
         {
-          throw new VistaDBException(ex, 320, this.ConvertToString(variable));
+          throw new VistaDBException(ex, 320, ConvertToString(variable));
         }
       }
 
-      internal object Get(Connection.Settings variable)
+      internal object Get(Settings variable)
       {
         return this[variable];
       }
@@ -221,12 +221,12 @@ namespace VistaDB.Engine.Internal
       {
         internal void AddNotification(DataStorage storage)
         {
-          this.Add(storage);
+          Add(storage);
         }
 
         internal void RemoveNotification(DataStorage storage)
         {
-          this.Remove(storage);
+          Remove(storage);
         }
       }
     }

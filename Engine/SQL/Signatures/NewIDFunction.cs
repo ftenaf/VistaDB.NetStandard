@@ -7,7 +7,7 @@ namespace VistaDB.Engine.SQL.Signatures
     public NewIDFunction(SQLParser parser)
       : base(parser, 0, true)
     {
-      this.dataType = VistaDBType.UniqueIdentifier;
+      dataType = VistaDBType.UniqueIdentifier;
     }
 
     public override SignatureType OnPrepare()

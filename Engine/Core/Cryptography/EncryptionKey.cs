@@ -6,22 +6,22 @@ namespace VistaDB.Engine.Core.Cryptography
 {
   internal struct EncryptionKey
   {
-    private static EncryptionKey nullEncryptionKey = new EncryptionKey((string) null, EncryptionKey.Cypher.None);
+    private static EncryptionKey nullEncryptionKey = new EncryptionKey((string) null, Cypher.None);
     private string userKeyString;
-    private EncryptionKey.Cypher cypher;
+    private Cypher cypher;
 
     internal static EncryptionKey Create(string keyString)
     {
       if (keyString != null)
-        return new EncryptionKey(keyString, EncryptionKey.Cypher.Blowfish);
-      return EncryptionKey.NullEncryptionKey;
+        return new EncryptionKey(keyString, Cypher.Blowfish);
+      return NullEncryptionKey;
     }
 
-    private EncryptionKey(string userEncryptionKey, EncryptionKey.Cypher cypher)
+    private EncryptionKey(string userEncryptionKey, Cypher cypher)
     {
       if (userEncryptionKey != null && userEncryptionKey.Length == 0)
         throw new VistaDBException(461);
-      this.userKeyString = userEncryptionKey;
+      userKeyString = userEncryptionKey;
       this.cypher = cypher;
     }
 
@@ -29,7 +29,7 @@ namespace VistaDB.Engine.Core.Cryptography
     {
       get
       {
-        return EncryptionKey.nullEncryptionKey;
+        return nullEncryptionKey;
       }
     }
 
@@ -37,15 +37,15 @@ namespace VistaDB.Engine.Core.Cryptography
     {
       get
       {
-        return this.userKeyString;
+        return userKeyString;
       }
     }
 
-    internal EncryptionKey.Cypher Type
+    internal Cypher Type
     {
       get
       {
-        return this.cypher;
+        return cypher;
       }
     }
 
@@ -53,11 +53,11 @@ namespace VistaDB.Engine.Core.Cryptography
     {
       get
       {
-        if (this.Key == null || this.Type == EncryptionKey.Cypher.None)
+        if (Key == null || Type == Cypher.None)
           return Md5.Signature.EmptySignature;
-        byte[] bytes = Encoding.Unicode.GetBytes(this.Key);
+        byte[] bytes = Encoding.Unicode.GetBytes(Key);
         byte[] array = new byte[bytes.Length + 1];
-        array[0] = (byte) this.Type;
+        array[0] = (byte) Type;
         Array.Copy((Array) bytes, 0, (Array) array, 1, bytes.Length);
         return new Md5().DigByteArray(array);
       }

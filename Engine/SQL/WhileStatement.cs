@@ -16,22 +16,22 @@ namespace VistaDB.Engine.SQL
 
     protected override void OnParse(LocalSQLConnection connection, SQLParser parser)
     {
-      this.conditionSignature = parser.NextSignature(true, true, 6);
+      conditionSignature = parser.NextSignature(true, true, 6);
       if (parser.IsToken("BEGIN"))
       {
         parser.SkipToken(true);
         while (!parser.SkipSemicolons() && !parser.IsToken("END"))
-          this.Add(connection.ParseStatement((Statement) this, this.id));
+          Add(connection.ParseStatement((Statement) this, id));
         parser.SkipToken(false);
       }
       else
-        this.Add(connection.ParseStatement((Statement) this, this.id));
+        Add(connection.ParseStatement((Statement) this, id));
     }
 
     protected override VistaDBType OnPrepareQuery()
     {
-      int num = (int) this.conditionSignature.OnPrepare();
-      if (this.conditionSignature.DataType != VistaDBType.Bit)
+      int num = (int) conditionSignature.OnPrepare();
+      if (conditionSignature.DataType != VistaDBType.Bit)
         throw new Exception("An expression of non-boolean type specified in a context where a condition is expected, near 'SELECT'");
       return base.OnPrepareQuery();
     }
@@ -43,26 +43,26 @@ namespace VistaDB.Engine.SQL
 
     public override INextQueryResult NextResult(VistaDBPipe pipe)
     {
-      if (this.currentStatement == 0 && !this.ExecConditionSignature())
+      if (currentStatement == 0 && !ExecConditionSignature())
       {
-        this.currentStatement = -1;
+        currentStatement = -1;
         return (INextQueryResult) null;
       }
       INextQueryResult nextQueryResult = base.NextResult(pipe);
-      if (this.currentStatement >= this.statements.Count)
-        this.currentStatement = 0;
+      if (currentStatement >= statements.Count)
+        currentStatement = 0;
       return nextQueryResult;
     }
 
     internal void Continue()
     {
-      this.currentStatement = -1;
+      currentStatement = -1;
     }
 
     private bool ExecConditionSignature()
     {
-      this.conditionSignature.SetChanged();
-      IColumn column = this.conditionSignature.Execute();
+      conditionSignature.SetChanged();
+      IColumn column = conditionSignature.Execute();
       if (column != null && !column.IsNull)
         return (bool) ((IValue) column).Value;
       return false;

@@ -4,12 +4,12 @@ namespace VistaDB.Engine.Core.Scripting
 {
   internal class Equivalence : Signature
   {
-    internal Equivalence(string name, int groupId, Signature.Operations operation)
-      : base(name, groupId, operation, Signature.Priorities.Comparing, VistaDBType.Bit)
+    internal Equivalence(string name, int groupId, Operations operation)
+      : base(name, groupId, operation, Priorities.Comparing, VistaDBType.Bit)
     {
-      this.allowUnaryToFollow = true;
-      this.AddParameter(VistaDBType.Unknown);
-      this.AddParameter(VistaDBType.Unknown);
+      allowUnaryToFollow = true;
+      AddParameter(VistaDBType.Unknown);
+      AddParameter(VistaDBType.Unknown);
     }
 
     protected long ImplicitCompare(Row.Column column1, Row.Column column2, DataStorage contextStorage)

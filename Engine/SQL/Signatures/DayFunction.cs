@@ -8,13 +8,13 @@ namespace VistaDB.Engine.SQL.Signatures
     public DayFunction(SQLParser parser)
       : base(parser, 1, true)
     {
-      this.dataType = VistaDBType.Int;
-      this.parameterTypes[0] = VistaDBType.DateTime;
+      dataType = VistaDBType.Int;
+      parameterTypes[0] = VistaDBType.DateTime;
     }
 
     protected override object ExecuteSubProgram()
     {
-      return (object) ((DateTime) ((IValue) this.paramValues[0]).Value).Day;
+      return (object) ((DateTime) ((IValue) paramValues[0]).Value).Day;
     }
   }
 }

@@ -3,9 +3,9 @@
   internal class Break : Signature
   {
     internal Break(int groupId)
-      : base((string) null, groupId, Signature.Operations.Nomark, Signature.Priorities.MaximumPriority, VistaDBType.Unknown)
+      : base((string) null, groupId, Operations.Nomark, Priorities.MaximumPriority, VistaDBType.Unknown)
     {
-      this.allowUnaryToFollow = true;
+      allowUnaryToFollow = true;
     }
   }
 }

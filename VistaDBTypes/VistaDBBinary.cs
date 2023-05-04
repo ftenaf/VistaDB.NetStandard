@@ -8,7 +8,7 @@
 
     public VistaDBBinary(byte[] val)
     {
-      this.Value = (object) val;
+      Value = (object) val;
     }
 
     public override object Value
@@ -41,22 +41,22 @@
 
     public byte[] GetValueOrDefault()
     {
-      if (this.HasValue)
-        return (byte[]) this.Value;
+      if (HasValue)
+        return (byte[]) Value;
       return new byte[0];
     }
 
     public byte[] GetValueOrDefault(byte[] defaultValue)
     {
-      if (this.HasValue)
-        return (byte[]) this.Value;
+      if (HasValue)
+        return (byte[]) Value;
       return defaultValue;
     }
 
     public byte[] GetValueOrDefault(VistaDBBinary defaultValue)
     {
-      if (this.HasValue)
-        return (byte[]) this.Value;
+      if (HasValue)
+        return (byte[]) Value;
       return (byte[]) defaultValue.Value;
     }
   }

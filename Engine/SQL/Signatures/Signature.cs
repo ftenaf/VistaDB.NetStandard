@@ -24,16 +24,16 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       this.lineNo = lineNo;
       this.symbolNo = symbolNo;
-      this.text = token;
+      text = token;
       this.parent = parent;
-      this.dataType = VistaDBType.Unknown;
-      this.result = (IColumn) null;
-      this.isAllowNull = true;
-      this.found = false;
-      this.optimizable = false;
-      this.tempRow = (SourceRow) null;
-      this.tempColumnIndex = -1;
-      this.signatureType = SignatureType.Constant;
+      dataType = VistaDBType.Unknown;
+      result = (IColumn) null;
+      isAllowNull = true;
+      found = false;
+      optimizable = false;
+      tempRow = (SourceRow) null;
+      tempColumnIndex = -1;
+      signatureType = SignatureType.Constant;
     }
 
     protected Signature(Statement parent)
@@ -66,7 +66,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public virtual int GetWidth()
     {
-      return ColumnsProperties.GetMaxLength(this.dataType);
+      return ColumnsProperties.GetMaxLength(dataType);
     }
 
     protected virtual bool OnOptimize(ConstraintOperations constrainOperations)
@@ -86,8 +86,8 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        if (this.result != null)
-          return this.result.IsNull;
+        if (result != null)
+          return result.IsNull;
         return false;
       }
     }
@@ -96,7 +96,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.isAllowNull;
+        return isAllowNull;
       }
     }
 
@@ -104,7 +104,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.dataType;
+        return dataType;
       }
     }
 
@@ -112,7 +112,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.signatureType;
+        return signatureType;
       }
     }
 
@@ -120,7 +120,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.result;
+        return result;
       }
     }
 
@@ -128,7 +128,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.text;
+        return text;
       }
     }
 
@@ -136,7 +136,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.optimizable;
+        return optimizable;
       }
     }
 
@@ -144,7 +144,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.parent;
+        return parent;
       }
     }
 
@@ -152,7 +152,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.lineNo;
+        return lineNo;
       }
     }
 
@@ -160,7 +160,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.symbolNo;
+        return symbolNo;
       }
     }
 
@@ -172,21 +172,21 @@ namespace VistaDB.Engine.SQL.Signatures
     public override bool Equals(object obj)
     {
       if ((object) (obj as Signature) != null)
-        return this.IsEquals((Signature) obj);
+        return IsEquals((Signature) obj);
       return false;
     }
 
     public static bool operator ==(Signature signature1, Signature signature2)
     {
-      if (Signature.ObjIsNull((object) signature1))
-        return Signature.ObjIsNull((object) signature2);
+      if (ObjIsNull((object) signature1))
+        return ObjIsNull((object) signature2);
       return signature1.Equals((object) signature2);
     }
 
     public static bool operator !=(Signature signature1, Signature signature2)
     {
-      if (Signature.ObjIsNull((object) signature1))
-        return !Signature.ObjIsNull((object) signature2);
+      if (ObjIsNull((object) signature1))
+        return !ObjIsNull((object) signature2);
       return !signature1.Equals((object) signature2);
     }
 
@@ -197,48 +197,48 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public Signature Relink(Signature signature, ref int columnCount)
     {
-      if (this.found)
+      if (found)
         return this;
       if (this == signature)
       {
-        this.found = true;
-        columnCount += this.ColumnCount;
+        found = true;
+        columnCount += ColumnCount;
         return signature;
       }
-      this.RelinkParameters(signature, ref columnCount);
+      RelinkParameters(signature, ref columnCount);
       return this;
     }
 
     public SignatureType Prepare()
     {
-      return this.OnPrepare();
+      return OnPrepare();
     }
 
     public IColumn Execute()
     {
-      if (this.result == null && this.dataType != VistaDBType.Unknown)
-        this.result = this.CreateColumn(this.dataType);
-      if (this.tempRow == null)
-        return this.InternalExecute();
-      if (this.tempRow.Columns == null)
-        ((IValue) this.result).Value = ((IValue) this.tempRow.Row[this.tempColumnIndex]).Value;
+      if (result == null && dataType != VistaDBType.Unknown)
+        result = CreateColumn(dataType);
+      if (tempRow == null)
+        return InternalExecute();
+      if (tempRow.Columns == null)
+        ((IValue) result).Value = ((IValue) tempRow.Row[tempColumnIndex]).Value;
       else
-        ((IValue) this.result).Value = ((IValue) this.tempRow.Columns[this.tempColumnIndex]).Value;
-      return this.result;
+        ((IValue) result).Value = ((IValue) tempRow.Columns[tempColumnIndex]).Value;
+      return result;
     }
 
     public IColumn SimpleExecute()
     {
-      if (this.result == null)
-        this.result = this.CreateColumn(this.dataType);
-      this.OnSimpleExecute();
-      return this.result;
+      if (result == null)
+        result = CreateColumn(dataType);
+      OnSimpleExecute();
+      return result;
     }
 
     public void SwitchToTempTable(SourceRow sourceRow, int columnIndex)
     {
-      this.tempRow = sourceRow;
-      this.tempColumnIndex = columnIndex;
+      tempRow = sourceRow;
+      tempColumnIndex = columnIndex;
     }
 
     public virtual void SwitchToTempTable(SourceRow sourceRow, int columnIndex, SelectStatement.ResultColumn resultColumn)
@@ -247,41 +247,41 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public void SwitchToTable()
     {
-      this.tempRow = (SourceRow) null;
-      this.tempColumnIndex = -1;
+      tempRow = (SourceRow) null;
+      tempColumnIndex = -1;
     }
 
     public bool GetIsChanged()
     {
-      if (this.tempRow == null)
-        return this.InternalGetIsChanged();
+      if (tempRow == null)
+        return InternalGetIsChanged();
       return true;
     }
 
     public bool Optimize(ConstraintOperations constrainOperations)
     {
-      if (this.optimizable)
-        return this.OnOptimize(constrainOperations);
+      if (optimizable)
+        return OnOptimize(constrainOperations);
       return false;
     }
 
     public IColumn CreateColumn(VistaDBType dataType)
     {
-      if (this.parent.Connection.Database == null)
+      if (parent.Connection.Database == null)
         return (IColumn) DataStorage.CreateRowColumn(dataType, true, CultureInfo.InvariantCulture);
       if (Utils.IsCharacterDataType(dataType))
-        return this.parent.Database.CreateEmtpyUnicodeColumn();
-      return this.parent.Database.CreateEmptyColumn(dataType);
+        return parent.Database.CreateEmtpyUnicodeColumn();
+      return parent.Database.CreateEmptyColumn(dataType);
     }
 
     protected void Convert(IValue sourceValue, IValue destValue)
     {
-      this.parent.Database.Conversion.Convert(sourceValue, destValue);
+      parent.Database.Conversion.Convert(sourceValue, destValue);
     }
 
     protected bool ExistConvertion(VistaDBType srcType, VistaDBType dstType)
     {
-      return this.parent.Database.Conversion.ExistConvertion(srcType, dstType);
+      return parent.Database.Conversion.ExistConvertion(srcType, dstType);
     }
   }
 }

@@ -8,16 +8,16 @@ namespace VistaDB.Engine.SQL.Signatures
     public DateDiffFunction(SQLParser parser)
       : base(parser, 2)
     {
-      this.parameterTypes[0] = VistaDBType.DateTime;
-      this.parameterTypes[1] = VistaDBType.DateTime;
-      this.dataType = VistaDBType.Int;
+      parameterTypes[0] = VistaDBType.DateTime;
+      parameterTypes[1] = VistaDBType.DateTime;
+      dataType = VistaDBType.Int;
     }
 
     protected override object ExecuteSubProgram()
     {
-      DateTime dateTime1 = (DateTime) ((IValue) this.paramValues[0]).Value;
-      DateTime dateTime2 = (DateTime) ((IValue) this.paramValues[1]).Value;
-      switch (this.datePart)
+      DateTime dateTime1 = (DateTime) ((IValue) paramValues[0]).Value;
+      DateTime dateTime2 = (DateTime) ((IValue) paramValues[1]).Value;
+      switch (datePart)
       {
         case DatePart.Year:
           return (object) (dateTime2.Year - dateTime1.Year);

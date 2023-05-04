@@ -14,7 +14,7 @@ namespace VistaDB.Engine.SQL
     {
       this.table = table;
       this.schema = schema;
-      this.tableSent = false;
+      tableSent = false;
     }
 
     protected override void OnParse(LocalSQLConnection connection, SQLParser parser)
@@ -23,16 +23,16 @@ namespace VistaDB.Engine.SQL
 
     public override void ResetResult()
     {
-      this.table.FirstRow();
-      this.tableSent = false;
+      table.FirstRow();
+      tableSent = false;
     }
 
     public override INextQueryResult NextResult(VistaDBPipe pipe)
     {
-      if (this.tableSent)
+      if (tableSent)
         return (INextQueryResult) null;
-      this.tableSent = true;
-      return (INextQueryResult) new BatchStatement.ResultSetData(this.table, this.schema, this.table.RowCount);
+      tableSent = true;
+      return (INextQueryResult) new BatchStatement.ResultSetData(table, schema, table.RowCount);
     }
 
     protected override bool AcceptRow()
@@ -46,7 +46,7 @@ namespace VistaDB.Engine.SQL
 
     public override IQuerySchemaInfo GetSchemaInfo()
     {
-      return this.schema;
+      return schema;
     }
 
     protected override VistaDBType OnPrepareQuery()

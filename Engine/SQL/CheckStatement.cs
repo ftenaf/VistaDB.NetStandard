@@ -13,21 +13,21 @@ namespace VistaDB.Engine.SQL
     public CheckStatement(LocalSQLConnection connection, Statement parent, SQLParser parser, long id, string tableName, Row row)
       : base(connection, parent, parser, id)
     {
-      this.table = new RowSourceTable((Statement) this, tableName, row);
+      table = new RowSourceTable((Statement) this, tableName, row);
     }
 
     protected override void OnParse(LocalSQLConnection connection, SQLParser parser)
     {
-      this.signature = parser.NextSignature(true, true, 6);
+      signature = parser.NextSignature(true, true, 6);
       if (parser.SkipToken(false))
         throw new VistaDBSQLException(618, "", parser.TokenValue.RowNo, parser.TokenValue.ColNo);
     }
 
     public override SourceTable GetTableByAlias(string tableAlias)
     {
-      if (this.connection.CompareString(this.table.Alias, tableAlias, true) != 0)
+      if (connection.CompareString(table.Alias, tableAlias, true) != 0)
         return (SourceTable) null;
-      return (SourceTable) this.table;
+      return (SourceTable) table;
     }
 
     public override SearchColumnResult GetTableByColumnName(string columnName, out SourceTable table, out int columnIndex)
@@ -39,17 +39,17 @@ namespace VistaDB.Engine.SQL
 
     public override SourceTable GetSourceTable(int index)
     {
-      return (SourceTable) this.table;
+      return (SourceTable) table;
     }
 
     protected override VistaDBType OnPrepareQuery()
     {
-      this.table.Prepare();
-      if (this.signature.Prepare() == SignatureType.Constant && this.signature.SignatureType != SignatureType.Constant)
-        this.signature = (Signature) ConstantSignature.CreateSignature(this.signature.Execute(), (Statement) this);
-      if (this.signature.DataType != VistaDBType.Bit)
-        throw new VistaDBSQLException(564, "", this.signature.LineNo, this.signature.SymbolNo);
-      this.table.Unprepare();
+      table.Prepare();
+      if (signature.Prepare() == SignatureType.Constant && signature.SignatureType != SignatureType.Constant)
+        signature = (Signature) ConstantSignature.CreateSignature(signature.Execute(), (Statement) this);
+      if (signature.DataType != VistaDBType.Bit)
+        throw new VistaDBSQLException(564, "", signature.LineNo, signature.SymbolNo);
+      table.Unprepare();
       return VistaDBType.Bit;
     }
 
@@ -60,9 +60,9 @@ namespace VistaDB.Engine.SQL
 
     public bool Evaluate(Row row)
     {
-      this.table.SetRow(row);
-      IColumn column = this.signature.Execute();
-      if (!this.signature.IsNull)
+      table.SetRow(row);
+      IColumn column = signature.Execute();
+      if (!signature.IsNull)
         return (bool) ((IValue) column).Value;
       return true;
     }

@@ -17,34 +17,34 @@ namespace VistaDB.Engine.SQL
     {
       if (parser.IsToken("FULLTEXT"))
       {
-        this.ftsIndex = true;
+        ftsIndex = true;
         parser.SkipToken(true);
       }
       parser.SkipToken(true);
-      if (this.ftsIndex && parser.IsToken("ON"))
+      if (ftsIndex && parser.IsToken("ON"))
       {
-        this.indexName = (string) null;
+        indexName = (string) null;
       }
       else
       {
-        this.indexName = parser.TokenValue.Token;
+        indexName = parser.TokenValue.Token;
         parser.SkipToken(true);
       }
       parser.ExpectedExpression("ON");
       parser.SkipToken(true);
-      this.tableName = parser.GetTableName((Statement) this);
+      tableName = parser.GetTableName((Statement) this);
       parser.SkipToken(false);
     }
 
     protected override IQueryResult OnExecuteQuery()
     {
       base.OnExecuteQuery();
-      using (ITable table = (ITable) this.Database.OpenTable(this.tableName, false, false))
+      using (ITable table = (ITable) Database.OpenTable(tableName, false, false))
       {
-        if (this.ftsIndex)
+        if (ftsIndex)
           table.DropFTSIndex();
         else
-          table.DropIndex(this.indexName);
+          table.DropIndex(indexName);
       }
       return (IQueryResult) null;
     }

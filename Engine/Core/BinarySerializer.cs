@@ -14,14 +14,14 @@ namespace VistaDB.Engine.Core
     static BinarySerializer()
     {
       if (Type.GetType("Mono.Runtime") == null)
-        BinarySerializer.s_MonoRuntime = false;
+                s_MonoRuntime = false;
       else
-        BinarySerializer.s_MonoRuntime = true;
+                s_MonoRuntime = true;
     }
 
     public static void SerializeValue(Stream stream, bool hostValue)
     {
-      byte[] buffer = BinarySerializer.SerializeValue(hostValue);
+      byte[] buffer = SerializeValue(hostValue);
       stream.Write(buffer, 0, buffer.Length);
     }
 
@@ -34,7 +34,7 @@ namespace VistaDB.Engine.Core
 
     public static void SerializeValue(Stream stream, Guid hostValue)
     {
-      byte[] buffer = BinarySerializer.SerializeValue(hostValue);
+      byte[] buffer = SerializeValue(hostValue);
       stream.Write(buffer, 0, buffer.Length);
     }
 
@@ -45,48 +45,48 @@ namespace VistaDB.Engine.Core
 
     public static void SerializeValue(Stream stream, string hostValue)
     {
-      byte[] buffer = BinarySerializer.SerializeValue(hostValue);
+      byte[] buffer = SerializeValue(hostValue);
       stream.Write(buffer, 0, buffer.Length);
     }
 
     public static byte[] SerializeValue(string hostValue)
     {
       if (hostValue == null)
-        return BinarySerializer.SerializeValue(-1);
+        return SerializeValue(-1);
       if (string.IsNullOrEmpty(hostValue))
-        return BinarySerializer.SerializeValue(0);
-      byte[] bytes = BinarySerializer.s_Encoding.GetBytes(hostValue);
+        return SerializeValue(0);
+      byte[] bytes = s_Encoding.GetBytes(hostValue);
       byte[] numArray = new byte[4 + bytes.Length];
-      Array.Copy((Array) BinarySerializer.SerializeValue(bytes.Length), (Array) numArray, 4);
+      Array.Copy((Array)SerializeValue(bytes.Length), (Array) numArray, 4);
       Array.Copy((Array) bytes, 0, (Array) numArray, 4, bytes.Length);
       return numArray;
     }
 
     public static void SerializeValue(Stream stream, DateTime hostValue)
     {
-      byte[] buffer = BinarySerializer.SerializeValue(hostValue);
+      byte[] buffer = SerializeValue(hostValue);
       stream.Write(buffer, 0, buffer.Length);
     }
 
     public static byte[] SerializeValue(DateTime hostValue)
     {
-      return BinarySerializer.SerializeValue(new DateTimeOffset(hostValue));
+      return SerializeValue(new DateTimeOffset(hostValue));
     }
 
     public static void SerializeValue(Stream stream, DateTimeOffset hostValue)
     {
-      byte[] buffer = BinarySerializer.SerializeValue(hostValue);
+      byte[] buffer = SerializeValue(hostValue);
       stream.Write(buffer, 0, buffer.Length);
     }
 
     public static byte[] SerializeValue(DateTimeOffset hostValue)
     {
-      return BinarySerializer.SerializeValue(hostValue.ToString("o", (IFormatProvider) CultureInfo.InvariantCulture));
+      return SerializeValue(hostValue.ToString("o", (IFormatProvider) CultureInfo.InvariantCulture));
     }
 
     public static void SerializeValue(Stream stream, long hostValue)
     {
-      byte[] buffer = BinarySerializer.SerializeValue(hostValue);
+      byte[] buffer = SerializeValue(hostValue);
       stream.Write(buffer, 0, buffer.Length);
     }
 
@@ -97,7 +97,7 @@ namespace VistaDB.Engine.Core
 
     public static void SerializeValue(Stream stream, ulong hostValue)
     {
-      byte[] buffer = BinarySerializer.SerializeValue(hostValue);
+      byte[] buffer = SerializeValue(hostValue);
       stream.Write(buffer, 0, buffer.Length);
     }
 
@@ -108,7 +108,7 @@ namespace VistaDB.Engine.Core
 
     public static void SerializeValue(Stream stream, int hostValue)
     {
-      byte[] buffer = BinarySerializer.SerializeValue(hostValue);
+      byte[] buffer = SerializeValue(hostValue);
       stream.Write(buffer, 0, buffer.Length);
     }
 
@@ -119,7 +119,7 @@ namespace VistaDB.Engine.Core
 
     public static void SerializeValue(Stream stream, uint hostValue)
     {
-      byte[] buffer = BinarySerializer.SerializeValue(hostValue);
+      byte[] buffer = SerializeValue(hostValue);
       stream.Write(buffer, 0, buffer.Length);
     }
 
@@ -130,7 +130,7 @@ namespace VistaDB.Engine.Core
 
     public static void SerializeValue(Stream stream, short hostValue)
     {
-      byte[] buffer = BinarySerializer.SerializeValue(hostValue);
+      byte[] buffer = SerializeValue(hostValue);
       stream.Write(buffer, 0, buffer.Length);
     }
 
@@ -141,7 +141,7 @@ namespace VistaDB.Engine.Core
 
     public static void SerializeValue(Stream stream, ushort hostValue)
     {
-      byte[] buffer = BinarySerializer.SerializeValue(hostValue);
+      byte[] buffer = SerializeValue(hostValue);
       stream.Write(buffer, 0, buffer.Length);
     }
 
@@ -201,15 +201,15 @@ namespace VistaDB.Engine.Core
     public static void DeserializeValue(Stream networkBytes, out DateTime hostValue)
     {
       DateTimeOffset hostValue1;
-      BinarySerializer.DeserializeValue(networkBytes, out hostValue1);
+            DeserializeValue(networkBytes, out hostValue1);
       hostValue = hostValue1.DateTime;
     }
 
     public static void DeserializeValue(Stream networkBytes, out DateTimeOffset hostValue)
     {
       string hostValue1;
-      BinarySerializer.DeserializeValue(networkBytes, out hostValue1);
-      if (!BinarySerializer.s_MonoRuntime)
+            DeserializeValue(networkBytes, out hostValue1);
+      if (!s_MonoRuntime)
       {
         hostValue = DateTimeOffset.ParseExact(hostValue1, "o", (IFormatProvider) null);
       }
@@ -258,12 +258,12 @@ namespace VistaDB.Engine.Core
     public static void DeserializeValue(Stream networkBytes, out string hostValue)
     {
       int hostValue1;
-      BinarySerializer.DeserializeValue(networkBytes, out hostValue1);
+            DeserializeValue(networkBytes, out hostValue1);
       if (hostValue1 > 0)
       {
         byte[] numArray = new byte[hostValue1];
         networkBytes.Read(numArray, 0, numArray.Length);
-        hostValue = BinarySerializer.s_Encoding.GetString(numArray);
+        hostValue = s_Encoding.GetString(numArray);
       }
       else if (hostValue1 == 0)
         hostValue = string.Empty;

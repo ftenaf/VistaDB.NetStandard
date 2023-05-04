@@ -5,7 +5,7 @@ namespace VistaDB.Engine.Core.Scripting
   internal class ColumnSignature : Signature
   {
     internal ColumnSignature(int groupId, VistaDBType type)
-      : base("Column", groupId, Signature.Operations.Nomark, Signature.Priorities.Generator, type)
+      : base("Column", groupId, Operations.Nomark, Priorities.Generator, type)
     {
     }
 

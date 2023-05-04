@@ -6,7 +6,7 @@ namespace VistaDB.Engine.Core.Scripting
   internal class GuidSignature : Signature
   {
     internal GuidSignature(string name, int groupId, int endOfGroupId)
-      : base(name, groupId, Signature.Operations.BgnGroup, Signature.Priorities.StdOperator, VistaDBType.UniqueIdentifier, endOfGroupId)
+      : base(name, groupId, Operations.BgnGroup, Priorities.StdOperator, VistaDBType.UniqueIdentifier, endOfGroupId)
     {
     }
 

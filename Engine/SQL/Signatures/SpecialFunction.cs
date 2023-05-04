@@ -12,25 +12,25 @@ namespace VistaDB.Engine.SQL.Signatures
     public SpecialFunction(SQLParser parser, int paramCount, int columnCount)
       : base(parser, paramCount, false)
     {
-      this.resultColumnTypes = new VistaDBType[columnCount];
-      this.resultColumnNames = new string[columnCount];
-      this.skipNull = false;
+      resultColumnTypes = new VistaDBType[columnCount];
+      resultColumnNames = new string[columnCount];
+      skipNull = false;
     }
 
     public VistaDBType[] GetResultColumnTypes()
     {
-      return this.resultColumnTypes;
+      return resultColumnTypes;
     }
 
     public string[] GetResultColumnNames()
     {
-      return this.resultColumnNames;
+      return resultColumnNames;
     }
 
     public void Open()
     {
       object resValue;
-      this.PrepareExecute(out resValue);
+      PrepareExecute(out resValue);
     }
 
     public abstract bool First(IRow row);

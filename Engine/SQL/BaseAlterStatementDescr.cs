@@ -7,15 +7,15 @@ namespace VistaDB.Engine.SQL
   {
     public BaseAlterStatementDescr()
     {
-      this.statements = new Hashtable();
-      this.statements.Add((object) "VIEW", (object) new BaseAlterStatementDescr.AlterViewStatementDescr());
-      this.statements.Add((object) "ASSEMBLY", (object) new BaseAlterStatementDescr.AlterAssemblyStatementDescr());
-      IStatementDescr statementDescr = (IStatementDescr) new BaseAlterStatementDescr.AlterProcedureStatementDescr();
-      this.statements.Add((object) "PROCEDURE", (object) statementDescr);
-      this.statements.Add((object) "PROC", (object) statementDescr);
-      this.statements.Add((object) "FUNCTION", (object) new BaseAlterStatementDescr.AlterFunctionStatementDescr());
-      this.statements.Add((object) "TABLE", (object) new BaseAlterStatementDescr.AlterTableStatementDescr());
-      this.statements.Add((object) "INDEX", (object) new BaseAlterStatementDescr.AlterIndexStatementDescr());
+      statements = new Hashtable();
+      statements.Add((object) "VIEW", (object) new AlterViewStatementDescr());
+      statements.Add((object) "ASSEMBLY", (object) new AlterAssemblyStatementDescr());
+      IStatementDescr statementDescr = (IStatementDescr) new AlterProcedureStatementDescr();
+      statements.Add((object) "PROCEDURE", (object) statementDescr);
+      statements.Add((object) "PROC", (object) statementDescr);
+      statements.Add((object) "FUNCTION", (object) new AlterFunctionStatementDescr());
+      statements.Add((object) "TABLE", (object) new AlterTableStatementDescr());
+      statements.Add((object) "INDEX", (object) new AlterIndexStatementDescr());
     }
 
     private class AlterViewStatementDescr : IStatementDescr

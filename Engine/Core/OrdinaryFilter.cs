@@ -5,7 +5,7 @@ namespace VistaDB.Engine.Core
   internal class OrdinaryFilter : Filter
   {
     internal OrdinaryFilter(EvalStack evaluation)
-      : base(evaluation, Filter.FilterType.Ordinary, true, true, 0)
+      : base(evaluation, FilterType.Ordinary, true, true, 0)
     {
     }
   }

@@ -10,7 +10,7 @@ namespace VistaDB.Engine.SQL
 
     public static Type GetSystemType(VistaDBType dataType)
     {
-      return Utils.VistaDBToSystem[(int) dataType];
+      return VistaDBToSystem[(int) dataType];
     }
 
     public static VistaDBType GetVistaDBType(Type type)
@@ -67,17 +67,17 @@ namespace VistaDB.Engine.SQL
 
     public static VistaDBType GetMaxDataType(VistaDBType dataType1, VistaDBType dataType2)
     {
-      if (Utils.CompareRank(dataType1, dataType2) < 0)
+      if (CompareRank(dataType1, dataType2) < 0)
         return dataType2;
       return dataType1;
     }
 
     public static VistaDBType GetMaxNumericDataType(VistaDBType dataType1, VistaDBType dataType2)
     {
-      bool flag1 = Utils.IsNumericDataType(dataType1);
-      bool flag2 = Utils.IsNumericDataType(dataType2);
+      bool flag1 = IsNumericDataType(dataType1);
+      bool flag2 = IsNumericDataType(dataType2);
       if (flag1 && flag2)
-        return Utils.GetMaxDataType(dataType1, dataType2);
+        return GetMaxDataType(dataType1, dataType2);
       if (flag1)
         return dataType1;
       if (flag2)
@@ -189,7 +189,7 @@ namespace VistaDB.Engine.SQL
       int index1 = hex.Length - 1;
       for (int index2 = length - 1; index2 >= 0; --index2)
       {
-        numArray[index2] = index1 != 2 ? (byte) (Utils.GetByte(hex[index1]) | Utils.GetByte(hex[index1 - 1]) << 4) : (byte) Utils.GetByte(hex[index1]);
+        numArray[index2] = index1 != 2 ? (byte) (GetByte(hex[index1]) | GetByte(hex[index1 - 1]) << 4) : (byte)GetByte(hex[index1]);
         index1 -= 2;
       }
       return numArray;

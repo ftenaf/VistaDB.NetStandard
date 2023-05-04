@@ -5,7 +5,7 @@ namespace VistaDB.Engine.Core.Scripting
   internal class Less : Equivalence
   {
     internal Less(string name, int groupId)
-      : base(name, groupId, Signature.Operations.Less)
+      : base(name, groupId, Operations.Less)
     {
     }
 
@@ -13,7 +13,7 @@ namespace VistaDB.Engine.Core.Scripting
     {
       PCodeUnit pcodeUnit1 = pcode[entry];
       PCodeUnit pcodeUnit2 = pcode[entry + 1];
-      pcodeUnit1.ResultColumn = (Row.Column) new BitColumn(this.ImplicitCompare(pcodeUnit1.ResultColumn, pcodeUnit2.ResultColumn, contextStorage) < 0L);
+      pcodeUnit1.ResultColumn = (Row.Column) new BitColumn(ImplicitCompare(pcodeUnit1.ResultColumn, pcodeUnit2.ResultColumn, contextStorage) < 0L);
     }
   }
 }

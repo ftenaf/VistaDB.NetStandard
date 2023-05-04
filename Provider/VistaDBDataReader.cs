@@ -32,35 +32,35 @@ namespace VistaDB.Provider
 
     bool IEnumerator.MoveNext()
     {
-      return this.Read();
+      return Read();
     }
 
     void IEnumerator.Reset()
     {
-      this.queryResult.FirstRow();
-      this.first = true;
+      queryResult.FirstRow();
+      first = true;
     }
 
     internal VistaDBDataReader(IQueryStatement statement, VistaDBConnection connection, CommandBehavior commandBehavior)
     {
-      this.vdbConnection = connection;
-      this.closeConnection = (commandBehavior & CommandBehavior.CloseConnection) == CommandBehavior.CloseConnection;
-      this.schemaOnly = (commandBehavior & CommandBehavior.SchemaOnly) == CommandBehavior.SchemaOnly;
-      this.singleResult = (commandBehavior & CommandBehavior.SingleResult) == CommandBehavior.SingleResult;
-      this.singleRow = (commandBehavior & CommandBehavior.SingleRow) == CommandBehavior.SingleRow;
-      this.InitStatement(statement);
-      this.GoNextResult();
-      this.LockQuery();
+      vdbConnection = connection;
+      closeConnection = (commandBehavior & CommandBehavior.CloseConnection) == CommandBehavior.CloseConnection;
+      schemaOnly = (commandBehavior & CommandBehavior.SchemaOnly) == CommandBehavior.SchemaOnly;
+      singleResult = (commandBehavior & CommandBehavior.SingleResult) == CommandBehavior.SingleResult;
+      singleRow = (commandBehavior & CommandBehavior.SingleRow) == CommandBehavior.SingleRow;
+      InitStatement(statement);
+      GoNextResult();
+      LockQuery();
     }
 
     private VistaDBDataReader(IQueryStatement statement)
     {
-      this.InitStatement(statement);
+      InitStatement(statement);
     }
 
     private void InitStatement(IQueryStatement statement)
     {
-      this.queryStatements = statement;
+      queryStatements = statement;
       statement.ResetResult();
     }
 
@@ -81,8 +81,8 @@ namespace VistaDB.Provider
     {
       get
       {
-        if (this.queryResultSchema != null)
-          return this.queryResultSchema.ColumnCount;
+        if (queryResultSchema != null)
+          return queryResultSchema.ColumnCount;
         return 0;
       }
     }
@@ -91,8 +91,8 @@ namespace VistaDB.Provider
     {
       get
       {
-        if (this.queryResult != null)
-          return this.queryResult.RowCount > 0L;
+        if (queryResult != null)
+          return queryResult.RowCount > 0L;
         return false;
       }
     }
@@ -101,8 +101,8 @@ namespace VistaDB.Provider
     {
       get
       {
-        if (this.queryResult == null && this.queryResultSchema == null)
-          return !this.schemaOnly;
+        if (queryResult == null && queryResultSchema == null)
+          return !schemaOnly;
         return false;
       }
     }
@@ -111,7 +111,7 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.queryResult.GetValue(ordinal, VistaDBType.Unknown);
+        return queryResult.GetValue(ordinal, VistaDBType.Unknown);
       }
     }
 
@@ -119,7 +119,7 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.queryResult.GetValue(this.GetOrdinal(name), VistaDBType.Unknown);
+        return queryResult.GetValue(GetOrdinal(name), VistaDBType.Unknown);
       }
     }
 
@@ -127,7 +127,7 @@ namespace VistaDB.Provider
     {
       get
       {
-        return (int) this.affectedRows;
+        return (int) affectedRows;
       }
     }
 
@@ -135,36 +135,36 @@ namespace VistaDB.Provider
     {
       lock (this)
       {
-        this.UnlockQuery();
-        if (this.pipedReader != null)
-          this.pipedReader.Close();
-        if (this.pipe != null)
-          this.pipe.Clear();
+        UnlockQuery();
+        if (pipedReader != null)
+          pipedReader.Close();
+        if (pipe != null)
+          pipe.Clear();
         try
         {
-          if (this.queryResult != null)
-            this.queryResult.Close();
-          if (this.vdbConnection == null)
+          if (queryResult != null)
+            queryResult.Close();
+          if (vdbConnection == null)
             return;
-          if (this.queryStatements != null)
-            this.vdbConnection.FreeQuery(this.queryStatements, true);
-          if (!this.closeConnection)
+          if (queryStatements != null)
+            vdbConnection.FreeQuery(queryStatements, true);
+          if (!closeConnection)
             return;
-          this.vdbConnection.Close();
+          vdbConnection.Close();
         }
         finally
         {
-          this.queryStatements = (IQueryStatement) null;
-          this.queryResult = (IQueryResult) null;
-          this.queryResultSchema = (IQuerySchemaInfo) null;
-          this.vdbConnection = (VistaDBConnection) null;
+          queryStatements = (IQueryStatement) null;
+          queryResult = (IQueryResult) null;
+          queryResultSchema = (IQuerySchemaInfo) null;
+          vdbConnection = (VistaDBConnection) null;
         }
       }
     }
 
     public override bool GetBoolean(int ordinal)
     {
-      object obj = this.queryResult.GetValue(ordinal, VistaDBType.Bit);
+      object obj = queryResult.GetValue(ordinal, VistaDBType.Bit);
       if (obj != null)
         return (bool) obj;
       return false;
@@ -172,7 +172,7 @@ namespace VistaDB.Provider
 
     public override byte GetByte(int ordinal)
     {
-      object obj = this.queryResult.GetValue(ordinal, VistaDBType.TinyInt);
+      object obj = queryResult.GetValue(ordinal, VistaDBType.TinyInt);
       if (obj != null)
         return (byte) obj;
       return 0;
@@ -180,7 +180,7 @@ namespace VistaDB.Provider
 
     public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
     {
-      Array sourceArray = (Array) this.queryResult.GetValue(ordinal, VistaDBType.Image);
+      Array sourceArray = (Array) queryResult.GetValue(ordinal, VistaDBType.Image);
       if (sourceArray == null || sourceArray.Length == 0)
         return 0;
       if (buffer == null)
@@ -194,7 +194,7 @@ namespace VistaDB.Provider
 
     public override char GetChar(int ordinal)
     {
-      string str = (string) this.queryResult.GetValue(ordinal, VistaDBType.NChar);
+      string str = (string) queryResult.GetValue(ordinal, VistaDBType.NChar);
       if (str != null && str.Length != 0)
         return str[0];
       return char.MinValue;
@@ -202,7 +202,7 @@ namespace VistaDB.Provider
 
     public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
     {
-      string str = (string) this.queryResult.GetValue(ordinal, VistaDBType.NChar);
+      string str = (string) queryResult.GetValue(ordinal, VistaDBType.NChar);
       if (str == null || str.Length == 0)
         return 0;
       if (buffer == null)
@@ -216,12 +216,12 @@ namespace VistaDB.Provider
 
     public override string GetDataTypeName(int ordinal)
     {
-      return this.queryResultSchema.GetDataTypeName(ordinal);
+      return queryResultSchema.GetDataTypeName(ordinal);
     }
 
     public override DateTime GetDateTime(int ordinal)
     {
-      object obj = this.queryResult.GetValue(ordinal, VistaDBType.DateTime);
+      object obj = queryResult.GetValue(ordinal, VistaDBType.DateTime);
       if (obj != null)
         return (DateTime) obj;
       return DateTime.MinValue;
@@ -229,7 +229,7 @@ namespace VistaDB.Provider
 
     public override Decimal GetDecimal(int ordinal)
     {
-      object obj = this.queryResult.GetValue(ordinal, VistaDBType.Decimal);
+      object obj = queryResult.GetValue(ordinal, VistaDBType.Decimal);
       if (obj != null)
         return (Decimal) obj;
       return new Decimal(0);
@@ -237,7 +237,7 @@ namespace VistaDB.Provider
 
     public override double GetDouble(int ordinal)
     {
-      object obj = this.queryResult.GetValue(ordinal, VistaDBType.Float);
+      object obj = queryResult.GetValue(ordinal, VistaDBType.Float);
       if (obj != null)
         return (double) obj;
       return 0.0;
@@ -245,22 +245,22 @@ namespace VistaDB.Provider
 
     public override IEnumerator GetEnumerator()
     {
-      return (IEnumerator) new DbEnumerator((IDataReader) this, this.closeConnection);
+      return (IEnumerator) new DbEnumerator((IDataReader) this, closeConnection);
     }
 
     public override Type GetFieldType(int ordinal)
     {
-      return this.queryResultSchema.GetColumnType(ordinal);
+      return queryResultSchema.GetColumnType(ordinal);
     }
 
     public VistaDBType GetFieldVistaDBType(int ordinal)
     {
-      return this.queryResultSchema.GetColumnVistaDBType(ordinal);
+      return queryResultSchema.GetColumnVistaDBType(ordinal);
     }
 
     public override float GetFloat(int ordinal)
     {
-      object obj = this.queryResult.GetValue(ordinal, VistaDBType.Real);
+      object obj = queryResult.GetValue(ordinal, VistaDBType.Real);
       if (obj != null)
         return (float) obj;
       return 0.0f;
@@ -268,7 +268,7 @@ namespace VistaDB.Provider
 
     public override Guid GetGuid(int ordinal)
     {
-      object obj = this.queryResult.GetValue(ordinal, VistaDBType.UniqueIdentifier);
+      object obj = queryResult.GetValue(ordinal, VistaDBType.UniqueIdentifier);
       if (obj != null)
         return (Guid) obj;
       return Guid.Empty;
@@ -276,7 +276,7 @@ namespace VistaDB.Provider
 
     public override short GetInt16(int ordinal)
     {
-      object obj = this.queryResult.GetValue(ordinal, VistaDBType.SmallInt);
+      object obj = queryResult.GetValue(ordinal, VistaDBType.SmallInt);
       if (obj != null)
         return (short) obj;
       return 0;
@@ -284,7 +284,7 @@ namespace VistaDB.Provider
 
     public override int GetInt32(int ordinal)
     {
-      object obj = this.queryResult.GetValue(ordinal, VistaDBType.Int);
+      object obj = queryResult.GetValue(ordinal, VistaDBType.Int);
       if (obj != null)
         return (int) obj;
       return 0;
@@ -292,7 +292,7 @@ namespace VistaDB.Provider
 
     public override long GetInt64(int ordinal)
     {
-      object obj = this.queryResult.GetValue(ordinal, VistaDBType.BigInt);
+      object obj = queryResult.GetValue(ordinal, VistaDBType.BigInt);
       if (obj != null)
         return (long) obj;
       return 0;
@@ -300,35 +300,35 @@ namespace VistaDB.Provider
 
     public override string GetName(int ordinal)
     {
-      return this.queryResultSchema.GetAliasName(ordinal);
+      return queryResultSchema.GetAliasName(ordinal);
     }
 
     public override int GetOrdinal(string name)
     {
-      return this.queryResultSchema.GetColumnOrdinal(name);
+      return queryResultSchema.GetColumnOrdinal(name);
     }
 
     public override DataTable GetSchemaTable()
     {
-      return this.queryResultSchema.GetSchemaTable();
+      return queryResultSchema.GetSchemaTable();
     }
 
     public override string GetString(int ordinal)
     {
-      return (string) this.queryResult.GetValue(ordinal, VistaDBType.NChar);
+      return (string) queryResult.GetValue(ordinal, VistaDBType.NChar);
     }
 
     public override object GetValue(int ordinal)
     {
-      return this.queryResult.GetValue(ordinal, VistaDBType.Unknown) ?? Convert.DBNull;
+      return queryResult.GetValue(ordinal, VistaDBType.Unknown) ?? Convert.DBNull;
     }
 
     public override int GetValues(object[] values)
     {
-      int num = values.Length < this.FieldCount ? values.Length : this.FieldCount;
+      int num = values.Length < FieldCount ? values.Length : FieldCount;
       for (int index = 0; index < num; ++index)
       {
-        object obj = this.queryResult.GetValue(index, VistaDBType.Unknown);
+        object obj = queryResult.GetValue(index, VistaDBType.Unknown);
         values[index] = obj == null ? Convert.DBNull : obj;
       }
       return num;
@@ -336,34 +336,34 @@ namespace VistaDB.Provider
 
     public override bool IsDBNull(int ordinal)
     {
-      return this.queryResult.IsNull(ordinal);
+      return queryResult.IsNull(ordinal);
     }
 
     private bool GoNextResult()
     {
-      if (this.queryResult != null)
-        this.queryResult.Close();
-      this.queryResult = (IQueryResult) null;
-      this.queryResultSchema = (IQuerySchemaInfo) null;
-      this.affectedRows = -1L;
-      if (this.pipedReader == null)
+      if (queryResult != null)
+        queryResult.Close();
+      queryResult = (IQueryResult) null;
+      queryResultSchema = (IQuerySchemaInfo) null;
+      affectedRows = -1L;
+      if (pipedReader == null)
       {
-        if (this.pipe.Count == 0)
+        if (pipe.Count == 0)
         {
-          for (INextQueryResult nextQueryResult = this.queryStatements.NextResult(this.pipe); nextQueryResult != null; nextQueryResult = this.queryStatements.NextResult(this.pipe))
+          for (INextQueryResult nextQueryResult = queryStatements.NextResult(pipe); nextQueryResult != null; nextQueryResult = queryStatements.NextResult(pipe))
           {
             if (nextQueryResult.AffectedRows > 0L)
             {
-              if (this.affectedRows < 0L)
-                ++this.affectedRows;
-              this.affectedRows += nextQueryResult.AffectedRows;
+              if (affectedRows < 0L)
+                ++affectedRows;
+              affectedRows += nextQueryResult.AffectedRows;
             }
-            if (this.pipe.Count > 0 && this.GoNextResult())
+            if (pipe.Count > 0 && GoNextResult())
               return true;
             if (nextQueryResult.ResultSet != null)
             {
-              this.queryResultSchema = nextQueryResult.Schema;
-              if (this.schemaOnly)
+              queryResultSchema = nextQueryResult.Schema;
+              if (schemaOnly)
               {
                 if (nextQueryResult.ResultSet != null)
                 {
@@ -372,50 +372,50 @@ namespace VistaDB.Provider
                 }
                 break;
               }
-              this.queryResult = nextQueryResult.ResultSet;
+              queryResult = nextQueryResult.ResultSet;
               break;
             }
           }
-          this.first = this.queryResult != null;
-          if (this.queryResult == null)
-            return this.queryResultSchema != null;
+          first = queryResult != null;
+          if (queryResult == null)
+            return queryResultSchema != null;
           return true;
         }
-        this.pipedReader = this.pipe.DequeueReader();
+        pipedReader = pipe.DequeueReader();
       }
-      else if (!this.pipedReader.GoNextResult())
+      else if (!pipedReader.GoNextResult())
       {
-        this.pipedReader.Close();
-        this.pipedReader = (VistaDBDataReader) null;
-        return this.GoNextResult();
+        pipedReader.Close();
+        pipedReader = (VistaDBDataReader) null;
+        return GoNextResult();
       }
-      this.affectedRows = this.pipedReader.affectedRows;
-      this.queryResult = this.pipedReader.queryResult;
-      this.queryResultSchema = this.pipedReader.queryResultSchema;
-      this.first = this.queryResult != null;
-      if (this.queryResult == null)
-        return this.queryResultSchema != null;
+      affectedRows = pipedReader.affectedRows;
+      queryResult = pipedReader.queryResult;
+      queryResultSchema = pipedReader.queryResultSchema;
+      first = queryResult != null;
+      if (queryResult == null)
+        return queryResultSchema != null;
       return true;
     }
 
     public override bool NextResult()
     {
-      if (this.queryResult == null && this.queryResultSchema == null)
+      if (queryResult == null && queryResultSchema == null)
         return false;
-      return this.GoNextResult();
+      return GoNextResult();
     }
 
     public override bool Read()
     {
-      if (this.queryResult == null)
+      if (queryResult == null)
         return false;
-      if (this.first)
+      if (first)
       {
-        this.first = false;
-        return !this.queryResult.EndOfTable;
+        first = false;
+        return !queryResult.EndOfTable;
       }
-      this.queryResult.NextRow();
-      return !this.queryResult.EndOfTable;
+      queryResult.NextRow();
+      return !queryResult.EndOfTable;
     }
 
     private void EvaluateScalar(IQueryResult resultSet, ref object scalar)
@@ -438,32 +438,32 @@ namespace VistaDB.Provider
     internal object ExecQuery(ref long affectedRows)
     {
       object scalar1 = (object) null;
-      if (this.pipedReader == null)
+      if (pipedReader == null)
       {
-        if (this.pipe.Count == 0)
+        if (pipe.Count == 0)
         {
           object scalar2 = (object) null;
-          for (INextQueryResult nextQueryResult = this.queryStatements.NextResult(this.pipe); nextQueryResult != null; nextQueryResult = this.queryStatements.NextResult(this.pipe))
+          for (INextQueryResult nextQueryResult = queryStatements.NextResult(pipe); nextQueryResult != null; nextQueryResult = queryStatements.NextResult(pipe))
           {
             affectedRows += nextQueryResult.AffectedRows;
-            if (this.pipe.Count > 0)
+            if (pipe.Count > 0)
             {
-              object obj = this.ExecQuery(ref affectedRows);
+              object obj = ExecQuery(ref affectedRows);
               if (scalar2 == null)
                 scalar2 = obj;
             }
-            this.EvaluateScalar(nextQueryResult.ResultSet, ref scalar2);
+            EvaluateScalar(nextQueryResult.ResultSet, ref scalar2);
           }
           return scalar2;
         }
-        this.pipedReader = this.pipe.DequeueReader();
-        this.EvaluateScalar(this.pipedReader.queryResult, ref scalar1);
+        pipedReader = pipe.DequeueReader();
+        EvaluateScalar(pipedReader.queryResult, ref scalar1);
       }
       else
       {
-        scalar1 = this.pipedReader.ExecQuery(ref affectedRows);
-        this.pipedReader.Close();
-        this.pipedReader = (VistaDBDataReader) null;
+        scalar1 = pipedReader.ExecQuery(ref affectedRows);
+        pipedReader.Close();
+        pipedReader = (VistaDBDataReader) null;
       }
       return scalar1;
     }
@@ -472,22 +472,22 @@ namespace VistaDB.Provider
     {
       get
       {
-        return (INextQueryResult) new BatchStatement.ResultSetData(this.queryResult, this.queryResultSchema, this.affectedRows);
+        return (INextQueryResult) new BatchStatement.ResultSetData(queryResult, queryResultSchema, affectedRows);
       }
     }
 
     private void LockQuery()
     {
-      if (this.queryStatements == null)
+      if (queryStatements == null)
         return;
-      this.queryStatements.LockedDisposing = true;
+      queryStatements.LockedDisposing = true;
     }
 
     private void UnlockQuery()
     {
-      if (this.queryStatements == null)
+      if (queryStatements == null)
         return;
-      this.queryStatements.LockedDisposing = false;
+      queryStatements.LockedDisposing = false;
     }
   }
 }

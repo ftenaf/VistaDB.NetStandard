@@ -11,11 +11,11 @@ namespace VistaDB.Engine.SQL
 
     protected override bool OnExecuteRowset(ConstraintOperations constraints)
     {
-      while (this.leftRowSet.ExecuteRowset(constraints))
+      while (leftRowSet.ExecuteRowset(constraints))
       {
-        if (this.rightRowSet.ExecuteRowset(constraints))
+        if (rightRowSet.ExecuteRowset(constraints))
           return true;
-        if (!this.leftRowSet.Next(constraints))
+        if (!leftRowSet.Next(constraints))
           break;
       }
       return false;

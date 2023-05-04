@@ -7,13 +7,13 @@ namespace VistaDB.Engine.SQL.Signatures
     public RTrimFunction(SQLParser parser)
       : base(parser, 1, true)
     {
-      this.dataType = VistaDBType.NChar;
-      this.parameterTypes[0] = VistaDBType.NChar;
+      dataType = VistaDBType.NChar;
+      parameterTypes[0] = VistaDBType.NChar;
     }
 
     protected override object ExecuteSubProgram()
     {
-      return (object) ((string) ((IValue) this.paramValues[0]).Value).TrimEnd();
+      return (object) ((string) ((IValue) paramValues[0]).Value).TrimEnd();
     }
 
     public override int GetWidth()

@@ -9,16 +9,16 @@ namespace VistaDB.Engine.SQL
     protected SelectStatement statement;
     protected IQueryResult queryTable;
 
-    public QuerySourceTable(VistaDB.Engine.SQL.Statement parent, SelectStatement statement, string alias, int index, int lineNo, int symbolNo)
+    public QuerySourceTable(Statement parent, SelectStatement statement, string alias, int index, int lineNo, int symbolNo)
       : base(parent, alias, alias, index, lineNo, symbolNo)
     {
       this.statement = statement;
-      this.queryTable = (IQueryResult) null;
+      queryTable = (IQueryResult) null;
     }
 
     public override IColumn SimpleGetColumn(int colIndex)
     {
-      return this.queryTable.GetColumn(colIndex);
+      return queryTable.GetColumn(colIndex);
     }
 
     public override void Post()
@@ -27,15 +27,15 @@ namespace VistaDB.Engine.SQL
 
     public override void Close()
     {
-      if (this.queryTable == null)
+      if (queryTable == null)
         return;
-      this.queryTable.Close();
-      this.queryTable = (IQueryResult) null;
+      queryTable.Close();
+      queryTable = (IQueryResult) null;
     }
 
     public override void FreeTable()
     {
-      this.statement.FreeTables();
+      statement.FreeTables();
     }
 
     public override IVistaDBTableSchema GetTableSchema()
@@ -55,54 +55,54 @@ namespace VistaDB.Engine.SQL
 
     public override int GetColumnCount()
     {
-      return this.queryTable.GetColumnCount();
+      return queryTable.GetColumnCount();
     }
 
     protected override void OnOpen(bool readOnly)
     {
-      this.queryTable = this.statement.ExecuteQuery();
+      queryTable = statement.ExecuteQuery();
     }
 
     protected override bool OnFirst()
     {
-      if (this.queryTable == null)
+      if (queryTable == null)
         return false;
-      this.queryTable.FirstRow();
-      return !this.queryTable.EndOfTable;
+      queryTable.FirstRow();
+      return !queryTable.EndOfTable;
     }
 
     protected override bool OnNext()
     {
-      this.queryTable.NextRow();
-      return !this.queryTable.EndOfTable;
+      queryTable.NextRow();
+      return !queryTable.EndOfTable;
     }
 
     protected override IQuerySchemaInfo InternalPrepare()
     {
-      int num = (int) this.statement.PrepareQuery();
-      return this.statement.GetSchemaInfo();
+      int num = (int) statement.PrepareQuery();
+      return statement.GetSchemaInfo();
     }
 
     protected override void InternalInsert()
     {
-      throw new VistaDBSQLException(604, "", this.lineNo, this.symbolNo);
+      throw new VistaDBSQLException(604, "", lineNo, symbolNo);
     }
 
     protected override void InternalPutValue(int columnIndex, IColumn columnValue)
     {
-      throw new VistaDBSQLException(604, "", this.lineNo, this.symbolNo);
+      throw new VistaDBSQLException(604, "", lineNo, symbolNo);
     }
 
     protected override void InternalDeleteRow()
     {
-      throw new VistaDBSQLException(604, "", this.lineNo, this.symbolNo);
+      throw new VistaDBSQLException(604, "", lineNo, symbolNo);
     }
 
     public override bool Eof
     {
       get
       {
-        return this.queryTable.EndOfTable;
+        return queryTable.EndOfTable;
       }
     }
 
@@ -118,7 +118,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.queryTable != null;
+        return queryTable != null;
       }
     }
 
@@ -134,7 +134,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.statement;
+        return statement;
       }
     }
   }

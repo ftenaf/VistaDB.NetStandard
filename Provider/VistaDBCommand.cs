@@ -15,9 +15,7 @@ namespace VistaDB.Provider
 	{
 		private static string CmdMarker = '@'.ToString();
 		private static string QuestionMark = '?'.ToString();
-		private const int CommandTimeoutDefault = 30;
-		private const int CommandTimeoutMax = 600;
-		private string commandText;
+        private string commandText;
 		private CommandType commandType;
 		private UpdateRowSource updateRowSource;
 		private VistaDBConnection connection;
@@ -98,7 +96,7 @@ namespace VistaDB.Provider
 
 		public void ResetCommandTimeout()
 		{
-			this.commandTimeout = 30;
+			commandTimeout = 30;
 		}
 
 		public override CommandType CommandType
@@ -198,7 +196,7 @@ namespace VistaDB.Provider
 			}
 			set
 			{
-				this.Connection = (VistaDBConnection)value;
+				Connection = (VistaDBConnection)value;
 			}
 		}
 
@@ -355,7 +353,7 @@ namespace VistaDB.Provider
 									parameter.Value = emptyColumn.Value;
 								}
 							}
-							this.Parameters.Add(parameter);
+							Parameters.Add(parameter);
 						}
 					}
 				}
@@ -392,7 +390,7 @@ namespace VistaDB.Provider
 			{
 				if (queryStatements != null && queryStatements.Disposed)
 					queryStatements = null;
-				return this.queryStatements;
+				return queryStatements;
 			}
 		}
 
@@ -460,7 +458,7 @@ namespace VistaDB.Provider
 				throw new VistaDBSQLException(1011, string.Empty, 0, 0);
 			if (ThisQuery == null)
 			{
-				if (commandText == null || this.commandText.Length == 0)
+				if (commandText == null || commandText.Length == 0)
 					throw new VistaDBSQLException(1008, string.Empty, 0, 0);
 				if (commandText.Contains(QuestionMark))
 					CleanupQuestionParams();
@@ -491,7 +489,7 @@ namespace VistaDB.Provider
 
 		object ICloneable.Clone()
 		{
-			lock (this.SyncRoot)
+			lock (SyncRoot)
 				return (object)new VistaDBCommand(this);
 		}
 	}

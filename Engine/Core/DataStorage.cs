@@ -21,7 +21,7 @@ namespace VistaDB.Engine.Core
 {
 	internal abstract class DataStorage : IDisposable
 	{
-		private DataStorage.Operation currentOperation = DataStorage.Operation.None;
+		private Operation currentOperation = Operation.None;
 		private bool activeLinks = true;
 		private string name;
 		private string alias;
@@ -61,7 +61,7 @@ namespace VistaDB.Engine.Core
 		private bool forcedAfterDelete;
 		private Relationships relationships;
 		private Encryption encryption;
-		private DataStorage.StorageContext context;
+		private StorageContext context;
 		private DataStorage clonedStorage;
 		private bool createdInMemoryYet;
 		private bool finalization;
@@ -120,7 +120,7 @@ namespace VistaDB.Engine.Core
 		{
 			get
 			{
-				return currentOperation == DataStorage.Operation.Delete;
+				return currentOperation == Operation.Delete;
 			}
 		}
 
@@ -128,7 +128,7 @@ namespace VistaDB.Engine.Core
 		{
 			get
 			{
-				return currentOperation == DataStorage.Operation.Insert;
+				return currentOperation == Operation.Insert;
 			}
 		}
 
@@ -136,7 +136,7 @@ namespace VistaDB.Engine.Core
 		{
 			get
 			{
-				return currentOperation == DataStorage.Operation.Update;
+				return currentOperation == Operation.Update;
 			}
 		}
 
@@ -537,11 +537,11 @@ namespace VistaDB.Engine.Core
 			}
 		}
 
-		internal virtual DataStorage.StorageContext Context
+		internal virtual StorageContext Context
 		{
 			get
 			{
-				DataStorage.StorageContext storageContext = context == null ? new DataStorage.StorageContext() : context;
+                StorageContext storageContext = context == null ? new StorageContext() : context;
 				context = null;
 				storageContext.Init(CurrentRow.CopyInstance(), SatelliteRow.CopyInstance(), EndOfSet, BgnOfSet, asynchCounter);
 				return storageContext;
@@ -585,7 +585,7 @@ namespace VistaDB.Engine.Core
 					openMode.VirtualLocks = true;
 					Handle.Mode.VirtualLocks = true;
 				}
-				ClearScope(DataStorage.ScopeType.UserScope);
+				ClearScope(ScopeType.UserScope);
 				flag = false;
 			}
 			catch (Exception ex)
@@ -622,7 +622,7 @@ namespace VistaDB.Engine.Core
 				{
 					FinalizeChanges(!flag2, commit);
 				}
-				ClearScope(DataStorage.ScopeType.UserScope);
+				ClearScope(ScopeType.UserScope);
 				flag1 = false;
 				createdInMemoryYet = !commit;
 			}
@@ -960,7 +960,7 @@ namespace VistaDB.Engine.Core
 
 		internal void MinimizeCache()
 		{
-			if (currentOperation != DataStorage.Operation.None)
+			if (currentOperation != Operation.None)
 				return;
 			++minizeMemoryCount;
 			if (minizeMemoryCount % 10 == 0)
@@ -986,7 +986,7 @@ namespace VistaDB.Engine.Core
 
 		internal void GoCurrentRow(bool soft)
 		{
-			OnGoCurrentRow(soft || currentOperation == DataStorage.Operation.Seek);
+			OnGoCurrentRow(soft || currentOperation == Operation.Seek);
 		}
 
 		internal void PrevRow()
@@ -1505,13 +1505,13 @@ namespace VistaDB.Engine.Core
 
 		internal bool CreateRow(bool commit, bool blank)
 		{
-			DataStorage.Operation currentOperation = this.currentOperation;
+            Operation currentOperation = this.currentOperation;
 			bool created = false;
 			try
 			{
 				if (IsReadOnly)
 					throw new VistaDBException(337, Name);
-				this.currentOperation = DataStorage.Operation.Insert;
+				this.currentOperation = Operation.Insert;
 				if (!DoBeforeCreateRow())
 					return false;
 				try
@@ -1556,13 +1556,13 @@ namespace VistaDB.Engine.Core
 
 		internal bool UpdateRow(bool commit)
 		{
-			DataStorage.Operation currentOperation = this.currentOperation;
+            Operation currentOperation = this.currentOperation;
 			bool updated = false;
 			try
 			{
 				if (IsReadOnly)
 					throw new VistaDBException(337, Name);
-				this.currentOperation = DataStorage.Operation.Update;
+				this.currentOperation = Operation.Update;
 				uint rowId = CurrentRow.RowId;
 				if (!DoBeforeUpdateRow(rowId))
 					return false;
@@ -1582,8 +1582,8 @@ namespace VistaDB.Engine.Core
 						updated = DoAfterUpdateRow(rowId, updated);
 					}
 				}
-				catch (Exception ex)
-				{
+				catch (Exception)
+                {
 					updated = false;
 					throw;
 				}
@@ -1593,8 +1593,8 @@ namespace VistaDB.Engine.Core
 				}
 				return true;
 			}
-			catch (Exception ex)
-			{
+			catch (Exception)
+            {
 				SetCurrentRow(BottomRow);
 				throw;
 			}
@@ -1608,13 +1608,13 @@ namespace VistaDB.Engine.Core
 
 		internal bool DeleteRow(bool commit)
 		{
-			DataStorage.Operation currentOperation = this.currentOperation;
+            Operation currentOperation = this.currentOperation;
 			bool deleted = false;
 			try
 			{
 				if (IsReadOnly)
 					throw new VistaDBException(337, Name);
-				this.currentOperation = DataStorage.Operation.Delete;
+				this.currentOperation = Operation.Delete;
 				uint rowId = CurrentRow.RowId;
 				if (!DoBeforeDeleteRow(rowId))
 					return false;
@@ -1634,8 +1634,8 @@ namespace VistaDB.Engine.Core
 						deleted = DoAfterDeleteRow(rowId, deleted);
 					}
 				}
-				catch (Exception ex)
-				{
+				catch (Exception)
+                {
 					deleted = false;
 					throw;
 				}
@@ -1645,8 +1645,8 @@ namespace VistaDB.Engine.Core
 				}
 				return true;
 			}
-			catch (Exception ex)
-			{
+			catch (Exception)
+            {
 				SetCurrentRow(BottomRow);
 				throw;
 			}
@@ -1704,12 +1704,12 @@ namespace VistaDB.Engine.Core
 				throw new VistaDBException(152, alias);
 		}
 
-		internal void ClearScope(DataStorage.ScopeType scope)
+		internal void ClearScope(ScopeType scope)
 		{
 			OnClearScope(scope);
 		}
 
-		internal bool SetScope(Row lowValue, Row highValue, DataStorage.ScopeType scopes, bool exactMatching)
+		internal bool SetScope(Row lowValue, Row highValue, ScopeType scopes, bool exactMatching)
 		{
 			if (OnSetScope(lowValue, highValue, scopes, exactMatching))
 				return true;
@@ -1826,10 +1826,10 @@ namespace VistaDB.Engine.Core
 					++CurrentOperationStatusLoop;
 				else
 					progress = (progress + CurrentOperationStatusLoop * 100U) / TotalOperationStatusLoops;
-				operationDelegate(new DataStorage.OperationCallbackStatus((int)progress, operation, name, message));
+				operationDelegate(new OperationCallbackStatus((int)progress, operation, name, message));
 			}
-			catch (Exception ex)
-			{
+			catch (Exception)
+            {
 			}
 		}
 
@@ -1844,10 +1844,10 @@ namespace VistaDB.Engine.Core
 					++CurrentOperationStatusLoop;
 				else
 					progress = (progress + CurrentOperationStatusLoop * 100U) / TotalOperationStatusLoops;
-				operationDelegate(new DataStorage.OperationCallbackStatus((int)progress, operation, Name));
+				operationDelegate(new OperationCallbackStatus((int)progress, operation, Name));
 			}
-			catch (Exception ex)
-			{
+			catch (Exception)
+            {
 			}
 		}
 
@@ -1936,7 +1936,7 @@ namespace VistaDB.Engine.Core
 				case VistaDBType.NVarChar:
 					return new NVarcharColumn(null, maxLength, culture, caseInsensitive, NCharColumn.DefaultUnicode);
 				default:
-					return DataStorage.CreateRowColumn(type, caseInsensitive, culture);
+					return CreateRowColumn(type, caseInsensitive, culture);
 			}
 		}
 
@@ -1947,7 +1947,7 @@ namespace VistaDB.Engine.Core
 
 		internal Row.Column CreateEmptyColumnInstance(VistaDBType type)
 		{
-			Row.Column rowColumn = DataStorage.CreateRowColumn(type, !CaseSensitive, Culture);
+			Row.Column rowColumn = CreateRowColumn(type, !CaseSensitive, Culture);
 			if (rowColumn == null)
 				throw new VistaDBException(153, type.ToString());
 			return rowColumn;
@@ -2125,8 +2125,8 @@ namespace VistaDB.Engine.Core
 						str = Path.GetTempFileName();
 						File.Delete(str);
 					}
-					catch (SecurityException ex)
-					{
+					catch (SecurityException)
+                    {
 						str = Path.Combine(ParentConnection.TemporaryPath, "VistaDB." + Guid.NewGuid().ToString() + ".tmp");
 					}
 					storageHandle = connection.StorageManager.CreateTemporaryStorage(str, PageSize, accessMode.Transacted, accessMode.IsolatedStorage);
@@ -2154,8 +2154,8 @@ namespace VistaDB.Engine.Core
 				DeactivateHeader();
 				DeallocateDataStructure();
 			}
-			catch (Exception ex)
-			{
+			catch (Exception)
+            {
 				throw;
 			}
 			try
@@ -2395,8 +2395,8 @@ namespace VistaDB.Engine.Core
 		protected virtual bool OnSeekRow(Row row, bool partialMatching)
 		{
 			SetCurrentRow(row);
-			DataStorage.Operation currentOperation = this.currentOperation;
-			this.currentOperation = DataStorage.Operation.Seek;
+            Operation currentOperation = this.currentOperation;
+			this.currentOperation = Operation.Seek;
 			try
 			{
 				Synch();
@@ -2690,13 +2690,13 @@ namespace VistaDB.Engine.Core
 			}
 		}
 
-		protected virtual void OnClearScope(DataStorage.ScopeType scope)
+		protected virtual void OnClearScope(ScopeType scope)
 		{
 			TopRow.InitTop();
 			BottomRow.InitBottom();
 		}
 
-		protected virtual bool OnSetScope(Row lowValue, Row highValue, DataStorage.ScopeType scopes, bool exactMatching)
+		protected virtual bool OnSetScope(Row lowValue, Row highValue, ScopeType scopes, bool exactMatching)
 		{
 			TopRow.Copy(lowValue);
 			BottomRow.Copy(highValue);
@@ -2901,8 +2901,8 @@ namespace VistaDB.Engine.Core
 			{
 				OnDetachLockStorage(lockStorageHandle != null && storageHandle != lockStorageHandle);
 			}
-			catch (Exception ex)
-			{
+			catch (Exception)
+            {
 				throw;
 			}
 			finally
@@ -3290,8 +3290,8 @@ namespace VistaDB.Engine.Core
 				relationships = null;
 				encryption = null;
 			}
-			catch (Exception ex)
-			{
+			catch (Exception)
+            {
 				throw;
 			}
 		}

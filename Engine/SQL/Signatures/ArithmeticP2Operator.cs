@@ -9,9 +9,9 @@
 
     public override SignatureType OnPrepare()
     {
-      SignatureType signatureType = ConstantSignature.PrepareBinaryOperator(ref this.leftOperand, ref this.rightOperand, out this.dataType, true, true, this.text, this.lineNo, this.symbolNo);
-      this.leftValue = this.CreateColumn(this.dataType);
-      this.rightValue = this.CreateColumn(this.dataType);
+      SignatureType signatureType = ConstantSignature.PrepareBinaryOperator(ref leftOperand, ref rightOperand, out dataType, true, true, text, lineNo, symbolNo);
+      leftValue = CreateColumn(dataType);
+      rightValue = CreateColumn(dataType);
       return signatureType;
     }
   }

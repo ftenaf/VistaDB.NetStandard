@@ -9,14 +9,14 @@ namespace VistaDB.Engine.SQL.Signatures
     public GetDateFunction(SQLParser parser)
       : base(parser, 0, true)
     {
-      this.dataType = VistaDBType.DateTime;
+      dataType = VistaDBType.DateTime;
     }
 
     protected override object ExecuteSubProgram()
     {
-      if (this.value == DateTime.MinValue)
-        this.value = this.EvaluateCurrentMoment();
-      return (object) this.value;
+      if (value == DateTime.MinValue)
+        value = EvaluateCurrentMoment();
+      return (object) value;
     }
 
     protected virtual DateTime EvaluateCurrentMoment()

@@ -25,7 +25,7 @@ namespace VistaDB.Diagnostic
     {
       get
       {
-        return this.Contains(140L);
+        return Contains(140L);
       }
     }
   }

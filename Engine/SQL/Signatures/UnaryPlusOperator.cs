@@ -11,12 +11,12 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override IColumn InternalExecute()
     {
-      if (this.GetIsChanged())
+      if (GetIsChanged())
       {
-        ((IValue) this.result).Value = ((IValue) this.operand.Execute()).Value;
-        this.needsEvaluation = false;
+        ((IValue) result).Value = ((IValue) operand.Execute()).Value;
+        needsEvaluation = false;
       }
-      return this.result;
+      return result;
     }
   }
 }

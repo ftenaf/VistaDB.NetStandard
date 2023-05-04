@@ -20,12 +20,12 @@ namespace VistaDB.Engine.SQL
 
     protected bool ExecuteRightRowSet(ConstraintOperations constraints)
     {
-      while (this.rightRowSet.ExecuteRowset(constraints))
+      while (rightRowSet.ExecuteRowset(constraints))
       {
-        IColumn column = this.signature.Execute();
+        IColumn column = signature.Execute();
         if (!column.IsNull && (bool) ((IValue) column).Value)
           return true;
-        if (!this.rightRowSet.Next(constraints))
+        if (!rightRowSet.Next(constraints))
           break;
       }
       return false;
@@ -35,59 +35,59 @@ namespace VistaDB.Engine.SQL
 
     public bool Next(ConstraintOperations constraints)
     {
-      if (!this.rightRowSet.Next(constraints))
-        return this.leftRowSet.Next(constraints);
+      if (!rightRowSet.Next(constraints))
+        return leftRowSet.Next(constraints);
       return true;
     }
 
     public bool ExecuteRowset(ConstraintOperations constraints)
     {
-      if (this.RowAvailable)
-        return this.OnExecuteRowset(constraints);
+      if (RowAvailable)
+        return OnExecuteRowset(constraints);
       return false;
     }
 
     public void MarkRowNotAvailable()
     {
-      this.leftRowSet.MarkRowNotAvailable();
-      this.rightRowSet.MarkRowNotAvailable();
+      leftRowSet.MarkRowNotAvailable();
+      rightRowSet.MarkRowNotAvailable();
     }
 
     public bool IsEquals(IRowSet rowSet)
     {
-      if (rowSet == null || this.GetType() != rowSet.GetType())
+      if (rowSet == null || GetType() != rowSet.GetType())
         return false;
       Join join = (Join) rowSet;
-      if (this.leftRowSet.IsEquals(join.leftRowSet) && this.rightRowSet.IsEquals(join.rightRowSet))
-        return this.signature == join.signature;
+      if (leftRowSet.IsEquals(join.leftRowSet) && rightRowSet.IsEquals(join.rightRowSet))
+        return signature == join.signature;
       return false;
     }
 
     public void Prepare()
     {
-      if (this.signature != (Signature) null)
+      if (signature != (Signature) null)
       {
-        SignatureType signatureType = this.signature.Prepare();
-        if (this.signature.DataType != VistaDBType.Bit)
-          throw new VistaDBSQLException(557, "", this.signature.LineNo, this.signature.SymbolNo);
-        if (signatureType == SignatureType.Constant && this.signature.SignatureType != SignatureType.Constant)
-          this.signature = (Signature) ConstantSignature.CreateSignature(this.signature.Execute(), this.signature.Parent);
+        SignatureType signatureType = signature.Prepare();
+        if (signature.DataType != VistaDBType.Bit)
+          throw new VistaDBSQLException(557, "", signature.LineNo, signature.SymbolNo);
+        if (signatureType == SignatureType.Constant && signature.SignatureType != SignatureType.Constant)
+          signature = (Signature) ConstantSignature.CreateSignature(signature.Execute(), signature.Parent);
       }
-      this.leftRowSet.Prepare();
-      this.rightRowSet.Prepare();
+      leftRowSet.Prepare();
+      rightRowSet.Prepare();
     }
 
     public bool Optimize(ConstraintOperations constrainOperations)
     {
-      if (this.signature != (Signature) null && this.signature.SignatureType != SignatureType.Constant && !this.signature.Optimize(constrainOperations) || constrainOperations == null)
+      if (signature != (Signature) null && signature.SignatureType != SignatureType.Constant && !signature.Optimize(constrainOperations) || constrainOperations == null)
         return false;
       int count1 = constrainOperations.Count;
-      if (!this.leftRowSet.Optimize(constrainOperations))
+      if (!leftRowSet.Optimize(constrainOperations))
         return false;
       if (count1 > 0 && constrainOperations.Count > count1)
         constrainOperations.AddLogicalAnd();
       int count2 = constrainOperations.Count;
-      if (!this.rightRowSet.Optimize(constrainOperations))
+      if (!rightRowSet.Optimize(constrainOperations))
         return false;
       if (count2 > 0 && constrainOperations.Count > count2)
         constrainOperations.AddLogicalAnd();
@@ -96,26 +96,26 @@ namespace VistaDB.Engine.SQL
 
     public void SetUpdated()
     {
-      if (this.signature != (Signature) null)
-        this.signature.SetChanged();
-      this.leftRowSet.SetUpdated();
-      this.rightRowSet.SetUpdated();
+      if (signature != (Signature) null)
+        signature.SetChanged();
+      leftRowSet.SetUpdated();
+      rightRowSet.SetUpdated();
     }
 
     public void ClearUpdated()
     {
-      if (this.signature != (Signature) null)
-        this.signature.ClearChanged();
-      this.leftRowSet.ClearUpdated();
-      this.rightRowSet.ClearUpdated();
+      if (signature != (Signature) null)
+        signature.ClearChanged();
+      leftRowSet.ClearUpdated();
+      rightRowSet.ClearUpdated();
     }
 
     public bool RowAvailable
     {
       get
       {
-        if (!this.leftRowSet.RowAvailable)
-          return this.rightRowSet.RowAvailable;
+        if (!leftRowSet.RowAvailable)
+          return rightRowSet.RowAvailable;
         return true;
       }
     }
@@ -124,8 +124,8 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        if (!this.leftRowSet.RowUpdated)
-          return this.rightRowSet.RowUpdated;
+        if (!leftRowSet.RowUpdated)
+          return rightRowSet.RowUpdated;
         return true;
       }
     }
@@ -140,8 +140,8 @@ namespace VistaDB.Engine.SQL
 
     public virtual IRowSet PrepareTables(IVistaDBTableNameCollection tableNames, IViewList views, TableCollection tableList, bool alwaysAllowNull, ref int tableIndex)
     {
-      this.leftRowSet = this.leftRowSet.PrepareTables(tableNames, views, tableList, alwaysAllowNull, ref tableIndex);
-      this.rightRowSet = this.rightRowSet.PrepareTables(tableNames, views, tableList, alwaysAllowNull, ref tableIndex);
+      leftRowSet = leftRowSet.PrepareTables(tableNames, views, tableList, alwaysAllowNull, ref tableIndex);
+      rightRowSet = rightRowSet.PrepareTables(tableNames, views, tableList, alwaysAllowNull, ref tableIndex);
       return (IRowSet) this;
     }
 
@@ -149,7 +149,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.leftRowSet;
+        return leftRowSet;
       }
     }
 
@@ -157,7 +157,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.rightRowSet;
+        return rightRowSet;
       }
     }
   }

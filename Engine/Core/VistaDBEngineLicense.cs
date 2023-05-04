@@ -10,21 +10,21 @@ namespace VistaDB.Engine.Core
 
     public VistaDBEngineLicense(Type type, string key)
     {
-      this.m_Type = type;
-      this.m_Key = key;
+      m_Type = type;
+      m_Key = key;
     }
 
     public VistaDBEngineLicense(Type type)
     {
-      this.m_Type = type;
-      this.m_Key = string.Empty;
+      m_Type = type;
+      m_Key = string.Empty;
     }
 
     public override string LicenseKey
     {
       get
       {
-        return this.m_Key;
+        return m_Key;
       }
     }
 
@@ -32,7 +32,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.m_Type;
+        return m_Type;
       }
     }
 

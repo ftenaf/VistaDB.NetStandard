@@ -9,8 +9,8 @@ namespace VistaDB.Engine.SQL.Signatures
     public AbsFunction(SQLParser parser)
       : base(parser, 1, true)
     {
-      this.dataType = VistaDBType.Unknown;
-      this.parameterTypes[0] = VistaDBType.Unknown;
+      dataType = VistaDBType.Unknown;
+      parameterTypes[0] = VistaDBType.Unknown;
     }
 
     public override SignatureType OnPrepare()
@@ -18,22 +18,22 @@ namespace VistaDB.Engine.SQL.Signatures
       SignatureType signatureType = base.OnPrepare();
       if (Utils.IsCharacterDataType(this[0].DataType))
       {
-        this.dataType = VistaDBType.Float;
+        dataType = VistaDBType.Float;
       }
       else
       {
         if (!Utils.IsNumericDataType(this[0].DataType))
-          throw new VistaDBSQLException(550, "ABS", this.lineNo, this.symbolNo);
-        this.dataType = this[0].DataType;
+          throw new VistaDBSQLException(550, "ABS", lineNo, symbolNo);
+        dataType = this[0].DataType;
       }
-      this.paramValues[0] = this.CreateColumn(this.dataType);
+      paramValues[0] = CreateColumn(dataType);
       return signatureType;
     }
 
     protected override object ExecuteSubProgram()
     {
-      object obj = ((IValue) this.paramValues[0]).Value;
-      switch (this.dataType)
+      object obj = ((IValue) paramValues[0]).Value;
+      switch (dataType)
       {
         case VistaDBType.TinyInt:
           byte num1 = (byte) obj;
@@ -59,7 +59,7 @@ namespace VistaDB.Engine.SQL.Signatures
           Decimal num7 = (Decimal) obj;
           return (object) (num7 < new Decimal(0) ? -num7 : num7);
         default:
-          throw new VistaDBSQLException(556, "Unknown data type", this.lineNo, this.symbolNo);
+          throw new VistaDBSQLException(556, "Unknown data type", lineNo, symbolNo);
       }
     }
   }

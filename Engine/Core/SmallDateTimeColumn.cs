@@ -7,12 +7,10 @@ namespace VistaDB.Engine.Core
   internal class SmallDateTimeColumn : Row.Column
   {
     internal static readonly DateTime MinDate = new DateTime(1900, 1, 1);
-    private static readonly ulong originDateMinutes = (ulong) SmallDateTimeColumn.MinDate.Ticks / 600000000UL;
-    internal static readonly DateTime MaxDate = new DateTime((1342177279L + (long) SmallDateTimeColumn.originDateMinutes) * 600000000L);
-    private const int SmallDateTimeSize = 4;
-    private const ulong ticksPerMinute = 600000000;
+    private static readonly ulong originDateMinutes = (ulong)MinDate.Ticks / 600000000UL;
+    internal static readonly DateTime MaxDate = new DateTime((1342177279L + (long)originDateMinutes) * 600000000L);
 
-    internal SmallDateTimeColumn()
+        internal SmallDateTimeColumn()
       : base((object) null, VistaDBType.SmallDateTime, 4)
     {
     }
@@ -31,7 +29,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (object) SmallDateTimeColumn.MinDate;
+        return (object)MinDate;
       }
     }
 
@@ -39,7 +37,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (object) SmallDateTimeColumn.MaxDate;
+        return (object)MaxDate;
       }
     }
 
@@ -47,7 +45,7 @@ namespace VistaDB.Engine.Core
     {
       set
       {
-        base.Value = value == null ? value : (object) this.TestDynamicRange((DateTime) value);
+        base.Value = value == null ? value : (object) TestDynamicRange((DateTime) value);
       }
     }
 
@@ -74,23 +72,23 @@ namespace VistaDB.Engine.Core
 
     internal override int ConvertToByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      return VdbBitConverter.GetBytes((uint) ((ulong) ((DateTime) this.Value).Ticks / 600000000UL - SmallDateTimeColumn.originDateMinutes), buffer, offset, 4);
+      return VdbBitConverter.GetBytes((uint) ((ulong) ((DateTime) Value).Ticks / 600000000UL - originDateMinutes), buffer, offset, 4);
     }
 
     internal override int ConvertFromByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      this.val = (object) new DateTime((long) (((ulong) BitConverter.ToUInt32(buffer, offset) + SmallDateTimeColumn.originDateMinutes) * 600000000UL));
+      val = (object) new DateTime((long) (((ulong) BitConverter.ToUInt32(buffer, offset) + originDateMinutes) * 600000000UL));
       return offset + 4;
     }
 
     protected override long Collate(Row.Column col)
     {
-      return (long) DateTime.Compare((DateTime) this.Value, (DateTime) col.Value);
+      return (long) DateTime.Compare((DateTime) Value, (DateTime) col.Value);
     }
 
     private DateTime TestDynamicRange(DateTime date)
     {
-      if (date.CompareTo(SmallDateTimeColumn.MaxDate) > 0 || date.CompareTo(SmallDateTimeColumn.MinDate) < 0)
+      if (date.CompareTo(MaxDate) > 0 || date.CompareTo(MinDate) < 0)
         throw new VistaDBException(300, "SmallDateTimeColumn = " + date.ToString());
       return date;
     }

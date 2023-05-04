@@ -11,63 +11,63 @@ namespace VistaDB.Provider
 
     internal VistaDBPipe()
     {
-      this._table = (TemporaryResultSet) null;
+      _table = (TemporaryResultSet) null;
     }
 
     internal VistaDBDataReader DequeueReader()
     {
-      return this.Dequeue();
+      return Dequeue();
     }
 
     public void Send(VistaDBDataReader reader)
     {
       if (reader == null)
         return;
-      this.Enqueue(reader);
+      Enqueue(reader);
     }
 
     public void Send(string message)
     {
-      this.Send(new VistaDBDataReader(VistaDBContext.SQLChannel.CurrentConnection.CreateMessageQuery(message), (VistaDBConnection) null, CommandBehavior.SingleRow));
+      Send(new VistaDBDataReader(VistaDBContext.SQLChannel.CurrentConnection.CreateMessageQuery(message), (VistaDBConnection) null, CommandBehavior.SingleRow));
     }
 
     internal void Send(TemporaryResultSet table)
     {
-      this.Send(new VistaDBDataReader(VistaDBContext.SQLChannel.CurrentConnection.CreateResultQuery(table), (VistaDBConnection) null, CommandBehavior.SingleResult));
+      Send(new VistaDBDataReader(VistaDBContext.SQLChannel.CurrentConnection.CreateResultQuery(table), (VistaDBConnection) null, CommandBehavior.SingleResult));
     }
 
     public void Send(SqlDataRecord record)
     {
-      this.Send(new VistaDBDataReader(VistaDBContext.SQLChannel.CurrentConnection.CreateResultQuery(record.DataTable), (VistaDBConnection) null, CommandBehavior.SingleResult));
+      Send(new VistaDBDataReader(VistaDBContext.SQLChannel.CurrentConnection.CreateResultQuery(record.DataTable), (VistaDBConnection) null, CommandBehavior.SingleResult));
     }
 
     public void SendResultsStart(SqlDataRecord record)
     {
-      if (this._table != null)
-        this.Send(this._table);
-      this._table = record.DataTable;
+      if (_table != null)
+        Send(_table);
+      _table = record.DataTable;
     }
 
     public void SendResultsEnd()
     {
-      this.Send(this._table);
-      this._table = (TemporaryResultSet) null;
+      Send(_table);
+      _table = (TemporaryResultSet) null;
     }
 
     public void SendResultsRow(SqlDataRecord record)
     {
-      if (this._table != record.DataTable)
+      if (_table != record.DataTable)
       {
-        this.SendResultsEnd();
-        this.SendResultsStart(record);
+        SendResultsEnd();
+        SendResultsStart(record);
       }
-      this._table.Post();
-      this._table.Insert();
+      _table.Post();
+      _table.Insert();
     }
 
     public void ExecuteAndSend(VistaDBCommand command)
     {
-      this.Send(command.ExecuteReader());
+      Send(command.ExecuteReader());
       command.Dispose();
     }
   }

@@ -18,29 +18,29 @@ namespace VistaDB.Engine.SQL.Signatures
     protected override void ParseParameters(SQLParser parser)
     {
       bool flag;
-      if (this.AllowFunctionSyntax() && parser.IsToken("("))
+      if (AllowFunctionSyntax() && parser.IsToken("("))
       {
         flag = true;
         parser.SkipToken(true);
       }
       else
       {
-        if (!this.AllowProcedureSyntax())
-          throw new VistaDBSQLException(500, "\"(\"", this.lineNo, this.symbolNo);
+        if (!AllowProcedureSyntax())
+          throw new VistaDBSQLException(500, "\"(\"", lineNo, symbolNo);
         flag = false;
       }
-      this.parameters = new List<Signature>();
+      parameters = new List<Signature>();
       if (!parser.IsToken(")") && (flag || !parser.EndOfText && !parser.IsToken(";")))
       {
         do
         {
           if (parser.IsToken("DEFAULT"))
           {
-            this.parameters.Add((Signature) ConstantSignature.CreateSignature(parser));
+            parameters.Add((Signature) ConstantSignature.CreateSignature(parser));
             parser.SkipToken(false);
           }
           else
-            this.parameters.Add(parser.NextSignature(false, true, 6));
+            parameters.Add(parser.NextSignature(false, true, 6));
         }
         while (parser.IsToken(",") && parser.SkipToken(false));
       }

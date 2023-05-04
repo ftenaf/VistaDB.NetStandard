@@ -7,7 +7,7 @@ namespace VistaDB.Engine.Core
     internal static readonly string SystemName = "IDENTITY";
 
     internal Identity(EvalStack evaluation)
-      : base(evaluation, Filter.FilterType.Identity, true, true, 4)
+      : base(evaluation, FilterType.Identity, true, true, 4)
     {
     }
   }

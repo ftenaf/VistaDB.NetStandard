@@ -17,9 +17,9 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override void ParseParameters(SQLParser parser)
     {
-      this.parameters = new List<Signature>();
-      this.outParams = new List<bool>();
-      this.namedParams = new Dictionary<string, Signature>((IEqualityComparer<string>) StringComparer.OrdinalIgnoreCase);
+      parameters = new List<Signature>();
+      outParams = new List<bool>();
+      namedParams = new Dictionary<string, Signature>((IEqualityComparer<string>) StringComparer.OrdinalIgnoreCase);
       bool flag = false;
       if (parser.IsToken(";") || parser.EndOfText)
         return;
@@ -33,44 +33,44 @@ namespace VistaDB.Engine.SQL.Signatures
             parser.SkipToken(true);
             if (parser.IsToken("DEFAULT"))
             {
-              this.parameters.Add((Signature) null);
+              parameters.Add((Signature) null);
               parser.SkipToken(false);
             }
             else
             {
               Signature signature = parser.NextSignature(false, true, 6);
-              this.namedParams.Add(parameterSignature.Text.Substring(1), signature);
+              namedParams.Add(parameterSignature.Text.Substring(1), signature);
             }
             flag = true;
           }
           else
           {
             if (flag)
-              throw new VistaDBSQLException(638, parser.TokenValue.Token, this.LineNo, this.SymbolNo);
-            this.parameters.Add((Signature) parameterSignature);
+              throw new VistaDBSQLException(638, parser.TokenValue.Token, LineNo, SymbolNo);
+            parameters.Add((Signature) parameterSignature);
           }
           if (parser.IsToken("OUT") || parser.IsToken("OUTPUT"))
           {
             parser.SkipToken(false);
-            this.outParams.Add(true);
+            outParams.Add(true);
           }
           else
-            this.outParams.Add(false);
+            outParams.Add(false);
         }
         else if (parser.IsToken("DEFAULT"))
         {
           if (flag)
-            throw new VistaDBSQLException(638, parser.TokenValue.Token, this.LineNo, this.SymbolNo);
-          this.parameters.Add((Signature) null);
-          this.outParams.Add(false);
+            throw new VistaDBSQLException(638, parser.TokenValue.Token, LineNo, SymbolNo);
+          parameters.Add((Signature) null);
+          outParams.Add(false);
           parser.SkipToken(false);
         }
         else
         {
           if (flag)
-            throw new VistaDBSQLException(638, parser.TokenValue.Token, this.LineNo, this.SymbolNo);
-          this.parameters.Add(parser.NextSignature(false, true, 6));
-          this.outParams.Add(false);
+            throw new VistaDBSQLException(638, parser.TokenValue.Token, LineNo, SymbolNo);
+          parameters.Add(parser.NextSignature(false, true, 6));
+          outParams.Add(false);
         }
       }
       while (parser.IsToken(",") && parser.SkipToken(true));

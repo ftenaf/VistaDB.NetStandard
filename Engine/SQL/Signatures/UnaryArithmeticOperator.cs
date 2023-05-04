@@ -12,14 +12,14 @@ namespace VistaDB.Engine.SQL.Signatures
     public override SignatureType OnPrepare()
     {
       SignatureType signatureType = base.OnPrepare();
-      if (this.AlwaysNull)
+      if (AlwaysNull)
       {
-        this.dataType = VistaDBType.BigInt;
+        dataType = VistaDBType.BigInt;
         return SignatureType.Constant;
       }
-      if (!Utils.IsNumericDataType(this.operand.DataType))
-        throw new VistaDBSQLException(558, this.text, this.lineNo, this.symbolNo);
-      this.dataType = this.operand.DataType;
+      if (!Utils.IsNumericDataType(operand.DataType))
+        throw new VistaDBSQLException(558, text, lineNo, symbolNo);
+      dataType = operand.DataType;
       return signatureType;
     }
   }

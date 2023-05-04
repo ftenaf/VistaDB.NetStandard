@@ -13,11 +13,11 @@ namespace VistaDB.Engine.SQL
       : base(database)
     {
       this.message = message;
-      this.AddColumn("Message", VistaDBType.NVarChar);
-      this.Insert();
-      this.Post();
-      this.FirstRow();
-      this.curRow[0].Value = (object) message;
+      AddColumn("Message", VistaDBType.NVarChar);
+      Insert();
+      Post();
+      FirstRow();
+      curRow[0].Value = (object) message;
     }
 
     public string GetAliasName(int ordinal)
@@ -127,14 +127,14 @@ namespace VistaDB.Engine.SQL
 
     public DataTable GetSchemaTable()
     {
-      if (this.schema != null)
-        return this.schema;
-      this.schema = BaseSelectStatement.GetSchemaTableInstance();
-      this.schema.BeginLoadData();
-      DataRow row = this.schema.NewRow();
+      if (schema != null)
+        return schema;
+      schema = BaseSelectStatement.GetSchemaTableInstance();
+      schema.BeginLoadData();
+      DataRow row = schema.NewRow();
       row["ColumnName"] = (object) "MESSAGE";
       row["ColumnOrdinal"] = (object) 0;
-      row["ColumnSize"] = (object) this.message.Length;
+      row["ColumnSize"] = (object) message.Length;
       row["NumericPrecision"] = (object) (int) byte.MaxValue;
       row["NumericScale"] = (object) (int) byte.MaxValue;
       row["IsUnique"] = (object) false;
@@ -155,10 +155,10 @@ namespace VistaDB.Engine.SQL
       row["IsReadOnly"] = (object) true;
       row["ProviderSpecificDataType"] = (object) typeof (string);
       row["DataTypeName"] = (object) VistaDBType.NVarChar.ToString();
-      this.schema.Rows.Add(row);
-      this.schema.AcceptChanges();
-      this.schema.EndLoadData();
-      return this.schema;
+      schema.Rows.Add(row);
+      schema.AcceptChanges();
+      schema.EndLoadData();
+      return schema;
     }
 
     public int ColumnCount

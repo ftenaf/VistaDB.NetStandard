@@ -12,23 +12,23 @@ namespace VistaDB.Engine.SQL.Signatures
     public DatePartFunction(SQLParser parser)
       : base(parser, 1)
     {
-      this.parameterTypes[0] = VistaDBType.DateTime;
-      this.dataType = VistaDBType.Int;
-      this.dateFormatInfo = (DateTimeFormatInfo) null;
-      this.weekDelta = 0;
+      parameterTypes[0] = VistaDBType.DateTime;
+      dataType = VistaDBType.Int;
+      dateFormatInfo = (DateTimeFormatInfo) null;
+      weekDelta = 0;
     }
 
     public override SignatureType OnPrepare()
     {
-      this.dateFormatInfo = this.parent.Database.Culture.DateTimeFormat;
-      this.weekDelta = (int) (7 - this.dateFormatInfo.FirstDayOfWeek + 1);
+      dateFormatInfo = parent.Database.Culture.DateTimeFormat;
+      weekDelta = (int) (7 - dateFormatInfo.FirstDayOfWeek + 1);
       return base.OnPrepare();
     }
 
     protected override object ExecuteSubProgram()
     {
-      DateTime dateTime = (DateTime) ((IValue) this.paramValues[0]).Value;
-      switch (this.datePart)
+      DateTime dateTime = (DateTime) ((IValue) paramValues[0]).Value;
+      switch (datePart)
       {
         case DatePart.Year:
           return (object) dateTime.Year;
@@ -43,9 +43,9 @@ namespace VistaDB.Engine.SQL.Signatures
         case DatePart.Week:
           return (object) ((dateTime.DayOfYear - 1) / 7 + 1);
         case DatePart.WeekDay:
-          if (dateTime.DayOfWeek < this.dateFormatInfo.FirstDayOfWeek)
-            return (object) (this.weekDelta + dateTime.DayOfWeek);
-          return (object) (dateTime.DayOfWeek - this.dateFormatInfo.FirstDayOfWeek + 1);
+          if (dateTime.DayOfWeek < dateFormatInfo.FirstDayOfWeek)
+            return (object) (weekDelta + dateTime.DayOfWeek);
+          return (object) (dateTime.DayOfWeek - dateFormatInfo.FirstDayOfWeek + 1);
         case DatePart.Hour:
           return (object) dateTime.Hour;
         case DatePart.Minute:

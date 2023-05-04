@@ -15,7 +15,7 @@ namespace VistaDB.Engine.Core
     {
       if (!filter.IsConstant())
         return base.OnConjunction(filter);
-      this.constant = Triangular.And(this.constant, ((ConstantRowIdFilter) filter).constant);
+      constant = Triangular.And(constant, ((ConstantRowIdFilter) filter).constant);
       return -1;
     }
 
@@ -23,13 +23,13 @@ namespace VistaDB.Engine.Core
     {
       if (!filter.IsConstant())
         return base.OnDisjunction(filter);
-      this.constant = Triangular.Or(this.constant, ((ConstantRowIdFilter) filter).constant);
+      constant = Triangular.Or(constant, ((ConstantRowIdFilter) filter).constant);
       return -1;
     }
 
     protected override long OnInvert(bool instant)
     {
-      this.constant = Triangular.Not(this.constant);
+      constant = Triangular.Not(constant);
       return -1;
     }
 
@@ -39,7 +39,7 @@ namespace VistaDB.Engine.Core
 
     protected override bool OnGetValidRowStatus(Row row)
     {
-      return this.constant == Triangular.Value.True;
+      return constant == Triangular.Value.True;
     }
 
     public override bool IsConstant()
@@ -51,7 +51,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.constant;
+        return constant;
       }
     }
   }

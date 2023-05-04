@@ -9,7 +9,7 @@
 
     protected override bool OnOptimize(ConstraintOperations constrainOperations)
     {
-      if (this.expression.SignatureType == SignatureType.Column && constrainOperations.AddLogicalBetween((ColumnSignature) this.expression, this.beginExpression, this.endExpression, false))
+      if (expression.SignatureType == SignatureType.Column && constrainOperations.AddLogicalBetween((ColumnSignature) expression, beginExpression, endExpression, false))
         return constrainOperations.AddLogicalNot();
       return false;
     }

@@ -21,10 +21,10 @@ namespace VistaDB.DDA
     {
       get
       {
-        lock (this.engines)
+        lock (engines)
         {
           IVistaDBDDA vistaDbdda;
-          if (!this.engines.TryGetValue(id, out vistaDbdda))
+          if (!engines.TryGetValue(id, out vistaDbdda))
             return (IVistaDBDDA) null;
           return vistaDbdda;
         }
@@ -33,12 +33,12 @@ namespace VistaDB.DDA
 
     public IVistaDBDDA OpenDDA()
     {
-      lock (this.engines)
+      lock (engines)
       {
         try
         {
-          DirectConnection instance = DirectConnection.CreateInstance(this, ++this.nextEngineId);
-          this.engines.Add(instance.Id, (IVistaDBDDA) instance);
+          DirectConnection instance = DirectConnection.CreateInstance(this, ++nextEngineId);
+          engines.Add(instance.Id, (IVistaDBDDA) instance);
           return (IVistaDBDDA) instance;
         }
         catch (Exception ex)
@@ -50,11 +50,11 @@ namespace VistaDB.DDA
 
     internal ILocalSQLConnection OpenSQLConnection(VistaDBConnection parentConnection, IDatabase database)
     {
-      lock (this.engines)
+      lock (engines)
       {
         try
         {
-          return (ILocalSQLConnection) LocalSQLConnection.CreateInstance(this, ++this.nextEngineId, parentConnection, database);
+          return (ILocalSQLConnection) LocalSQLConnection.CreateInstance(this, ++nextEngineId, parentConnection, database);
         }
         catch (Exception ex)
         {
@@ -67,24 +67,24 @@ namespace VistaDB.DDA
     {
       get
       {
-        lock (this.engines)
-          return this.engines.Count;
+        lock (engines)
+          return engines.Count;
       }
     }
 
     internal void Remove(long id)
     {
-      lock (this.engines)
-        this.engines.Remove(id);
+      lock (engines)
+        engines.Remove(id);
     }
 
     public void Clear()
     {
       List<IVistaDBDDA> vistaDbddaList;
-      lock (this.engines)
+      lock (engines)
       {
-        vistaDbddaList = new List<IVistaDBDDA>((IEnumerable<IVistaDBDDA>) this.engines.Values);
-        this.engines.Clear();
+        vistaDbddaList = new List<IVistaDBDDA>((IEnumerable<IVistaDBDDA>) engines.Values);
+        engines.Clear();
       }
       foreach (IDisposable disposable in vistaDbddaList)
         disposable.Dispose();
@@ -97,16 +97,16 @@ namespace VistaDB.DDA
 
     public bool ContainsKey(long key)
     {
-      lock (this.engines)
-        return this.engines.ContainsKey(key);
+      lock (engines)
+        return engines.ContainsKey(key);
     }
 
     public ICollection<long> Keys
     {
       get
       {
-        lock (this.engines)
-          return this.engines.Keys;
+        lock (engines)
+          return engines.Keys;
       }
     }
 
@@ -117,16 +117,16 @@ namespace VistaDB.DDA
 
     public bool TryGetValue(long key, out IVistaDBDDA value)
     {
-      lock (this.engines)
-        return this.engines.TryGetValue(key, out value);
+      lock (engines)
+        return engines.TryGetValue(key, out value);
     }
 
     public ICollection<IVistaDBDDA> Values
     {
       get
       {
-        lock (this.engines)
-          return this.engines.Values;
+        lock (engines)
+          return engines.Values;
       }
     }
 
@@ -149,14 +149,14 @@ namespace VistaDB.DDA
 
     public bool Contains(KeyValuePair<long, IVistaDBDDA> item)
     {
-      lock (this.engines)
-        return this.engines.ContainsKey(item.Key);
+      lock (engines)
+        return engines.ContainsKey(item.Key);
     }
 
     public void CopyTo(KeyValuePair<long, IVistaDBDDA>[] array, int arrayIndex)
     {
-      lock (this.engines)
-        this.engines.CopyTo(array, arrayIndex);
+      lock (engines)
+        engines.CopyTo(array, arrayIndex);
     }
 
     public bool IsReadOnly
@@ -174,13 +174,13 @@ namespace VistaDB.DDA
 
     public IEnumerator<KeyValuePair<long, IVistaDBDDA>> GetEnumerator()
     {
-      lock (this.engines)
-        return this.engines.GetEnumerator();
+      lock (engines)
+        return engines.GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()
     {
-      return (IEnumerator) this.GetEnumerator();
+      return (IEnumerator) GetEnumerator();
     }
   }
 }

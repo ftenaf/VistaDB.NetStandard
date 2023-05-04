@@ -9,8 +9,8 @@
 
     internal override Signature DoCloneSignature()
     {
-      Signature signature = (Signature) new UnaryPlus(new string(this.Name), this.Group);
-      signature.Entry = this.Entry;
+      Signature signature = (Signature) new UnaryPlus(new string(Name), Group);
+      signature.Entry = Entry;
       return signature;
     }
   }

@@ -9,14 +9,14 @@ internal sealed class AssemblyCompanyEmailAttribute : Attribute
 
   public AssemblyCompanyEmailAttribute(string email)
   {
-    this._email = email;
+    _email = email;
   }
 
   public string CompanyEmail
   {
     get
     {
-      return this._email;
+      return _email;
     }
   }
 }

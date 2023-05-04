@@ -14,7 +14,7 @@ namespace VistaDB.Engine.Core
     internal TextColumn(string val, int codePage, CultureInfo culture, bool caseInsensitive)
       : base((object) val, VistaDBType.Text)
     {
-      this.encoding = Encoding.GetEncoding(codePage);
+      encoding = Encoding.GetEncoding(codePage);
       this.culture = culture;
       this.caseInsensitive = caseInsensitive;
     }
@@ -22,16 +22,16 @@ namespace VistaDB.Engine.Core
     internal TextColumn(TextColumn col)
       : base((ExtendedColumn) col)
     {
-      this.encoding = col.encoding;
-      this.culture = col.culture;
-      this.caseInsensitive = col.caseInsensitive;
+      encoding = col.encoding;
+      culture = col.culture;
+      caseInsensitive = col.caseInsensitive;
     }
 
     internal override int CodePage
     {
       get
       {
-        return this.encoding.CodePage;
+        return encoding.CodePage;
       }
     }
 
@@ -63,7 +63,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (object) TextColumn.topString;
+        return (object)topString;
       }
     }
 
@@ -77,9 +77,9 @@ namespace VistaDB.Engine.Core
 
     protected override long Collate(Row.Column col)
     {
-      string strA = (string) this.Value;
+      string strA = (string) Value;
       string strB = (string) col.Value;
-      return strA.Length <= 0 || strA[0] != char.MaxValue ? (strB.Length <= 0 || strB[0] != char.MaxValue ? (long) string.Compare(strA, strB, this.caseInsensitive, this.culture) : -1L) : (strB.Length <= 0 || strB[0] != char.MaxValue ? 1L : 0L);
+      return strA.Length <= 0 || strA[0] != char.MaxValue ? (strB.Length <= 0 || strB[0] != char.MaxValue ? (long) string.Compare(strA, strB, caseInsensitive, culture) : -1L) : (strB.Length <= 0 || strB[0] != char.MaxValue ? 1L : 0L);
     }
 
     protected override Row.Column OnDuplicate(bool padRight)
@@ -89,31 +89,31 @@ namespace VistaDB.Engine.Core
 
     protected override byte[] OnFormatExtendedBuffer()
     {
-      if (!this.IsNull)
-        return this.encoding.GetBytes((string) this.Value);
+      if (!IsNull)
+        return encoding.GetBytes((string) Value);
       return (byte[]) null;
     }
 
     protected override object OnUnformatExtendedBuffer(byte[] buffer, int length)
     {
-      return (object) this.encoding.GetString(buffer, 0, length);
+      return (object) encoding.GetString(buffer, 0, length);
     }
 
     protected override Row.Column DoMinus(Row.Column col)
     {
-      this.Value = (object) (this.PaddedStringValue + col.PaddedStringValue.TrimStart());
+      Value = (object) (PaddedStringValue + col.PaddedStringValue.TrimStart());
       return (Row.Column) this;
     }
 
     protected override Row.Column DoPlus(Row.Column col)
     {
-      this.Value = (object) (this.PaddedStringValue + col.PaddedStringValue);
+      Value = (object) (PaddedStringValue + col.PaddedStringValue);
       return (Row.Column) this;
     }
 
     protected override Row.Column DoUnaryMinus()
     {
-      this.Value = (object) this.PaddedStringValue.TrimStart();
+      Value = (object) PaddedStringValue.TrimStart();
       return (Row.Column) this;
     }
   }

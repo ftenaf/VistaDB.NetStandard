@@ -5,17 +5,17 @@
     public CountFunction(SQLParser parser)
       : base(parser, true)
     {
-      this.dataType = VistaDBType.Int;
+      dataType = VistaDBType.Int;
     }
 
     protected override void InternalSerialize(ref object serObj)
     {
-      serObj = this.val;
+      serObj = val;
     }
 
     protected override void InternalDeserialize(object serObj)
     {
-      this.val = serObj;
+      val = serObj;
     }
 
     protected override object InternalCreateEmptyResult()
@@ -25,32 +25,32 @@
 
     protected override object InternalCreateNewGroup(object newVal)
     {
-      return (object) (this.all || newVal != null ? 1 : 0);
+      return (object) (all || newVal != null ? 1 : 0);
     }
 
     protected override object InternalAddRowToGroup(object newVal)
     {
-      if (!this.all && newVal == null)
-        return this.val;
+      if (!all && newVal == null)
+        return val;
       SelectStatement parent = this.parent as SelectStatement;
-      if (parent == null || parent.AggregateFunctionCount != 1 || (parent.HasWhereClause || parent.HasGroupByClause) || (this.distinct || !(parent.RowSet is NativeSourceTable) && !(parent.RowSet is CrossJoin)))
-        return (object) ((int) this.val + 1);
+      if (parent == null || parent.AggregateFunctionCount != 1 || (parent.HasWhereClause || parent.HasGroupByClause) || (distinct || !(parent.RowSet is NativeSourceTable) && !(parent.RowSet is CrossJoin)))
+        return (object) ((int) val + 1);
       int sourceTableCount = parent.SourceTableCount;
       long num = 1;
       for (int index = 0; index < sourceTableCount; ++index)
       {
-        long optimizedRowCount = parent.GetSourceTable(index).GetOptimizedRowCount(!(this.expression != (Signature) null) || this.expression.SignatureType != SignatureType.Column ? (string) null : ((ColumnSignature) this.expression).ColumnName);
+        long optimizedRowCount = parent.GetSourceTable(index).GetOptimizedRowCount(!(expression != (Signature) null) || expression.SignatureType != SignatureType.Column ? (string) null : ((ColumnSignature) expression).ColumnName);
         if (optimizedRowCount < 0L)
-          return (object) ((int) this.val + 1);
+          return (object) ((int) val + 1);
         num *= optimizedRowCount;
       }
-      this.countOptimized = true;
+      countOptimized = true;
       return (object) (int) num;
     }
 
     protected override object InternalFinishGroup()
     {
-      return this.val;
+      return val;
     }
   }
 }

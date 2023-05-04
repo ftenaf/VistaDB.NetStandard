@@ -13,8 +13,8 @@ namespace VistaDB.Engine.SQL
 
     public override IRowSet PrepareTables(IVistaDBTableNameCollection tableNames, IViewList views, TableCollection tableList, bool alwaysAllowNull, ref int tableIndex)
     {
-      this.leftRowSet = this.leftRowSet.PrepareTables(tableNames, views, tableList, alwaysAllowNull, ref tableIndex);
-      this.rightRowSet = this.rightRowSet.PrepareTables(tableNames, views, tableList, true, ref tableIndex);
+      leftRowSet = leftRowSet.PrepareTables(tableNames, views, tableList, alwaysAllowNull, ref tableIndex);
+      rightRowSet = rightRowSet.PrepareTables(tableNames, views, tableList, true, ref tableIndex);
       return (IRowSet) this;
     }
 
@@ -22,21 +22,21 @@ namespace VistaDB.Engine.SQL
     {
       do
       {
-        bool rowUpdated = this.leftRowSet.RowUpdated;
-        if (this.leftRowSet.ExecuteRowset(constraints))
+        bool rowUpdated = leftRowSet.RowUpdated;
+        if (leftRowSet.ExecuteRowset(constraints))
         {
-          if (this.ExecuteRightRowSet(constraints))
+          if (ExecuteRightRowSet(constraints))
             return true;
           if (rowUpdated)
           {
-            this.rightRowSet.MarkRowNotAvailable();
+            rightRowSet.MarkRowNotAvailable();
             return true;
           }
         }
         else
           break;
       }
-      while (this.leftRowSet.Next(constraints));
+      while (leftRowSet.Next(constraints));
       return false;
     }
 
@@ -44,7 +44,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.leftRowSet.RowAvailable ^ this.rightRowSet.RowAvailable;
+        return leftRowSet.RowAvailable ^ rightRowSet.RowAvailable;
       }
     }
   }

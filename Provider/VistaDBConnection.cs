@@ -14,8 +14,8 @@ namespace VistaDB.Provider
   public sealed class VistaDBConnection : DbConnection, ICloneable
   {
     internal static readonly CrossConversion Conversion = new CrossConversion(CultureInfo.CurrentCulture);
-    private static readonly VistaDBConnection.ConnectionPoolCollection PoolsCollection = new VistaDBConnection.ConnectionPoolCollection();
-    public static readonly string SystemSchema = VistaDB.Engine.Core.Database.SystemSchema;
+    private static readonly ConnectionPoolCollection PoolsCollection = new ConnectionPoolCollection();
+    public static readonly string SystemSchema = Engine.Core.Database.SystemSchema;
     public static readonly string SystemTableType = "SYSTEM_TABLE";
     public static readonly string UserTableType = "BASE TABLE";
     private static readonly object InfoMessageEvent = new object();
@@ -67,42 +67,42 @@ namespace VistaDB.Provider
 
     public static void ClearAllPools()
     {
-      VistaDBConnection.PoolsCollection.Clear();
+            PoolsCollection.Clear();
     }
 
     public static void ClearPool(VistaDBConnection connection)
     {
-      VistaDBConnection.PoolsCollection.ClearPool(connection);
+            PoolsCollection.ClearPool(connection);
     }
 
     public VistaDBConnection()
     {
-      this.connectionString = new VistaDBConnectionStringBuilder();
-      this.canPack = true;
+      connectionString = new VistaDBConnectionStringBuilder();
+      canPack = true;
     }
 
     public VistaDBConnection(string connectionString)
       : this()
     {
-      this.ConnectionString = connectionString;
+      ConnectionString = connectionString;
     }
 
     public VistaDBConnection(IVistaDBDatabase database)
       : this()
     {
-      this.canPack = false;
-      this.InstantiateLocalSqlConnection((IDatabase) database);
+      canPack = false;
+      InstantiateLocalSqlConnection((IDatabase) database);
     }
 
     public override string ConnectionString
     {
       get
       {
-        return this.connectionString.ConnectionString;
+        return connectionString.ConnectionString;
       }
       set
       {
-        this.connectionString.ConnectionString = value;
+        connectionString.ConnectionString = value;
       }
     }
 
@@ -110,7 +110,7 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.connectionString.ContextConnection;
+        return connectionString.ContextConnection;
       }
     }
 
@@ -118,7 +118,7 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.connectionString.Database;
+        return connectionString.Database;
       }
     }
 
@@ -126,7 +126,7 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.connectionString.DataSource;
+        return connectionString.DataSource;
       }
     }
 
@@ -134,7 +134,7 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.connectionString.IsolatedStorage;
+        return connectionString.IsolatedStorage;
       }
     }
 
@@ -142,8 +142,8 @@ namespace VistaDB.Provider
     {
       get
       {
-        this.MustBeOpened();
-        return this.connectionString.TransactionMode;
+        MustBeOpened();
+        return connectionString.TransactionMode;
       }
     }
 
@@ -151,7 +151,7 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.connectionString.OpenMode;
+        return connectionString.OpenMode;
       }
     }
 
@@ -159,7 +159,7 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.connectionString.Password;
+        return connectionString.Password;
       }
     }
 
@@ -175,15 +175,15 @@ namespace VistaDB.Provider
     {
       get
       {
-        if (this.localSqlConnection != null)
-          return this.localSqlConnection.LockTimeout;
+        if (localSqlConnection != null)
+          return localSqlConnection.LockTimeout;
         return -1;
       }
       set
       {
-        if (this.localSqlConnection == null)
+        if (localSqlConnection == null)
           return;
-        this.localSqlConnection.LockTimeout = value;
+        localSqlConnection.LockTimeout = value;
       }
     }
 
@@ -191,15 +191,15 @@ namespace VistaDB.Provider
     {
       get
       {
-        if (this.localSqlConnection != null)
-          return this.localSqlConnection.PersistentLockFiles;
+        if (localSqlConnection != null)
+          return localSqlConnection.PersistentLockFiles;
         return false;
       }
       set
       {
-        if (this.localSqlConnection == null)
+        if (localSqlConnection == null)
           return;
-        this.localSqlConnection.PersistentLockFiles = value;
+        localSqlConnection.PersistentLockFiles = value;
       }
     }
 
@@ -207,22 +207,22 @@ namespace VistaDB.Provider
     {
       get
       {
-        lock (this.SyncRoot)
-          return this.localSqlConnection == null || !this.localSqlConnection.DatabaseOpened ? ConnectionState.Closed : ConnectionState.Open;
+        lock (SyncRoot)
+          return localSqlConnection == null || !localSqlConnection.DatabaseOpened ? ConnectionState.Closed : ConnectionState.Open;
       }
     }
 
-    public VistaDBTransaction BeginTransaction()
+    public new VistaDBTransaction BeginTransaction()
     {
-      this.MustBeOpened();
+      MustBeOpened();
       return new VistaDBTransaction(this);
     }
 
-    public VistaDBTransaction BeginTransaction(IsolationLevel isolationLevel)
+    public new VistaDBTransaction BeginTransaction(IsolationLevel isolationLevel)
     {
       if (isolationLevel != IsolationLevel.ReadCommitted && isolationLevel != IsolationLevel.Unspecified)
         throw new VistaDBSQLException(1013, "Use IsolationLevel.ReadCommitted instead of " + isolationLevel.ToString(), 0, 0);
-      return this.BeginTransaction();
+      return BeginTransaction();
     }
 
     public override void ChangeDatabase(string databaseName)
@@ -233,95 +233,95 @@ namespace VistaDB.Provider
     public override void Close()
     {
       ConnectionState state;
-      lock (this.SyncRoot)
+      lock (SyncRoot)
       {
-        state = this.State;
+        state = State;
         if (state == ConnectionState.Closed)
           return;
-        if (this.ContextConnection)
+        if (ContextConnection)
         {
-          this.localSqlConnection = (ILocalSQLConnection) null;
+          localSqlConnection = (ILocalSQLConnection) null;
           return;
         }
-        if (!this.localSqlConnection.IsDatabaseOwner)
+        if (!localSqlConnection.IsDatabaseOwner)
         {
-          this.localSqlConnection.CloseAllPooledTables();
+          localSqlConnection.CloseAllPooledTables();
           return;
         }
         bool close = true;
-        if (this.connectionString.Pooling)
-          close = VistaDBConnection.PoolsCollection.PutConnectionOnHold(this.localSqlConnection, this.GetPoolConnectionString(), this.connectionString.MinPoolSize, this.connectionString.MaxPoolSize);
-        this.ClearLocalSqlConnection(close);
+        if (connectionString.Pooling)
+          close = PoolsCollection.PutConnectionOnHold(localSqlConnection, GetPoolConnectionString(), connectionString.MinPoolSize, connectionString.MaxPoolSize);
+        ClearLocalSqlConnection(close);
       }
       if (state != ConnectionState.Open)
         return;
-      this.OnStateChange(new StateChangeEventArgs(state, ConnectionState.Closed));
+      OnStateChange(new StateChangeEventArgs(state, ConnectionState.Closed));
     }
 
-    public VistaDBCommand CreateCommand()
+    new public VistaDBCommand CreateCommand()
     {
       return new VistaDBCommand(string.Empty, this);
     }
 
     public IVistaDBTableSchema GetTableSchema(string tableName)
     {
-      if (this.State != ConnectionState.Open)
+      if (State != ConnectionState.Open)
         throw new InvalidOperationException();
-      return this.localSqlConnection.TableSchema(tableName);
+      return localSqlConnection.TableSchema(tableName);
     }
 
     public override DataTable GetSchema()
     {
-      return this.GetSchema("METADATACOLLECTIONS", (string[]) null);
+      return GetSchema("METADATACOLLECTIONS", (string[]) null);
     }
 
     public override DataTable GetSchema(string collectionName)
     {
-      return this.GetSchema(collectionName, (string[]) null);
+      return GetSchema(collectionName, (string[]) null);
     }
 
     public override DataTable GetSchema(string collectionName, string[] restrictionValues)
     {
       if (string.IsNullOrEmpty(collectionName))
         collectionName = "METADATACOLLECTIONS";
-      lock (this.SyncRoot)
+      lock (SyncRoot)
       {
-        if (this.State != ConnectionState.Open)
+        if (State != ConnectionState.Open)
           throw new InvalidOperationException();
         string[] strArray = new string[5];
         restrictionValues?.CopyTo((Array) strArray, 0);
-        switch (this.UpperString(collectionName))
+        switch (UpperString(collectionName))
         {
           case "METADATACOLLECTIONS":
-            return this.GetSchemaMetaDataCollections();
+            return GetSchemaMetaDataCollections();
           case "DATASOURCEINFORMATION":
-            return this.GetSchemaDataSourceInformation();
+            return GetSchemaDataSourceInformation();
           case "DATATYPES":
-            return this.GetSchemaDataTypes();
+            return GetSchemaDataTypes();
           case "TABLES":
-            return this.GetSchemaTables(strArray[2], strArray[3]);
+            return GetSchemaTables(strArray[2], strArray[3]);
           case "COLUMNS":
-            return this.GetSchemaColumns(strArray[2], strArray[3]);
+            return GetSchemaColumns(strArray[2], strArray[3]);
           case "INDEXES":
-            return this.GetSchemaIndexes(strArray[2], strArray[3]);
+            return GetSchemaIndexes(strArray[2], strArray[3]);
           case "INDEXCOLUMNS":
-            return this.GetSchemaIndexColumns(strArray[2], strArray[3], strArray[4]);
+            return GetSchemaIndexColumns(strArray[2], strArray[3], strArray[4]);
           case "FOREIGNKEYS":
-            return this.GetSchemaForeignKeys(strArray[2], strArray[3]);
+            return GetSchemaForeignKeys(strArray[2], strArray[3]);
           case "FOREIGNKEYCOLUMNS":
-            return this.GetSchemaForeignKeyColumns(strArray[2], strArray[3], strArray[4]);
+            return GetSchemaForeignKeyColumns(strArray[2], strArray[3], strArray[4]);
           case "RESERVEDWORDS":
-            return this.GetSchemaReservedWords();
+            return GetSchemaReservedWords();
           case "VIEWS":
-            return this.GetSchemaViews(strArray[2]);
+            return GetSchemaViews(strArray[2]);
           case "VIEWCOLUMNS":
-            return this.GetSchemaViewColumns(strArray[2], strArray[3]);
+            return GetSchemaViewColumns(strArray[2], strArray[3]);
           case "PROCEDURES":
-            return this.GetSchemaStoredProcedures(strArray[3], strArray[2]);
+            return GetSchemaStoredProcedures(strArray[3], strArray[2]);
           case "PROCEDUREPARAMETERS":
-            return this.GetSchemaStoredProcedureParameters(strArray[2]);
+            return GetSchemaStoredProcedureParameters(strArray[2]);
           case "RESTRICTIONS":
-            return this.GetSchemaRestrictions();
+            return GetSchemaRestrictions();
         }
       }
       throw new NotSupportedException();
@@ -329,69 +329,69 @@ namespace VistaDB.Provider
 
     public bool IsSyntaxCorrect(string text, out int lineNo, out int symbolNo, out string errorMessage)
     {
-      lock (this.SyncRoot)
+      lock (SyncRoot)
       {
-        this.InstantiateLocalSqlConnection((IDatabase) null);
-        return this.localSqlConnection.IsSyntaxCorrect(text, out lineNo, out symbolNo, out errorMessage);
+        InstantiateLocalSqlConnection((IDatabase) null);
+        return localSqlConnection.IsSyntaxCorrect(text, out lineNo, out symbolNo, out errorMessage);
       }
     }
 
     public bool IsViewSyntaxCorrect(string text, out int lineNo, out int symbolNo, out string errorMessage)
     {
-      lock (this.SyncRoot)
+      lock (SyncRoot)
       {
-        this.InstantiateLocalSqlConnection((IDatabase) null);
-        return this.localSqlConnection.IsViewSyntaxCorrect(text, out lineNo, out symbolNo, out errorMessage);
+        InstantiateLocalSqlConnection((IDatabase) null);
+        return localSqlConnection.IsViewSyntaxCorrect(text, out lineNo, out symbolNo, out errorMessage);
       }
     }
 
     public bool IsConstraintSyntaxCorrect(string text, out int lineNo, out int symbolNo, out string errorMessage)
     {
-      lock (this.SyncRoot)
+      lock (SyncRoot)
       {
-        this.InstantiateLocalSqlConnection((IDatabase) null);
-        return this.localSqlConnection.IsConstraintSyntaxCorrect(text, out lineNo, out symbolNo, out errorMessage);
+        InstantiateLocalSqlConnection((IDatabase) null);
+        return localSqlConnection.IsConstraintSyntaxCorrect(text, out lineNo, out symbolNo, out errorMessage);
       }
     }
 
     public override void Open()
     {
-      lock (this.SyncRoot)
+      lock (SyncRoot)
       {
-        ConnectionState state = this.State;
+        ConnectionState state = State;
         if (state == ConnectionState.Open)
           return;
-        if (this.ContextConnection)
+        if (ContextConnection)
         {
-          this.localSqlConnection = VistaDBContext.SQLChannel.CurrentConnection;
-          if (this.localSqlConnection == null)
+          localSqlConnection = VistaDBContext.SQLChannel.CurrentConnection;
+          if (localSqlConnection == null)
             throw new VistaDBSQLException(1009, string.Empty, 0, 0);
         }
         else
         {
-          if (this.localSqlConnection != null)
+          if (localSqlConnection != null)
           {
-            this.localSqlConnection.Dispose();
-            this.localSqlConnection = (ILocalSQLConnection) null;
+            localSqlConnection.Dispose();
+            localSqlConnection = (ILocalSQLConnection) null;
           }
-          if (this.connectionString.Pooling)
-            this.localSqlConnection = VistaDBConnection.PoolsCollection.GetConnection(this.GetPoolConnectionString());
-          if (this.localSqlConnection != null)
+          if (connectionString.Pooling)
+            localSqlConnection = PoolsCollection.GetConnection(GetPoolConnectionString());
+          if (localSqlConnection != null)
           {
-            if (!(this.localSqlConnection is IPooledSQLConnection))
+            if (!(localSqlConnection is IPooledSQLConnection))
               return;
-            ((IPooledSQLConnection) this.localSqlConnection).InitializeConnectionFromPool((DbConnection) this);
+            ((IPooledSQLConnection) localSqlConnection).InitializeConnectionFromPool((DbConnection) this);
           }
           else
           {
-            this.InstantiateLocalSqlConnection((IDatabase) null);
-            string cryptoKeyString = this.Password;
+            InstantiateLocalSqlConnection((IDatabase) null);
+            string cryptoKeyString = Password;
             if (cryptoKeyString == string.Empty)
               cryptoKeyString = (string) null;
-            this.localSqlConnection.OpenDatabase(this.DataSource, this.OpenMode, cryptoKeyString, this.IsolatedStorage);
+            localSqlConnection.OpenDatabase(DataSource, OpenMode, cryptoKeyString, IsolatedStorage);
             if (state != ConnectionState.Closed)
               return;
-            this.OnStateChange(new StateChangeEventArgs(state, ConnectionState.Open));
+            OnStateChange(new StateChangeEventArgs(state, ConnectionState.Open));
           }
         }
       }
@@ -399,56 +399,56 @@ namespace VistaDB.Provider
 
     private void PackOperationCallback(IVistaDBOperationCallbackStatus status)
     {
-      if (this.InfoMessageHandler == null)
+      if (InfoMessageHandler == null)
         return;
-      this.InfoMessageHandler((object) this, new VistaDBInfoMessageEventArgs(status.Message, status.ObjectName));
+      InfoMessageHandler((object) this, new VistaDBInfoMessageEventArgs(status.Message, status.ObjectName));
     }
 
     public void PackDatabase()
     {
-      this.PackDatabase(false);
+      PackDatabase(false);
     }
 
     public void PackDatabase(bool backup)
     {
-      if (!this.canPack)
+      if (!canPack)
         throw new VistaDBException(347);
-      bool flag = this.State == ConnectionState.Open;
-      this.Close();
-      string encryptionKeyString = this.Password;
+      bool flag = State == ConnectionState.Open;
+      Close();
+      string encryptionKeyString = Password;
       if (string.IsNullOrEmpty(encryptionKeyString))
         encryptionKeyString = (string) null;
-      VistaDBConnection.PackDatabase(this.DataSource, encryptionKeyString, backup, new OperationCallbackDelegate(this.PackOperationCallback));
+            PackDatabase(DataSource, encryptionKeyString, backup, new OperationCallbackDelegate(PackOperationCallback));
       if (!flag)
         return;
-      this.Open();
+      Open();
     }
 
     private void RepairOperationCallback(IVistaDBOperationCallbackStatus status)
     {
-      if (this.InfoMessageHandler == null)
+      if (InfoMessageHandler == null)
         return;
-      this.InfoMessageHandler((object) this, new VistaDBInfoMessageEventArgs(status.Message, status.ObjectName));
+      InfoMessageHandler((object) this, new VistaDBInfoMessageEventArgs(status.Message, status.ObjectName));
     }
 
     public void RepairDatabase()
     {
-      if (!this.canPack)
+      if (!canPack)
         throw new VistaDBException(347);
-      bool flag = this.State == ConnectionState.Open;
-      this.Close();
-      string encryptionKeyString = this.Password;
+      bool flag = State == ConnectionState.Open;
+      Close();
+      string encryptionKeyString = Password;
       if (string.IsNullOrEmpty(encryptionKeyString))
         encryptionKeyString = (string) null;
-      VistaDBConnection.RepairDatabase(this.DataSource, encryptionKeyString, new OperationCallbackDelegate(this.RepairOperationCallback));
+            RepairDatabase(DataSource, encryptionKeyString, new OperationCallbackDelegate(RepairOperationCallback));
       if (!flag)
         return;
-      this.Open();
+      Open();
     }
 
     internal void OnPrintMessage(string message)
     {
-      VistaDBInfoMessageEventHandler infoMessageHandler = this.InfoMessageHandler;
+      VistaDBInfoMessageEventHandler infoMessageHandler = InfoMessageHandler;
       if (infoMessageHandler == null)
         return;
       infoMessageHandler((object) this, new VistaDBInfoMessageEventArgs(message, string.Empty));
@@ -458,11 +458,11 @@ namespace VistaDB.Provider
     {
       add
       {
-        this.Events.AddHandler(VistaDBConnection.InfoMessageEvent, (Delegate) value);
+        Events.AddHandler(InfoMessageEvent, (Delegate) value);
       }
       remove
       {
-        this.Events.RemoveHandler(VistaDBConnection.InfoMessageEvent, (Delegate) value);
+        Events.RemoveHandler(InfoMessageEvent, (Delegate) value);
       }
     }
 
@@ -470,7 +470,7 @@ namespace VistaDB.Provider
     {
       get
       {
-        return (VistaDBInfoMessageEventHandler) this.Events[VistaDBConnection.InfoMessageEvent];
+        return (VistaDBInfoMessageEventHandler) Events[InfoMessageEvent];
       }
     }
 
@@ -484,54 +484,48 @@ namespace VistaDB.Provider
 
     protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
     {
-      return (DbTransaction) this.BeginTransaction(isolationLevel);
+      return (DbTransaction) BeginTransaction(isolationLevel);
     }
 
     protected override DbCommand CreateDbCommand()
     {
-      return (DbCommand) this.CreateCommand();
+      return (DbCommand) CreateCommand();
     }
 
     protected override void Dispose(bool disposing)
     {
       if (disposing)
-        this.Close();
+        Close();
       base.Dispose(disposing);
     }
 
     private void InstantiateLocalSqlConnection(IDatabase database)
     {
-      if (this.localSqlConnection != null)
+      if (localSqlConnection != null)
         return;
-      this.localSqlConnection = VistaDBEngine.Connections.OpenSQLConnection(this, database);
+      localSqlConnection = VistaDBEngine.Connections.OpenSQLConnection(this, database);
     }
 
     private void ClearLocalSqlConnection(bool close)
     {
-      if (this.localSqlConnection == null)
+      if (localSqlConnection == null)
         return;
-      this.localSqlConnection.CloseAllPooledTables();
+      localSqlConnection.CloseAllPooledTables();
       if (close)
-        this.localSqlConnection.Dispose();
-      this.localSqlConnection = (ILocalSQLConnection) null;
+        localSqlConnection.Dispose();
+      localSqlConnection = (ILocalSQLConnection) null;
     }
 
     private string GetPoolConnectionString()
     {
-      if (this.DataSource == null || this.DataSource.Length == 0)
+      if (DataSource == null || DataSource.Length == 0)
         return (string) null;
-      return this.DataSource + ";" + this.OpenMode.ToString() + ";" + this.Password;
+      return DataSource + ";" + OpenMode.ToString() + ";" + Password;
     }
 
-    private void CheckState()
+        private void MustBeOpened()
     {
-      if (this.State == ConnectionState.Open)
-        throw new VistaDBSQLException(1005, string.Empty, 0, 0);
-    }
-
-    private void MustBeOpened()
-    {
-      if (this.State != ConnectionState.Open)
+      if (State != ConnectionState.Open)
         throw new VistaDBSQLException(1012, string.Empty, 0, 0);
     }
 
@@ -662,32 +656,32 @@ namespace VistaDB.Provider
       return dataTable;
     }
 
-    private VistaDB.Engine.Core.Database.TableIdMap GetTables(string tableName, string tableType)
+    private Database.TableIdMap GetTables(string tableName, string tableType)
     {
-      VistaDB.Engine.Core.Database.TableIdMap tableIdMap;
+            Database.TableIdMap tableIdMap;
       if (tableName == null)
       {
-        tableIdMap = tableType == null || this.CompareString(tableType, VistaDBConnection.UserTableType, true) == 0 ? (VistaDB.Engine.Core.Database.TableIdMap) this.localSqlConnection.GetTables() : (VistaDB.Engine.Core.Database.TableIdMap) null;
-        if (tableType == null || this.CompareString(tableType, VistaDBConnection.SystemTableType, true) == 0)
+        tableIdMap = tableType == null || CompareString(tableType, UserTableType, true) == 0 ? (Database.TableIdMap) localSqlConnection.GetTables() : (Database.TableIdMap) null;
+        if (tableType == null || CompareString(tableType, SystemTableType, true) == 0)
         {
           if (tableIdMap == null)
-            tableIdMap = new VistaDB.Engine.Core.Database.TableIdMap();
+            tableIdMap = new Database.TableIdMap();
           tableIdMap.AddTable((string) null);
         }
       }
       else
       {
-        tableIdMap = new VistaDB.Engine.Core.Database.TableIdMap();
-        if (this.CompareString(tableName, VistaDBConnection.SystemSchema, true) == 0)
+        tableIdMap = new Database.TableIdMap();
+        if (CompareString(tableName, SystemSchema, true) == 0)
         {
-          if (tableType == null || this.CompareString(tableType, VistaDBConnection.UserTableType, true) == 0)
+          if (tableType == null || CompareString(tableType, UserTableType, true) == 0)
             tableIdMap.AddTable((string) null);
         }
-        else if (tableType == null || this.CompareString(tableType, VistaDBConnection.SystemTableType, true) == 0)
+        else if (tableType == null || CompareString(tableType, SystemTableType, true) == 0)
         {
-          foreach (KeyValuePair<ulong, string> table in (VistaDB.Engine.Core.Database.TableIdMap) this.localSqlConnection.GetTables())
+          foreach (KeyValuePair<ulong, string> table in (Database.TableIdMap) localSqlConnection.GetTables())
           {
-            if (this.CompareString(table.Value, tableName, true) == 0)
+            if (CompareString(table.Value, tableName, true) == 0)
             {
               tableIdMap.Add(table.Value, table.Key);
               break;
@@ -711,15 +705,15 @@ namespace VistaDB.Provider
       dataTable.Columns.Add("TABLE_DESCRIPTION", typeof (string));
       dataTable.DefaultView.Sort = "TABLE_NAME";
       dataTable.BeginLoadData();
-      VistaDB.Engine.Core.Database.TableIdMap tables = this.GetTables(tableName, tableType);
+            Database.TableIdMap tables = GetTables(tableName, tableType);
       if (tables != null)
       {
         foreach (string key in (IEnumerable<string>) tables.Keys)
         {
-          IVistaDBTableSchema vistaDbTableSchema = this.localSqlConnection.TableSchema(key);
+          IVistaDBTableSchema vistaDbTableSchema = localSqlConnection.TableSchema(key);
           DataRow row = dataTable.NewRow();
-          row["TABLE_NAME"] = key == null ? (object) VistaDBConnection.SystemSchema : (object) vistaDbTableSchema.Name;
-          row["TABLE_TYPE"] = key == null ? (object) VistaDBConnection.SystemTableType : (object) VistaDBConnection.UserTableType;
+          row["TABLE_NAME"] = key == null ? (object)SystemSchema : (object) vistaDbTableSchema.Name;
+          row["TABLE_TYPE"] = key == null ? (object)SystemTableType : (object)UserTableType;
           row["TABLE_DESCRIPTION"] = (object) vistaDbTableSchema.Description;
           dataTable.Rows.Add(row);
         }
@@ -768,19 +762,19 @@ namespace VistaDB.Provider
       dataTable.Columns.Add("COLUMN_PROPID", typeof (long));
       dataTable.DefaultView.Sort = "TABLE_NAME, ORDINAL_POSITION";
       dataTable.BeginLoadData();
-      foreach (string key in (IEnumerable<string>) this.GetTables(tableName, (string) null).Keys)
+      foreach (string key in (IEnumerable<string>) GetTables(tableName, (string) null).Keys)
       {
-        IVistaDBTableSchema vistaDbTableSchema = this.localSqlConnection.TableSchema(key);
+        IVistaDBTableSchema vistaDbTableSchema = localSqlConnection.TableSchema(key);
         int index1 = 0;
         for (int columnCount = vistaDbTableSchema.ColumnCount; index1 < columnCount; ++index1)
         {
           IVistaDBColumnAttributes columnAttributes = vistaDbTableSchema[index1];
-          if (columnName == null || this.CompareString(columnName, columnAttributes.Name, true) == 0)
+          if (columnName == null || CompareString(columnName, columnAttributes.Name, true) == 0)
           {
             IVistaDBDefaultValueCollection defaultValues = vistaDbTableSchema.DefaultValues;
             DataRow row = dataTable.NewRow();
             bool flag1 = defaultValues.ContainsKey(columnAttributes.Name);
-            row["TABLE_NAME"] = key == null ? (object) VistaDBConnection.SystemSchema : (object) vistaDbTableSchema.Name;
+            row["TABLE_NAME"] = key == null ? (object)SystemSchema : (object) vistaDbTableSchema.Name;
             row["COLUMN_NAME"] = (object) columnAttributes.Name;
             row["ORDINAL_POSITION"] = (object) index1;
             row["COLUMN_HASDEFAULT"] = (object) flag1;
@@ -842,15 +836,15 @@ namespace VistaDB.Provider
       dataTable.Columns.Add("FULLTEXTSEARCH", typeof (bool));
       dataTable.DefaultView.Sort = "TABLE_NAME, INDEX_NAME";
       dataTable.BeginLoadData();
-      foreach (string key in (IEnumerable<string>) this.GetTables(tableName, (string) null).Keys)
+      foreach (string key in (IEnumerable<string>) GetTables(tableName, (string) null).Keys)
       {
-        IVistaDBTableSchema vistaDbTableSchema = this.localSqlConnection.TableSchema(key);
+        IVistaDBTableSchema vistaDbTableSchema = localSqlConnection.TableSchema(key);
         foreach (IVistaDBIndexInformation indexInformation in (IEnumerable<IVistaDBIndexInformation>) vistaDbTableSchema.Indexes.Values)
         {
-          if (indexName == null || this.CompareString(indexName, indexInformation.Name, true) == 0)
+          if (indexName == null || CompareString(indexName, indexInformation.Name, true) == 0)
           {
             DataRow row = dataTable.NewRow();
-            row["TABLE_NAME"] = key == null ? (object) VistaDBConnection.SystemSchema : (object) vistaDbTableSchema.Name;
+            row["TABLE_NAME"] = key == null ? (object)SystemSchema : (object) vistaDbTableSchema.Name;
             row["INDEX_NAME"] = (object) indexInformation.Name;
             row["PRIMARY_KEY"] = (object) indexInformation.Primary;
             row["UNIQUE"] = (object) indexInformation.Unique;
@@ -885,23 +879,23 @@ namespace VistaDB.Provider
       dataTable.Columns.Add("INDEX_NAME", typeof (string));
       dataTable.DefaultView.Sort = "TABLE_NAME, INDEX_NAME, ORDINAL_POSITION";
       dataTable.BeginLoadData();
-      foreach (string key in (IEnumerable<string>) this.GetTables(tableName, (string) null).Keys)
+      foreach (string key in (IEnumerable<string>) GetTables(tableName, (string) null).Keys)
       {
-        IVistaDBTableSchema vistaDbTableSchema = this.localSqlConnection.TableSchema(key);
+        IVistaDBTableSchema vistaDbTableSchema = localSqlConnection.TableSchema(key);
         foreach (IVistaDBIndexInformation indexInformation in (IEnumerable<IVistaDBIndexInformation>) vistaDbTableSchema.Indexes.Values)
         {
-          if (indexName == null || this.CompareString(indexName, indexInformation.Name, true) == 0)
+          if (indexName == null || CompareString(indexName, indexInformation.Name, true) == 0)
           {
             IVistaDBKeyColumn[] keyStructure = indexInformation.KeyStructure;
             int index = 0;
             for (int length = keyStructure.Length; index < length; ++index)
             {
               IVistaDBColumnAttributes columnAttributes = vistaDbTableSchema[keyStructure[index].RowIndex];
-              if (columnName == null || this.CompareString(columnName, columnAttributes.Name, true) == 0)
+              if (columnName == null || CompareString(columnName, columnAttributes.Name, true) == 0)
               {
                 DataRow row = dataTable.NewRow();
                 row["CONSTRAINT_NAME"] = (object) indexInformation.Name;
-                row["TABLE_NAME"] = key == null ? (object) VistaDBConnection.SystemSchema : (object) vistaDbTableSchema.Name;
+                row["TABLE_NAME"] = key == null ? (object)SystemSchema : (object) vistaDbTableSchema.Name;
                 row["COLUMN_NAME"] = (object) columnAttributes.Name;
                 row["ORDINAL_POSITION"] = (object) index;
                 row["INDEX_NAME"] = (object) indexInformation.Name;
@@ -939,7 +933,7 @@ namespace VistaDB.Provider
       List<string> stringList;
       if (tableName == null)
       {
-        stringList = new List<string>((IEnumerable<string>) this.localSqlConnection.GetTables());
+        stringList = new List<string>((IEnumerable<string>) localSqlConnection.GetTables());
       }
       else
       {
@@ -948,18 +942,18 @@ namespace VistaDB.Provider
       }
       foreach (string tableName1 in stringList)
       {
-        IVistaDBTableSchema vistaDbTableSchema = this.localSqlConnection.TableSchema(tableName1);
+        IVistaDBTableSchema vistaDbTableSchema = localSqlConnection.TableSchema(tableName1);
         if (keyName == null)
         {
           foreach (IVistaDBRelationshipInformation foreignKey in (IEnumerable<IVistaDBRelationshipInformation>) vistaDbTableSchema.ForeignKeys)
           {
             DataRow row = dataTable.NewRow();
             row["CONSTRAINT_NAME"] = (object) foreignKey.Name;
-            row["TABLE_NAME"] = tableName1 == null ? (object) VistaDBConnection.SystemSchema : (object) vistaDbTableSchema.Name;
+            row["TABLE_NAME"] = tableName1 == null ? (object)SystemSchema : (object) vistaDbTableSchema.Name;
             row["CONSTRAINT_TYPE"] = (object) "FOREIGN KEY";
             row["IS_DEFERRABLE"] = (object) "NO";
             row["INITIALLY_DEFERRED"] = (object) "NO";
-            row["FKEY_TO_TABLE"] = foreignKey.PrimaryTable == null ? (object) VistaDBConnection.SystemSchema : (object) foreignKey.PrimaryTable;
+            row["FKEY_TO_TABLE"] = foreignKey.PrimaryTable == null ? (object)SystemSchema : (object) foreignKey.PrimaryTable;
             dataTable.Rows.Add(row);
           }
         }
@@ -970,11 +964,11 @@ namespace VistaDB.Provider
           {
             DataRow row = dataTable.NewRow();
             row["CONSTRAINT_NAME"] = (object) relationshipInformation.Name;
-            row["TABLE_NAME"] = tableName1 == null ? (object) VistaDBConnection.SystemSchema : (object) vistaDbTableSchema.Name;
+            row["TABLE_NAME"] = tableName1 == null ? (object)SystemSchema : (object) vistaDbTableSchema.Name;
             row["CONSTRAINT_TYPE"] = (object) "FOREIGN KEY";
             row["IS_DEFERRABLE"] = (object) "NO";
             row["INITIALLY_DEFERRED"] = (object) "NO";
-            row["FKEY_TO_TABLE"] = relationshipInformation.PrimaryTable == null ? (object) VistaDBConnection.SystemSchema : (object) relationshipInformation.PrimaryTable;
+            row["FKEY_TO_TABLE"] = relationshipInformation.PrimaryTable == null ? (object)SystemSchema : (object) relationshipInformation.PrimaryTable;
             dataTable.Rows.Add(row);
           }
         }
@@ -1008,16 +1002,16 @@ namespace VistaDB.Provider
       dataTable.Columns.Add("FKEY_TO_COLUMN", typeof (string));
       dataTable.DefaultView.Sort = "TABLE_NAME, CONSTRAINT_NAME, FKEY_FROM_ORDINAL_POSITION";
       dataTable.BeginLoadData();
-      foreach (string key in (IEnumerable<string>) this.GetTables(tableName, (string) null).Keys)
+      foreach (string key in (IEnumerable<string>) GetTables(tableName, (string) null).Keys)
       {
-        IVistaDBTableSchema vistaDbTableSchema1 = this.localSqlConnection.TableSchema(key);
+        IVistaDBTableSchema vistaDbTableSchema1 = localSqlConnection.TableSchema(key);
         foreach (IVistaDBRelationshipInformation relationshipInformation in (IEnumerable<IVistaDBRelationshipInformation>) vistaDbTableSchema1.ForeignKeys.Values)
         {
-          if (keyName == null || this.CompareString(keyName, relationshipInformation.Name, false) == 0)
+          if (keyName == null || CompareString(keyName, relationshipInformation.Name, false) == 0)
           {
             IVistaDBKeyColumn[] keyStructure = vistaDbTableSchema1.Indexes[relationshipInformation.Name].KeyStructure;
             IVistaDBKeyColumn[] vistaDbKeyColumnArray = (IVistaDBKeyColumn[]) null;
-            IVistaDBTableSchema vistaDbTableSchema2 = this.localSqlConnection.TableSchema(relationshipInformation.PrimaryTable);
+            IVistaDBTableSchema vistaDbTableSchema2 = localSqlConnection.TableSchema(relationshipInformation.PrimaryTable);
             foreach (IVistaDBIndexInformation indexInformation in (IEnumerable<IVistaDBIndexInformation>) vistaDbTableSchema2.Indexes.Values)
             {
               if (indexInformation.Primary)
@@ -1030,17 +1024,17 @@ namespace VistaDB.Provider
             for (int length = keyStructure.Length; index < length; ++index)
             {
               string name = vistaDbTableSchema1[keyStructure[index].RowIndex].Name;
-              if (columnName == null || this.CompareString(columnName, name, true) == 0)
+              if (columnName == null || CompareString(columnName, name, true) == 0)
               {
                 DataRow row = dataTable.NewRow();
                 row["CONSTRAINT_NAME"] = (object) relationshipInformation.Name;
-                row["TABLE_NAME"] = key == null ? (object) VistaDBConnection.SystemSchema : (object) vistaDbTableSchema1.Name;
+                row["TABLE_NAME"] = key == null ? (object)SystemSchema : (object) vistaDbTableSchema1.Name;
                 row["CONSTRAINT_TYPE"] = (object) "FOREIGN KEY";
                 row["IS_DEFERRABLE"] = (object) false;
                 row["INITIALLY_DEFERRED"] = (object) false;
                 row["FKEY_FROM_COLUMN"] = (object) name;
                 row["FKEY_FROM_ORDINAL_POSITION"] = (object) index;
-                row["FKEY_TO_TABLE"] = relationshipInformation.PrimaryTable == null ? (object) VistaDBConnection.SystemSchema : (object) relationshipInformation.PrimaryTable;
+                row["FKEY_TO_TABLE"] = relationshipInformation.PrimaryTable == null ? (object)SystemSchema : (object) relationshipInformation.PrimaryTable;
                 row["FKEY_TO_COLUMN"] = (object) vistaDbTableSchema2[vistaDbKeyColumnArray[index].RowIndex].Name;
                 dataTable.Rows.Add(row);
               }
@@ -1113,7 +1107,7 @@ namespace VistaDB.Provider
       dataTable.BeginLoadData();
       if (!string.IsNullOrEmpty(storedProcedure))
         commandText = "SELECT * FROM (" + commandText + ") WHERE UPPER(PROC_NAME) = '" + storedProcedure.ToUpperInvariant() + "'";
-      IVistaDBTableSchema tableSchema = this.GetTableSchema((string) null);
+      IVistaDBTableSchema tableSchema = GetTableSchema((string) null);
       using (VistaDBCommand vistaDbCommand = new VistaDBCommand(commandText, this))
       {
         using (VistaDBDataReader vistaDbDataReader = vistaDbCommand.ExecuteReader())
@@ -1318,65 +1312,65 @@ namespace VistaDB.Provider
 
     internal IQueryStatement CreateQuery(string commandText)
     {
-      this.InstantiateLocalSqlConnection((IDatabase) null);
-      return this.localSqlConnection.CreateQuery(commandText);
+      InstantiateLocalSqlConnection((IDatabase) null);
+      return localSqlConnection.CreateQuery(commandText);
     }
 
     internal void FreeQuery(IQueryStatement query, bool cleanup)
     {
-      if (this.localSqlConnection == null)
+      if (localSqlConnection == null)
         return;
-      this.localSqlConnection.FreeQuery(query);
-      if (!cleanup || this.localSqlConnection.CurrentTransaction != null || (this.OpenMode == VistaDBDatabaseOpenMode.ExclusiveReadWrite || this.OpenMode == VistaDBDatabaseOpenMode.ExclusiveReadOnly))
+      localSqlConnection.FreeQuery(query);
+      if (!cleanup || localSqlConnection.CurrentTransaction != null || (OpenMode == VistaDBDatabaseOpenMode.ExclusiveReadWrite || OpenMode == VistaDBDatabaseOpenMode.ExclusiveReadOnly))
         return;
-      this.localSqlConnection.CloseAllPooledTables();
+      localSqlConnection.CloseAllPooledTables();
     }
 
     internal void RetrieveConnectionInfo()
     {
-      if (this.CompareString(this.DataSource, this.localSqlConnection.FileName, true) == 0)
+      if (CompareString(DataSource, localSqlConnection.FileName, true) == 0)
         return;
-      this.connectionString.DataSource = this.localSqlConnection.FileName;
-      this.connectionString.OpenMode = this.localSqlConnection.OpenMode;
-      this.connectionString.Password = this.localSqlConnection.Password;
+      connectionString.DataSource = localSqlConnection.FileName;
+      connectionString.OpenMode = localSqlConnection.OpenMode;
+      connectionString.Password = localSqlConnection.Password;
     }
 
     internal void InternalBeginTransaction(VistaDBTransaction parentTransaction)
     {
-      if (this.TransactionMode == VistaDBTransaction.TransactionMode.Off)
+      if (TransactionMode == VistaDBTransaction.TransactionMode.Off)
         throw new VistaDBException(460);
-      lock (this.SyncRoot)
+      lock (SyncRoot)
       {
-        this.MustBeOpened();
-        if (this.TransactionMode == VistaDBTransaction.TransactionMode.Ignore)
+        MustBeOpened();
+        if (TransactionMode == VistaDBTransaction.TransactionMode.Ignore)
           return;
-        this.localSqlConnection.BeginTransaction(parentTransaction);
+        localSqlConnection.BeginTransaction(parentTransaction);
       }
     }
 
     internal void InternalCommitTransaction()
     {
-      if (this.TransactionMode == VistaDBTransaction.TransactionMode.Off)
+      if (TransactionMode == VistaDBTransaction.TransactionMode.Off)
         throw new VistaDBException(460);
-      if (this.TransactionMode == VistaDBTransaction.TransactionMode.Ignore)
+      if (TransactionMode == VistaDBTransaction.TransactionMode.Ignore)
         return;
-      lock (this.SyncRoot)
+      lock (SyncRoot)
       {
-        this.MustBeOpened();
-        this.localSqlConnection.CommitTransaction();
+        MustBeOpened();
+        localSqlConnection.CommitTransaction();
       }
     }
 
     internal void InternalRollbackTransaction()
     {
-      if (this.TransactionMode == VistaDBTransaction.TransactionMode.Off)
+      if (TransactionMode == VistaDBTransaction.TransactionMode.Off)
         throw new VistaDBException(460);
-      if (this.TransactionMode == VistaDBTransaction.TransactionMode.Ignore)
+      if (TransactionMode == VistaDBTransaction.TransactionMode.Ignore)
         return;
-      lock (this.SyncRoot)
+      lock (SyncRoot)
       {
-        this.MustBeOpened();
-        this.localSqlConnection.RollbackTransaction();
+        MustBeOpened();
+        localSqlConnection.RollbackTransaction();
       }
     }
 
@@ -1384,17 +1378,17 @@ namespace VistaDB.Provider
     {
       get
       {
-        lock (this.SyncRoot)
-          return this.localSqlConnection == null ? (VistaDBTransaction) null : this.localSqlConnection.CurrentTransaction;
+        lock (SyncRoot)
+          return localSqlConnection == null ? (VistaDBTransaction) null : localSqlConnection.CurrentTransaction;
       }
     }
 
     object ICloneable.Clone()
     {
-      VistaDBConnection vistaDbConnection = new VistaDBConnection(this.ConnectionString);
-      lock (this.SyncRoot)
+      VistaDBConnection vistaDbConnection = new VistaDBConnection(ConnectionString);
+      lock (SyncRoot)
       {
-        if (this.State == ConnectionState.Open)
+        if (State == ConnectionState.Open)
           vistaDbConnection.Open();
       }
       return (object) vistaDbConnection;
@@ -1430,19 +1424,19 @@ namespace VistaDB.Provider
       {
         this.minPoolSize = minPoolSize;
         this.maxPoolSize = maxPoolSize;
-        this.count = 0;
-        this.connections = new ILocalSQLConnection[maxPoolSize];
-        this.Push(conn);
+        count = 0;
+        connections = new ILocalSQLConnection[maxPoolSize];
+        Push(conn);
       }
 
       internal ILocalSQLConnection Pop()
       {
-        lock (this.connections)
+        lock (connections)
         {
-          if (this.count > 0)
+          if (count > 0)
           {
-            ILocalSQLConnection connection = this.connections[this.count - 1];
-            this.connections[this.count--] = this.count <= this.minPoolSize ? (ILocalSQLConnection) null : (ILocalSQLConnection) null;
+            ILocalSQLConnection connection = connections[count - 1];
+            connections[count--] = count <= minPoolSize ? (ILocalSQLConnection) null : (ILocalSQLConnection) null;
             return connection;
           }
         }
@@ -1453,24 +1447,24 @@ namespace VistaDB.Provider
       {
         if (connection == null)
           return;
-        lock (this.connections)
+        lock (connections)
         {
-          if (this.count >= this.maxPoolSize)
+          if (count >= maxPoolSize)
             connection.Dispose();
           else
-            this.connections[this.count++] = connection;
+            connections[count++] = connection;
         }
       }
 
       public void Clear()
       {
-        lock (this.connections)
+        lock (connections)
         {
           int index = 0;
           for (int count = this.count; index < count; ++index)
           {
-            this.connections[index].Dispose();
-            this.connections[index] = (ILocalSQLConnection) null;
+            connections[index].Dispose();
+            connections[index] = (ILocalSQLConnection) null;
           }
         }
       }
@@ -1478,52 +1472,52 @@ namespace VistaDB.Provider
 
     private class ConnectionPoolCollection
     {
-      private Dictionary<string, VistaDBConnection.ConnectionPool> pools;
+      private Dictionary<string, ConnectionPool> pools;
 
       public ConnectionPoolCollection()
       {
-        this.pools = new Dictionary<string, VistaDBConnection.ConnectionPool>((IEqualityComparer<string>) StringComparer.OrdinalIgnoreCase);
+        pools = new Dictionary<string, ConnectionPool>((IEqualityComparer<string>) StringComparer.OrdinalIgnoreCase);
       }
 
       public void Clear()
       {
-        lock (this.pools)
+        lock (pools)
         {
-          foreach (VistaDBConnection.ConnectionPool connectionPool in this.pools.Values)
+          foreach (ConnectionPool connectionPool in pools.Values)
             connectionPool.Clear();
-          this.pools.Clear();
+          pools.Clear();
         }
       }
 
       internal void ClearPool(VistaDBConnection connection)
       {
-        lock (this.pools)
+        lock (pools)
         {
           string connectionString = connection.GetPoolConnectionString();
-          VistaDBConnection.ConnectionPool connectionPool;
-          if (!this.pools.TryGetValue(connectionString, out connectionPool))
+                    ConnectionPool connectionPool;
+          if (!pools.TryGetValue(connectionString, out connectionPool))
             return;
           connectionPool.Clear();
-          this.pools.Remove(connectionString);
+          pools.Remove(connectionString);
         }
       }
 
       internal bool PutConnectionOnHold(ILocalSQLConnection connection, string connectionString, int minPoolSize, int maxPoolSize)
       {
-        lock (this.pools)
+        lock (pools)
         {
           if (connection is IPooledSQLConnection)
             ((IPooledSQLConnection) connection).PrepareConnectionForPool();
           connection.CloseAllPooledTables();
-          VistaDBConnection.ConnectionPool connectionPool;
-          if (this.pools.TryGetValue(connectionString, out connectionPool))
+                    ConnectionPool connectionPool;
+          if (pools.TryGetValue(connectionString, out connectionPool))
           {
             connectionPool.Push(connection);
             return false;
           }
           if (minPoolSize <= 0 || connectionString == null)
             return connection != null;
-          this.pools.Add(connectionString, new VistaDBConnection.ConnectionPool(minPoolSize, maxPoolSize, connection));
+          pools.Add(connectionString, new ConnectionPool(minPoolSize, maxPoolSize, connection));
         }
         return false;
       }
@@ -1532,10 +1526,10 @@ namespace VistaDB.Provider
       {
         if (connectionString == null)
           return (ILocalSQLConnection) null;
-        if (this.pools.Count == 0)
+        if (pools.Count == 0)
           return (ILocalSQLConnection) null;
-        VistaDBConnection.ConnectionPool connectionPool;
-        if (this.pools.TryGetValue(connectionString, out connectionPool))
+                ConnectionPool connectionPool;
+        if (pools.TryGetValue(connectionString, out connectionPool))
           return connectionPool.Pop();
         return (ILocalSQLConnection) null;
       }

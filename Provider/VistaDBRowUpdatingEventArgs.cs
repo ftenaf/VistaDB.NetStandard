@@ -22,7 +22,7 @@ namespace VistaDB.Provider
       }
     }
 
-    public VistaDBCommand Command
+    new public VistaDBCommand Command
     {
       get
       {
@@ -30,7 +30,7 @@ namespace VistaDB.Provider
       }
       set
       {
-        this.Command = value;
+        Command = value;
       }
     }
   }

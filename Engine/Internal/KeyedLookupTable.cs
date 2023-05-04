@@ -16,99 +16,99 @@ namespace VistaDB.Engine.Internal
 
     internal KeyedLookupTable(ITableCache lookupTable, ColumnSignature keyColumn, Statement parent)
     {
-      this.m_LookupTable = lookupTable;
-      this.m_KeyColumn = keyColumn;
-      this.m_ParentStatement = parent;
-      this.m_CurrentKeyTableVersion = -1L;
+      m_LookupTable = lookupTable;
+      m_KeyColumn = keyColumn;
+      m_ParentStatement = parent;
+      m_CurrentKeyTableVersion = -1L;
     }
 
     internal QuickJoinLookupColumn GetLookupColumn(ColumnSignature originalColumn)
     {
-      int dataIndex = this.RegisterColumn(originalColumn.ColumnName);
-      return new QuickJoinLookupColumn(originalColumn, this.m_ParentStatement, this, dataIndex);
+      int dataIndex = RegisterColumn(originalColumn.ColumnName);
+      return new QuickJoinLookupColumn(originalColumn, m_ParentStatement, this, dataIndex);
     }
 
     internal long TableVersion
     {
       get
       {
-        if (!this.GetIsChanged())
-          return this.m_CurrentKeyTableVersion;
+        if (!GetIsChanged())
+          return m_CurrentKeyTableVersion;
         return -1;
       }
     }
 
     internal bool GetIsChanged()
     {
-      if (this.m_CurrentKeyTableVersion >= 0L)
-        return this.m_KeyColumn.TableVersion != this.m_CurrentKeyTableVersion;
+      if (m_CurrentKeyTableVersion >= 0L)
+        return m_KeyColumn.TableVersion != m_CurrentKeyTableVersion;
       return true;
     }
 
     private object[] InternalExecute()
     {
-      if (!this.m_KeyColumn.Table.Opened)
+      if (!m_KeyColumn.Table.Opened)
         return (object[]) null;
-      if (this.GetIsChanged())
+      if (GetIsChanged())
       {
-        this.m_CurrentKeyValue = ((IValue) this.m_KeyColumn.Execute()).Value;
-        this.m_CurrentKeyTableVersion = this.m_KeyColumn.TableVersion;
-        if (this.m_LoadedKeyValue == null || !this.m_LoadedKeyValue.Equals(this.m_CurrentKeyValue))
+        m_CurrentKeyValue = ((IValue) m_KeyColumn.Execute()).Value;
+        m_CurrentKeyTableVersion = m_KeyColumn.TableVersion;
+        if (m_LoadedKeyValue == null || !m_LoadedKeyValue.Equals(m_CurrentKeyValue))
         {
-          this.m_CurrentDataValues = this.m_LookupTable.GetValues(this.m_CurrentKeyValue);
-          this.m_LoadedKeyValue = this.m_CurrentKeyValue;
+          m_CurrentDataValues = m_LookupTable.GetValues(m_CurrentKeyValue);
+          m_LoadedKeyValue = m_CurrentKeyValue;
         }
       }
-      return this.m_CurrentDataValues;
+      return m_CurrentDataValues;
     }
 
     internal object GetValue(int dataIndex)
     {
-      this.InternalExecute();
-      if (this.m_CurrentDataValues == null || this.m_CurrentDataValues.Length <= dataIndex)
+      InternalExecute();
+      if (m_CurrentDataValues == null || m_CurrentDataValues.Length <= dataIndex)
         return (object) null;
-      return this.m_CurrentDataValues[dataIndex];
+      return m_CurrentDataValues[dataIndex];
     }
 
     internal object[] GetValues()
     {
-      this.InternalExecute();
-      return this.m_CurrentDataValues;
+      InternalExecute();
+      return m_CurrentDataValues;
     }
 
     internal object GetKeyValue()
     {
-      this.InternalExecute();
-      return this.m_CurrentKeyValue;
+      InternalExecute();
+      return m_CurrentKeyValue;
     }
 
     internal void SetValues(object[] values)
     {
-      this.InternalExecute();
-      if (object.ReferenceEquals((object) values, (object) this.m_CurrentDataValues))
+      InternalExecute();
+      if (ReferenceEquals((object) values, (object) m_CurrentDataValues))
         return;
-      this.m_LookupTable.SetValues(this.m_CurrentKeyValue, values);
-      this.m_CurrentDataValues = values;
+      m_LookupTable.SetValues(m_CurrentKeyValue, values);
+      m_CurrentDataValues = values;
     }
 
     internal int RegisterColumn(string columnName)
     {
-      return this.m_LookupTable.GetColumnCache(columnName).ResultColumnIndex;
+      return m_LookupTable.GetColumnCache(columnName).ResultColumnIndex;
     }
 
     internal void RegisterColumnSignature(int columnIndex)
     {
-      this.m_LookupTable.RegisterColumnSignature(columnIndex);
+      m_LookupTable.RegisterColumnSignature(columnIndex);
     }
 
     internal bool IsColumnSignatureRegistered(int columnIndex)
     {
-      return this.m_LookupTable.IsColumnSignatureRegistered(columnIndex);
+      return m_LookupTable.IsColumnSignatureRegistered(columnIndex);
     }
 
     internal IEnumerable<int> GetRegisteredColumns()
     {
-      return this.m_LookupTable.GetRegisteredColumns();
+      return m_LookupTable.GetRegisteredColumns();
     }
   }
 }

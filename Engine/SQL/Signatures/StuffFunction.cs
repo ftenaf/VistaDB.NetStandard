@@ -7,19 +7,19 @@ namespace VistaDB.Engine.SQL.Signatures
     public StuffFunction(SQLParser parser)
       : base(parser, 4, true)
     {
-      this.dataType = VistaDBType.NChar;
-      this.parameterTypes[0] = VistaDBType.NChar;
-      this.parameterTypes[1] = VistaDBType.Int;
-      this.parameterTypes[2] = VistaDBType.Int;
-      this.parameterTypes[3] = VistaDBType.NChar;
+      dataType = VistaDBType.NChar;
+      parameterTypes[0] = VistaDBType.NChar;
+      parameterTypes[1] = VistaDBType.Int;
+      parameterTypes[2] = VistaDBType.Int;
+      parameterTypes[3] = VistaDBType.NChar;
     }
 
     protected override object ExecuteSubProgram()
     {
-      string str1 = (string) ((IValue) this.paramValues[0]).Value;
-      int length = (int) ((IValue) this.paramValues[1]).Value - 1;
-      int startIndex = (int) ((IValue) this.paramValues[2]).Value;
-      string str2 = (string) ((IValue) this.paramValues[3]).Value;
+      string str1 = (string) ((IValue) paramValues[0]).Value;
+      int length = (int) ((IValue) paramValues[1]).Value - 1;
+      int startIndex = (int) ((IValue) paramValues[2]).Value;
+      string str2 = (string) ((IValue) paramValues[3]).Value;
       if (length < 0 || length >= str1.Length || startIndex < 0)
         return (object) null;
       if (length == 0)

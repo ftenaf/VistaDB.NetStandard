@@ -565,7 +565,7 @@ namespace VistaDB.Engine.Internal
 		internal void PrepareCLRContext(VistaDBPipe pipe)
 		{
 			VistaDBContext.SQLChannel.ActivateContext((ILocalSQLConnection)this, pipe);
-			VistaDBContext.DDAChannel.ActivateContext((IVistaDBDatabase)this.Database, (IVistaDBPipe)null);
+			VistaDBContext.DDAChannel.ActivateContext((IVistaDBDatabase)Database, (IVistaDBPipe)null);
 		}
 
 		internal void UnprepareCLRContext()
@@ -576,7 +576,7 @@ namespace VistaDB.Engine.Internal
 
 		public ITable OpenTable(string name, bool exclusive, bool readOnly)
 		{
-			if (CompareString(name, VistaDB.Engine.Core.Database.SystemSchema, true) == 0)
+			if (CompareString(name, Core.Database.SystemSchema, true) == 0)
 				return (ITable)Database;
 			return poolOfTables.OpenOrReuseTable(Database, name, exclusive, readOnly);
 		}
@@ -602,7 +602,7 @@ namespace VistaDB.Engine.Internal
 
 		public void CloseAllPooledTables()
 		{
-			this.poolOfTables.CloseAllPooled();
+			poolOfTables.CloseAllPooled();
 		}
 
 		public bool IsIndexExisting(string tableName, string indexName)
@@ -812,7 +812,7 @@ namespace VistaDB.Engine.Internal
 
 			internal ITable OpenOrReuseTable(IDatabase activeDatabase, string name, bool exclusive, bool readOnly)
 			{
-				lock (this.SyncRoot)
+				lock (SyncRoot)
 				{
 					ITable table = this[name];
 					if (table == null)

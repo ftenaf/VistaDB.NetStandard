@@ -7,24 +7,24 @@ namespace VistaDB.Engine.SQL
   {
     public BaseCreateStatementDescr()
     {
-      this.statements = new Hashtable();
-      IStatementDescr statementDescr1 = (IStatementDescr) new BaseCreateStatementDescr.CreateDatabaseStatementDescr();
-      this.statements.Add((object) "DATABASE", (object) statementDescr1);
-      this.statements.Add((object) "INMEMORY", (object) statementDescr1);
-      this.statements.Add((object) "TABLE", (object) new BaseCreateStatementDescr.CreateTableStatementDescr());
-      this.statements.Add((object) "VIEW", (object) new BaseCreateStatementDescr.CreateViewStatementDescr());
-      this.statements.Add((object) "ASSEMBLY", (object) new BaseCreateStatementDescr.CreateAssemblyStatementDescr());
-      this.statements.Add((object) "TRIGGER", (object) new BaseCreateStatementDescr.CreateTriggerStatementDescr());
-      IStatementDescr statementDescr2 = (IStatementDescr) new BaseCreateStatementDescr.CreateProcStatementDescr();
-      this.statements.Add((object) "PROC", (object) statementDescr2);
-      this.statements.Add((object) "PROCEDURE", (object) statementDescr2);
-      this.statements.Add((object) "FUNCTION", (object) new BaseCreateStatementDescr.CreateFunctionStatementDescr());
-      IStatementDescr statementDescr3 = (IStatementDescr) new BaseCreateStatementDescr.CreateIndexStatementDescr();
-      this.statements.Add((object) "INDEX", (object) statementDescr3);
-      this.statements.Add((object) "UNIQUE", (object) statementDescr3);
-      this.statements.Add((object) "CLUSTERED", (object) statementDescr3);
-      this.statements.Add((object) "FULLTEXT", (object) statementDescr3);
-      this.statements.Add((object) "NONCLUSTERED", (object) statementDescr3);
+      statements = new Hashtable();
+      IStatementDescr statementDescr1 = (IStatementDescr) new CreateDatabaseStatementDescr();
+      statements.Add((object) "DATABASE", (object) statementDescr1);
+      statements.Add((object) "INMEMORY", (object) statementDescr1);
+      statements.Add((object) "TABLE", (object) new CreateTableStatementDescr());
+      statements.Add((object) "VIEW", (object) new CreateViewStatementDescr());
+      statements.Add((object) "ASSEMBLY", (object) new CreateAssemblyStatementDescr());
+      statements.Add((object) "TRIGGER", (object) new CreateTriggerStatementDescr());
+      IStatementDescr statementDescr2 = (IStatementDescr) new CreateProcStatementDescr();
+      statements.Add((object) "PROC", (object) statementDescr2);
+      statements.Add((object) "PROCEDURE", (object) statementDescr2);
+      statements.Add((object) "FUNCTION", (object) new CreateFunctionStatementDescr());
+      IStatementDescr statementDescr3 = (IStatementDescr) new CreateIndexStatementDescr();
+      statements.Add((object) "INDEX", (object) statementDescr3);
+      statements.Add((object) "UNIQUE", (object) statementDescr3);
+      statements.Add((object) "CLUSTERED", (object) statementDescr3);
+      statements.Add((object) "FULLTEXT", (object) statementDescr3);
+      statements.Add((object) "NONCLUSTERED", (object) statementDescr3);
     }
 
     private class CreateDatabaseStatementDescr : IStatementDescr

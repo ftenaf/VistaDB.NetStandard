@@ -17,8 +17,8 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        if (this.Count != 0)
-          return this[this.Count - 1].FilteredCount;
+        if (Count != 0)
+          return this[Count - 1].FilteredCount;
         return 0;
       }
     }
@@ -26,43 +26,43 @@ namespace VistaDB.Engine.Core
     internal void ClearId(Filter.FilterType typeId)
     {
       List<Filter> filterList = new List<Filter>();
-      for (int index = 0; index < this.Count; ++index)
+      for (int index = 0; index < Count; ++index)
       {
         if (this[index].TypeId == typeId)
           filterList.Add(this[index]);
       }
       for (int index = 0; index < filterList.Count; ++index)
-        this.Remove(filterList[index]);
+        Remove(filterList[index]);
     }
 
     internal int AddFilter(Filter filter)
     {
       if (filter == null)
         return -1;
-      this.Add(filter);
-      return this.Count;
+      Add(filter);
+      return Count;
     }
 
     internal void RemoveFilter(Filter filter)
     {
-      this.Remove(filter);
+      Remove(filter);
     }
 
     internal void Activate()
     {
-      for (int index = 0; index < this.Count; ++index)
+      for (int index = 0; index < Count; ++index)
         this[index].Activate(false);
     }
 
     internal void Deactivate()
     {
-      for (int index = 0; index < this.Count; ++index)
+      for (int index = 0; index < Count; ++index)
         this[index].Deactivate();
     }
 
     internal void ActivateByType(Filter.FilterType typeId)
     {
-      for (int index = 0; index < this.Count; ++index)
+      for (int index = 0; index < Count; ++index)
       {
         Filter filter = this[index];
         if (filter.TypeId == typeId)
@@ -72,7 +72,7 @@ namespace VistaDB.Engine.Core
 
     internal void DeactivateByType(Filter.FilterType typeId)
     {
-      for (int index = 0; index < this.Count; ++index)
+      for (int index = 0; index < Count; ++index)
       {
         Filter filter = this[index];
         if (filter.TypeId == typeId)
@@ -83,7 +83,7 @@ namespace VistaDB.Engine.Core
     internal int CountId(Filter.FilterType typeId)
     {
       int num = 0;
-      for (int index = 0; index < this.Count; ++index)
+      for (int index = 0; index < Count; ++index)
       {
         if (this[index].TypeId == typeId)
           ++num;
@@ -93,7 +93,7 @@ namespace VistaDB.Engine.Core
 
     internal bool IsActive(Filter.FilterType typeId)
     {
-      for (int index = 0; index < this.Count; ++index)
+      for (int index = 0; index < Count; ++index)
       {
         Filter filter = this[index];
         if (filter.TypeId == typeId && filter.Active)

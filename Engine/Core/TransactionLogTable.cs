@@ -1,23 +1,23 @@
 ﻿namespace VistaDB.Engine.Core
 {
-  internal class TransactionLogTable : Table
-  {
-    internal static TransactionLogTable CreateInstance(Database parentDatabase, string rowsetName)
+    internal class TransactionLogTable : Table
     {
-      return new TransactionLogTable(TransactionLogRowset.CreateInstance(parentDatabase, rowsetName), parentDatabase);
-    }
+        internal static TransactionLogTable CreateInstance(Database parentDatabase, string rowsetName)
+        {
+            return new TransactionLogTable(TransactionLogRowset.CreateInstance(parentDatabase, rowsetName), parentDatabase);
+        }
 
-    private TransactionLogTable(TransactionLogRowset rowset, Database parentDatabase)
-      : base((ClusteredRowset) rowset, parentDatabase)
-    {
-    }
+        private TransactionLogTable(TransactionLogRowset rowset, Database parentDatabase)
+          : base((ClusteredRowset)rowset, parentDatabase)
+        {
+        }
 
-    internal TransactionLogRowset Rowset
-    {
-      get
-      {
-        return (TransactionLogRowset) base.Rowset;
-      }
+        internal new TransactionLogRowset Rowset
+        {
+            get
+            {
+                return (TransactionLogRowset)base.Rowset;
+            }
+        }
     }
-  }
 }

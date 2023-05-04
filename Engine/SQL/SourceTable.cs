@@ -31,20 +31,20 @@ namespace VistaDB.Engine.SQL
     protected SourceTable(Statement parent, string tableName, string alias, int collectionOrder, int lineNo, int symbolNo)
     {
       this.tableName = tableName;
-      this.tableAlias = alias == null ? "" : alias;
-      this.rowAvailable = true;
-      this.dataVersion = 0L;
-      this.schema = (IQuerySchemaInfo) null;
+      tableAlias = alias == null ? "" : alias;
+      rowAvailable = true;
+      dataVersion = 0L;
+      schema = (IQuerySchemaInfo) null;
       this.parent = parent;
       this.collectionOrder = collectionOrder;
       this.lineNo = lineNo;
       this.symbolNo = symbolNo;
-      this.stopNext = false;
-      this.rowUpdated = true;
-      this.readOnly = true;
-      this.nextTable = (SourceTable) null;
-      this.joinedTables = (List<SourceTable>) null;
-      this.alwaysAllowNull = false;
+      stopNext = false;
+      rowUpdated = true;
+      readOnly = true;
+      nextTable = (SourceTable) null;
+      joinedTables = (List<SourceTable>) null;
+      alwaysAllowNull = false;
     }
 
     public abstract IColumn SimpleGetColumn(int colIndex);
@@ -118,114 +118,114 @@ namespace VistaDB.Engine.SQL
 
     private bool SyncNextTables(ConstraintOperations constraints)
     {
-      if (this.nextTable == null)
+      if (nextTable == null)
         return true;
-      if (!this.nextTable.Opened)
-        this.nextTable.Open();
-      return this.nextTable.First(constraints);
+      if (!nextTable.Opened)
+        nextTable.Open();
+      return nextTable.First(constraints);
     }
 
     public object GetValue(int colIndex)
     {
-      if (this.rowAvailable && !this.Eof)
-        return ((IValue) this.SimpleGetColumn(colIndex)).Value;
+      if (rowAvailable && !Eof)
+        return ((IValue) SimpleGetColumn(colIndex)).Value;
       return (object) null;
     }
 
     public void Unprepare()
     {
-      this.schema = (IQuerySchemaInfo) null;
+      schema = (IQuerySchemaInfo) null;
     }
 
     public void Open()
     {
-      if (this.Opened)
+      if (Opened)
         return;
-      this.OnOpen(this.readOnly);
+      OnOpen(readOnly);
     }
 
     public bool First(ConstraintOperations constraints)
     {
-      this.rowUpdated = true;
-      ++this.dataVersion;
-      this.ResetOptimization();
-      this.notEmpty = constraints == null || !constraints.ActivateOptimizedFilter(this.collectionOrder);
-      this.rowAvailable = this.notEmpty && this.OnFirst();
-      this.SyncNextTables(constraints);
-      return this.rowAvailable;
+      rowUpdated = true;
+      ++dataVersion;
+      ResetOptimization();
+      notEmpty = constraints == null || !constraints.ActivateOptimizedFilter(collectionOrder);
+      rowAvailable = notEmpty && OnFirst();
+      SyncNextTables(constraints);
+      return rowAvailable;
     }
 
     public void Insert()
     {
-      this.InternalInsert();
+      InternalInsert();
     }
 
     public void PutValue(int columnIndex, IColumn columnValue)
     {
-      this.InternalPutValue(columnIndex, columnValue);
-      ++this.dataVersion;
+      InternalPutValue(columnIndex, columnValue);
+      ++dataVersion;
     }
 
     public void DeleteRow()
     {
-      this.InternalDeleteRow();
-      this.stopNext = true;
-      this.rowUpdated = true;
-      ++this.dataVersion;
+      InternalDeleteRow();
+      stopNext = true;
+      rowUpdated = true;
+      ++dataVersion;
     }
 
     public void AddJoinedTable(SourceTable table)
     {
-      if (this.joinedTables == null)
-        this.joinedTables = new List<SourceTable>();
-      else if (this.joinedTables.IndexOf(table) >= 0)
+      if (joinedTables == null)
+        joinedTables = new List<SourceTable>();
+      else if (joinedTables.IndexOf(table) >= 0)
         return;
-      this.joinedTables.Add(table);
+      joinedTables.Add(table);
       table.AddJoinedTable(this);
     }
 
     internal void SetJoinOptimizationColumns(ColumnSignature leftColumn, ColumnSignature rightColumn, string indexName, bool useCache)
     {
-      this.optimizedIndexColumn = (ColumnSignature) null;
-      this.optimizedKeyColumn = (ColumnSignature) null;
-      this.optimizedIndexName = (string) null;
-      if (string.IsNullOrEmpty(this.tableAlias))
+      optimizedIndexColumn = (ColumnSignature) null;
+      optimizedKeyColumn = (ColumnSignature) null;
+      optimizedIndexName = (string) null;
+      if (string.IsNullOrEmpty(tableAlias))
         return;
-      bool flag1 = !string.IsNullOrEmpty(leftColumn.TableAlias) && leftColumn.TableAlias == this.tableAlias;
-      bool flag2 = !string.IsNullOrEmpty(rightColumn.TableAlias) && rightColumn.TableAlias == this.tableAlias;
+      bool flag1 = !string.IsNullOrEmpty(leftColumn.TableAlias) && leftColumn.TableAlias == tableAlias;
+      bool flag2 = !string.IsNullOrEmpty(rightColumn.TableAlias) && rightColumn.TableAlias == tableAlias;
       if (flag1)
       {
         if (!flag2)
         {
-          this.optimizedIndexColumn = leftColumn;
-          this.optimizedKeyColumn = rightColumn;
+          optimizedIndexColumn = leftColumn;
+          optimizedKeyColumn = rightColumn;
         }
       }
       else if (flag2)
       {
-        this.optimizedIndexColumn = rightColumn;
-        this.optimizedKeyColumn = leftColumn;
+        optimizedIndexColumn = rightColumn;
+        optimizedKeyColumn = leftColumn;
       }
-      this.optimizedIndexName = indexName;
-      this.optimizedCaching = useCache;
+      optimizedIndexName = indexName;
+      optimizedCaching = useCache;
     }
 
     internal void ClearJoinOptimizationColumns()
     {
-      this.optimizedIndexColumn = (ColumnSignature) null;
-      this.optimizedKeyColumn = (ColumnSignature) null;
-      this.optimizedIndexName = (string) null;
-      this.optimizedCaching = false;
+      optimizedIndexColumn = (ColumnSignature) null;
+      optimizedKeyColumn = (ColumnSignature) null;
+      optimizedIndexName = (string) null;
+      optimizedCaching = false;
     }
 
     internal void ClearJoinOptimizationCaching()
     {
-      this.optimizedCaching = false;
+      optimizedCaching = false;
     }
 
     internal virtual bool ActivateOptimizedConstraints(out bool emptyResultSet)
     {
-      this.ClearJoinOptimizationColumns();
+      ClearJoinOptimizationColumns();
       emptyResultSet = false;
       return false;
     }
@@ -238,7 +238,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.tableAlias;
+        return tableAlias;
       }
     }
 
@@ -246,7 +246,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.tableName;
+        return tableName;
       }
     }
 
@@ -254,7 +254,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.schema;
+        return schema;
       }
     }
 
@@ -262,11 +262,11 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.collectionOrder;
+        return collectionOrder;
       }
       internal set
       {
-        this.collectionOrder = value;
+        collectionOrder = value;
       }
     }
 
@@ -274,7 +274,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.dataVersion;
+        return dataVersion;
       }
     }
 
@@ -282,7 +282,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.lineNo;
+        return lineNo;
       }
     }
 
@@ -290,7 +290,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.symbolNo;
+        return symbolNo;
       }
     }
 
@@ -298,7 +298,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.parent;
+        return parent;
       }
     }
 
@@ -306,11 +306,11 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.readOnly;
+        return readOnly;
       }
       set
       {
-        this.readOnly = value;
+        readOnly = value;
       }
     }
 
@@ -318,7 +318,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.optimizedIndexColumn;
+        return optimizedIndexColumn;
       }
     }
 
@@ -326,7 +326,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.optimizedKeyColumn;
+        return optimizedKeyColumn;
       }
     }
 
@@ -334,7 +334,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.optimizedIndexName;
+        return optimizedIndexName;
       }
     }
 
@@ -342,53 +342,53 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.optimizedCaching;
+        return optimizedCaching;
       }
     }
 
     public bool Next(ConstraintOperations constraints)
     {
-      this.rowUpdated = true;
-      ++this.dataVersion;
-      if (this.stopNext)
+      rowUpdated = true;
+      ++dataVersion;
+      if (stopNext)
       {
-        this.stopNext = false;
-        this.rowAvailable = this.notEmpty && !this.Eof;
+        stopNext = false;
+        rowAvailable = notEmpty && !Eof;
       }
       else
-        this.rowAvailable = this.notEmpty && this.OnNext();
-      this.SyncNextTables(constraints);
-      return this.rowAvailable;
+        rowAvailable = notEmpty && OnNext();
+      SyncNextTables(constraints);
+      return rowAvailable;
     }
 
     public bool ExecuteRowset(ConstraintOperations constraints)
     {
-      this.rowAvailable = this.notEmpty && !this.Eof;
-      this.rowUpdated = false;
-      return this.rowAvailable;
+      rowAvailable = notEmpty && !Eof;
+      rowUpdated = false;
+      return rowAvailable;
     }
 
     public void MarkRowNotAvailable()
     {
-      this.rowAvailable = false;
-      this.rowUpdated = true;
+      rowAvailable = false;
+      rowUpdated = true;
     }
 
     public bool IsEquals(IRowSet rowSet)
     {
-      if (this.GetType() != rowSet.GetType())
+      if (GetType() != rowSet.GetType())
         return false;
       SourceTable sourceTable = (SourceTable) rowSet;
-      if (this.parent.Connection.CompareString(this.tableAlias, sourceTable.tableAlias, true) == 0)
-        return this.parent.Connection.CompareString(this.tableName, sourceTable.tableName, true) == 0;
+      if (parent.Connection.CompareString(tableAlias, sourceTable.tableAlias, true) == 0)
+        return parent.Connection.CompareString(tableName, sourceTable.tableName, true) == 0;
       return false;
     }
 
     public void Prepare()
     {
-      if (this.schema != null)
+      if (schema != null)
         return;
-      this.schema = this.InternalPrepare();
+      schema = InternalPrepare();
     }
 
     public bool Optimize(ConstraintOperations constrainOperations)
@@ -398,19 +398,19 @@ namespace VistaDB.Engine.SQL
 
     public void SetUpdated()
     {
-      this.rowUpdated = true;
+      rowUpdated = true;
     }
 
     public void ClearUpdated()
     {
-      this.rowUpdated = false;
+      rowUpdated = false;
     }
 
     public bool RowAvailable
     {
       get
       {
-        return this.rowAvailable;
+        return rowAvailable;
       }
     }
 
@@ -418,7 +418,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.rowUpdated;
+        return rowUpdated;
       }
     }
 
@@ -432,7 +432,7 @@ namespace VistaDB.Engine.SQL
 
     public IRowSet PrepareTables(IVistaDBTableNameCollection tableNames, IViewList views, TableCollection tableList, bool alwaysAllowNull, ref int tableIndex)
     {
-      SourceTable sourceTableByName = this.CreateSourceTableByName(tableNames, views);
+      SourceTable sourceTableByName = CreateSourceTableByName(tableNames, views);
       sourceTableByName.collectionOrder = tableIndex;
       if (tableList != null)
       {
@@ -489,7 +489,7 @@ namespace VistaDB.Engine.SQL
 
     internal virtual void ResetOptimization()
     {
-      this.ActiveIndex = (string) null;
+      ActiveIndex = (string) null;
     }
 
     internal virtual IVistaDBIndexCollection TemporaryIndexes
@@ -502,7 +502,7 @@ namespace VistaDB.Engine.SQL
 
     internal void SetNextTable(SourceTable table)
     {
-      this.nextTable = table;
+      nextTable = table;
     }
   }
 }

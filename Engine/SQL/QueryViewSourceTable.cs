@@ -10,20 +10,20 @@ namespace VistaDB.Engine.SQL
     public QueryViewSourceTable(Statement parent, IView view, List<string> columnNames, SelectStatement statement, string alias, int index, int lineNo, int symbolNo)
       : base(parent, view, columnNames, statement, alias, index, lineNo, symbolNo)
     {
-      this.queryTable = (IQueryResult) null;
+      queryTable = (IQueryResult) null;
     }
 
     public override IColumn SimpleGetColumn(int colIndex)
     {
-      return this.queryTable.GetColumn(colIndex);
+      return queryTable.GetColumn(colIndex);
     }
 
     public override void Close()
     {
-      if (this.queryTable == null)
+      if (queryTable == null)
         return;
-      this.queryTable.Close();
-      this.queryTable = (IQueryResult) null;
+      queryTable.Close();
+      queryTable = (IQueryResult) null;
     }
 
     public override void FreeTable()
@@ -32,33 +32,33 @@ namespace VistaDB.Engine.SQL
 
     public override int GetColumnCount()
     {
-      return this.queryTable.GetColumnCount();
+      return queryTable.GetColumnCount();
     }
 
     protected override void OnOpen(bool readOnly)
     {
-      this.queryTable = this.statement.ExecuteQuery();
+      queryTable = statement.ExecuteQuery();
     }
 
     protected override bool OnFirst()
     {
-      if (this.queryTable == null)
+      if (queryTable == null)
         return false;
-      this.queryTable.FirstRow();
-      return !this.queryTable.EndOfTable;
+      queryTable.FirstRow();
+      return !queryTable.EndOfTable;
     }
 
     protected override bool OnNext()
     {
-      this.queryTable.NextRow();
-      return !this.queryTable.EndOfTable;
+      queryTable.NextRow();
+      return !queryTable.EndOfTable;
     }
 
     public override bool Eof
     {
       get
       {
-        return this.queryTable.EndOfTable;
+        return queryTable.EndOfTable;
       }
     }
 
@@ -66,7 +66,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.queryTable != null;
+        return queryTable != null;
       }
     }
   }

@@ -4,13 +4,13 @@
   {
     internal Timestamp()
     {
-      this.ResetType(VistaDBType.Timestamp);
+      ResetType(VistaDBType.Timestamp);
     }
 
     internal Timestamp(long val)
       : base(val)
     {
-      this.ResetType(VistaDBType.Timestamp);
+      ResetType(VistaDBType.Timestamp);
     }
 
     internal Timestamp(Timestamp col)

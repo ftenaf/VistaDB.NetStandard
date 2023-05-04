@@ -16,23 +16,15 @@ namespace VistaDB.Engine.SQL
       this.row = row;
     }
 
-    private void ObfuscatorFix1()
+        public void SetRow(Row row)
     {
-    }
-
-    private void ObfuscatorFix2()
-    {
-    }
-
-    public void SetRow(Row row)
-    {
-      ++this.dataVersion;
+      ++dataVersion;
       this.row = row;
     }
 
     public override IColumn SimpleGetColumn(int colIndex)
     {
-      return (IColumn) this.row[colIndex];
+      return (IColumn) row[colIndex];
     }
 
     public override void Post()
@@ -64,7 +56,7 @@ namespace VistaDB.Engine.SQL
 
     public override int GetColumnCount()
     {
-      return this.ColumnCount;
+      return ColumnCount;
     }
 
     protected override void OnOpen(bool readOnly)
@@ -132,12 +124,12 @@ namespace VistaDB.Engine.SQL
 
     public string GetAliasName(int ordinal)
     {
-      return this.row[ordinal].Name;
+      return row[ordinal].Name;
     }
 
     public int GetColumnOrdinal(string name)
     {
-      Row.Column column = (Row.Column) ((IVistaDBRow) this.row)[name];
+      Row.Column column = (Row.Column) ((IVistaDBRow) row)[name];
       if (!(column == (Row.Column) null))
         return column.RowIndex;
       return -1;
@@ -145,7 +137,7 @@ namespace VistaDB.Engine.SQL
 
     public int GetWidth(int ordinal)
     {
-      return this.row[ordinal].MaxLength;
+      return row[ordinal].MaxLength;
     }
 
     public bool GetIsKey(int ordinal)
@@ -155,29 +147,29 @@ namespace VistaDB.Engine.SQL
 
     public string GetColumnName(int ordinal)
     {
-      return this.row[ordinal].Name;
+      return row[ordinal].Name;
     }
 
     public string GetTableName(int ordinal)
     {
-      return this.tableName;
+      return tableName;
     }
 
     public Type GetColumnType(int ordinal)
     {
-      return this.row[ordinal].SystemType;
+      return row[ordinal].SystemType;
     }
 
     public bool GetIsAllowNull(int ordinal)
     {
-      if (!this.alwaysAllowNull)
-        return this.row[ordinal].AllowNull;
+      if (!alwaysAllowNull)
+        return row[ordinal].AllowNull;
       return true;
     }
 
     public VistaDBType GetColumnVistaDBType(int ordinal)
     {
-      return this.row[ordinal].Type;
+      return row[ordinal].Type;
     }
 
     public bool GetIsAliased(int ordinal)
@@ -202,12 +194,12 @@ namespace VistaDB.Engine.SQL
 
     public bool GetIsReadOnly(int ordinal)
     {
-      return this.row[ordinal].ReadOnly;
+      return row[ordinal].ReadOnly;
     }
 
     public string GetDataTypeName(int ordinal)
     {
-      return this.row[ordinal].Type.ToString();
+      return row[ordinal].Type.ToString();
     }
 
     public DataTable GetSchemaTable()
@@ -252,7 +244,7 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.row.Count;
+        return row.Count;
       }
     }
   }

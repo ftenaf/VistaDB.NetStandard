@@ -10,26 +10,26 @@ namespace VistaDB.Engine.SQL.Signatures
     public StrFunction(SQLParser parser)
       : base(parser, -1, true)
     {
-      if (this.ParamCount < 1 || this.ParamCount > 3)
-        throw new VistaDBSQLException(501, "STR", this.lineNo, this.symbolNo);
-      this.dataType = VistaDBType.NChar;
-      this.parameterTypes[0] = VistaDBType.Decimal;
-      if (this.ParamCount <= 1)
+      if (ParamCount < 1 || ParamCount > 3)
+        throw new VistaDBSQLException(501, "STR", lineNo, symbolNo);
+      dataType = VistaDBType.NChar;
+      parameterTypes[0] = VistaDBType.Decimal;
+      if (ParamCount <= 1)
         return;
-      this.parameterTypes[1] = VistaDBType.Int;
-      if (this.ParamCount <= 2)
+      parameterTypes[1] = VistaDBType.Int;
+      if (ParamCount <= 2)
         return;
-      this.parameterTypes[2] = VistaDBType.Int;
+      parameterTypes[2] = VistaDBType.Int;
     }
 
     protected override object ExecuteSubProgram()
     {
       string empty = string.Empty;
-      Decimal num1 = (Decimal) ((IValue) this.paramValues[0]).Value;
+      Decimal num1 = (Decimal) ((IValue) paramValues[0]).Value;
       int num2;
-      if (this.ParamCount > 1)
+      if (ParamCount > 1)
       {
-        num2 = (int) ((IValue) this.paramValues[1]).Value;
+        num2 = (int) ((IValue) paramValues[1]).Value;
         if (num2 <= 0)
           return (object) null;
       }
@@ -38,9 +38,9 @@ namespace VistaDB.Engine.SQL.Signatures
       for (int index = 0; index < num2 - 1; ++index)
         empty += "#";
       string format = empty + (object) '0';
-      if (this.ParamCount > 2)
+      if (ParamCount > 2)
       {
-        int num3 = (int) ((IValue) this.paramValues[2]).Value;
+        int num3 = (int) ((IValue) paramValues[2]).Value;
         if (num3 > 16)
           num3 = 16;
         else if (num3 < 0)

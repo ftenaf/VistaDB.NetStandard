@@ -14,7 +14,7 @@
 
     internal PCodeUnit(PCodeUnit unit)
     {
-      this.CopyFrom(unit);
+      CopyFrom(unit);
     }
 
     internal PCodeUnit(Signature signature)
@@ -26,11 +26,11 @@
     {
       get
       {
-        return this.signature;
+        return signature;
       }
       set
       {
-        this.signature = value;
+        signature = value;
       }
     }
 
@@ -38,11 +38,11 @@
     {
       get
       {
-        return this.activeStorage;
+        return activeStorage;
       }
       set
       {
-        this.activeStorage = value;
+        activeStorage = value;
       }
     }
 
@@ -50,11 +50,11 @@
     {
       get
       {
-        return this.delimiters;
+        return delimiters;
       }
       set
       {
-        this.delimiters = value;
+        delimiters = value;
       }
     }
 
@@ -62,11 +62,11 @@
     {
       get
       {
-        return this.parameters;
+        return parameters;
       }
       set
       {
-        this.parameters = value;
+        parameters = value;
       }
     }
 
@@ -74,11 +74,11 @@
     {
       get
       {
-        return this.depth;
+        return depth;
       }
       set
       {
-        this.depth = value;
+        depth = value;
       }
     }
 
@@ -86,11 +86,11 @@
     {
       get
       {
-        return this.bgnOffset;
+        return bgnOffset;
       }
       set
       {
-        this.bgnOffset = value;
+        bgnOffset = value;
       }
     }
 
@@ -98,11 +98,11 @@
     {
       get
       {
-        return this.endOffset;
+        return endOffset;
       }
       set
       {
-        this.endOffset = value;
+        endOffset = value;
       }
     }
 
@@ -110,11 +110,11 @@
     {
       get
       {
-        return this.resultRow;
+        return resultRow;
       }
       set
       {
-        this.resultRow = value;
+        resultRow = value;
       }
     }
 
@@ -122,11 +122,11 @@
     {
       get
       {
-        return this.resultColumn;
+        return resultColumn;
       }
       set
       {
-        this.resultColumn = value;
+        resultColumn = value;
       }
     }
 
@@ -134,20 +134,20 @@
     {
       if (unit == this)
         return;
-      this.signature = unit.signature;
-      this.activeStorage = unit.activeStorage;
-      this.resultRow = unit.resultRow;
-      this.resultColumn = unit.resultColumn;
-      this.delimiters = unit.delimiters;
-      this.parameters = unit.parameters;
-      this.depth = unit.depth;
-      this.bgnOffset = unit.bgnOffset;
-      this.endOffset = unit.endOffset;
+      signature = unit.signature;
+      activeStorage = unit.activeStorage;
+      resultRow = unit.resultRow;
+      resultColumn = unit.resultColumn;
+      delimiters = unit.delimiters;
+      parameters = unit.parameters;
+      depth = unit.depth;
+      bgnOffset = unit.bgnOffset;
+      endOffset = unit.endOffset;
     }
 
     public override string ToString()
     {
-      return new string(this.signature.Name);
+      return new string(signature.Name);
     }
   }
 }

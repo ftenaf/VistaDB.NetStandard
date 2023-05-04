@@ -9,9 +9,9 @@
 
     public SqlMetaData(string name, VistaDBType dbType, bool allowNull)
     {
-      this.Name = name;
-      this.VistaDBType = dbType;
-      this.AllowNull = allowNull;
+      Name = name;
+      VistaDBType = dbType;
+      AllowNull = allowNull;
     }
 
     public SqlMetaData(string name, VistaDBType dbType, int maxLength)
@@ -21,10 +21,10 @@
 
     public SqlMetaData(string name, VistaDBType dbType, bool allowNull, int maxLength)
     {
-      this.Name = name;
-      this.VistaDBType = dbType;
-      this.AllowNull = allowNull;
-      this.MaxLength = maxLength;
+      Name = name;
+      VistaDBType = dbType;
+      AllowNull = allowNull;
+      MaxLength = maxLength;
     }
 
     public VistaDBType VistaDBType { get; private set; }

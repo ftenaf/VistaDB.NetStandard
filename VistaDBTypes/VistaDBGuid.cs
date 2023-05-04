@@ -10,7 +10,7 @@ namespace VistaDB.VistaDBTypes
 
     public VistaDBGuid(Guid val)
     {
-      this.Value = (object) val;
+      Value = (object) val;
     }
 
     public override object Value
@@ -33,7 +33,7 @@ namespace VistaDB.VistaDBTypes
       }
     }
 
-    public override System.Type SystemType
+    public override Type SystemType
     {
       get
       {
@@ -43,22 +43,22 @@ namespace VistaDB.VistaDBTypes
 
     public Guid GetValueOrDefault()
     {
-      if (this.HasValue)
-        return (Guid) this.Value;
+      if (HasValue)
+        return (Guid) Value;
       return new Guid();
     }
 
     public Guid GetValueOrDefault(Guid defaultValue)
     {
-      if (this.HasValue)
-        return (Guid) this.Value;
+      if (HasValue)
+        return (Guid) Value;
       return defaultValue;
     }
 
     public Guid GetValueOrDefault(VistaDBGuid defaultValue)
     {
-      if (this.HasValue)
-        return (Guid) this.Value;
+      if (HasValue)
+        return (Guid) Value;
       return (Guid) defaultValue.Value;
     }
   }

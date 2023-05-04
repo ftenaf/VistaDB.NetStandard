@@ -13,13 +13,13 @@ namespace VistaDB.Engine.SQL
     public Statement CreateStatement(LocalSQLConnection conn, Statement parent, SQLParser parser, long id)
     {
       parser.SkipToken(true);
-      IStatementDescr statement = (IStatementDescr) this.statements[(object) parser.TokenValue.Token.ToUpper(CultureInfo.InvariantCulture)];
+      IStatementDescr statement = (IStatementDescr) statements[(object) parser.TokenValue.Token.ToUpper(CultureInfo.InvariantCulture)];
       if (statement != null)
         return statement.CreateStatement(conn, parent, parser, id);
-      if (this.elseStatementDescr != null)
-        return this.elseStatementDescr.CreateStatement(conn, parent, parser, id);
+      if (elseStatementDescr != null)
+        return elseStatementDescr.CreateStatement(conn, parent, parser, id);
       string hint = "";
-      foreach (string key in (IEnumerable) this.statements.Keys)
+      foreach (string key in (IEnumerable) statements.Keys)
       {
         if (hint.Length != 0)
           hint += ", ";

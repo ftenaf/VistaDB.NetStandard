@@ -14,7 +14,7 @@ namespace VistaDB.Engine.SQL
 
     protected override IQueryResult OnExecuteQuery()
     {
-      foreach (Statement statement in (List<Statement>) this.statements)
+      foreach (Statement statement in (List<Statement>) statements)
       {
         if (statement.ExecuteQuery() != null)
           throw new Exception("Select statements included within a function cannot return data to a client.");
@@ -24,15 +24,15 @@ namespace VistaDB.Engine.SQL
 
     public override CreateTableStatement DoGetTemporaryTableName(string paramName)
     {
-      if (this.parent != null)
+      if (parent != null)
       {
-        IParameter returnParameter = this.parent.DoGetReturnParameter();
+        IParameter returnParameter = parent.DoGetReturnParameter();
         if (returnParameter != null && returnParameter.DataType == VistaDBType.Unknown && returnParameter.Direction == ParameterDirection.ReturnValue)
-          this.DoRegisterTemporaryTableName(paramName, returnParameter.Value as CreateTableStatement);
-        this.parent.DoSetReturnParameter((IParameter) null);
+          DoRegisterTemporaryTableName(paramName, returnParameter.Value as CreateTableStatement);
+        parent.DoSetReturnParameter((IParameter) null);
       }
-      if (this.tempTables.ContainsKey(paramName))
-        return this.tempTables[paramName];
+      if (tempTables.ContainsKey(paramName))
+        return tempTables[paramName];
       return (CreateTableStatement) null;
     }
 

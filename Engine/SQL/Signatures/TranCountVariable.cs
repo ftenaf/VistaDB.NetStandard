@@ -11,18 +11,18 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override IColumn InternalExecute()
     {
-      if (this.parent.Connection.Database == null)
-        ((IValue) this.Result).Value = (object) -1;
+      if (parent.Connection.Database == null)
+        ((IValue) Result).Value = (object) -1;
       else
-        ((IValue) this.result).Value = (object) this.parent.Connection.Database.NestedTransactionLevel;
-      this.parent.Connection.CachedAffectedRows = 1L;
-      return this.result;
+        ((IValue) result).Value = (object) parent.Connection.Database.NestedTransactionLevel;
+      parent.Connection.CachedAffectedRows = 1L;
+      return result;
     }
 
     public override SignatureType OnPrepare()
     {
-      this.dataType = VistaDBType.Int;
-      return this.signatureType;
+      dataType = VistaDBType.Int;
+      return signatureType;
     }
 
     protected override bool InternalGetIsChanged()

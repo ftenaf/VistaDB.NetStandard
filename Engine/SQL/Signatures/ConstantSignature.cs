@@ -12,52 +12,40 @@ namespace VistaDB.Engine.SQL.Signatures
     private bool isChanged;
     private object val;
 
-    private ConstantSignature(IColumn result, SQLParser parser)
-      : base(parser)
-    {
-      this.val = ((IValue) result).Value;
-      this.isAllowNull = this.val == null;
-      this.signatureType = SignatureType.Constant;
-      this.result = result;
-      this.dataType = result.Type;
-      this.isChanged = true;
-      this.optimizable = true;
-    }
-
-    private ConstantSignature(object val, VistaDBType dataType, SQLParser parser)
+        private ConstantSignature(object val, VistaDBType dataType, SQLParser parser)
       : base(parser)
     {
       this.val = val;
-      this.isAllowNull = this.val == null;
-      this.signatureType = SignatureType.Constant;
+      isAllowNull = this.val == null;
+      signatureType = SignatureType.Constant;
       this.dataType = dataType;
-      this.isChanged = true;
-      this.optimizable = true;
+      isChanged = true;
+      optimizable = true;
     }
 
     private ConstantSignature(IColumn result, VistaDBType dataType, Statement parent)
       : base(parent)
     {
-      this.result = this.CreateColumn(dataType);
-      this.Convert((IValue) result, (IValue) this.result);
-      this.val = ((IValue) this.result).Value;
-      this.isAllowNull = this.val == null;
-      this.signatureType = SignatureType.Constant;
+      this.result = CreateColumn(dataType);
+      Convert((IValue) result, (IValue) this.result);
+      val = ((IValue) this.result).Value;
+      isAllowNull = val == null;
+      signatureType = SignatureType.Constant;
       this.dataType = dataType;
-      this.isChanged = true;
-      this.optimizable = true;
+      isChanged = true;
+      optimizable = true;
     }
 
     private ConstantSignature(IColumn result, Statement parent)
       : base(parent)
     {
       this.result = result;
-      this.val = ((IValue) this.result).Value;
-      this.isAllowNull = this.val == null;
-      this.signatureType = SignatureType.Constant;
-      this.dataType = result.Type;
-      this.isChanged = true;
-      this.optimizable = true;
+      val = ((IValue) this.result).Value;
+      isAllowNull = val == null;
+      signatureType = SignatureType.Constant;
+      dataType = result.Type;
+      isChanged = true;
+      optimizable = true;
     }
 
     internal static ConstantSignature CreateSignature(SQLParser parser)
@@ -102,31 +90,31 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override IColumn InternalExecute()
     {
-      if (this.isChanged)
+      if (isChanged)
       {
-        ((IValue) this.result).Value = this.val;
-        this.isChanged = false;
+        ((IValue) result).Value = val;
+        isChanged = false;
       }
-      return this.result;
+      return result;
     }
 
     protected override void OnSimpleExecute()
     {
-      if (!this.isChanged)
+      if (!isChanged)
         return;
-      ((IValue) this.result).Value = this.val;
+      ((IValue) result).Value = val;
     }
 
     protected override bool OnOptimize(ConstraintOperations constrainOperations)
     {
-      if (this.dataType == VistaDBType.Bit)
+      if (dataType == VistaDBType.Bit)
         return constrainOperations.AddLogicalExpression((Signature) this);
       return false;
     }
 
     public override SignatureType OnPrepare()
     {
-      return this.signatureType;
+      return signatureType;
     }
 
     public override bool HasAggregateFunction(out bool distinct)
@@ -137,22 +125,22 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public override int GetWidth()
     {
-      if (!Utils.IsCharacterDataType(this.dataType))
+      if (!Utils.IsCharacterDataType(dataType))
         return base.GetWidth();
-      if (this.val != null)
-        return ((string) this.val).Length;
+      if (val != null)
+        return ((string) val).Length;
       return 0;
     }
 
     protected override bool IsEquals(Signature signature)
     {
-      if (!(signature is ConstantSignature) || signature.DataType != this.dataType)
+      if (!(signature is ConstantSignature) || signature.DataType != dataType)
         return false;
       ConstantSignature constantSignature = (ConstantSignature) signature;
-      if (this.val == null && constantSignature.val == null)
+      if (val == null && constantSignature.val == null)
         return true;
-      if (this.val != null && constantSignature.val != null)
-        return ((IComparable) this.val).CompareTo(constantSignature.val) == 0;
+      if (val != null && constantSignature.val != null)
+        return ((IComparable) val).CompareTo(constantSignature.val) == 0;
       return false;
     }
 
@@ -162,14 +150,14 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public override void SetChanged()
     {
-      this.isChanged = true;
+      isChanged = true;
     }
 
     public override void ClearChanged()
     {
-      if (this.result == null)
+      if (result == null)
         return;
-      this.isChanged = false;
+      isChanged = false;
     }
 
     public static Signature PrepareAndCheckConstant(Signature signature, VistaDBType preferenceType)
@@ -261,13 +249,13 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.val == null;
+        return val == null;
       }
     }
 
     protected override bool InternalGetIsChanged()
     {
-      return this.isChanged;
+      return isChanged;
     }
 
     public override int ColumnCount

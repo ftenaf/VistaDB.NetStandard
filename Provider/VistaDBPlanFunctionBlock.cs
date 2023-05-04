@@ -5,7 +5,7 @@
     private string functionName;
 
     internal VistaDBPlanFunctionBlock(string functionName)
-      : base(VistaDBPlanBlock.BlockType.Function, (VistaDBPlanBlock[]) null)
+      : base(BlockType.Function, (VistaDBPlanBlock[]) null)
     {
       this.functionName = functionName;
     }
@@ -14,7 +14,7 @@
     {
       get
       {
-        return this.functionName;
+        return functionName;
       }
     }
   }

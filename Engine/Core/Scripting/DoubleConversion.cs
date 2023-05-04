@@ -5,9 +5,9 @@ namespace VistaDB.Engine.Core.Scripting
   internal class DoubleConversion : Signature
   {
     internal DoubleConversion(string name, int groupId, int endOfGroupId)
-      : base(name, groupId, Signature.Operations.BgnGroup, Signature.Priorities.StdOperator, VistaDBType.Float, endOfGroupId)
+      : base(name, groupId, Operations.BgnGroup, Priorities.StdOperator, VistaDBType.Float, endOfGroupId)
     {
-      this.AddParameter(VistaDBType.Unknown);
+      AddParameter(VistaDBType.Unknown);
     }
 
     protected override void OnExecute(ProcedureCode pcode, int entry, Connection connection, DataStorage contextStorage, Row contextRow, ref bool bypassNextGroup, Row rowResult)

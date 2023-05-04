@@ -99,7 +99,7 @@ namespace VistaDB.Engine.Core
 
     protected override Row DoAllocateDefaultRow()
     {
-      return this.parentTableSchema.CopyInstance();
+      return parentTableSchema.CopyInstance();
     }
 
     protected override void OnCreateIndex()

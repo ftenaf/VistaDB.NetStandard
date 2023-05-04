@@ -8,16 +8,16 @@ namespace VistaDB.Engine.SQL.Signatures
     public DateAddFunction(SQLParser parser)
       : base(parser, 2)
     {
-      this.parameterTypes[0] = VistaDBType.Int;
-      this.parameterTypes[1] = VistaDBType.DateTime;
-      this.dataType = VistaDBType.DateTime;
+      parameterTypes[0] = VistaDBType.Int;
+      parameterTypes[1] = VistaDBType.DateTime;
+      dataType = VistaDBType.DateTime;
     }
 
     protected override object ExecuteSubProgram()
     {
-      int months = (int) ((IValue) this.paramValues[0]).Value;
-      DateTime dateTime = (DateTime) ((IValue) this.paramValues[1]).Value;
-      switch (this.datePart)
+      int months = (int) ((IValue) paramValues[0]).Value;
+      DateTime dateTime = (DateTime) ((IValue) paramValues[1]).Value;
+      switch (datePart)
       {
         case DatePart.Year:
           return (object) dateTime.AddYears(months);

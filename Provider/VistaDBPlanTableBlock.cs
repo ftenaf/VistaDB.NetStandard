@@ -7,7 +7,7 @@
     private string joinedTable;
 
     internal VistaDBPlanTableBlock(string tableName, string indexName, string joinedTable)
-      : base(VistaDBPlanBlock.BlockType.Table, (VistaDBPlanBlock[]) null)
+      : base(BlockType.Table, (VistaDBPlanBlock[]) null)
     {
       this.tableName = tableName;
       this.indexName = indexName;
@@ -18,7 +18,7 @@
     {
       get
       {
-        return this.tableName;
+        return tableName;
       }
     }
 
@@ -26,7 +26,7 @@
     {
       get
       {
-        return this.indexName;
+        return indexName;
       }
     }
 
@@ -34,7 +34,7 @@
     {
       get
       {
-        return this.joinedTable;
+        return joinedTable;
       }
     }
   }

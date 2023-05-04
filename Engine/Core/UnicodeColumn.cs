@@ -26,11 +26,11 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (string) this.Value;
+        return (string) Value;
       }
       set
       {
-        this.Value = (object) value;
+        Value = (object) value;
       }
     }
 

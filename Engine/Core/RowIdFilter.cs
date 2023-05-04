@@ -6,73 +6,73 @@ namespace VistaDB.Engine.Core
 {
   internal class RowIdFilter : Filter, IOptimizedFilter
   {
-    private RowIdFilter.ActiveRows activeRows;
+    private ActiveRows activeRows;
     private long rowCount;
 
     private RowIdFilter(RowIdFilter filter)
-      : base((EvalStack) null, Filter.FilterType.Optimized, true, false, 1)
+      : base((EvalStack) null, FilterType.Optimized, true, false, 1)
     {
-      this.activeRows = filter.activeRows.Clone();
-      this.rowCount = filter.rowCount;
+      activeRows = filter.activeRows.Clone();
+      rowCount = filter.rowCount;
     }
 
     internal RowIdFilter(uint maxRowId)
-      : base((EvalStack) null, Filter.FilterType.Optimized, true, false, 1)
+      : base((EvalStack) null, FilterType.Optimized, true, false, 1)
     {
-      this.activeRows = new RowIdFilter.ActiveRows(maxRowId);
+      activeRows = new ActiveRows(maxRowId);
     }
 
     protected RowIdFilter()
-      : base((EvalStack) null, Filter.FilterType.Optimized, true, false, 1)
+      : base((EvalStack) null, FilterType.Optimized, true, false, 1)
     {
-      this.activeRows = (RowIdFilter.ActiveRows) null;
+      activeRows = (ActiveRows) null;
     }
 
     protected override bool OnGetValidRowStatus(Row row)
     {
-      return this.activeRows.GetValidStatus(row.RowId);
+      return activeRows.GetValidStatus(row.RowId);
     }
 
     protected override void OnSetRowStatus(Row row, bool valid)
     {
       if (valid)
         return;
-      this.SetValidStatus(row, false);
+      SetValidStatus(row, false);
     }
 
     protected virtual long OnConjunction(IOptimizedFilter filter)
     {
       if (filter.IsConstant())
-        return this.activeRows.ConjunctionConstant(((ConstantRowIdFilter) filter).Constant);
-      return this.activeRows.Conjunction(((RowIdFilter) filter).activeRows);
+        return activeRows.ConjunctionConstant(((ConstantRowIdFilter) filter).Constant);
+      return activeRows.Conjunction(((RowIdFilter) filter).activeRows);
     }
 
     protected virtual long OnDisjunction(IOptimizedFilter filter)
     {
       if (filter.IsConstant())
-        return this.activeRows.DisjunctionConstant(((ConstantRowIdFilter) filter).Constant);
-      return this.activeRows.Disjunction(((RowIdFilter) filter).activeRows);
+        return activeRows.DisjunctionConstant(((ConstantRowIdFilter) filter).Constant);
+      return activeRows.Disjunction(((RowIdFilter) filter).activeRows);
     }
 
     protected virtual long OnInvert(bool instant)
     {
-      this.rowCount = this.activeRows.Invert(instant);
-      return this.rowCount;
+      rowCount = activeRows.Invert(instant);
+      return rowCount;
     }
 
     public void Conjunction(IOptimizedFilter filter)
     {
-      this.rowCount = this.OnConjunction(filter);
+      rowCount = OnConjunction(filter);
     }
 
     public void Disjunction(IOptimizedFilter filter)
     {
-      this.rowCount = this.OnDisjunction(filter);
+      rowCount = OnDisjunction(filter);
     }
 
     public void Invert(bool instant)
     {
-      this.rowCount = this.OnInvert(instant);
+      rowCount = OnInvert(instant);
     }
 
     public virtual bool IsConstant()
@@ -84,20 +84,20 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.rowCount;
+        return rowCount;
       }
     }
 
     internal void SetValidStatus(Row CurrentRow, bool setTrueValue)
     {
       if (setTrueValue)
-        ++this.rowCount;
-      this.activeRows.SetValidStatus(CurrentRow.RowId, setTrueValue);
+        ++rowCount;
+      activeRows.SetValidStatus(CurrentRow.RowId, setTrueValue);
     }
 
     internal void PrepareAttachment()
     {
-      this.activeRows.PrepareAttachment();
+      activeRows.PrepareAttachment();
     }
 
     internal RowIdFilter Clone()
@@ -107,39 +107,39 @@ namespace VistaDB.Engine.Core
 
     private class ActiveRows
     {
-      private static byte[,] andMatrix = RowIdFilter.ActiveRows.TriangularLogicTableFunction.AndLogic();
-      private static byte[,] orMatrix = RowIdFilter.ActiveRows.TriangularLogicTableFunction.OrLogic();
-      private static byte[] notMatrix = RowIdFilter.ActiveRows.TriangularLogicTableFunction.NotLogic();
-      private static byte[] countMatrix = RowIdFilter.ActiveRows.TriangularLogicTableFunction.CountLogic();
+      private static byte[,] andMatrix = TriangularLogicTableFunction.AndLogic();
+      private static byte[,] orMatrix = TriangularLogicTableFunction.OrLogic();
+      private static byte[] notMatrix = TriangularLogicTableFunction.NotLogic();
+      private static byte[] countMatrix = TriangularLogicTableFunction.CountLogic();
       private byte[] statusArray;
       private bool inverted;
 
-      private ActiveRows(RowIdFilter.ActiveRows activeRows)
+      private ActiveRows(ActiveRows activeRows)
       {
-        this.statusArray = new byte[activeRows.statusArray.Length];
-        Array.Copy((Array) activeRows.statusArray, (Array) this.statusArray, this.statusArray.Length);
-        this.inverted = activeRows.inverted;
+        statusArray = new byte[activeRows.statusArray.Length];
+        Array.Copy((Array) activeRows.statusArray, (Array) statusArray, statusArray.Length);
+        inverted = activeRows.inverted;
       }
 
       internal ActiveRows(uint maxRowId)
       {
-        this.statusArray = new byte[(maxRowId / 4U + 1U)];
+        statusArray = new byte[(maxRowId / 4U + 1U)];
         byte num = 170;
         int index1 = 0;
-        for (int length = this.statusArray.Length; index1 < length; ++index1)
-          this.statusArray[index1] = num;
-        this.SetValidStatus(0U, false);
+        for (int length = statusArray.Length; index1 < length; ++index1)
+          statusArray[index1] = num;
+        SetValidStatus(0U, false);
         uint rowId = maxRowId + 1U;
-        for (uint index2 = (uint) (this.statusArray.Length * 4); rowId < index2; ++rowId)
-          this.SetValidStatus(rowId, false);
+        for (uint index2 = (uint) (statusArray.Length * 4); rowId < index2; ++rowId)
+          SetValidStatus(rowId, false);
       }
 
       internal bool GetValidStatus(uint rowId)
       {
         uint num1 = rowId / 4U;
         byte num2 = (byte) (3U << (int) (2U * (rowId % 4U)));
-        if ((long) num1 < (long) this.statusArray.Length)
-          return (int) (byte) ((uint) this.statusArray[num1] & (uint) num2) == (int) num2;
+        if ((long) num1 < (long) statusArray.Length)
+          return (int) (byte) ((uint) statusArray[num1] & (uint) num2) == (int) num2;
         return false;
       }
 
@@ -147,7 +147,7 @@ namespace VistaDB.Engine.Core
       {
         uint num1 = rowId / 4U;
         byte num2 = (byte) (3U << (int) (2U * (rowId % 4U)));
-        if ((long) num1 >= (long) this.statusArray.Length)
+        if ((long) num1 >= (long) statusArray.Length)
           return;
         if (setTrueValue)
           statusArray[num1] |= num2;
@@ -157,130 +157,130 @@ namespace VistaDB.Engine.Core
 
       internal long Invert(bool instant)
       {
-        this.inverted = !this.inverted;
+        inverted = !inverted;
         long num1 = 0;
-        if (instant && this.inverted)
+        if (instant && inverted)
         {
           int index = 0;
-          for (int length = this.statusArray.Length; index < length; ++index)
+          for (int length = statusArray.Length; index < length; ++index)
           {
-            byte num2 = RowIdFilter.ActiveRows.notMatrix[(int) this.statusArray[index]];
-            this.statusArray[index] = num2;
-            num1 += (long) RowIdFilter.ActiveRows.countMatrix[(int) num2];
+            byte num2 = notMatrix[(int) statusArray[index]];
+            statusArray[index] = num2;
+            num1 += (long)countMatrix[(int) num2];
           }
-          this.inverted = false;
+          inverted = false;
         }
         return num1;
       }
 
-      internal long Disjunction(RowIdFilter.ActiveRows filter)
+      internal long Disjunction(ActiveRows filter)
       {
         long num1 = 0;
-        if (this.inverted && filter.inverted)
+        if (inverted && filter.inverted)
         {
           int index = 0;
-          for (int length = this.statusArray.Length; index < length; ++index)
+          for (int length = statusArray.Length; index < length; ++index)
           {
-            byte num2 = RowIdFilter.ActiveRows.notMatrix[(int) this.statusArray[index]];
-            byte num3 = RowIdFilter.ActiveRows.notMatrix[(int) filter.statusArray[index]];
-            byte num4 = RowIdFilter.ActiveRows.orMatrix[(int) num2, (int) num3];
-            this.statusArray[index] = num4;
-            num1 += (long) RowIdFilter.ActiveRows.countMatrix[(int) num4];
+            byte num2 = notMatrix[(int) statusArray[index]];
+            byte num3 = notMatrix[(int) filter.statusArray[index]];
+            byte num4 = orMatrix[(int) num2, (int) num3];
+            statusArray[index] = num4;
+            num1 += (long)countMatrix[(int) num4];
           }
         }
-        else if (this.inverted)
+        else if (inverted)
         {
           int index = 0;
-          for (int length = this.statusArray.Length; index < length; ++index)
+          for (int length = statusArray.Length; index < length; ++index)
           {
-            byte num2 = RowIdFilter.ActiveRows.notMatrix[(int) this.statusArray[index]];
+            byte num2 = notMatrix[(int) statusArray[index]];
             byte status = filter.statusArray[index];
-            byte num3 = RowIdFilter.ActiveRows.orMatrix[(int) num2, (int) status];
-            this.statusArray[index] = num3;
-            num1 += (long) RowIdFilter.ActiveRows.countMatrix[(int) num3];
+            byte num3 = orMatrix[(int) num2, (int) status];
+            statusArray[index] = num3;
+            num1 += (long)countMatrix[(int) num3];
           }
         }
         else if (filter.inverted)
         {
           int index = 0;
-          for (int length = this.statusArray.Length; index < length; ++index)
+          for (int length = statusArray.Length; index < length; ++index)
           {
-            byte status = this.statusArray[index];
-            byte num2 = RowIdFilter.ActiveRows.notMatrix[(int) filter.statusArray[index]];
-            byte num3 = RowIdFilter.ActiveRows.orMatrix[(int) status, (int) num2];
-            this.statusArray[index] = num3;
-            num1 += (long) RowIdFilter.ActiveRows.countMatrix[(int) num3];
+            byte status = statusArray[index];
+            byte num2 = notMatrix[(int) filter.statusArray[index]];
+            byte num3 = orMatrix[(int) status, (int) num2];
+            statusArray[index] = num3;
+            num1 += (long)countMatrix[(int) num3];
           }
         }
         else
         {
           int index = 0;
-          for (int length = this.statusArray.Length; index < length; ++index)
+          for (int length = statusArray.Length; index < length; ++index)
           {
-            byte status1 = this.statusArray[index];
+            byte status1 = statusArray[index];
             byte status2 = filter.statusArray[index];
-            byte num2 = RowIdFilter.ActiveRows.orMatrix[(int) status1, (int) status2];
-            this.statusArray[index] = num2;
-            num1 += (long) RowIdFilter.ActiveRows.countMatrix[(int) num2];
+            byte num2 = orMatrix[(int) status1, (int) status2];
+            statusArray[index] = num2;
+            num1 += (long)countMatrix[(int) num2];
           }
         }
-        this.inverted = false;
+        inverted = false;
         filter.inverted = false;
         return num1;
       }
 
-      internal long Conjunction(RowIdFilter.ActiveRows filter)
+      internal long Conjunction(ActiveRows filter)
       {
         long num1 = 0;
-        if (this.inverted && filter.inverted)
+        if (inverted && filter.inverted)
         {
           int index = 0;
-          for (int length = this.statusArray.Length; index < length; ++index)
+          for (int length = statusArray.Length; index < length; ++index)
           {
-            byte num2 = RowIdFilter.ActiveRows.notMatrix[(int) this.statusArray[index]];
-            byte num3 = RowIdFilter.ActiveRows.notMatrix[(int) filter.statusArray[index]];
-            byte num4 = RowIdFilter.ActiveRows.andMatrix[(int) num2, (int) num3];
-            this.statusArray[index] = num4;
-            num1 += (long) RowIdFilter.ActiveRows.countMatrix[(int) num4];
+            byte num2 = notMatrix[(int) statusArray[index]];
+            byte num3 = notMatrix[(int) filter.statusArray[index]];
+            byte num4 = andMatrix[(int) num2, (int) num3];
+            statusArray[index] = num4;
+            num1 += (long)countMatrix[(int) num4];
           }
         }
-        else if (this.inverted)
+        else if (inverted)
         {
           int index = 0;
-          for (int length = this.statusArray.Length; index < length; ++index)
+          for (int length = statusArray.Length; index < length; ++index)
           {
-            byte num2 = RowIdFilter.ActiveRows.notMatrix[(int) this.statusArray[index]];
+            byte num2 = notMatrix[(int) statusArray[index]];
             byte status = filter.statusArray[index];
-            byte num3 = RowIdFilter.ActiveRows.andMatrix[(int) num2, (int) status];
-            this.statusArray[index] = num3;
-            num1 += (long) RowIdFilter.ActiveRows.countMatrix[(int) num3];
+            byte num3 = andMatrix[(int) num2, (int) status];
+            statusArray[index] = num3;
+            num1 += (long)countMatrix[(int) num3];
           }
         }
         else if (filter.inverted)
         {
           int index = 0;
-          for (int length = this.statusArray.Length; index < length; ++index)
+          for (int length = statusArray.Length; index < length; ++index)
           {
-            byte status = this.statusArray[index];
-            byte num2 = RowIdFilter.ActiveRows.notMatrix[(int) filter.statusArray[index]];
-            byte num3 = RowIdFilter.ActiveRows.andMatrix[(int) status, (int) num2];
-            this.statusArray[index] = num3;
-            num1 += (long) RowIdFilter.ActiveRows.countMatrix[(int) num3];
+            byte status = statusArray[index];
+            byte num2 = notMatrix[(int) filter.statusArray[index]];
+            byte num3 = andMatrix[(int) status, (int) num2];
+            statusArray[index] = num3;
+            num1 += (long)countMatrix[(int) num3];
           }
         }
         else
         {
           int index = 0;
-          for (int length = this.statusArray.Length; index < length; ++index)
+          for (int length = statusArray.Length; index < length; ++index)
           {
-            byte status1 = this.statusArray[index];
+            byte status1 = statusArray[index];
             byte status2 = filter.statusArray[index];
-            byte num2 = RowIdFilter.ActiveRows.andMatrix[(int) status1, (int) status2];
-            this.statusArray[index] = num2;
-            num1 += (long) RowIdFilter.ActiveRows.countMatrix[(int) num2];
+            byte num2 = andMatrix[(int) status1, (int) status2];
+            statusArray[index] = num2;
+            num1 += (long)countMatrix[(int) num2];
           }
         }
-        this.inverted = false;
+        inverted = false;
         filter.inverted = false;
         return num1;
       }
@@ -289,29 +289,29 @@ namespace VistaDB.Engine.Core
       {
         long num1 = 0;
         byte num2 = (byte) (triangular | (Triangular.Value) ((int) triangular << 2) | (Triangular.Value) ((int) triangular << 4) | (Triangular.Value) ((int) triangular << 6));
-        if (this.inverted)
+        if (inverted)
         {
           int index = 0;
-          for (int length = this.statusArray.Length; index < length; ++index)
+          for (int length = statusArray.Length; index < length; ++index)
           {
-            byte num3 = RowIdFilter.ActiveRows.notMatrix[(int) this.statusArray[index]];
-            byte num4 = RowIdFilter.ActiveRows.orMatrix[(int) num3, (int) num2];
-            this.statusArray[index] = num4;
-            num1 += (long) RowIdFilter.ActiveRows.countMatrix[(int) num4];
+            byte num3 = notMatrix[(int) statusArray[index]];
+            byte num4 = orMatrix[(int) num3, (int) num2];
+            statusArray[index] = num4;
+            num1 += (long)countMatrix[(int) num4];
           }
         }
         else
         {
           int index = 0;
-          for (int length = this.statusArray.Length; index < length; ++index)
+          for (int length = statusArray.Length; index < length; ++index)
           {
-            byte status = this.statusArray[index];
-            byte num3 = RowIdFilter.ActiveRows.orMatrix[(int) status, (int) num2];
-            this.statusArray[index] = num3;
-            num1 += (long) RowIdFilter.ActiveRows.countMatrix[(int) num3];
+            byte status = statusArray[index];
+            byte num3 = orMatrix[(int) status, (int) num2];
+            statusArray[index] = num3;
+            num1 += (long)countMatrix[(int) num3];
           }
         }
-        this.inverted = false;
+        inverted = false;
         return num1;
       }
 
@@ -319,44 +319,44 @@ namespace VistaDB.Engine.Core
       {
         long num1 = 0;
         byte num2 = (byte) (triangular | (Triangular.Value) ((int) triangular << 2) | (Triangular.Value) ((int) triangular << 4) | (Triangular.Value) ((int) triangular << 6));
-        if (this.inverted)
+        if (inverted)
         {
           int index = 0;
-          for (int length = this.statusArray.Length; index < length; ++index)
+          for (int length = statusArray.Length; index < length; ++index)
           {
-            byte num3 = RowIdFilter.ActiveRows.notMatrix[(int) this.statusArray[index]];
-            byte num4 = RowIdFilter.ActiveRows.orMatrix[(int) num3, (int) num2];
-            this.statusArray[index] = num4;
-            num1 += (long) RowIdFilter.ActiveRows.countMatrix[(int) num4];
+            byte num3 = notMatrix[(int) statusArray[index]];
+            byte num4 = orMatrix[(int) num3, (int) num2];
+            statusArray[index] = num4;
+            num1 += (long)countMatrix[(int) num4];
           }
         }
         else
         {
           int index = 0;
-          for (int length = this.statusArray.Length; index < length; ++index)
+          for (int length = statusArray.Length; index < length; ++index)
           {
-            byte status = this.statusArray[index];
-            byte num3 = RowIdFilter.ActiveRows.andMatrix[(int) status, (int) num2];
-            this.statusArray[index] = num3;
-            num1 += (long) RowIdFilter.ActiveRows.countMatrix[(int) num3];
+            byte status = statusArray[index];
+            byte num3 = andMatrix[(int) status, (int) num2];
+            statusArray[index] = num3;
+            num1 += (long)countMatrix[(int) num3];
           }
         }
-        this.inverted = false;
+        inverted = false;
         return num1;
       }
 
       internal void PrepareAttachment()
       {
-        if (!this.inverted)
+        if (!inverted)
           return;
         int index = 0;
-        for (int length = this.statusArray.Length; index < length; ++index)
-          this.statusArray[index] = RowIdFilter.ActiveRows.notMatrix[(int) this.statusArray[index]];
+        for (int length = statusArray.Length; index < length; ++index)
+          statusArray[index] = notMatrix[(int) statusArray[index]];
       }
 
-      internal RowIdFilter.ActiveRows Clone()
+      internal ActiveRows Clone()
       {
-        return new RowIdFilter.ActiveRows(this);
+        return new ActiveRows(this);
       }
 
       private class TriangularLogicTableFunction
@@ -367,16 +367,16 @@ namespace VistaDB.Engine.Core
         {
           get
           {
-            byte[] numArray = new byte[RowIdFilter.ActiveRows.TriangularLogicTableFunction.values.Length * RowIdFilter.ActiveRows.TriangularLogicTableFunction.values.Length * RowIdFilter.ActiveRows.TriangularLogicTableFunction.values.Length * RowIdFilter.ActiveRows.TriangularLogicTableFunction.values.Length];
+            byte[] numArray = new byte[values.Length * values.Length * values.Length * values.Length];
             int num = 0;
-            for (int index1 = 0; index1 < RowIdFilter.ActiveRows.TriangularLogicTableFunction.values.Length; ++index1)
+            for (int index1 = 0; index1 < values.Length; ++index1)
             {
-              for (int index2 = 0; index2 < RowIdFilter.ActiveRows.TriangularLogicTableFunction.values.Length; ++index2)
+              for (int index2 = 0; index2 < values.Length; ++index2)
               {
-                for (int index3 = 0; index3 < RowIdFilter.ActiveRows.TriangularLogicTableFunction.values.Length; ++index3)
+                for (int index3 = 0; index3 < values.Length; ++index3)
                 {
-                  for (int index4 = 0; index4 < RowIdFilter.ActiveRows.TriangularLogicTableFunction.values.Length; ++index4)
-                    numArray[num++] = (byte) (RowIdFilter.ActiveRows.TriangularLogicTableFunction.values[index1] | (Triangular.Value) ((int) RowIdFilter.ActiveRows.TriangularLogicTableFunction.values[index2] << 2) | (Triangular.Value) ((int) RowIdFilter.ActiveRows.TriangularLogicTableFunction.values[index3] << 4) | (Triangular.Value) ((int) RowIdFilter.ActiveRows.TriangularLogicTableFunction.values[index4] << 6));
+                  for (int index4 = 0; index4 < values.Length; ++index4)
+                    numArray[num++] = (byte) (values[index1] | (Triangular.Value) ((int)values[index2] << 2) | (Triangular.Value) ((int)values[index3] << 4) | (Triangular.Value) ((int)values[index4] << 6));
                 }
               }
             }
@@ -398,7 +398,7 @@ namespace VistaDB.Engine.Core
           Triangular.Value b;
           Triangular.Value c;
           Triangular.Value d;
-          RowIdFilter.ActiveRows.TriangularLogicTableFunction.GetCompositValues(v, out a, out b, out c, out d);
+                    GetCompositValues(v, out a, out b, out c, out d);
           return (byte) (Triangular.Not(a) | (Triangular.Value) ((int) Triangular.Not(b) << 2) | (Triangular.Value) ((int) Triangular.Not(c) << 4) | (Triangular.Value) ((int) Triangular.Not(d) << 6));
         }
 
@@ -408,12 +408,12 @@ namespace VistaDB.Engine.Core
           Triangular.Value b1;
           Triangular.Value c1;
           Triangular.Value d1;
-          RowIdFilter.ActiveRows.TriangularLogicTableFunction.GetCompositValues(v1, out a1, out b1, out c1, out d1);
+                    GetCompositValues(v1, out a1, out b1, out c1, out d1);
           Triangular.Value a2;
           Triangular.Value b2;
           Triangular.Value c2;
           Triangular.Value d2;
-          RowIdFilter.ActiveRows.TriangularLogicTableFunction.GetCompositValues(v2, out a2, out b2, out c2, out d2);
+                    GetCompositValues(v2, out a2, out b2, out c2, out d2);
           return (byte) (Triangular.And(a1, a2) | (Triangular.Value) ((int) Triangular.And(b1, b2) << 2) | (Triangular.Value) ((int) Triangular.And(c1, c2) << 4) | (Triangular.Value) ((int) Triangular.And(d1, d2) << 6));
         }
 
@@ -423,12 +423,12 @@ namespace VistaDB.Engine.Core
           Triangular.Value b1;
           Triangular.Value c1;
           Triangular.Value d1;
-          RowIdFilter.ActiveRows.TriangularLogicTableFunction.GetCompositValues(v1, out a1, out b1, out c1, out d1);
+                    GetCompositValues(v1, out a1, out b1, out c1, out d1);
           Triangular.Value a2;
           Triangular.Value b2;
           Triangular.Value c2;
           Triangular.Value d2;
-          RowIdFilter.ActiveRows.TriangularLogicTableFunction.GetCompositValues(v2, out a2, out b2, out c2, out d2);
+                    GetCompositValues(v2, out a2, out b2, out c2, out d2);
           return (byte) (Triangular.Or(a1, a2) | (Triangular.Value) ((int) Triangular.Or(b1, b2) << 2) | (Triangular.Value) ((int) Triangular.Or(c1, c2) << 4) | (Triangular.Value) ((int) Triangular.Or(d1, d2) << 6));
         }
 
@@ -448,22 +448,22 @@ namespace VistaDB.Engine.Core
         internal static byte[] NotLogic()
         {
           byte[] numArray = new byte[256];
-          foreach (byte index in RowIdFilter.ActiveRows.TriangularLogicTableFunction.Indexes)
-            numArray[(int) index] = RowIdFilter.ActiveRows.TriangularLogicTableFunction.NotByte(index);
+          foreach (byte index in Indexes)
+            numArray[(int) index] = NotByte(index);
           return numArray;
         }
 
         internal static byte[,] AndLogic()
         {
           byte[,] numArray = new byte[256, 256];
-          byte[] indexes = RowIdFilter.ActiveRows.TriangularLogicTableFunction.Indexes;
+          byte[] indexes = Indexes;
           for (int index1 = 0; index1 < indexes.Length; ++index1)
           {
             for (int index2 = 0; index2 < indexes.Length; ++index2)
             {
               byte v1 = indexes[index1];
               byte v2 = indexes[index2];
-              numArray[(int) v1, (int) v2] = RowIdFilter.ActiveRows.TriangularLogicTableFunction.AndByte(v1, v2);
+              numArray[(int) v1, (int) v2] = AndByte(v1, v2);
             }
           }
           return numArray;
@@ -472,14 +472,14 @@ namespace VistaDB.Engine.Core
         internal static byte[,] OrLogic()
         {
           byte[,] numArray = new byte[256, 256];
-          byte[] indexes = RowIdFilter.ActiveRows.TriangularLogicTableFunction.Indexes;
+          byte[] indexes = Indexes;
           for (int index1 = 0; index1 < indexes.Length; ++index1)
           {
             for (int index2 = 0; index2 < indexes.Length; ++index2)
             {
               byte v1 = indexes[index1];
               byte v2 = indexes[index2];
-              numArray[(int) v1, (int) v2] = RowIdFilter.ActiveRows.TriangularLogicTableFunction.OrByte(v1, v2);
+              numArray[(int) v1, (int) v2] = OrByte(v1, v2);
             }
           }
           return numArray;
@@ -488,8 +488,8 @@ namespace VistaDB.Engine.Core
         internal static byte[] CountLogic()
         {
           byte[] numArray = new byte[256];
-          foreach (byte index in RowIdFilter.ActiveRows.TriangularLogicTableFunction.Indexes)
-            numArray[(int) index] = RowIdFilter.ActiveRows.TriangularLogicTableFunction.CountByte(index);
+          foreach (byte index in Indexes)
+            numArray[(int) index] = CountByte(index);
           return numArray;
         }
       }

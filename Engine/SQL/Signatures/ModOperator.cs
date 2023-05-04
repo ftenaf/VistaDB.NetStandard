@@ -12,23 +12,23 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override IColumn InternalExecute()
     {
-      if (this.GetIsChanged())
+      if (GetIsChanged())
       {
-        IColumn column1 = this.leftOperand.Execute();
-        IColumn column2 = this.rightOperand.Execute();
+        IColumn column1 = leftOperand.Execute();
+        IColumn column2 = rightOperand.Execute();
         if (column1.IsNull || column2.IsNull)
         {
-          ((IValue) this.result).Value = (object) null;
+          ((IValue) result).Value = (object) null;
         }
         else
         {
-          this.Convert((IValue) column1, (IValue) this.leftValue);
-          this.Convert((IValue) column2, (IValue) this.rightValue);
-          ((IValue) this.result).Value = ((Row.Column) this.leftValue % (Row.Column) this.rightValue).Value;
+          Convert((IValue) column1, (IValue) leftValue);
+          Convert((IValue) column2, (IValue) rightValue);
+          ((IValue) result).Value = ((Row.Column) leftValue % (Row.Column) rightValue).Value;
         }
-        this.needsEvaluation = false;
+        needsEvaluation = false;
       }
-      return this.result;
+      return result;
     }
   }
 }

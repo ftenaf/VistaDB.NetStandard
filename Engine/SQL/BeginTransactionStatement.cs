@@ -21,7 +21,7 @@ namespace VistaDB.Engine.SQL
 
     protected override IQueryResult OnExecuteQuery()
     {
-      this.parent.Connection.BeginTransaction();
+      parent.Connection.BeginTransaction();
       return (IQueryResult) null;
     }
   }

@@ -11,8 +11,8 @@ namespace VistaDB.Engine.SQL
 
     protected override IQueryResult OnExecuteQuery()
     {
-      foreach (string tableName in this.tableNames)
-        this.Database.UnregisterClrTrigger(tableName);
+      foreach (string tableName in tableNames)
+        Database.UnregisterClrTrigger(tableName);
       return (IQueryResult) null;
     }
   }

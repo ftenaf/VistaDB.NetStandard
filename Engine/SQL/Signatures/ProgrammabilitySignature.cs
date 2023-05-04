@@ -17,11 +17,11 @@ namespace VistaDB.Engine.SQL.Signatures
     protected ProgrammabilitySignature(SQLParser parser)
       : base(parser)
     {
-      this.parameters = new List<Signature>();
-      this.paramValues = (IColumn[]) null;
-      this.parameterTypes = (VistaDBType[]) null;
-      this.signatureType = SignatureType.Expression;
-      this.skipNull = true;
+      parameters = new List<Signature>();
+      paramValues = (IColumn[]) null;
+      parameterTypes = (VistaDBType[]) null;
+      signatureType = SignatureType.Expression;
+      skipNull = true;
     }
 
     protected ProgrammabilitySignature(SQLParser parser, int paramCount, bool needSkip)
@@ -29,13 +29,13 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       if (needSkip)
         parser.SkipToken(true);
-      this.ParseParameters(parser);
-      if (paramCount >= 0 && paramCount != this.parameters.Count)
-        throw new VistaDBSQLException(501, this.text, this.lineNo, this.symbolNo);
-      this.paramValues = new IColumn[this.parameters.Count];
-      this.parameterTypes = new VistaDBType[this.parameters.Count];
-      this.signatureType = SignatureType.Expression;
-      this.skipNull = true;
+      ParseParameters(parser);
+      if (paramCount >= 0 && paramCount != parameters.Count)
+        throw new VistaDBSQLException(501, text, lineNo, symbolNo);
+      paramValues = new IColumn[parameters.Count];
+      parameterTypes = new VistaDBType[parameters.Count];
+      signatureType = SignatureType.Expression;
+      skipNull = true;
     }
 
     protected abstract void ParseParameters(SQLParser parser);
@@ -46,11 +46,11 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.parameters[i];
+        return parameters[i];
       }
       set
       {
-        this.parameters[i] = value;
+        parameters[i] = value;
       }
     }
 
@@ -58,7 +58,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.parameters.Count;
+        return parameters.Count;
       }
     }
 
@@ -66,9 +66,9 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        if (!this.skipNull)
+        if (!skipNull)
           return false;
-        for (int index = 0; index < this.parameters.Count; ++index)
+        for (int index = 0; index < parameters.Count; ++index)
         {
           if (this[index].AlwaysNull)
             return true;
@@ -82,7 +82,7 @@ namespace VistaDB.Engine.SQL.Signatures
       get
       {
         int num = 0;
-        for (int index = 0; index < this.parameters.Count; ++index)
+        for (int index = 0; index < parameters.Count; ++index)
           num += this[index].ColumnCount;
         return num;
       }
@@ -91,34 +91,34 @@ namespace VistaDB.Engine.SQL.Signatures
     protected override IColumn InternalExecute()
     {
       object resValue;
-      if (this.PrepareExecute(out resValue) && this.dataType != VistaDBType.Unknown)
-        ((IValue) this.result).Value = resValue;
-      return this.result;
+      if (PrepareExecute(out resValue) && dataType != VistaDBType.Unknown)
+        ((IValue) result).Value = resValue;
+      return result;
     }
 
     public override void SetChanged()
     {
-      for (int index = 0; index < this.parameters.Count; ++index)
+      for (int index = 0; index < parameters.Count; ++index)
         this[index].SetChanged();
     }
 
     public override void SwitchToTempTable(SourceRow sourceRow, int columnIndex, SelectStatement.ResultColumn resultColumn)
     {
-      int index = this.parameters.IndexOf(resultColumn.Signature);
+      int index = parameters.IndexOf(resultColumn.Signature);
       if (index < 0)
         return;
-      this.parameters[index].SwitchToTempTable(sourceRow, columnIndex);
+      parameters[index].SwitchToTempTable(sourceRow, columnIndex);
     }
 
     public override void ClearChanged()
     {
-      for (int index = 0; index < this.parameters.Count; ++index)
+      for (int index = 0; index < parameters.Count; ++index)
         this[index].ClearChanged();
     }
 
     protected override bool InternalGetIsChanged()
     {
-      int count = this.parameters.Count;
+      int count = parameters.Count;
       bool flag = count == 0;
       for (int index = 0; !flag && index < count; ++index)
         flag = this[index].GetIsChanged();
@@ -127,14 +127,14 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override bool IsEquals(Signature signature)
     {
-      if (this.GetType() != signature.GetType())
+      if (GetType() != signature.GetType())
         return false;
       ProgrammabilitySignature programmabilitySignature = (ProgrammabilitySignature) signature;
-      if (this.parameters.Count != programmabilitySignature.parameters.Count)
+      if (parameters.Count != programmabilitySignature.parameters.Count)
         return false;
-      for (int index = 0; index < this.parameters.Count; ++index)
+      for (int index = 0; index < parameters.Count; ++index)
       {
-        if (this[index] != programmabilitySignature[index] || this.parameterTypes[index] != programmabilitySignature.parameterTypes[index])
+        if (this[index] != programmabilitySignature[index] || parameterTypes[index] != programmabilitySignature.parameterTypes[index])
           return false;
       }
       return true;
@@ -142,7 +142,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public override void GetAggregateFunctions(List<AggregateFunction> list)
     {
-      for (int index = 0; index < this.parameters.Count; ++index)
+      for (int index = 0; index < parameters.Count; ++index)
         this[index].GetAggregateFunctions(list);
     }
 
@@ -150,7 +150,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       bool flag = false;
       distinct = false;
-      for (int index = 0; index < this.parameters.Count; ++index)
+      for (int index = 0; index < parameters.Count; ++index)
       {
         if (!(this[index] == (Signature) null) && this[index].HasAggregateFunction(out distinct))
         {
@@ -164,43 +164,43 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override void RelinkParameters(Signature signature, ref int columnCount)
     {
-      for (int index = 0; index < this.parameters.Count; ++index)
+      for (int index = 0; index < parameters.Count; ++index)
         this[index] = this[index].Relink(signature, ref columnCount);
     }
 
     public override SignatureType OnPrepare()
     {
       SignatureType signatureType = SignatureType.Constant;
-      for (int index = 0; index < this.parameters.Count; ++index)
+      for (int index = 0; index < parameters.Count; ++index)
       {
         if (!(this[index] == (Signature) null))
         {
-          this[index] = ConstantSignature.PrepareAndCheckConstant(this[index], this.parameterTypes[index]);
-          if (this.parameterTypes[index] != VistaDBType.Unknown && !Utils.CompatibleTypes(this[index].DataType, this.parameterTypes[index]))
-            throw new VistaDBSQLException(550, this.text, this.lineNo, this.symbolNo);
+          this[index] = ConstantSignature.PrepareAndCheckConstant(this[index], parameterTypes[index]);
+          if (parameterTypes[index] != VistaDBType.Unknown && !Utils.CompatibleTypes(this[index].DataType, parameterTypes[index]))
+            throw new VistaDBSQLException(550, text, lineNo, symbolNo);
           if (signatureType == SignatureType.Constant && this[index].SignatureType != SignatureType.Constant)
             signatureType = SignatureType.Expression;
-          this.paramValues[index] = this.parameterTypes[index] == VistaDBType.Unknown ? this.CreateColumn(VistaDBType.NChar) : this.CreateColumn(this.parameterTypes[index]);
+          paramValues[index] = parameterTypes[index] == VistaDBType.Unknown ? CreateColumn(VistaDBType.NChar) : CreateColumn(parameterTypes[index]);
         }
       }
-      if (signatureType != SignatureType.Constant && !this.AlwaysNull)
+      if (signatureType != SignatureType.Constant && !AlwaysNull)
         return this.signatureType;
       return SignatureType.Constant;
     }
 
     internal void SetReturnParameter(IParameter param)
     {
-      this.returnParameter = param;
+      returnParameter = param;
     }
 
     protected bool PrepareExecute(out object resValue)
     {
-      if (this.GetIsChanged())
+      if (GetIsChanged())
       {
-        if (this.parameters.Count > 0)
+        if (parameters.Count > 0)
         {
           bool flag = false;
-          for (int index = 0; index < this.parameters.Count; ++index)
+          for (int index = 0; index < parameters.Count; ++index)
           {
             Signature signature = this[index];
             if (!(signature == (Signature) null))
@@ -208,7 +208,7 @@ namespace VistaDB.Engine.SQL.Signatures
               if (signature.SignatureType == SignatureType.MultiplyColumn)
               {
                 StringBuilder stringBuilder = new StringBuilder();
-                SourceTable sourceTable = this.parent.GetSourceTable(0);
+                SourceTable sourceTable = parent.GetSourceTable(0);
                 int colIndex = 0;
                 for (int columnCount = sourceTable.GetColumnCount(); colIndex < columnCount; ++colIndex)
                 {
@@ -219,14 +219,14 @@ namespace VistaDB.Engine.SQL.Signatures
                     stringBuilder.Append(' ');
                   }
                 }
-                ((IValue) this.paramValues[index]).Value = (object) stringBuilder.ToString();
+                ((IValue) paramValues[index]).Value = (object) stringBuilder.ToString();
               }
               else
               {
                 signature.Execute();
                 if (signature.Result.IsNull)
                 {
-                  if (this.skipNull)
+                  if (skipNull)
                   {
                     flag = true;
                     break;
@@ -234,7 +234,7 @@ namespace VistaDB.Engine.SQL.Signatures
                 }
                 try
                 {
-                  this.Convert((IValue) signature.Result, (IValue) this.paramValues[index]);
+                  Convert((IValue) signature.Result, (IValue) paramValues[index]);
                 }
                 catch (Exception ex)
                 {
@@ -243,10 +243,10 @@ namespace VistaDB.Engine.SQL.Signatures
               }
             }
           }
-          resValue = !flag || !this.skipNull ? this.ExecuteSubProgram() : (object) null;
+          resValue = !flag || !skipNull ? ExecuteSubProgram() : (object) null;
         }
         else
-          resValue = this.ExecuteSubProgram();
+          resValue = ExecuteSubProgram();
         return true;
       }
       resValue = (object) null;

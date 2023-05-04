@@ -18,24 +18,24 @@ namespace VistaDB.Engine.Core.Scripting
     internal Parser(DirectConnection connection)
     {
       this.connection = connection;
-      this.signatures = this.DoCreateSignatures();
+      signatures = DoCreateSignatures();
     }
 
     private void RaiseError(int error)
     {
-      this.RaiseError((Exception) null, error, (string) null);
+      RaiseError((Exception) null, error, (string) null);
     }
 
     private void RaiseError(Exception ex, int error, string message)
     {
       try
       {
-        throw this.evalStack == null ? new VistaDBException(ex, error, message) : new VistaDBException(ex, error, new string(this.evalStack.Expression).Substring(this.thumbOffset));
+        throw evalStack == null ? new VistaDBException(ex, error, message) : new VistaDBException(ex, error, new string(evalStack.Expression).Substring(thumbOffset));
       }
       finally
       {
-        if (this.evalStack != null)
-          this.evalStack = (EvalStack) null;
+        if (evalStack != null)
+          evalStack = (EvalStack) null;
       }
     }
 
@@ -43,12 +43,12 @@ namespace VistaDB.Engine.Core.Scripting
     {
       for (int index = from; index < to; ++index)
       {
-        Signature signature = this.signatures[index];
-        int num = signature.IncludedName(this.evalStack.Expression, this.thumbOffset, this.activeStorage.Culture);
+        Signature signature = signatures[index];
+        int num = signature.IncludedName(evalStack.Expression, thumbOffset, activeStorage.Culture);
         if (num > 0)
         {
-          this.evalStack.PushCollector(signature);
-          this.thumbOffset += num;
+          evalStack.PushCollector(signature);
+          thumbOffset += num;
           return true;
         }
       }
@@ -57,16 +57,16 @@ namespace VistaDB.Engine.Core.Scripting
 
     private char Thumb(int offset)
     {
-      return this.evalStack.Expression[this.thumbOffset + offset];
+      return evalStack.Expression[thumbOffset + offset];
     }
 
     private int ExtractTo(char finalChar)
     {
       int thumbOffset = this.thumbOffset;
       int index = thumbOffset;
-      for (int length = this.evalStack.Expression.Length; index < length; ++index)
+      for (int length = evalStack.Expression.Length; index < length; ++index)
       {
-        if (finalChar.Equals(this.evalStack.Expression[index]))
+        if (finalChar.Equals(evalStack.Expression[index]))
           return index - thumbOffset + 1;
       }
       return 0;
@@ -74,9 +74,9 @@ namespace VistaDB.Engine.Core.Scripting
 
     private void BypassSpaces(char spaceSymbol)
     {
-      int length = this.evalStack.Expression.Length;
-      while (this.thumbOffset < length && spaceSymbol.CompareTo(this.Thumb(0)) >= 0)
-        ++this.thumbOffset;
+      int length = evalStack.Expression.Length;
+      while (thumbOffset < length && spaceSymbol.CompareTo(Thumb(0)) >= 0)
+        ++thumbOffset;
     }
 
     private bool EqualPattern(char[] source, int sourceOffset, char[] destination, int destinationOffset, int len)
@@ -88,146 +88,146 @@ namespace VistaDB.Engine.Core.Scripting
 
     private void BypassComments(char[] endGroup)
     {
-      int length = this.evalStack.Expression.Length;
-      while (this.thumbOffset < length && !this.EqualPattern(this.evalStack.Expression, this.thumbOffset, endGroup, 0, endGroup.Length))
-        ++this.thumbOffset;
+      int length = evalStack.Expression.Length;
+      while (thumbOffset < length && !EqualPattern(evalStack.Expression, thumbOffset, endGroup, 0, endGroup.Length))
+        ++thumbOffset;
     }
 
     private bool TestSquareBrackets(ref int expectedNameLength, ref int extraLen)
     {
-      if (this.Thumb(0) != '[')
+      if (Thumb(0) != '[')
         return false;
       extraLen = 2;
-      expectedNameLength = this.ExtractTo(']') - extraLen;
+      expectedNameLength = ExtractTo(']') - extraLen;
       if (expectedNameLength <= 0)
-        this.RaiseError(286);
+        RaiseError(286);
       return true;
     }
 
     private bool ParseCommentsAndColumns(char[] bgnOfGroup, char spaceSymbol, DataStorage activeStorage)
     {
-      this.BypassSpaces(spaceSymbol);
-      int length = this.evalStack.Expression.Length;
-      int num = length - this.thumbOffset;
+      BypassSpaces(spaceSymbol);
+      int length = evalStack.Expression.Length;
+      int num = length - thumbOffset;
       if (bgnOfGroup != null)
       {
-        if (num <= 0 || !this.EqualPattern(bgnOfGroup, 0, this.evalStack.Expression, this.thumbOffset, bgnOfGroup.Length))
+        if (num <= 0 || !EqualPattern(bgnOfGroup, 0, evalStack.Expression, thumbOffset, bgnOfGroup.Length))
           return false;
-        this.thumbOffset += bgnOfGroup.Length;
-        this.BypassSpaces(spaceSymbol);
-        num = length - this.thumbOffset;
+        thumbOffset += bgnOfGroup.Length;
+        BypassSpaces(spaceSymbol);
+        num = length - thumbOffset;
       }
       if (num == 0)
         return false;
-      if (this.signatures[this.signatures.COMMENTS_INLINE].IncludedName(this.evalStack.Expression, this.thumbOffset, this.activeStorage.Culture) > 0)
+      if (signatures[signatures.COMMENTS_INLINE].IncludedName(evalStack.Expression, thumbOffset, this.activeStorage.Culture) > 0)
       {
-        this.BypassComments(Parser.endLine);
-        num = length - this.thumbOffset;
+        BypassComments(endLine);
+        num = length - thumbOffset;
       }
       if (num == 0)
         return false;
-      Signature signature = this.signatures[this.signatures.COMMENTS];
-      if (signature.IncludedName(this.evalStack.Expression, this.thumbOffset, this.activeStorage.Culture) > 0)
+      Signature signature = signatures[signatures.COMMENTS];
+      if (signature.IncludedName(evalStack.Expression, thumbOffset, this.activeStorage.Culture) > 0)
       {
-        this.BypassComments(signature.EndOfGroup);
-        num = length - this.thumbOffset;
+        BypassComments(signature.EndOfGroup);
+        num = length - thumbOffset;
       }
       if (num == 0 || this.activeStorage == null)
         return false;
       int expectedNameLength = 0;
       int extraLen = 0;
       Row.Column sourceColumn;
-      if (this.TestSquareBrackets(ref expectedNameLength, ref extraLen))
+      if (TestSquareBrackets(ref expectedNameLength, ref extraLen))
       {
-        sourceColumn = this.activeStorage.LookForColumn(new string(this.evalStack.Expression, this.thumbOffset + 1, expectedNameLength));
+        sourceColumn = this.activeStorage.LookForColumn(new string(evalStack.Expression, thumbOffset + 1, expectedNameLength));
         if (sourceColumn == (Row.Column) null)
           return false;
       }
       else
       {
-        sourceColumn = this.activeStorage.LookForColumn(this.evalStack.Expression, this.thumbOffset, false);
+        sourceColumn = this.activeStorage.LookForColumn(evalStack.Expression, thumbOffset, false);
         if (sourceColumn == (Row.Column) null)
           return false;
         expectedNameLength = sourceColumn.Name.Length;
       }
-      this.evalStack.PushColumn(activeStorage, sourceColumn);
-      this.thumbOffset += expectedNameLength + extraLen;
+      evalStack.PushColumn(activeStorage, sourceColumn);
+      thumbOffset += expectedNameLength + extraLen;
       return true;
     }
 
     private bool ParsePatterns()
     {
-      if (this.thumbOffset < this.evalStack.Expression.Length)
-        return this.OnParsePatterns();
+      if (thumbOffset < evalStack.Expression.Length)
+        return OnParsePatterns();
       return false;
     }
 
     private bool ParseOperands()
     {
-      if (this.thumbOffset < this.evalStack.Expression.Length)
-        return this.OnParseOperands();
+      if (thumbOffset < evalStack.Expression.Length)
+        return OnParseOperands();
       return false;
     }
 
     private bool ParseTableNames(DataStorage activeStorage, char spaceChar)
     {
-      int length = this.evalStack.Expression.Length;
-      if (length == this.thumbOffset)
+      int length = evalStack.Expression.Length;
+      if (length == thumbOffset)
         return false;
-      this.BypassSpaces(spaceChar);
-      if (length == this.thumbOffset)
+      BypassSpaces(spaceChar);
+      if (length == thumbOffset)
         return false;
       int expectedNameLength = 0;
       int extraLen = 0;
-      if (this.TestSquareBrackets(ref expectedNameLength, ref extraLen))
+      if (TestSquareBrackets(ref expectedNameLength, ref extraLen))
       {
-        if (this.connection.LookForTable(new string(this.evalStack.Expression, this.thumbOffset + 1, expectedNameLength)) == null)
+        if (connection.LookForTable(new string(evalStack.Expression, thumbOffset + 1, expectedNameLength)) == null)
           return false;
       }
       else
       {
-        DataStorage dataStorage = this.connection.LookForTable(this.evalStack.Expression, this.thumbOffset, false);
+        DataStorage dataStorage = connection.LookForTable(evalStack.Expression, thumbOffset, false);
         if (dataStorage == null)
           return false;
         expectedNameLength = dataStorage.Name.Length;
       }
-      this.thumbOffset += expectedNameLength + extraLen;
+      thumbOffset += expectedNameLength + extraLen;
       return true;
     }
 
     private bool CheckIFClause(Signature signature, ref bool ifGroup, ref bool elseExpected)
     {
-      if (signature.Group == this.signatures.IF)
-        this.evalStack.InsertEndOfGroup(this.signatures.PARENTHESIS + 1);
+      if (signature.Group == signatures.IF)
+        evalStack.InsertEndOfGroup(signatures.PARENTHESIS + 1);
       if (ifGroup)
       {
-        if (signature.Group != this.signatures.THEN)
+        if (signature.Group != signatures.THEN)
         {
-          this.thumbOffset -= signature.Name.Length;
-          this.RaiseError(293);
+          thumbOffset -= signature.Name.Length;
+          RaiseError(293);
         }
         ifGroup = false;
         elseExpected = true;
         return false;
       }
-      if (signature.Group == this.signatures.THEN)
+      if (signature.Group == signatures.THEN)
       {
-        this.thumbOffset -= signature.Name.Length;
-        this.RaiseError(294);
+        thumbOffset -= signature.Name.Length;
+        RaiseError(294);
       }
-      if (signature.Group == this.signatures.ELSE)
+      if (signature.Group == signatures.ELSE)
       {
         if (!elseExpected)
         {
-          this.thumbOffset -= signature.Name.Length;
-          this.RaiseError(295);
+          thumbOffset -= signature.Name.Length;
+          RaiseError(295);
         }
         elseExpected = false;
         return true;
       }
       if (elseExpected)
       {
-        this.evalStack.InsertElseGroup();
+        evalStack.InsertElseGroup();
         elseExpected = false;
       }
       return false;
@@ -235,72 +235,72 @@ namespace VistaDB.Engine.Core.Scripting
 
     private bool ParseExpression(ref int delimitersCount, DataStorage activeStorage, char[] bgnOfGroup, char spaceChar, char[] delimiter)
     {
-      this.evalStack.PushBreak();
+      evalStack.PushBreak();
       bool flag1 = true;
       bool ifGroup = false;
       bool elseExpected = false;
-      while (this.ParseCommentsAndColumns(bgnOfGroup, spaceChar, activeStorage) || this.ParsePatterns() || (this.ParseOperands() || this.ParseTableNames(activeStorage, spaceChar)))
+      while (ParseCommentsAndColumns(bgnOfGroup, spaceChar, activeStorage) || ParsePatterns() || (ParseOperands() || ParseTableNames(activeStorage, spaceChar)))
       {
         bgnOfGroup = (char[]) null;
-        PCodeUnit unit = this.evalStack.PopCollector();
+        PCodeUnit unit = evalStack.PopCollector();
         Signature signature1 = unit.Signature;
         switch (signature1.Operation)
         {
           case Signature.Operations.BgnGroup:
-            bool flag2 = this.CheckIFClause(signature1, ref ifGroup, ref elseExpected);
-            this.evalStack.InsertEndOfGroup(signature1.EndOfGroupEntry);
+            bool flag2 = CheckIFClause(signature1, ref ifGroup, ref elseExpected);
+            evalStack.InsertEndOfGroup(signature1.EndOfGroupEntry);
             int delimitersCount1 = 0;
-            unit.ContentBgn = this.thumbOffset;
-            if (!this.ParseExpression(ref delimitersCount1, unit.ActiveStorage == null ? activeStorage : unit.ActiveStorage, signature1.BgnOfGroup, signature1.SpaceChar, signature1.Delimiter))
+            unit.ContentBgn = thumbOffset;
+            if (!ParseExpression(ref delimitersCount1, unit.ActiveStorage == null ? activeStorage : unit.ActiveStorage, signature1.BgnOfGroup, signature1.SpaceChar, signature1.Delimiter))
               return false;
-            unit.ContentEnd = this.thumbOffset;
-            if (this.evalStack.PopCollector().Signature != this.signatures[signature1.EndOfGroupEntry])
-              this.RaiseError(286);
-            ifGroup = signature1.Group == this.signatures.IF && delimitersCount1 == 0;
+            unit.ContentEnd = thumbOffset;
+            if (evalStack.PopCollector().Signature != signatures[signature1.EndOfGroupEntry])
+              RaiseError(286);
+            ifGroup = signature1.Group == signatures.IF && delimitersCount1 == 0;
             unit.DelimitersCount = delimitersCount1;
-            this.evalStack.PushPCode(unit);
+            evalStack.PushPCode(unit);
             if (flag2)
-              this.evalStack.InsertIfGroupFinalization();
+              evalStack.InsertIfGroupFinalization();
             flag1 = false;
             continue;
           case Signature.Operations.EndGroup:
-            this.evalStack.ReleaseCollector();
-            this.evalStack.PopCollector();
-            this.evalStack.PushCollector(unit);
+            evalStack.ReleaseCollector();
+            evalStack.PopCollector();
+            evalStack.PushCollector(unit);
             return true;
           case Signature.Operations.Delimiter:
             if (!signature1.IsSameName(delimiter, 0, this.activeStorage.Culture))
-              this.RaiseError((Exception) null, 287, new string(delimiter));
+              RaiseError((Exception) null, 287, new string(delimiter));
             ++delimitersCount;
-            this.evalStack.ReleaseCollector();
+            evalStack.ReleaseCollector();
             continue;
           default:
-            Signature signature2 = this.evalStack.PeekCollector().Signature;
+            Signature signature2 = evalStack.PeekCollector().Signature;
             if (flag1 && signature1.UnaryOverloading && signature2.AllowUnaryToFollow)
             {
-              signature1 = this.signatures[signature1.UnaryEntry];
+              signature1 = signatures[signature1.UnaryEntry];
               unit.Signature = signature1;
             }
-            for (; signature2.Priority >= signature1.Priority && signature2.Group != this.signatures.BREAK; signature2 = this.evalStack.PeekCollector().Signature)
-              this.evalStack.PushPCode(this.evalStack.PopCollector());
-            this.evalStack.PushCollector(unit);
+            for (; signature2.Priority >= signature1.Priority && signature2.Group != signatures.BREAK; signature2 = evalStack.PeekCollector().Signature)
+              evalStack.PushPCode(evalStack.PopCollector());
+            evalStack.PushCollector(unit);
             continue;
         }
       }
-      if (this.evalStack == null)
+      if (evalStack == null)
         return false;
       if (ifGroup)
-        this.RaiseError(293);
+        RaiseError(293);
       if (elseExpected)
-        this.evalStack.InsertElseGroup();
-      this.evalStack.ReleaseCollector();
-      this.evalStack.PopCollector();
+        evalStack.InsertElseGroup();
+      evalStack.ReleaseCollector();
+      evalStack.PopCollector();
       return true;
     }
 
     private int SignaturesValidation(bool checkBoolean, ref string expression)
     {
-      return this.evalStack.SignaturesValidation(checkBoolean, ref expression);
+      return evalStack.SignaturesValidation(checkBoolean, ref expression);
     }
 
     protected virtual SignatureList DoCreateSignatures()
@@ -310,25 +310,25 @@ namespace VistaDB.Engine.Core.Scripting
 
     protected virtual bool OnParsePatterns()
     {
-      char c = this.Thumb(0);
+      char c = Thumb(0);
       if ((int) c == (int) EvalStack.SingleQuote)
       {
-        int num = this.evalStack.PushStringConstant(this.thumbOffset, this.activeStorage);
+        int num = evalStack.PushStringConstant(thumbOffset, activeStorage);
         if (num < 0)
-          this.RaiseError(296);
-        this.thumbOffset += num;
+          RaiseError(296);
+        thumbOffset += num;
         return true;
       }
       if ((int) c == (int) EvalStack.FloatPunctuation || char.IsNumber(c))
       {
-        int num = this.evalStack.PushNumericConstant(this.thumbOffset);
+        int num = evalStack.PushNumericConstant(thumbOffset);
         if (num > 0)
         {
-          this.thumbOffset += num;
+          thumbOffset += num;
           return true;
         }
       }
-      return this.ParseSubset(this.signatures.PatternsEntry, this.signatures.OperatorsEntry);
+      return ParseSubset(signatures.PatternsEntry, signatures.OperatorsEntry);
     }
 
     protected virtual bool OnParseOperands()
@@ -337,11 +337,11 @@ namespace VistaDB.Engine.Core.Scripting
       int num1 = 0;
       int num2 = 0;
       int num3 = 0;
-      int operatorsEntry = this.signatures.OperatorsEntry;
-      for (int count = this.signatures.Count; operatorsEntry < count; ++operatorsEntry)
+      int operatorsEntry = signatures.OperatorsEntry;
+      for (int count = signatures.Count; operatorsEntry < count; ++operatorsEntry)
       {
-        Signature signature2 = this.signatures[operatorsEntry];
-        int num4 = signature2.IncludedName(this.evalStack.Expression, this.thumbOffset, this.activeStorage.Culture);
+        Signature signature2 = signatures[operatorsEntry];
+        int num4 = signature2.IncludedName(evalStack.Expression, thumbOffset, activeStorage.Culture);
         int nameLen = signature2.NameLen;
         if (num4 > num1 || num4 == num1 && nameLen < num2)
         {
@@ -353,62 +353,62 @@ namespace VistaDB.Engine.Core.Scripting
       }
       if (num1 == 0)
         return false;
-      this.thumbOffset += num1;
-      if (this.exactEqual && num3 == this.signatures.LOGICAL_COMPARE)
-        signature1 = this.signatures[num3 + this.signatures.ExactEqualDifference];
-      this.evalStack.PushCollector(signature1);
+      thumbOffset += num1;
+      if (exactEqual && num3 == signatures.LOGICAL_COMPARE)
+        signature1 = signatures[num3 + signatures.ExactEqualDifference];
+      evalStack.PushCollector(signature1);
       return true;
     }
 
     internal EvalStack Compile(string expression, DataStorage activeStorage, bool checkBoolean)
     {
-      return this.Compile(expression, activeStorage, false, checkBoolean, activeStorage.CaseSensitive, (EvalStack) null);
+      return Compile(expression, activeStorage, false, checkBoolean, activeStorage.CaseSensitive, (EvalStack) null);
     }
 
     internal EvalStack Compile(string expression, DataStorage activeStorage, bool exactEqual, bool checkBoolean, bool caseSensitive, EvalStack evaluator)
     {
       if (expression == null || expression.Length == 0)
-        this.RaiseError(280);
+        RaiseError(280);
       this.activeStorage = activeStorage;
       try
       {
-        this.evalStack = evaluator == null ? this.CreateEvalStackInstance() : evaluator;
-        this.evalStack.Prepare();
-        this.evalStack.Signatures = this.signatures;
+        evalStack = evaluator == null ? CreateEvalStackInstance() : evaluator;
+        evalStack.Prepare();
+        evalStack.Signatures = signatures;
       }
       catch (Exception ex)
       {
-        this.evalStack = (EvalStack) null;
-        this.RaiseError(ex, 281, expression);
+        evalStack = (EvalStack) null;
+        RaiseError(ex, 281, expression);
       }
       this.exactEqual = exactEqual;
       try
       {
-        this.evalStack.SaveExpression(expression);
-        this.thumbOffset = 0;
+        evalStack.SaveExpression(expression);
+        thumbOffset = 0;
         int delimitersCount = 0;
-        if (!this.ParseExpression(ref delimitersCount, activeStorage, (char[]) null, ' ', (char[]) null))
+        if (!ParseExpression(ref delimitersCount, activeStorage, (char[]) null, ' ', (char[]) null))
         {
-          if (this.evalStack != null && this.evalStack.IsEmptyCollector())
-            this.RaiseError((Exception) null, 297, expression);
+          if (evalStack != null && evalStack.IsEmptyCollector())
+            RaiseError((Exception) null, 297, expression);
           else
-            this.RaiseError((Exception) null, 298, (string) null);
+            RaiseError((Exception) null, 298, (string) null);
         }
-        if (this.evalStack.IsEmptyPcode())
-          this.RaiseError((Exception) null, 285, expression);
-        if (!this.evalStack.IsEmptyCollector())
-          this.RaiseError((Exception) null, 297, expression);
-        if (this.thumbOffset != this.evalStack.Expression.Length)
-          this.RaiseError((Exception) null, 285, expression.Substring(this.thumbOffset, this.evalStack.Expression.Length - this.thumbOffset));
-        this.evalStack.PushBreak();
-        this.evalStack.PushPCode(this.evalStack.PopCollector());
-        int error = this.SignaturesValidation(checkBoolean, ref expression);
+        if (evalStack.IsEmptyPcode())
+          RaiseError((Exception) null, 285, expression);
+        if (!evalStack.IsEmptyCollector())
+          RaiseError((Exception) null, 297, expression);
+        if (thumbOffset != evalStack.Expression.Length)
+          RaiseError((Exception) null, 285, expression.Substring(thumbOffset, evalStack.Expression.Length - thumbOffset));
+        evalStack.PushBreak();
+        evalStack.PushPCode(evalStack.PopCollector());
+        int error = SignaturesValidation(checkBoolean, ref expression);
         if (error > 0)
         {
-          this.thumbOffset = 0;
-          this.RaiseError((Exception) null, error, expression);
+          thumbOffset = 0;
+          RaiseError((Exception) null, error, expression);
         }
-        return this.evalStack;
+        return evalStack;
       }
       catch (Exception ex)
       {
@@ -416,13 +416,13 @@ namespace VistaDB.Engine.Core.Scripting
       }
       finally
       {
-        this.evalStack = (EvalStack) null;
+        evalStack = (EvalStack) null;
       }
     }
 
     private EvalStack CreateEvalStackInstance()
     {
-      return this.OnCreateEvalStackInstance(this.connection, this.activeStorage);
+      return OnCreateEvalStackInstance(connection, activeStorage);
     }
 
     protected virtual EvalStack OnCreateEvalStackInstance(DirectConnection connection, DataStorage activeStorage)
@@ -432,18 +432,18 @@ namespace VistaDB.Engine.Core.Scripting
 
     public void Dispose()
     {
-      if (this.isDisposed)
+      if (isDisposed)
         return;
-      this.isDisposed = true;
+      isDisposed = true;
       GC.SuppressFinalize((object) this);
-      if (this.signatures != null)
+      if (signatures != null)
       {
-        this.signatures.Clear();
-        this.signatures = (SignatureList) null;
+        signatures.Clear();
+        signatures = (SignatureList) null;
       }
-      this.activeStorage = (DataStorage) null;
-      this.evalStack = (EvalStack) null;
-      this.connection = (DirectConnection) null;
+      activeStorage = (DataStorage) null;
+      evalStack = (EvalStack) null;
+      connection = (DirectConnection) null;
     }
   }
 }

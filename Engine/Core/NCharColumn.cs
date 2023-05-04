@@ -6,19 +6,19 @@ namespace VistaDB.Engine.Core
   {
     internal static readonly int Utf8CodePage = 65001;
     internal static readonly int Utf16CodePage = 1200;
-    internal static readonly int DefaultUnicode = NCharColumn.Utf8CodePage;
+    internal static readonly int DefaultUnicode = Utf8CodePage;
 
     internal static int MakeUpUnicodePage(int codePage)
     {
-      if (codePage == NCharColumn.Utf16CodePage || codePage == NCharColumn.Utf8CodePage)
+      if (codePage == Utf16CodePage || codePage == Utf8CodePage)
         return codePage;
-      return NCharColumn.DefaultUnicode;
+      return DefaultUnicode;
     }
 
     internal NCharColumn(string val, int maxSize, CultureInfo culture, bool caseInsensitive, int codePage)
-      : base(val, maxSize, NCharColumn.MakeUpUnicodePage(codePage), culture, caseInsensitive)
+      : base(val, maxSize, MakeUpUnicodePage(codePage), culture, caseInsensitive)
     {
-      this.ResetType(VistaDBType.NChar);
+      ResetType(VistaDBType.NChar);
     }
 
     internal NCharColumn(NCharColumn col)

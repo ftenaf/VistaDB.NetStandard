@@ -14,17 +14,17 @@ namespace VistaDB.Engine.SQL.Signatures
       : base(parser)
     {
       bool needSkip = false;
-      this.valueList = new List<Signature>();
+      valueList = new List<Signature>();
       do
       {
-        this.valueList.Add(parser.NextSignature(needSkip, true, 6));
+        valueList.Add(parser.NextSignature(needSkip, true, 6));
         needSkip = true;
       }
       while (parser.IsToken(","));
-      this.signatureType = SignatureType.Expression;
-      this.dataType = VistaDBType.Unknown;
-      this.optimizable = false;
-      this.tempValue = (IColumn) null;
+      signatureType = SignatureType.Expression;
+      dataType = VistaDBType.Unknown;
+      optimizable = false;
+      tempValue = (IColumn) null;
     }
 
     internal static Signature CreateSignature(SQLParser parser)
@@ -34,19 +34,19 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public override SignatureType OnPrepare()
     {
-      this.signatureType = SignatureType.Constant;
-      foreach (Signature signature in this.valueList)
+      signatureType = SignatureType.Constant;
+      foreach (Signature signature in valueList)
       {
         if (signature.Prepare() != SignatureType.Constant)
-          this.signatureType = SignatureType.Expression;
+          signatureType = SignatureType.Expression;
       }
-      this.dataType = this.valueList[0].DataType;
-      return this.signatureType;
+      dataType = valueList[0].DataType;
+      return signatureType;
     }
 
     protected override IColumn InternalExecute()
     {
-      return this.result;
+      return result;
     }
 
     public override bool HasAggregateFunction(out bool distinct)
@@ -60,11 +60,11 @@ namespace VistaDB.Engine.SQL.Signatures
       if (!(signature is ValueListSignature))
         return false;
       ValueListSignature valueListSignature = (ValueListSignature) signature;
-      if (valueListSignature.valueList.Count != this.valueList.Count)
+      if (valueListSignature.valueList.Count != valueList.Count)
         return false;
-      for (int index = 0; index < this.valueList.Count; ++index)
+      for (int index = 0; index < valueList.Count; ++index)
       {
-        if (valueListSignature.valueList[index] != this.valueList[index])
+        if (valueListSignature.valueList[index] != valueList[index])
           return false;
       }
       return true;
@@ -72,26 +72,26 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override void RelinkParameters(Signature signature, ref int columnCount)
     {
-      for (int index = 0; index < this.valueList.Count; ++index)
-        this.valueList[index] = this.valueList[index].Relink(signature, ref columnCount);
+      for (int index = 0; index < valueList.Count; ++index)
+        valueList[index] = valueList[index].Relink(signature, ref columnCount);
     }
 
     public override void SetChanged()
     {
-      for (int index = 0; index < this.valueList.Count; ++index)
-        this.valueList[index].SetChanged();
+      for (int index = 0; index < valueList.Count; ++index)
+        valueList[index].SetChanged();
     }
 
     public override void ClearChanged()
     {
-      for (int index = 0; index < this.valueList.Count; ++index)
-        this.valueList[index].ClearChanged();
+      for (int index = 0; index < valueList.Count; ++index)
+        valueList[index].ClearChanged();
     }
 
     public override void GetAggregateFunctions(List<AggregateFunction> list)
     {
-      for (int index = 0; index < this.valueList.Count; ++index)
-        this.valueList[index].GetAggregateFunctions(list);
+      for (int index = 0; index < valueList.Count; ++index)
+        valueList[index].GetAggregateFunctions(list);
     }
 
     public override bool AlwaysNull
@@ -104,9 +104,9 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override bool InternalGetIsChanged()
     {
-      for (int index = 0; index < this.valueList.Count; ++index)
+      for (int index = 0; index < valueList.Count; ++index)
       {
-        if (this.valueList[index].GetIsChanged())
+        if (valueList[index].GetIsChanged())
           return true;
       }
       return false;
@@ -117,22 +117,22 @@ namespace VistaDB.Engine.SQL.Signatures
       get
       {
         int num = 0;
-        for (int index = 0; index < this.valueList.Count; ++index)
-          num += this.valueList[index].ColumnCount;
+        for (int index = 0; index < valueList.Count; ++index)
+          num += valueList[index].ColumnCount;
         return num;
       }
     }
 
     public bool IsValuePresent(IColumn val)
     {
-      if (this.tempValue == null)
-        this.tempValue = this.CreateColumn(val.Type);
-      for (int index = 0; index < this.valueList.Count; ++index)
+      if (tempValue == null)
+        tempValue = CreateColumn(val.Type);
+      for (int index = 0; index < valueList.Count; ++index)
       {
-        this.Convert((IValue) this.valueList[index].Execute(), (IValue) this.tempValue);
-        if (Utils.IsCharacterDataType(val.Type) && !this.tempValue.IsNull)
-          ((IValue) this.tempValue).Value = (object) ((string) ((IValue) this.tempValue).Value).TrimEnd();
-        if (val.Compare((IVistaDBColumn) this.tempValue) == 0)
+        Convert((IValue) valueList[index].Execute(), (IValue) tempValue);
+        if (Utils.IsCharacterDataType(val.Type) && !tempValue.IsNull)
+          ((IValue) tempValue).Value = (object) ((string) ((IValue) tempValue).Value).TrimEnd();
+        if (val.Compare((IVistaDBColumn) tempValue) == 0)
           return true;
       }
       return false;
@@ -142,13 +142,13 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.valueList.Count;
+        return valueList.Count;
       }
     }
 
     public IEnumerator GetEnumerator()
     {
-      return (IEnumerator) this.valueList.GetEnumerator();
+      return (IEnumerator) valueList.GetEnumerator();
     }
   }
 }

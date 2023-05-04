@@ -32,29 +32,29 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       this.tableAlias = tableAlias;
       this.columnName = columnName;
-      this.dataType = VistaDBType.Unknown;
-      this.table = (SourceTable) null;
-      this.columnIndex = -1;
-      this.tableVersion = -1L;
-      this.width = 0;
-      this.isKey = false;
-      this.isAllowNull = false;
-      this.isExpression = false;
-      this.isAutoIncrement = false;
-      this.isReadOnly = false;
-      this.description = (string) null;
-      this.caption = (string) null;
-      this.encrypted = false;
-      this.codePage = 0;
-      this.identity = (string) null;
-      this.identityStep = (string) null;
-      this.identitySeed = (string) null;
-      this.defaultValue = (string) null;
-      this.useInUpdate = false;
+      dataType = VistaDBType.Unknown;
+      table = (SourceTable) null;
+      columnIndex = -1;
+      tableVersion = -1L;
+      width = 0;
+      isKey = false;
+      isAllowNull = false;
+      isExpression = false;
+      isAutoIncrement = false;
+      isReadOnly = false;
+      description = (string) null;
+      caption = (string) null;
+      encrypted = false;
+      codePage = 0;
+      identity = (string) null;
+      identityStep = (string) null;
+      identitySeed = (string) null;
+      defaultValue = (string) null;
+      useInUpdate = false;
       if (string.Compare(this.columnName, "*", StringComparison.OrdinalIgnoreCase) == 0)
-        this.signatureType = SignatureType.MultiplyColumn;
+        signatureType = SignatureType.MultiplyColumn;
       else
-        this.signatureType = SignatureType.Column;
+        signatureType = SignatureType.Column;
     }
 
     internal ColumnSignature(SourceTable table, int columnIndex, Statement parent)
@@ -62,28 +62,28 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       IQuerySchemaInfo schema = table.Schema;
       if (this.parent == table.Parent)
-        this.signatureType = SignatureType.Column;
+        signatureType = SignatureType.Column;
       else
-        this.signatureType = SignatureType.ExternalColumn;
-      this.tableAlias = table.Alias;
-      this.columnName = schema.GetAliasName(columnIndex);
-      this.dataType = schema.GetColumnVistaDBType(columnIndex);
-      this.width = schema.GetWidth(columnIndex);
+        signatureType = SignatureType.ExternalColumn;
+      tableAlias = table.Alias;
+      columnName = schema.GetAliasName(columnIndex);
+      dataType = schema.GetColumnVistaDBType(columnIndex);
+      width = schema.GetWidth(columnIndex);
       this.table = table;
       this.columnIndex = columnIndex;
-      this.tableVersion = -1L;
-      this.optimizable = true;
-      this.isKey = schema.GetIsKey(columnIndex);
-      this.isAllowNull = schema.GetIsAllowNull(columnIndex);
-      this.isExpression = schema.GetIsExpression(columnIndex);
-      this.isAutoIncrement = schema.GetIsAutoIncrement(columnIndex);
-      this.isReadOnly = schema.GetIsReadOnly(columnIndex);
-      this.description = schema.GetColumnDescription(columnIndex);
-      this.caption = schema.GetColumnCaption(columnIndex);
-      this.encrypted = schema.GetIsEncrypted(columnIndex);
-      this.codePage = schema.GetCodePage(columnIndex);
-      this.identity = schema.GetIdentity(columnIndex, out this.identityStep, out this.identitySeed);
-      this.defaultValue = schema.GetDefaultValue(columnIndex, out this.useInUpdate);
+      tableVersion = -1L;
+      optimizable = true;
+      isKey = schema.GetIsKey(columnIndex);
+      isAllowNull = schema.GetIsAllowNull(columnIndex);
+      isExpression = schema.GetIsExpression(columnIndex);
+      isAutoIncrement = schema.GetIsAutoIncrement(columnIndex);
+      isReadOnly = schema.GetIsReadOnly(columnIndex);
+      description = schema.GetColumnDescription(columnIndex);
+      caption = schema.GetColumnCaption(columnIndex);
+      encrypted = schema.GetIsEncrypted(columnIndex);
+      codePage = schema.GetCodePage(columnIndex);
+      identity = schema.GetIdentity(columnIndex, out identityStep, out identitySeed);
+      defaultValue = schema.GetDefaultValue(columnIndex, out useInUpdate);
     }
 
     internal static ColumnSignature CreateSignature(SQLParser parser)
@@ -99,22 +99,22 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public void ExtractColumns(List<ColumnSignature> columnSignatureList)
     {
-      if (this.columnName != "*")
+      if (columnName != "*")
         return;
-      if (this.tableAlias != null)
+      if (tableAlias != null)
       {
-        SourceTable tableByAlias = this.parent.GetTableByAlias(this.tableAlias);
+        SourceTable tableByAlias = parent.GetTableByAlias(tableAlias);
         if (tableByAlias == null)
-          throw new VistaDBSQLException(572, this.tableAlias, this.lineNo, this.symbolNo);
-        this.AddColumnsFromTable(tableByAlias, columnSignatureList);
+          throw new VistaDBSQLException(572, tableAlias, lineNo, symbolNo);
+        AddColumnsFromTable(tableByAlias, columnSignatureList);
       }
       else
       {
-        int sourceTableCount = this.parent.SourceTableCount;
+        int sourceTableCount = parent.SourceTableCount;
         if (sourceTableCount == 0)
-          throw new VistaDBSQLException(608, this.columnName, this.lineNo, this.symbolNo);
+          throw new VistaDBSQLException(608, columnName, lineNo, symbolNo);
         for (int index = 0; index < sourceTableCount; ++index)
-          this.AddColumnsFromTable(this.parent.GetSourceTable(index), columnSignatureList);
+          AddColumnsFromTable(parent.GetSourceTable(index), columnSignatureList);
       }
     }
 
@@ -123,55 +123,55 @@ namespace VistaDB.Engine.SQL.Signatures
       table.RegisterColumnSignature(-1);
       int columnIndex = 0;
       for (int columnCount = table.Schema.ColumnCount; columnIndex < columnCount; ++columnIndex)
-        columnSignatureList.Add(new ColumnSignature(table, columnIndex, this.parent));
+        columnSignatureList.Add(new ColumnSignature(table, columnIndex, parent));
     }
 
     protected override IColumn InternalExecute()
     {
-      if (this.GetIsChanged() && this.table.Opened)
+      if (GetIsChanged() && table.Opened)
       {
-        ((IValue) this.result).Value = this.table.GetValue(this.columnIndex);
-        this.tableVersion = this.table.Version;
+        ((IValue) result).Value = table.GetValue(columnIndex);
+        tableVersion = table.Version;
       }
-      return this.result;
+      return result;
     }
 
     protected override void OnSimpleExecute()
     {
-      if (!this.GetIsChanged())
+      if (!GetIsChanged())
         return;
-      ((IValue) this.result).Value = ((IValue) this.table.SimpleGetColumn(this.columnIndex)).Value;
-      this.tableVersion = this.table.Version;
+      ((IValue) result).Value = ((IValue) table.SimpleGetColumn(columnIndex)).Value;
+      tableVersion = table.Version;
     }
 
     public override SignatureType OnPrepare()
     {
-      if (this.signatureType == SignatureType.MultiplyColumn)
-        return this.signatureType;
-      if (this.tableAlias != null)
+      if (signatureType == SignatureType.MultiplyColumn)
+        return signatureType;
+      if (tableAlias != null)
       {
-        this.table = this.parent.GetTableByAlias(this.tableAlias);
-        if (this.table == null)
-          throw new VistaDBSQLException(572, this.tableAlias, this.lineNo, this.symbolNo);
-        this.columnIndex = this.table.Schema.GetColumnOrdinal(this.columnName);
+        table = parent.GetTableByAlias(tableAlias);
+        if (table == null)
+          throw new VistaDBSQLException(572, tableAlias, lineNo, symbolNo);
+        columnIndex = table.Schema.GetColumnOrdinal(columnName);
       }
-      else if (this.parent.GetTableByColumnName(this.columnName, out this.table, out this.columnIndex) == SearchColumnResult.Duplicated)
-        throw new VistaDBSQLException(579, this.columnName, this.lineNo, this.symbolNo);
-      if (this.columnIndex < 0)
-        throw new VistaDBSQLException(567, this.columnName, this.lineNo, this.symbolNo);
-      this.table.RegisterColumnSignature(this.columnIndex);
-      IQuerySchemaInfo schema = this.table.Schema;
-      this.dataType = schema.GetColumnVistaDBType(this.columnIndex);
-      this.width = schema.GetWidth(this.columnIndex);
-      this.isKey = schema.GetIsKey(this.columnIndex);
-      this.isAllowNull = schema.GetIsAllowNull(this.columnIndex);
-      this.isExpression = schema.GetIsExpression(this.columnIndex);
-      this.isAutoIncrement = schema.GetIsAutoIncrement(this.columnIndex);
-      this.isReadOnly = schema.GetIsReadOnly(this.columnIndex);
-      this.optimizable = true;
-      if (this.parent != this.table.Parent)
-        this.signatureType = SignatureType.ExternalColumn;
-      return this.signatureType;
+      else if (parent.GetTableByColumnName(columnName, out table, out columnIndex) == SearchColumnResult.Duplicated)
+        throw new VistaDBSQLException(579, columnName, lineNo, symbolNo);
+      if (columnIndex < 0)
+        throw new VistaDBSQLException(567, columnName, lineNo, symbolNo);
+      table.RegisterColumnSignature(columnIndex);
+      IQuerySchemaInfo schema = table.Schema;
+      dataType = schema.GetColumnVistaDBType(columnIndex);
+      width = schema.GetWidth(columnIndex);
+      isKey = schema.GetIsKey(columnIndex);
+      isAllowNull = schema.GetIsAllowNull(columnIndex);
+      isExpression = schema.GetIsExpression(columnIndex);
+      isAutoIncrement = schema.GetIsAutoIncrement(columnIndex);
+      isReadOnly = schema.GetIsReadOnly(columnIndex);
+      optimizable = true;
+      if (parent != table.Parent)
+        signatureType = SignatureType.ExternalColumn;
+      return signatureType;
     }
 
     public override bool HasAggregateFunction(out bool distinct)
@@ -182,13 +182,13 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public override int GetWidth()
     {
-      return this.width;
+      return width;
     }
 
     protected override bool IsEquals(Signature signature)
     {
-      if (signature is ColumnSignature && this.parent.Connection.CompareString(this.columnName, ((ColumnSignature) signature).ColumnName, true) == 0)
-        return this.parent.Connection.CompareString(this.tableAlias, ((ColumnSignature) signature).TableAlias, true) == 0;
+      if (signature is ColumnSignature && parent.Connection.CompareString(columnName, ((ColumnSignature) signature).ColumnName, true) == 0)
+        return parent.Connection.CompareString(tableAlias, ((ColumnSignature) signature).TableAlias, true) == 0;
       return false;
     }
 
@@ -198,12 +198,12 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public override void SetChanged()
     {
-      this.tableVersion = -1L;
+      tableVersion = -1L;
     }
 
     public override void ClearChanged()
     {
-      this.tableVersion = this.table.Version;
+      tableVersion = table.Version;
     }
 
     public override void GetAggregateFunctions(List<AggregateFunction> list)
@@ -220,8 +220,8 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override bool InternalGetIsChanged()
     {
-      if (this.table != null)
-        return this.tableVersion != this.table.Version;
+      if (table != null)
+        return tableVersion != table.Version;
       return true;
     }
 
@@ -229,8 +229,8 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        if (!this.InternalGetIsChanged())
-          return this.tableVersion;
+        if (!InternalGetIsChanged())
+          return tableVersion;
         return -1;
       }
     }
@@ -247,7 +247,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.columnName;
+        return columnName;
       }
     }
 
@@ -255,7 +255,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.tableAlias;
+        return tableAlias;
       }
     }
 
@@ -263,7 +263,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.columnIndex;
+        return columnIndex;
       }
     }
 
@@ -271,7 +271,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.table;
+        return table;
       }
     }
 
@@ -279,7 +279,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.isKey;
+        return isKey;
       }
     }
 
@@ -287,7 +287,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.isExpression;
+        return isExpression;
       }
     }
 
@@ -295,7 +295,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.isAutoIncrement;
+        return isAutoIncrement;
       }
     }
 
@@ -303,7 +303,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.isReadOnly;
+        return isReadOnly;
       }
     }
 
@@ -311,7 +311,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.description;
+        return description;
       }
     }
 
@@ -319,7 +319,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.caption;
+        return caption;
       }
     }
 
@@ -327,7 +327,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.encrypted;
+        return encrypted;
       }
     }
 
@@ -335,7 +335,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.codePage;
+        return codePage;
       }
     }
 
@@ -343,7 +343,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.identity;
+        return identity;
       }
     }
 
@@ -351,7 +351,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.identityStep;
+        return identityStep;
       }
     }
 
@@ -359,7 +359,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.identitySeed;
+        return identitySeed;
       }
     }
 
@@ -367,7 +367,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.defaultValue;
+        return defaultValue;
       }
     }
 
@@ -375,7 +375,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.useInUpdate;
+        return useInUpdate;
       }
     }
   }

@@ -19,7 +19,7 @@ namespace VistaDB.Engine.Core.Indexing
   internal class SortSpool : List<Row>, IComparer, IDisposable
   {
     private static ulong maxRamAllowed = 1073741823;
-    private static SortSpool.MemoryInfo memInfo = new SortSpool.MemoryInfo();
+    private static MemoryInfo memInfo = new MemoryInfo();
     private int keyCount;
     private BandManager externalBands;
     private Row patternRow;
@@ -33,31 +33,31 @@ namespace VistaDB.Engine.Core.Indexing
     {
       try
       {
-        return SortSpool.memInfo.AvailableRAM / 4UL;
+        return memInfo.AvailableRAM / 4UL;
       }
-      catch (SecurityException ex)
-      {
-        return SortSpool.maxRamAllowed / 4UL;
+      catch (SecurityException)
+            {
+        return maxRamAllowed / 4UL;
       }
     }
 
     internal SortSpool(bool isolatedStorage, uint keyCount, ref int expectedKeyLen, Row patternKey, StorageManager fileManager, bool forceQuickSorting)
     {
       this.fileManager = fileManager;
-      this.patternRow = patternKey;
-      this.posibleExternalSorting = !forceQuickSorting && patternKey.Extensions == null;
+      patternRow = patternKey;
+      posibleExternalSorting = !forceQuickSorting && patternKey.Extensions == null;
       int num1;
-      if (this.posibleExternalSorting)
+      if (posibleExternalSorting)
       {
-        this.expectedKeyLength = Band.KeyApartment(patternKey);
-        ulong num2 = SortSpool.EstimateMemory() / ((ulong) (this.expectedKeyLength + 100) * 8UL);
+        expectedKeyLength = Band.KeyApartment(patternKey);
+        ulong num2 = EstimateMemory() / ((ulong) (expectedKeyLength + 100) * 8UL);
         num1 = num2 < (ulong) keyCount ? (int) num2 : (int) keyCount;
       }
       else
         num1 = (int) keyCount;
-      this.Capacity = num1 < 0 ? int.MaxValue : num1;
+      Capacity = num1 < 0 ? int.MaxValue : num1;
       this.isolatedStorage = isolatedStorage;
-      expectedKeyLen = this.expectedKeyLength;
+      expectedKeyLen = expectedKeyLength;
     }
 
     protected SortSpool()
@@ -68,9 +68,9 @@ namespace VistaDB.Engine.Core.Indexing
     {
       get
       {
-        if (this.externalBands != null)
-          return this.externalBands.ActiveBand.KeyCount;
-        return this.keyCount;
+        if (externalBands != null)
+          return externalBands.ActiveBand.KeyCount;
+        return keyCount;
       }
     }
 
@@ -84,63 +84,63 @@ namespace VistaDB.Engine.Core.Indexing
 
     private Row PopMemoryKey()
     {
-      --this.keyCount;
+      --keyCount;
       Row row = this[keyCount];
-  	  this.RemoveAt(keyCount);
-      this.Insert(keyCount, (Row) null);
+  	  RemoveAt(keyCount);
+      Insert(keyCount, (Row) null);
       return row;
     }
 
     private void MultiPhaseMergingSorting()
     {
-      this.OutputSpool();
-      this.externalBands.MergeBands();
+      OutputSpool();
+      externalBands.MergeBands();
     }
 
     private void QuickSorting()
     {
-      this.Sort(new Comparison<Row>(this.Compare));
+      Sort(new Comparison<Row>(Compare));
     }
 
     private void OutputSpool()
     {
-      this.QuickSorting();
+      QuickSorting();
       try
       {
-        if (this.externalBands == null)
-          this.externalBands = new BandManager(this.patternRow, this.fileManager, this.isolatedStorage);
-        this.externalBands.Flush();
-        Band band = this.externalBands.NewActiveBand(this.keyCount, 1);
-        while (this.keyCount > 0)
-          band.PushKey(this.PopMemoryKey());
+        if (externalBands == null)
+          externalBands = new BandManager(patternRow, fileManager, isolatedStorage);
+        externalBands.Flush();
+        Band band = externalBands.NewActiveBand(keyCount, 1);
+        while (keyCount > 0)
+          band.PushKey(PopMemoryKey());
       }
       finally
       {
-        this.Clear();
+        Clear();
       }
     }
 
     internal void PushKey(Row row, bool forceOutput)
     {
-      if (this.posibleExternalSorting && forceOutput)
-        this.OutputSpool();
-      ++this.keyCount;
-      this.Add(row);
+      if (posibleExternalSorting && forceOutput)
+        OutputSpool();
+      ++keyCount;
+      Add(row);
     }
 
     internal Row PopKey()
     {
-      if (this.externalBands != null)
-        return this.externalBands.ActiveBand.PopKey();
-      return this.PopMemoryKey();
+      if (externalBands != null)
+        return externalBands.ActiveBand.PopKey();
+      return PopMemoryKey();
     }
 
     public new void Sort()
     {
-      if (this.externalBands == null)
-        this.QuickSorting();
+      if (externalBands == null)
+        QuickSorting();
       else
-        this.MultiPhaseMergingSorting();
+        MultiPhaseMergingSorting();
     }
 
     public int Compare(object a, object b)
@@ -155,21 +155,20 @@ namespace VistaDB.Engine.Core.Indexing
 
     public void Dispose()
     {
-      if (this.isDisposed)
+      if (isDisposed)
         return;
       GC.SuppressFinalize((object) this);
-      if (this.externalBands != null)
-        this.externalBands.Dispose();
-      this.Clear();
-      this.isDisposed = true;
+      if (externalBands != null)
+        externalBands.Dispose();
+      Clear();
+      isDisposed = true;
     }
 
     private class MemoryInfo
     {
       private DateTime lastChecked = DateTime.MinValue;
-      private ulong memFree;
 
-      internal MemoryInfo()
+            internal MemoryInfo()
       {
       }
 

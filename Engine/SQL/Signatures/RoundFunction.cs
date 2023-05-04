@@ -9,9 +9,9 @@ namespace VistaDB.Engine.SQL.Signatures
     public RoundFunction(SQLParser parser)
       : base(parser, 2, true)
     {
-      this.dataType = VistaDBType.Unknown;
-      this.parameterTypes[0] = VistaDBType.Unknown;
-      this.parameterTypes[1] = VistaDBType.Int;
+      dataType = VistaDBType.Unknown;
+      parameterTypes[0] = VistaDBType.Unknown;
+      parameterTypes[1] = VistaDBType.Int;
     }
 
     public override SignatureType OnPrepare()
@@ -19,29 +19,24 @@ namespace VistaDB.Engine.SQL.Signatures
       SignatureType signatureType = base.OnPrepare();
       if (Utils.IsCharacterDataType(this[0].DataType))
       {
-        this.dataType = VistaDBType.Float;
+        dataType = VistaDBType.Float;
       }
       else
       {
         if (!Utils.IsNumericDataType(this[0].DataType))
-          throw new VistaDBSQLException(661, "ROUND", this.lineNo, this.symbolNo);
-        this.dataType = this[0].DataType;
+          throw new VistaDBSQLException(661, "ROUND", lineNo, symbolNo);
+        dataType = this[0].DataType;
       }
-      this.paramValues[0] = this.CreateColumn(this.dataType);
+      paramValues[0] = CreateColumn(dataType);
       return signatureType;
     }
 
-    private int CompactFrameworkTruncate(double value)
+        protected override object ExecuteSubProgram()
     {
-      return int.Parse(""+(value >= 0.0 ? Math.Floor(value) : Math.Ceiling(value)));
-    }
-
-    protected override object ExecuteSubProgram()
-    {
-      object obj = ((IValue) this.paramValues[0]).Value;
-      int num1 = (int) ((IValue) this.paramValues[1]).Value;
+      object obj = ((IValue) paramValues[0]).Value;
+      int num1 = (int) ((IValue) paramValues[1]).Value;
       int num2 = Math.Abs(num1);
-      switch (this.dataType)
+      switch (dataType)
       {
         case VistaDBType.TinyInt:
           if (num1 >= 0)
@@ -74,7 +69,7 @@ namespace VistaDB.Engine.SQL.Signatures
             return (object) Math.Round((Decimal) obj, num1);
           return (object) (Math.Round((Decimal) obj * (Decimal) Math.Pow(0.1, (double) num2)) * (Decimal) Math.Pow(10.0, (double) num2));
         default:
-          throw new VistaDBSQLException(556, "Unknown data type", this.lineNo, this.symbolNo);
+          throw new VistaDBSQLException(556, "Unknown data type", lineNo, symbolNo);
       }
     }
   }

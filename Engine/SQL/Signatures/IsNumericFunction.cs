@@ -10,18 +10,18 @@ namespace VistaDB.Engine.SQL.Signatures
     internal IsNumericFunction(SQLParser parser)
       : base(parser, 1, true)
     {
-      this.skipNull = false;
-      this.parameterTypes[0] = VistaDBType.Unknown;
-      this.dataType = VistaDBType.Int;
-      this.result = this.CreateColumn(this.dataType);
+      skipNull = false;
+      parameterTypes[0] = VistaDBType.Unknown;
+      dataType = VistaDBType.Int;
+      result = CreateColumn(dataType);
     }
 
     public override SignatureType OnPrepare()
     {
       SignatureType signatureType = base.OnPrepare();
       Signature signature = this[0];
-      if (signatureType != SignatureType.Constant && signature.DataType != this.dataType && signature.SignatureType == SignatureType.Constant)
-        this[0] = ConstantSignature.PrepareAndCheckConstant(signature, this.dataType);
+      if (signatureType != SignatureType.Constant && signature.DataType != dataType && signature.SignatureType == SignatureType.Constant)
+        this[0] = ConstantSignature.PrepareAndCheckConstant(signature, dataType);
       return signatureType;
     }
 
@@ -60,8 +60,8 @@ namespace VistaDB.Engine.SQL.Signatures
             break;
         }
       }
-      ((IValue) this.result).Value = (object) (flag ? 1 : 0);
-      return ((IValue) this.result).Value;
+      ((IValue) result).Value = (object) (flag ? 1 : 0);
+      return ((IValue) result).Value;
     }
   }
 }

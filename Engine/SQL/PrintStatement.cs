@@ -15,22 +15,22 @@ namespace VistaDB.Engine.SQL
 
     protected override IQueryResult OnExecuteQuery()
     {
-      this._message.SetChanged();
-      this.connection.OnPrintMessage(this._message.Execute().ToString());
+      _message.SetChanged();
+      connection.OnPrintMessage(_message.Execute().ToString());
       return (IQueryResult) null;
     }
 
     protected override void OnParse(LocalSQLConnection connection, SQLParser parser)
     {
-      this._message = parser.NextSignature(true, false, 6);
-      if (this._message == (Signature) null)
-        throw new VistaDBSQLException(509, "Invalid syntax near print", this.lineNo, this.symbolNo);
+      _message = parser.NextSignature(true, false, 6);
+      if (_message == (Signature) null)
+        throw new VistaDBSQLException(509, "Invalid syntax near print", lineNo, symbolNo);
     }
 
     protected override VistaDBType OnPrepareQuery()
     {
-      if (this._message.Prepare() == SignatureType.Constant && this._message.SignatureType != SignatureType.Constant)
-        this._message = (Signature) ConstantSignature.CreateSignature(this._message.Execute(), this.parent);
+      if (_message.Prepare() == SignatureType.Constant && _message.SignatureType != SignatureType.Constant)
+        _message = (Signature) ConstantSignature.CreateSignature(_message.Execute(), parent);
       return VistaDBType.Unknown;
     }
   }

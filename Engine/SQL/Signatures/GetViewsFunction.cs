@@ -10,26 +10,26 @@ namespace VistaDB.Engine.SQL.Signatures
     internal GetViewsFunction(SQLParser parser)
       : base(parser, 0, 7)
     {
-      this.resultColumnTypes[0] = VistaDBType.NVarChar;
-      this.resultColumnTypes[1] = VistaDBType.Text;
-      this.resultColumnTypes[2] = VistaDBType.Text;
-      this.resultColumnTypes[3] = VistaDBType.Text;
-      this.resultColumnTypes[4] = VistaDBType.NVarChar;
-      this.resultColumnTypes[5] = VistaDBType.Bit;
-      this.resultColumnTypes[6] = VistaDBType.Bit;
-      this.resultColumnNames[0] = "VIEW_NAME";
-      this.resultColumnNames[1] = "VIEW_DEFINITION";
-      this.resultColumnNames[2] = "SELECT_COMMAND";
-      this.resultColumnNames[3] = "DESCRIPTION";
-      this.resultColumnNames[4] = "COLUMN_NAMES";
-      this.resultColumnNames[5] = "IS_UPDATABLE";
-      this.resultColumnNames[6] = "IS_CORRECT";
-      this.enumerator = (IEnumerator) null;
+      resultColumnTypes[0] = VistaDBType.NVarChar;
+      resultColumnTypes[1] = VistaDBType.Text;
+      resultColumnTypes[2] = VistaDBType.Text;
+      resultColumnTypes[3] = VistaDBType.Text;
+      resultColumnTypes[4] = VistaDBType.NVarChar;
+      resultColumnTypes[5] = VistaDBType.Bit;
+      resultColumnTypes[6] = VistaDBType.Bit;
+      resultColumnNames[0] = "VIEW_NAME";
+      resultColumnNames[1] = "VIEW_DEFINITION";
+      resultColumnNames[2] = "SELECT_COMMAND";
+      resultColumnNames[3] = "DESCRIPTION";
+      resultColumnNames[4] = "COLUMN_NAMES";
+      resultColumnNames[5] = "IS_UPDATABLE";
+      resultColumnNames[6] = "IS_CORRECT";
+      enumerator = (IEnumerator) null;
     }
 
     protected override object ExecuteSubProgram()
     {
-      this.enumerator = (IEnumerator) this.parent.Database.EnumViews().GetEnumerator();
+      enumerator = (IEnumerator) parent.Database.EnumViews().GetEnumerator();
       return (object) null;
     }
 
@@ -44,12 +44,12 @@ namespace VistaDB.Engine.SQL.Signatures
       string str1 = (string) null;
       string str2 = (string) null;
       string empty = string.Empty;
-      IView current = (IView) this.enumerator.Current;
+      IView current = (IView) enumerator.Current;
       Statement statement;
       bool flag;
       try
       {
-        statement = (Statement) this.parent.Connection.CreateBatchStatement(current.Expression, 0L).SubQuery(0);
+        statement = (Statement) parent.Connection.CreateBatchStatement(current.Expression, 0L).SubQuery(0);
         createViewStatement = statement as CreateViewStatement;
         flag = createViewStatement != null;
         if (flag)
@@ -70,8 +70,8 @@ namespace VistaDB.Engine.SQL.Signatures
           int num = (int) statement.PrepareQuery();
         }
       }
-      catch (Exception ex)
-      {
+      catch (Exception)
+            {
         statement = (Statement) null;
         flag = false;
       }
@@ -90,24 +90,24 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public override bool First(IRow row)
     {
-      this.enumerator.Reset();
-      if (!this.enumerator.MoveNext())
+      enumerator.Reset();
+      if (!enumerator.MoveNext())
         return false;
-      this.FillRow(row);
+      FillRow(row);
       return true;
     }
 
     public override bool GetNextResult(IRow row)
     {
-      if (!this.enumerator.MoveNext())
+      if (!enumerator.MoveNext())
         return false;
-      this.FillRow(row);
+      FillRow(row);
       return true;
     }
 
     public override void Close()
     {
-      this.enumerator = (IEnumerator) null;
+      enumerator = (IEnumerator) null;
     }
   }
 }

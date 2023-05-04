@@ -10,7 +10,7 @@ namespace VistaDB.VistaDBTypes
 
     public VistaDBDateTime(DateTime val)
     {
-      this.Value = (object) val;
+      Value = (object) val;
     }
 
     public override object Value
@@ -33,7 +33,7 @@ namespace VistaDB.VistaDBTypes
       }
     }
 
-    public override System.Type SystemType
+    public override Type SystemType
     {
       get
       {
@@ -43,22 +43,22 @@ namespace VistaDB.VistaDBTypes
 
     public DateTime GetValueOrDefault()
     {
-      if (this.HasValue)
-        return (DateTime) this.Value;
+      if (HasValue)
+        return (DateTime) Value;
       return DateTime.MinValue;
     }
 
     public DateTime GetValueOrDefault(DateTime defaultValue)
     {
-      if (this.HasValue)
-        return (DateTime) this.Value;
+      if (HasValue)
+        return (DateTime) Value;
       return defaultValue;
     }
 
     public DateTime GetValueOrDefault(VistaDBDateTime defaultValue)
     {
-      if (this.HasValue)
-        return (DateTime) this.Value;
+      if (HasValue)
+        return (DateTime) Value;
       return (DateTime) defaultValue.Value;
     }
   }

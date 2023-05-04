@@ -7,18 +7,18 @@ namespace VistaDB.Engine.Internal
   public static class SimpleTimer
   {
     private static object s_SyncObject = new object();
-    private static Dictionary<string, SimpleTimer.TimeCounter> s_Timers = new Dictionary<string, SimpleTimer.TimeCounter>();
+    private static Dictionary<string, TimeCounter> s_Timers = new Dictionary<string, TimeCounter>();
 
     [Conditional("DEBUG")]
     public static void Start(string timerName)
     {
-      lock (SimpleTimer.s_SyncObject)
+      lock (s_SyncObject)
       {
-        SimpleTimer.TimeCounter timeCounter = SimpleTimer.FindTimer(timerName);
+                TimeCounter timeCounter = FindTimer(timerName);
         if (timeCounter == null)
         {
-          timeCounter = new SimpleTimer.TimeCounter(timerName);
-          SimpleTimer.s_Timers.Add(timerName, timeCounter);
+          timeCounter = new TimeCounter(timerName);
+                    s_Timers.Add(timerName, timeCounter);
         }
         if (!timeCounter.Stopwatch.IsRunning)
           timeCounter.Stopwatch.Start();
@@ -29,16 +29,16 @@ namespace VistaDB.Engine.Internal
     [Conditional("DEBUG")]
     public static void Stop(string timerName)
     {
-      lock (SimpleTimer.s_SyncObject)
-        SimpleTimer.FindTimer(timerName)?.Stopwatch.Stop();
+      lock (s_SyncObject)
+                FindTimer(timerName)?.Stopwatch.Stop();
     }
 
     [Conditional("DEBUG")]
     public static void WriteLine(string timerName)
     {
-      lock (SimpleTimer.s_SyncObject)
+      lock (s_SyncObject)
       {
-        SimpleTimer.TimeCounter timer = SimpleTimer.FindTimer(timerName);
+                TimeCounter timer = FindTimer(timerName);
         if (timer == null)
           return;
         timer.Stopwatch.Stop();
@@ -56,16 +56,16 @@ namespace VistaDB.Engine.Internal
     [Conditional("DEBUG")]
     public static void Reset(string timerName)
     {
-      lock (SimpleTimer.s_SyncObject)
-        SimpleTimer.FindTimer(timerName)?.Reset();
+      lock (s_SyncObject)
+                FindTimer(timerName)?.Reset();
     }
 
     [Conditional("DEBUG")]
     public static void Write(StringBuilder output, string timerName, bool reset)
     {
-      lock (SimpleTimer.s_SyncObject)
+      lock (s_SyncObject)
       {
-        SimpleTimer.TimeCounter timer = SimpleTimer.FindTimer(timerName);
+                TimeCounter timer = FindTimer(timerName);
         if (timer == null)
         {
           output.AppendLine("Undefined timer: " + timerName);
@@ -92,11 +92,11 @@ namespace VistaDB.Engine.Internal
     [Conditional("DEBUG")]
     public static void WriteAll(StringBuilder output, bool reset, bool dropAll)
     {
-      lock (SimpleTimer.s_SyncObject)
+      lock (s_SyncObject)
       {
-        foreach (KeyValuePair<string, SimpleTimer.TimeCounter> timer in SimpleTimer.s_Timers)
+        foreach (KeyValuePair<string, TimeCounter> timer in s_Timers)
         {
-          SimpleTimer.TimeCounter timeCounter = timer.Value;
+                    TimeCounter timeCounter = timer.Value;
           string name = timeCounter.Name;
           int count = timeCounter.Count;
           double totalMilliseconds = timeCounter.Stopwatch.Elapsed.TotalMilliseconds;
@@ -110,30 +110,30 @@ namespace VistaDB.Engine.Internal
         }
         if (!dropAll)
           return;
-        SimpleTimer.s_Timers.Clear();
+                s_Timers.Clear();
       }
     }
 
     [Conditional("DEBUG")]
     public static void DropAll()
     {
-      lock (SimpleTimer.s_SyncObject)
+      lock (s_SyncObject)
       {
-        foreach (KeyValuePair<string, SimpleTimer.TimeCounter> timer in SimpleTimer.s_Timers)
+        foreach (KeyValuePair<string, TimeCounter> timer in s_Timers)
           timer.Value?.Stopwatch.Stop();
-        SimpleTimer.s_Timers.Clear();
+                s_Timers.Clear();
       }
     }
 
     [Conditional("DEBUG")]
     public static void ReportStats(StringBuilder output)
     {
-      lock (SimpleTimer.s_SyncObject)
+      lock (s_SyncObject)
       {
-        Dictionary<string, int> dictionary = new Dictionary<string, int>(SimpleTimer.s_Timers.Count);
-        foreach (KeyValuePair<string, SimpleTimer.TimeCounter> timer in SimpleTimer.s_Timers)
+        Dictionary<string, int> dictionary = new Dictionary<string, int>(s_Timers.Count);
+        foreach (KeyValuePair<string, TimeCounter> timer in s_Timers)
         {
-          SimpleTimer.TimeCounter timeCounter = timer.Value;
+                    TimeCounter timeCounter = timer.Value;
           string name = timeCounter.Name;
           int count = timeCounter.Count;
           timeCounter.Stopwatch.Stop();
@@ -171,15 +171,15 @@ namespace VistaDB.Engine.Internal
             output.AppendLine();
           }
         }
-        SimpleTimer.s_Timers.Clear();
+                s_Timers.Clear();
       }
     }
 
-    private static SimpleTimer.TimeCounter FindTimer(string timerName)
+    private static TimeCounter FindTimer(string timerName)
     {
-      SimpleTimer.TimeCounter timeCounter;
-      if (!SimpleTimer.s_Timers.TryGetValue(timerName, out timeCounter))
-        return (SimpleTimer.TimeCounter) null;
+            TimeCounter timeCounter;
+      if (!s_Timers.TryGetValue(timerName, out timeCounter))
+        return (TimeCounter) null;
       return timeCounter;
     }
 
@@ -193,15 +193,15 @@ namespace VistaDB.Engine.Internal
 
       public TimeCounter(string timerName)
       {
-        this.Name = timerName;
-        this.Count = 0;
-        this.Stopwatch = new Stopwatch();
+        Name = timerName;
+        Count = 0;
+        Stopwatch = new Stopwatch();
       }
 
       public void Reset()
       {
-        this.Stopwatch.Reset();
-        this.Count = 0;
+        Stopwatch.Reset();
+        Count = 0;
       }
     }
   }

@@ -4,9 +4,9 @@
   {
     public SqlMethodAttribute()
     {
-      this.OnNullCall = true;
-      this.IsMutator = false;
-      this.InvokeIfReceiverIsNull = false;
+      OnNullCall = true;
+      IsMutator = false;
+      InvokeIfReceiverIsNull = false;
     }
 
     public bool InvokeIfReceiverIsNull { get; set; }

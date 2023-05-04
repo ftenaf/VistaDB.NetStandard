@@ -3,48 +3,47 @@ using VistaDB.DDA;
 
 namespace VistaDB.Engine.Internal
 {
-  internal interface ITable : IVistaDBTable, IDisposable
-  {
-    string Alias { get; }
+    internal interface ITable : IVistaDBTable, IDisposable
+    {
+        string Alias { get; }
+        new IRow CurrentRow { get; set; }
 
-    IRow CurrentRow { get; set; }
+        new IRow CurrentKey { get; set; }
 
-    IRow CurrentKey { get; set; }
+        bool SuppressErrors { get; set; }
 
-    bool SuppressErrors { get; set; }
+        IRow KeyStructure(string indexName);
 
-    IRow KeyStructure(string indexName);
+        string PKIndex { get; }
 
-    string PKIndex { get; }
+        void CreateSparseIndex(string name, string keyExpression);
 
-    void CreateSparseIndex(string name, string keyExpression);
+        bool IsReadOnly { get; }
 
-    bool IsReadOnly { get; }
+        bool IsExclusive { get; }
 
-    bool IsExclusive { get; }
+        void FreezeSelfRelationships();
 
-    void FreezeSelfRelationships();
+        void DefreezeSelfRelationships();
 
-    void DefreezeSelfRelationships();
+        void PrepareTriggers(TriggerAction eventType);
 
-    void PrepareTriggers(TriggerAction eventType);
+        void ExecuteTriggers(TriggerAction eventType, bool justReset);
 
-    void ExecuteTriggers(TriggerAction eventType, bool justReset);
+        bool AllowPooling { get; }
 
-    bool AllowPooling { get; }
+        IOptimizedFilter BuildFilterMap(string indexName, IRow lowScopeValue, IRow highScopeValue, bool excludeNulls);
 
-    IOptimizedFilter BuildFilterMap(string indexName, IRow lowScopeValue, IRow highScopeValue, bool excludeNulls);
+        void BeginOptimizedFiltering(IOptimizedFilter filter, string pivotIndex);
 
-    void BeginOptimizedFiltering(IOptimizedFilter filter, string pivotIndex);
+        void ResetOptimizedFiltering();
 
-    void ResetOptimizedFiltering();
+        void PrepareFtsOptimization();
 
-    void PrepareFtsOptimization();
+        void ClearCachedBitmaps();
 
-    void ClearCachedBitmaps();
+        new void Post();
 
-    new void Post();
-
-    new void Delete();
-  }
+        new void Delete();
+    }
 }

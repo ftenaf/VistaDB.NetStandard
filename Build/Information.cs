@@ -29,21 +29,21 @@ namespace VistaDB.Build
 
     internal static string GetThisAssemblyFileVersion()
     {
-      if (Information._AssemblyFileVersionString == null)
+      if (_AssemblyFileVersionString == null)
       {
         Assembly assembly = (Assembly) null;
         try
         {
           assembly = Assembly.GetExecutingAssembly();
           AssemblyFileVersionAttribute[] customAttributes = assembly.GetCustomAttributes(typeof (AssemblyFileVersionAttribute), true) as AssemblyFileVersionAttribute[];
-          Information._AssemblyFileVersionString = customAttributes == null || customAttributes.Length <= 0 ? assembly.GetName().Version.ToString() : customAttributes[0].Version ?? string.Empty;
+                    _AssemblyFileVersionString = customAttributes == null || customAttributes.Length <= 0 ? assembly.GetName().Version.ToString() : customAttributes[0].Version ?? string.Empty;
         }
         catch
         {
-          Information._AssemblyFileVersionString = assembly == null ? string.Empty : assembly.GetName().Version.ToString();
+                    _AssemblyFileVersionString = assembly == null ? string.Empty : assembly.GetName().Version.ToString();
         }
       }
-      return Information._AssemblyFileVersionString;
+      return _AssemblyFileVersionString;
     }
   }
 }

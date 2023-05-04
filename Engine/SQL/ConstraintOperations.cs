@@ -7,1594 +7,1594 @@ using VistaDB.Engine.SQL.Signatures;
 
 namespace VistaDB.Engine.SQL
 {
-  internal class ConstraintOperations : Stack
-  {
-    private ConstraintOperations.OptimizationParts constraints = new ConstraintOperations.OptimizationParts();
-    private OptimizationLevel optimizationLevel;
-    private IDatabase database;
-    private TableCollection sourceTables;
-
-    internal ConstraintOperations(IDatabase db, TableCollection sourceTables)
-      : base(100)
+    internal class ConstraintOperations : Stack
     {
-      this.database = db;
-      this.sourceTables = sourceTables;
-      this.optimizationLevel = OptimizationLevel.Full;
-    }
+        private OptimizationParts constraints = new OptimizationParts();
+        private OptimizationLevel optimizationLevel;
+        private IDatabase database;
+        private TableCollection sourceTables;
 
-    public override int Count
-    {
-      get
-      {
-        return this.constraints.Count;
-      }
-    }
-
-    internal OptimizationLevel OptimizationLevel
-    {
-      get
-      {
-        return this.optimizationLevel;
-      }
-    }
-
-    internal void ResetFullOptimizationLevel()
-    {
-      if (this.optimizationLevel != OptimizationLevel.Full)
-        return;
-      this.optimizationLevel = OptimizationLevel.Part;
-    }
-
-    private ConstraintOperations.Constraint Pop()
-    {
-      return (ConstraintOperations.Constraint) base.Pop();
-    }
-
-    private bool AddJoinConstraint(ColumnSignature leftColumn, ColumnSignature rightColumn, CompareOperation cmp, CompareOperation revCmp)
-    {
-      if (cmp == CompareOperation.Equal && leftColumn.DataType == rightColumn.DataType && leftColumn.Table.CollectionOrder != rightColumn.Table.CollectionOrder)
-      {
-        this.constraints.Add(leftColumn.Table.CollectionOrder <= rightColumn.Table.CollectionOrder ? (ConstraintOperations.Constraint) new ConstraintOperations.JoinColumnEqualityConstraint(rightColumn, leftColumn) : (ConstraintOperations.Constraint) new ConstraintOperations.JoinColumnEqualityConstraint(leftColumn, rightColumn));
-        return true;
-      }
-      if (leftColumn.Table.CollectionOrder > rightColumn.Table.CollectionOrder)
-        return this.AddValueConstraint(leftColumn, (Signature) rightColumn, cmp, false, true);
-      return this.AddValueConstraint(rightColumn, (Signature) leftColumn, revCmp, false, true);
-    }
-
-    private bool AddNullValueConstraint(ColumnSignature column, bool isNull)
-    {
-      this.constraints.Add((ConstraintOperations.Constraint) new ConstraintOperations.IsNullConstraint(column, isNull));
-      return true;
-    }
-
-    private bool AddValueConstraint(ColumnSignature column, Signature valueSignature, CompareOperation cmp, bool fts, bool join)
-    {
-      Signature leftConstantValue = (Signature) null;
-      Signature rightConstantValue = (Signature) null;
-      switch (cmp)
-      {
-        case CompareOperation.Equal:
-        case CompareOperation.NotEqual:
-          leftConstantValue = valueSignature;
-          rightConstantValue = valueSignature;
-          break;
-        case CompareOperation.Greater:
-        case CompareOperation.GreaterOrEqual:
-          leftConstantValue = valueSignature;
-          break;
-        case CompareOperation.Less:
-        case CompareOperation.LessOrEqual:
-          rightConstantValue = valueSignature;
-          break;
-      }
-      this.constraints.Add(join ? (ConstraintOperations.Constraint) new ConstraintOperations.JoinColumnCompareConstraint(column, leftConstantValue, rightConstantValue, cmp) : (ConstraintOperations.Constraint) new ConstraintOperations.ColumnCompareConstraint(column, leftConstantValue, rightConstantValue, cmp, fts));
-      return true;
-    }
-
-    private bool AddScopeValueContraint(ColumnSignature column, Signature low, Signature high, bool fts)
-    {
-      this.constraints.Add((ConstraintOperations.Constraint) new ConstraintOperations.ColumnCompareConstraint(column, low, high, CompareOperation.InScope, fts));
-      return true;
-    }
-
-    private bool AddConstantConstraint(Signature leftOperand, Signature rightOperand, CompareOperation cmp)
-    {
-      this.constraints.Add((ConstraintOperations.Constraint) new ConstraintOperations.ConstantsCompareConstraint(leftOperand, rightOperand, cmp));
-      return true;
-    }
-
-    internal bool AnalyzeOptimizationLevel()
-    {
-      if (this.constraints.Count == 0)
-        return false;
-      foreach (ConstraintOperations.Constraint constraint in (List<ConstraintOperations.Constraint>) this.constraints)
-      {
-        constraint.Optimized = false;
-        constraint.FullOptimized = false;
-        if (!constraint.IsBundle)
-          constraint.Analyze();
-      }
-      this.Clear();
-      foreach (ConstraintOperations.Constraint constraint1 in (List<ConstraintOperations.Constraint>) this.constraints)
-      {
-        switch (constraint1.Type)
+        internal ConstraintOperations(IDatabase db, TableCollection sourceTables)
+          : base(100)
         {
-          case ConstraintOperations.ConstraintType.And:
-            ConstraintOperations.Constraint constraint2 = this.Pop();
-            ConstraintOperations.Constraint constraint3 = this.Pop();
-            constraint1.Optimized = constraint2.Optimized || constraint3.Optimized;
-            constraint1.FullOptimized = constraint2.FullOptimized && constraint3.FullOptimized;
-            this.Push((object) constraint1);
-            continue;
-          case ConstraintOperations.ConstraintType.Or:
-            ConstraintOperations.Constraint constraint4 = this.Pop();
-            ConstraintOperations.Constraint constraint5 = this.Pop();
-            constraint1.Optimized = constraint4.Optimized && constraint5.Optimized;
-            constraint1.FullOptimized = constraint4.FullOptimized && constraint5.FullOptimized;
-            this.Push((object) constraint1);
-            continue;
-          case ConstraintOperations.ConstraintType.Not:
-            ConstraintOperations.Constraint constraint6 = this.Pop();
-            bool flag = constraint6.Optimized && constraint6.FullOptimized;
-            constraint1.Optimized = flag;
-            constraint1.FullOptimized = flag;
-            this.Push((object) constraint1);
-            continue;
-          default:
-            this.Push((object) constraint1);
-            continue;
-        }
-      }
-      ConstraintOperations.Constraint constraint7 = this.Pop();
-      if (!constraint7.Optimized)
-        this.optimizationLevel = OptimizationLevel.None;
-      else if (!constraint7.FullOptimized)
-        this.optimizationLevel = OptimizationLevel.Part;
-      return this.optimizationLevel != OptimizationLevel.None;
-    }
-
-    internal bool ActivateOptimizedFilter(int tableOrder)
-    {
-      if (this.optimizationLevel == OptimizationLevel.None)
-        return false;
-      this.Clear();
-      bool emptyResultSet;
-      if (this.sourceTables[tableOrder].ActivateOptimizedConstraints(out emptyResultSet))
-      {
-        if (this.optimizationLevel == OptimizationLevel.Full)
-          this.optimizationLevel = OptimizationLevel.Part;
-        return emptyResultSet;
-      }
-      bool resetFullOptimization = false;
-      foreach (ConstraintOperations.Constraint constraint1 in (List<ConstraintOperations.Constraint>) this.constraints)
-      {
-        switch (constraint1.Type)
-        {
-          case ConstraintOperations.ConstraintType.And:
-            ConstraintOperations.Constraint left1 = this.Pop();
-            ConstraintOperations.Constraint right1 = this.Pop();
-            constraint1.Conjunction(this.database, tableOrder, left1, right1, out resetFullOptimization);
-            this.Push((object) constraint1);
-            break;
-          case ConstraintOperations.ConstraintType.Or:
-            ConstraintOperations.Constraint left2 = this.Pop();
-            ConstraintOperations.Constraint right2 = this.Pop();
-            constraint1.Disjunction(this.database, tableOrder, left2, right2, out resetFullOptimization);
-            this.Push((object) constraint1);
-            break;
-          case ConstraintOperations.ConstraintType.Not:
-            ConstraintOperations.Constraint constraint2 = this.Pop();
-            constraint2.Invertion();
-            this.Push((object) constraint2);
-            break;
-          default:
-            constraint1.InitializeBuilding(this.database, tableOrder, this.sourceTables);
-            this.Push((object) constraint1);
-            break;
-        }
-        if (resetFullOptimization && this.optimizationLevel == OptimizationLevel.Full)
-          this.optimizationLevel = OptimizationLevel.Part;
-      }
-      ConstraintOperations.Constraint constraint = this.Pop();
-      try
-      {
-        return constraint.ActivateFilter(tableOrder, out resetFullOptimization);
-      }
-      finally
-      {
-        if (resetFullOptimization && this.optimizationLevel == OptimizationLevel.Full)
-          this.optimizationLevel = OptimizationLevel.Part;
-      }
-    }
-
-    internal bool AddLogicalBetween(ColumnSignature column, Signature low, Signature high, bool fts)
-    {
-      if (column.SignatureType != SignatureType.MultiplyColumn && low.SignatureType != SignatureType.Column && high.SignatureType != SignatureType.Column)
-        return this.AddScopeValueContraint(column, low, high, fts);
-      return false;
-    }
-
-    internal bool AddLogicalIsNull(Signature columnOperand, bool isNull)
-    {
-      if (columnOperand.SignatureType == SignatureType.Column)
-        return this.AddNullValueConstraint((ColumnSignature) columnOperand, isNull);
-      return false;
-    }
-
-    internal bool AddLogicalCompare(Signature leftOperand, Signature rightOperand, CompareOperation cmp, CompareOperation revCmp, bool fts)
-    {
-      if (leftOperand.SignatureType == SignatureType.Column && rightOperand.SignatureType == SignatureType.Column)
-        return this.AddJoinConstraint((ColumnSignature) leftOperand, (ColumnSignature) rightOperand, cmp, revCmp);
-      if (leftOperand.SignatureType == SignatureType.Column)
-        return this.AddValueConstraint((ColumnSignature) leftOperand, rightOperand, cmp, fts, false);
-      if (rightOperand.SignatureType == SignatureType.Column)
-        return this.AddValueConstraint((ColumnSignature) rightOperand, leftOperand, revCmp, false, false);
-      if ((leftOperand.SignatureType == SignatureType.Parameter || leftOperand.SignatureType == SignatureType.Constant) && (rightOperand.SignatureType == SignatureType.Parameter || rightOperand.SignatureType == SignatureType.Constant))
-        return this.AddConstantConstraint(leftOperand, rightOperand, cmp);
-      return false;
-    }
-
-    internal bool AddLogicalExpression(Signature operand)
-    {
-      return false;
-    }
-
-    internal bool AddLogicalNot()
-    {
-      this.constraints.Add((ConstraintOperations.Constraint) new ConstraintOperations.NotBundle());
-      return true;
-    }
-
-    internal bool AddLogicalAnd()
-    {
-      this.constraints.Add((ConstraintOperations.Constraint) new ConstraintOperations.AndBundle());
-      return true;
-    }
-
-    internal bool AddLogicalOr()
-    {
-      this.constraints.Add((ConstraintOperations.Constraint) new ConstraintOperations.OrBundle());
-      return true;
-    }
-
-    internal bool RollBackAddedConstraints(int oldCount)
-    {
-      int count = this.Count - oldCount;
-      if (count <= 0)
-        return false;
-      if (oldCount <= 0)
-      {
-        this.ClearConstraints();
-        return true;
-      }
-      this.constraints.RemoveRange(oldCount, count);
-      return true;
-    }
-
-    internal void ClearConstraints()
-    {
-      this.constraints.Clear();
-      this.Clear();
-    }
-
-    internal string GetIndexName(int rowIndex, int tableOrder)
-    {
-      if (this.optimizationLevel == OptimizationLevel.None)
-        return (string) null;
-      foreach (ConstraintOperations.Constraint constraint in (List<ConstraintOperations.Constraint>) this.constraints)
-      {
-        if (constraint.Type == ConstraintOperations.ConstraintType.Bitwise)
-        {
-          string optimizedIndexName = constraint.GetOptimizedIndexName(tableOrder);
-          if (optimizedIndexName != null)
-            return optimizedIndexName;
-        }
-      }
-      return (string) null;
-    }
-
-    internal string GetJoinedTable(int orOrder, SourceTable table)
-    {
-      if (this.optimizationLevel == OptimizationLevel.None)
-        return (string) null;
-      foreach (ConstraintOperations.Constraint constraint in (List<ConstraintOperations.Constraint>) this.constraints)
-      {
-        if (constraint.Type == ConstraintOperations.ConstraintType.Bitwise)
-        {
-          string joinedTable = constraint.GetJoinedTable(table);
-          if (joinedTable != null)
-            return joinedTable;
-        }
-      }
-      return (string) null;
-    }
-
-    private enum ConstraintType
-    {
-      Bitwise,
-      And,
-      Or,
-      Not,
-    }
-
-    private class OptimizationParts : List<ConstraintOperations.Constraint>
-    {
-      internal OptimizationParts()
-        : base(20)
-      {
-      }
-    }
-
-    private class AccumulatedResults : Dictionary<int, ConstraintOperations.AccumulatedResults.OptimizationInfo>
-    {
-      private int keyColumnOrder = -1;
-      private SourceTable table;
-      private IVistaDBIndexInformation activeIndex;
-      private bool descending;
-
-      internal new ConstraintOperations.AccumulatedResults.OptimizationInfo this[int tableOrder]
-      {
-        get
-        {
-          if (!this.ContainsKey(tableOrder))
-            return (ConstraintOperations.AccumulatedResults.OptimizationInfo) null;
-          return base[tableOrder];
-        }
-      }
-
-      internal ConstraintOperations.AccumulatedResults.OptimizationInfo.ScopeInfo EvaluatedScope
-      {
-        get
-        {
-          return this[this.table.CollectionOrder].GetScopeInfo(this.activeIndex);
-        }
-      }
-
-      internal IVistaDBIndexInformation OptimizationIndex
-      {
-        get
-        {
-          return this.activeIndex;
-        }
-      }
-
-      internal int KeyColumnOrder
-      {
-        get
-        {
-          return this.keyColumnOrder;
-        }
-      }
-
-      internal bool Descending
-      {
-        get
-        {
-          return this.descending;
-        }
-      }
-
-      internal void InitOptimization(SourceTable table, IVistaDBIndexInformation index, int keyColumnOrder, bool descending)
-      {
-        this.table = table;
-        this.activeIndex = index;
-        this.keyColumnOrder = keyColumnOrder;
-        this.descending = descending;
-      }
-
-      internal void InitTableResult(IRow leftScope, IRow rightScope)
-      {
-        this.Add(this.table.CollectionOrder, new ConstraintOperations.AccumulatedResults.OptimizationInfo(this.table, this.activeIndex, leftScope, rightScope));
-      }
-
-      internal void AddTableResult(ConstraintOperations.AccumulatedResults.OptimizationInfo resultInfo)
-      {
-        this.Add(resultInfo.Table.CollectionOrder, resultInfo);
-      }
-
-      internal void CopyFrom(ConstraintOperations.AccumulatedResults accumulatedResults)
-      {
-        this.Clear();
-        foreach (ConstraintOperations.AccumulatedResults.OptimizationInfo resultInfo in accumulatedResults.Values)
-          this.AddTableResult(resultInfo);
-      }
-
-      internal string OptimizationIndexByTableOrder(int tableOrder)
-      {
-        if (this.table == null || this.table.CollectionOrder != tableOrder)
-          return (string) null;
-        if (this.activeIndex != null)
-          return this.activeIndex.Name;
-        return (string) null;
-      }
-
-      internal class OptimizationInfo
-      {
-        private ConstraintOperations.AccumulatedResults.OptimizationInfo.ScopeInfoCollection scopes = new ConstraintOperations.AccumulatedResults.OptimizationInfo.ScopeInfoCollection();
-        private SourceTable table;
-        private IOptimizedFilter filter;
-        private IVistaDBIndexInformation filterIndex;
-
-        internal OptimizationInfo(SourceTable table, IVistaDBIndexInformation index, IRow leftScope, IRow rightScope)
-        {
-          this.table = table;
-          this.filterIndex = index;
-          this.scopes.AddScope(index, leftScope, rightScope);
+            database = db;
+            this.sourceTables = sourceTables;
+            optimizationLevel = OptimizationLevel.Full;
         }
 
-        internal SourceTable Table
+        public override int Count
         {
-          get
-          {
-            return this.table;
-          }
-        }
-
-        internal IOptimizedFilter Filter
-        {
-          get
-          {
-            return this.filter;
-          }
-        }
-
-        internal bool ShouldBeMerged
-        {
-          get
-          {
-            if (this.scopes.Count > 1)
-              return true;
-            if (this.scopes.Count == 1)
-              return this.filter != null;
-            return false;
-          }
-        }
-
-        internal ConstraintOperations.AccumulatedResults.OptimizationInfo.ScopeInfo GetScopeInfo(IVistaDBIndexInformation index)
-        {
-          return this.scopes[index.Name];
-        }
-
-        internal IRow GetLeftScope(IVistaDBIndexInformation index)
-        {
-          return this.scopes[index.Name]?.LeftScope;
-        }
-
-        internal IRow GetRightScope(IVistaDBIndexInformation index)
-        {
-          return this.scopes[index.Name]?.RightScope;
-        }
-
-        private void ConvertToBitmapAndConjunction(string scopeIndexName, ConstraintOperations.Constraint parentConstraint)
-        {
-          ConstraintOperations.AccumulatedResults.OptimizationInfo.ScopeInfo scope = this.scopes[scopeIndexName];
-          this.filterIndex = scope.Index;
-          IOptimizedFilter filter = this.table.BuildFilterMap(scopeIndexName, scope.LeftScope, scope.RightScope, parentConstraint.ExcludeNulls);
-          if (this.filter == null)
-            this.filter = filter;
-          else
-            this.filter.Conjunction(filter);
-          this.scopes.Remove((object) scopeIndexName);
-        }
-
-        private void ConvertToBitmapAndDisjunction(string scopeIndexName, ConstraintOperations.Constraint parentConstraint)
-        {
-          ConstraintOperations.AccumulatedResults.OptimizationInfo.ScopeInfo scope = this.scopes[scopeIndexName];
-          this.filterIndex = scope.Index;
-          IOptimizedFilter filter = this.table.BuildFilterMap(scopeIndexName, scope.LeftScope, scope.RightScope, parentConstraint.ExcludeNulls);
-          if (this.filter == null)
-            this.filter = filter;
-          else
-            this.filter.Disjunction(filter);
-          this.scopes.Remove((object) scopeIndexName);
-        }
-
-        internal ConstraintOperations.AccumulatedResults.OptimizationInfo Disjunction(IDatabase db, ConstraintOperations.AccumulatedResults.OptimizationInfo rightInfo, ConstraintOperations.Constraint leftParent, ConstraintOperations.Constraint rightParent)
-        {
-          foreach (string key in (IEnumerable) ((Hashtable) this.scopes.Clone()).Keys)
-          {
-            ConstraintOperations.AccumulatedResults.OptimizationInfo.ScopeInfo scope = rightInfo.scopes[key];
-            if (scope == null)
-            {
-              this.ConvertToBitmapAndDisjunction(key, leftParent);
-            }
-            else
-            {
-              bool emptyResult;
-              if (!this.scopes[key].Disjunction(scope, out emptyResult))
-              {
-                rightInfo.ConvertToBitmapAndDisjunction(key, rightParent);
-                this.ConvertToBitmapAndDisjunction(key, leftParent);
-              }
-              else if (emptyResult)
-                return (ConstraintOperations.AccumulatedResults.OptimizationInfo) null;
-            }
-          }
-          foreach (string key in (IEnumerable) ((Hashtable) rightInfo.scopes.Clone()).Keys)
-          {
-            if (this.scopes[key] == null)
-              rightInfo.ConvertToBitmapAndDisjunction(key, rightParent);
-          }
-          if (this.filter != null)
-          {
-            this.filter.Disjunction(rightInfo.filter);
-            this.filterIndex = rightInfo.filterIndex;
-          }
-          return this;
-        }
-
-        internal ConstraintOperations.AccumulatedResults.OptimizationInfo Conjunction(IDatabase db, ConstraintOperations.AccumulatedResults.OptimizationInfo rightInfo, ConstraintOperations.Constraint leftParent, ConstraintOperations.Constraint rightParent)
-        {
-          foreach (string key in (IEnumerable) ((Hashtable) this.scopes.Clone()).Keys)
-          {
-            ConstraintOperations.AccumulatedResults.OptimizationInfo.ScopeInfo scope = rightInfo.scopes[key];
-            if (scope != null)
-            {
-              bool emptyResult;
-              if (!this.scopes[key].Conjunction(scope, out emptyResult))
-              {
-                rightInfo.ConvertToBitmapAndConjunction(key, rightParent);
-                this.ConvertToBitmapAndConjunction(key, leftParent);
-              }
-              else if (emptyResult)
-                return (ConstraintOperations.AccumulatedResults.OptimizationInfo) null;
-            }
-          }
-          foreach (string key in (IEnumerable) rightInfo.scopes.Keys)
-          {
-            if (this.scopes[key] == null)
-              this.scopes.AddScope(rightInfo.scopes[key]);
-          }
-          if (this.filter != null && rightInfo.filter != null)
-          {
-            this.filter.Conjunction(rightInfo.filter);
-            this.filterIndex = rightInfo.filterIndex;
-          }
-          else if (rightInfo.filter != null)
-          {
-            this.filter = rightInfo.filter;
-            this.filterIndex = rightInfo.filterIndex;
-          }
-          return this;
-        }
-
-        internal void SimplifyBeforeDisjunction(ConstraintOperations.Constraint parentConstraint, bool invert)
-        {
-          foreach (string key in (IEnumerable) ((Hashtable) this.scopes.Clone()).Keys)
-            this.ConvertToBitmapAndConjunction(key, parentConstraint);
-          if (!invert)
-            return;
-          this.filter.Invert(true);
-        }
-
-        internal IVistaDBIndexInformation SimplifyConjunction(ConstraintOperations.Constraint parentConstraint, bool forceFinalBitmapAndInvert)
-        {
-          int num = 0;
-          IVistaDBIndexInformation indexInformation = (IVistaDBIndexInformation) null;
-          foreach (string key in (IEnumerable) ((Hashtable) this.scopes.Clone()).Keys)
-          {
-            if (num++ == 0)
-              indexInformation = this.scopes[key].Index;
-            else
-              this.ConvertToBitmapAndConjunction(key, parentConstraint);
-          }
-          if (forceFinalBitmapAndInvert)
-          {
-            if (indexInformation != null)
-              this.ConvertToBitmapAndConjunction(indexInformation.Name, parentConstraint);
-            this.filter.Invert(true);
-          }
-          return indexInformation ?? this.filterIndex;
-        }
-
-        internal void FinalizeBitmap(ConstraintOperations.Constraint parentConstraint)
-        {
-          foreach (string key in (IEnumerable) ((Hashtable) this.scopes.Clone()).Keys)
-            this.ConvertToBitmapAndConjunction(key, parentConstraint);
-        }
-
-        private class ScopeInfoCollection : InsensitiveHashtable
-        {
-          internal ScopeInfoCollection()
-          {
-          }
-
-          internal ConstraintOperations.AccumulatedResults.OptimizationInfo.ScopeInfo this[string indexName]
-          {
             get
             {
-              if (!this.Contains((object) indexName))
-                return (ConstraintOperations.AccumulatedResults.OptimizationInfo.ScopeInfo) null;
-              return (ConstraintOperations.AccumulatedResults.OptimizationInfo.ScopeInfo) this[(object) indexName];
+                return constraints.Count;
             }
-          }
-
-          internal void AddScope(IVistaDBIndexInformation scopeIndex, IRow leftScope, IRow rightScope)
-          {
-            this.Add((object) scopeIndex.Name, (object) new ConstraintOperations.AccumulatedResults.OptimizationInfo.ScopeInfo(scopeIndex, leftScope, rightScope));
-          }
-
-          internal void AddScope(ConstraintOperations.AccumulatedResults.OptimizationInfo.ScopeInfo scopeInfo)
-          {
-            this.Add((object) scopeInfo.Index.Name, (object) scopeInfo);
-          }
         }
 
-        internal class ScopeInfo
+        internal OptimizationLevel OptimizationLevel
         {
-          private IVistaDBIndexInformation index;
-          private IRow leftScope;
-          private IRow rightScope;
-
-          internal ScopeInfo(IVistaDBIndexInformation index, IRow leftScope, IRow rightScope)
-          {
-            this.index = index;
-            this.leftScope = leftScope;
-            this.rightScope = rightScope;
-          }
-
-          internal IVistaDBIndexInformation Index
-          {
             get
             {
-              return this.index;
+                return optimizationLevel;
             }
-          }
-
-          internal IRow LeftScope
-          {
-            get
-            {
-              return this.leftScope;
-            }
-          }
-
-          internal IRow RightScope
-          {
-            get
-            {
-              return this.rightScope;
-            }
-          }
-
-          private IRow LessOf(IRow firstScope, IRow secondScope)
-          {
-            if (secondScope.Compare((IVistaDBRow) firstScope) <= 0)
-              return secondScope;
-            return firstScope;
-          }
-
-          private IRow GreatestOf(IRow firstScope, IRow secondScope)
-          {
-            if (secondScope.Compare((IVistaDBRow) firstScope) >= 0)
-              return secondScope;
-            return firstScope;
-          }
-
-          private bool IsIntersection(ConstraintOperations.AccumulatedResults.OptimizationInfo.ScopeInfo right)
-          {
-            IRow leftScope1 = this.leftScope;
-            IRow rightScope = this.rightScope;
-            IRow leftScope2 = right.leftScope;
-            return right.rightScope.CompareKey((IVistaDBRow) leftScope1) >= 0 && rightScope.CompareKey((IVistaDBRow) leftScope2) >= 0;
-          }
-
-          internal bool Conjunction(ConstraintOperations.AccumulatedResults.OptimizationInfo.ScopeInfo right, out bool emptyResult)
-          {
-            if (!this.IsIntersection(right))
-            {
-              emptyResult = false;
-              return false;
-            }
-            IRow row1 = this.GreatestOf(this.leftScope, right.leftScope);
-            IRow row2 = this.LessOf(this.rightScope, right.rightScope);
-            this.leftScope = row1;
-            this.rightScope = row2;
-            emptyResult = this.leftScope.CompareKey((IVistaDBRow) this.rightScope) > 0;
-            return true;
-          }
-
-          internal bool Disjunction(ConstraintOperations.AccumulatedResults.OptimizationInfo.ScopeInfo right, out bool emptyResult)
-          {
-            if (!this.IsIntersection(right))
-            {
-              emptyResult = false;
-              return false;
-            }
-            IRow row1 = this.LessOf(this.leftScope, right.leftScope);
-            IRow row2 = this.GreatestOf(this.rightScope, right.rightScope);
-            this.leftScope = row1;
-            this.rightScope = row2;
-            emptyResult = this.leftScope.CompareKey((IVistaDBRow) this.rightScope) > 0;
-            return true;
-          }
         }
-      }
 
-      private class BitmapFilters : Hashtable
-      {
-      }
-    }
-
-    private class Constraint
-    {
-      protected Triangular.Value optimizedResult = Triangular.Value.Undefined;
-      protected ConstraintOperations.AccumulatedResults results = new ConstraintOperations.AccumulatedResults();
-      private ConstraintOperations.ConstraintType type;
-      private ColumnSignature column;
-      protected Signature leftValue;
-      protected Signature rightValue;
-      private bool inverted;
-      private bool originInverted;
-      protected bool alwaysNull;
-      protected CompareOperation compareOperation;
-      private bool useFtsIndex;
-      private bool optimized;
-      private bool fullOptimized;
-
-      protected Constraint(ConstraintOperations.ConstraintType type)
-      {
-        this.compareOperation = CompareOperation.Equal;
-        this.type = type;
-      }
-
-      protected Constraint(ConstraintOperations.ConstraintType type, ColumnSignature column, Signature leftValue, Signature rightValue, CompareOperation compareOpration, bool fts)
-        : this(type)
-      {
-        this.column = column;
-        this.leftValue = leftValue;
-        this.rightValue = rightValue;
-        this.compareOperation = compareOpration;
-        this.useFtsIndex = fts;
-        if (!((Signature) column != (Signature) null))
-          return;
-        switch (compareOpration)
+        internal void ResetFullOptimizationLevel()
         {
-          case CompareOperation.NotEqual:
-            this.inverted = true;
-            this.originInverted = true;
-            this.compareOperation = CompareOperation.Equal;
-            break;
-          case CompareOperation.Greater:
-            if (!(rightValue == (Signature) null))
-              break;
-            this.inverted = true;
-            this.originInverted = true;
-            this.compareOperation = CompareOperation.LessOrEqual;
-            this.rightValue = leftValue;
-            this.leftValue = (Signature) null;
-            break;
-          case CompareOperation.Less:
-            if (!(leftValue == (Signature) null))
-              break;
-            this.inverted = true;
-            this.originInverted = true;
-            this.compareOperation = CompareOperation.GreaterOrEqual;
-            this.leftValue = rightValue;
-            this.rightValue = (Signature) null;
-            break;
-        }
-      }
-
-      internal bool Optimized
-      {
-        get
-        {
-          return this.optimized;
-        }
-        set
-        {
-          this.optimized = value;
-        }
-      }
-
-      internal bool FullOptimized
-      {
-        get
-        {
-          return this.fullOptimized;
-        }
-        set
-        {
-          this.fullOptimized = value;
-        }
-      }
-
-      internal ConstraintOperations.ConstraintType Type
-      {
-        get
-        {
-          return this.type;
-        }
-      }
-
-      internal bool IsBundle
-      {
-        get
-        {
-          return this.type != ConstraintOperations.ConstraintType.Bitwise;
-        }
-      }
-
-      internal bool IsOrBundle
-      {
-        get
-        {
-          return this.type == ConstraintOperations.ConstraintType.Or;
-        }
-      }
-
-      protected ColumnSignature ColumnSignature
-      {
-        get
-        {
-          return this.column;
-        }
-      }
-
-      internal bool IsAlwaysNull
-      {
-        get
-        {
-          return this.alwaysNull;
-        }
-      }
-
-      protected virtual bool NullValuesExcluded
-      {
-        get
-        {
-          return false;
-        }
-      }
-
-      internal virtual bool ExcludeNulls
-      {
-        get
-        {
-          return true;
-        }
-      }
-
-      internal bool ShouldBeMerged
-      {
-        get
-        {
-          if (this.inverted)
-            return true;
-          foreach (ConstraintOperations.AccumulatedResults.OptimizationInfo optimizationInfo in this.results.Values)
-          {
-            if (optimizationInfo.ShouldBeMerged)
-              return true;
-          }
-          return false;
-        }
-      }
-
-      private bool TestIfEvaluable(ColumnSignature signature, TableCollection sourceTables, int currentTableOrder)
-      {
-        SourceTable table = signature.Table;
-        if (table == null || !sourceTables.Contains(table) || table.CollectionOrder < currentTableOrder)
-          return true;
-        this.SetOptimizableResult(Triangular.Value.True);
-        return false;
-      }
-
-      protected void AddIndex(IVistaDBIndexInformation index, int keyColumnOrder, bool descending)
-      {
-        if (this.results.Count > 0)
-          return;
-        this.results.InitOptimization(this.column.Table, index, keyColumnOrder, descending);
-        this.optimized = true;
-        this.fullOptimized = true;
-      }
-
-      private void EvalScope(IDatabase db, SourceTable table, int currentTableOrder, TableCollection sourceTables)
-      {
-        this.OnEvalScope(db, table, currentTableOrder, sourceTables);
-      }
-
-      internal void SetOptimizableResult(Triangular.Value value)
-      {
-        this.optimizedResult = value;
-        this.fullOptimized = this.optimized = value != Triangular.Value.Undefined;
-        this.results.Clear();
-        this.inverted = false;
-      }
-
-      private void PropagateFrom(ConstraintOperations.Constraint constraint)
-      {
-        this.column = constraint.column;
-        this.results.CopyFrom(constraint.results);
-        this.alwaysNull = constraint.alwaysNull;
-        this.inverted = constraint.inverted;
-        this.optimizedResult = constraint.optimizedResult;
-      }
-
-      protected virtual void OnEvalScope(IDatabase db, SourceTable table, int currentTableOrder, TableCollection sourceTables)
-      {
-        if (this.optimizedResult != Triangular.Value.Undefined)
-          return;
-        if (table.CollectionOrder != currentTableOrder)
-        {
-          this.SetOptimizableResult(Triangular.Value.True);
-        }
-        else
-        {
-          ColumnSignature leftValue = this.leftValue as ColumnSignature;
-          ColumnSignature signature = object.ReferenceEquals((object) this.leftValue, (object) this.rightValue) ? (ColumnSignature) null : this.rightValue as ColumnSignature;
-          if ((Signature) leftValue != (Signature) null && !this.TestIfEvaluable(leftValue, sourceTables, currentTableOrder) || (Signature) signature != (Signature) null && !this.TestIfEvaluable(signature, sourceTables, currentTableOrder))
-            return;
-          bool descending = this.results.Descending;
-          IRow indexStructure = this.column.Table.DoGetIndexStructure(this.results.OptimizationIndex.Name);
-          IRow rightScope = indexStructure.CopyInstance();
-          indexStructure.InitTop();
-          rightScope.InitBottom();
-          indexStructure.RowId = Row.MinRowId + 1U;
-          rightScope.RowId = Row.MaxRowId - 1U;
-          if (this.compareOperation == CompareOperation.IsNull)
-          {
-            for (int index = 0; index < 1; ++index)
-            {
-              ((IValue) indexStructure[index]).Value = (object) null;
-              ((IValue) rightScope[index]).Value = (object) null;
-            }
-            this.results.InitTableResult(indexStructure, rightScope);
-          }
-          else
-          {
-            if (!descending && this.leftValue == (Signature) null)
-              indexStructure.RowId = Row.MaxRowId;
-            if (descending && this.rightValue == (Signature) null)
-              rightScope.RowId = Row.MinRowId;
-            IRow row1;
-            IRow row2;
-            if (descending)
-            {
-              row1 = rightScope;
-              row2 = indexStructure;
-            }
-            else
-            {
-              row1 = indexStructure;
-              row2 = rightScope;
-            }
-            int keyColumnOrder = this.results.KeyColumnOrder;
-            IColumn column = (IColumn) null;
-            if (this.leftValue != (Signature) null)
-            {
-              column = this.leftValue.Execute();
-              if (column.IsNull && this.NullValuesExcluded)
-              {
-                this.SetOptimizableResult(Triangular.Value.False);
-                this.alwaysNull = true;
+            if (optimizationLevel != OptimizationLevel.Full)
                 return;
-              }
-              if (this.results.OptimizationIndex.FullTextSearch)
-              {
-                ((IValue) row1[0]).Value = (object) (short) keyColumnOrder;
-                db.Conversion.Convert((IValue) column, (IValue) row1[1]);
-              }
-              else
-                db.Conversion.Convert((IValue) column, (IValue) row1[keyColumnOrder]);
-              if (this.compareOperation == CompareOperation.Greater)
-                row1.RowId = descending ? Row.MinRowId : Row.MaxRowId;
-            }
-            if (this.rightValue != (Signature) null)
+            optimizationLevel = OptimizationLevel.Part;
+        }
+
+        new private Constraint Pop()
+        {
+            return (Constraint)base.Pop();
+        }
+
+        private bool AddJoinConstraint(ColumnSignature leftColumn, ColumnSignature rightColumn, CompareOperation cmp, CompareOperation revCmp)
+        {
+            if (cmp == CompareOperation.Equal && leftColumn.DataType == rightColumn.DataType && leftColumn.Table.CollectionOrder != rightColumn.Table.CollectionOrder)
             {
-              if (!object.ReferenceEquals((object) this.leftValue, (object) this.rightValue))
-              {
-                column = this.rightValue.Execute();
-                if (column.IsNull && this.NullValuesExcluded)
+                constraints.Add(leftColumn.Table.CollectionOrder <= rightColumn.Table.CollectionOrder ? (Constraint)new JoinColumnEqualityConstraint(rightColumn, leftColumn) : (Constraint)new JoinColumnEqualityConstraint(leftColumn, rightColumn));
+                return true;
+            }
+            if (leftColumn.Table.CollectionOrder > rightColumn.Table.CollectionOrder)
+                return AddValueConstraint(leftColumn, (Signature)rightColumn, cmp, false, true);
+            return AddValueConstraint(rightColumn, (Signature)leftColumn, revCmp, false, true);
+        }
+
+        private bool AddNullValueConstraint(ColumnSignature column, bool isNull)
+        {
+            constraints.Add((Constraint)new IsNullConstraint(column, isNull));
+            return true;
+        }
+
+        private bool AddValueConstraint(ColumnSignature column, Signature valueSignature, CompareOperation cmp, bool fts, bool join)
+        {
+            Signature leftConstantValue = (Signature)null;
+            Signature rightConstantValue = (Signature)null;
+            switch (cmp)
+            {
+                case CompareOperation.Equal:
+                case CompareOperation.NotEqual:
+                    leftConstantValue = valueSignature;
+                    rightConstantValue = valueSignature;
+                    break;
+                case CompareOperation.Greater:
+                case CompareOperation.GreaterOrEqual:
+                    leftConstantValue = valueSignature;
+                    break;
+                case CompareOperation.Less:
+                case CompareOperation.LessOrEqual:
+                    rightConstantValue = valueSignature;
+                    break;
+            }
+            constraints.Add(join ? (Constraint)new JoinColumnCompareConstraint(column, leftConstantValue, rightConstantValue, cmp) : (Constraint)new ColumnCompareConstraint(column, leftConstantValue, rightConstantValue, cmp, fts));
+            return true;
+        }
+
+        private bool AddScopeValueContraint(ColumnSignature column, Signature low, Signature high, bool fts)
+        {
+            constraints.Add((Constraint)new ColumnCompareConstraint(column, low, high, CompareOperation.InScope, fts));
+            return true;
+        }
+
+        private bool AddConstantConstraint(Signature leftOperand, Signature rightOperand, CompareOperation cmp)
+        {
+            constraints.Add((Constraint)new ConstantsCompareConstraint(leftOperand, rightOperand, cmp));
+            return true;
+        }
+
+        internal bool AnalyzeOptimizationLevel()
+        {
+            if (constraints.Count == 0)
+                return false;
+            foreach (Constraint constraint in (List<Constraint>)constraints)
+            {
+                constraint.Optimized = false;
+                constraint.FullOptimized = false;
+                if (!constraint.IsBundle)
+                    constraint.Analyze();
+            }
+            Clear();
+            foreach (Constraint constraint1 in (List<Constraint>)constraints)
+            {
+                switch (constraint1.Type)
                 {
-                  this.SetOptimizableResult(Triangular.Value.False);
-                  this.alwaysNull = true;
-                  return;
+                    case ConstraintType.And:
+                        Constraint constraint2 = Pop();
+                        Constraint constraint3 = Pop();
+                        constraint1.Optimized = constraint2.Optimized || constraint3.Optimized;
+                        constraint1.FullOptimized = constraint2.FullOptimized && constraint3.FullOptimized;
+                        Push((object)constraint1);
+                        continue;
+                    case ConstraintType.Or:
+                        Constraint constraint4 = Pop();
+                        Constraint constraint5 = Pop();
+                        constraint1.Optimized = constraint4.Optimized && constraint5.Optimized;
+                        constraint1.FullOptimized = constraint4.FullOptimized && constraint5.FullOptimized;
+                        Push((object)constraint1);
+                        continue;
+                    case ConstraintType.Not:
+                        Constraint constraint6 = Pop();
+                        bool flag = constraint6.Optimized && constraint6.FullOptimized;
+                        constraint1.Optimized = flag;
+                        constraint1.FullOptimized = flag;
+                        Push((object)constraint1);
+                        continue;
+                    default:
+                        Push((object)constraint1);
+                        continue;
                 }
-              }
-              if (this.results.OptimizationIndex.FullTextSearch)
-              {
-                ((IValue) row2[0]).Value = (object) (short) keyColumnOrder;
-                db.Conversion.Convert((IValue) column, (IValue) row2[1]);
-              }
-              else
-                db.Conversion.Convert((IValue) column, (IValue) row2[keyColumnOrder]);
-              if (this.compareOperation == CompareOperation.Less)
-                row2.RowId = descending ? Row.MaxRowId : Row.MinRowId;
             }
-            if (indexStructure.Compare((IVistaDBRow) rightScope) > 0)
-              this.SetOptimizableResult(Triangular.Value.False);
-            this.results.InitTableResult(indexStructure, rightScope);
-          }
+            Constraint constraint7 = Pop();
+            if (!constraint7.Optimized)
+                optimizationLevel = OptimizationLevel.None;
+            else if (!constraint7.FullOptimized)
+                optimizationLevel = OptimizationLevel.Part;
+            return optimizationLevel != OptimizationLevel.None;
         }
-      }
 
-      protected virtual void OnInvertion()
-      {
-        if (this.IsAlwaysNull)
-          this.inverted = false;
-        else
-          this.inverted = !this.inverted;
-      }
-
-      protected virtual void OnFindIndexes()
-      {
-        IVistaDBTableSchema tableSchema = this.column.Table.GetTableSchema();
-        if (tableSchema == null)
-          return;
-        foreach (IVistaDBIndexInformation index1 in (IEnumerable<IVistaDBIndexInformation>) tableSchema.Indexes.Values)
+        internal bool ActivateOptimizedFilter(int tableOrder)
         {
-          if (!(this.useFtsIndex ^ index1.FullTextSearch))
-          {
-            int index2 = 0;
-            for (int index3 = index1.FullTextSearch ? index1.KeyStructure.Length : 1; index2 < index3; ++index2)
+            if (optimizationLevel == OptimizationLevel.None)
+                return false;
+            Clear();
+            bool emptyResultSet;
+            if (sourceTables[tableOrder].ActivateOptimizedConstraints(out emptyResultSet))
             {
-              IVistaDBKeyColumn vistaDbKeyColumn = index1.KeyStructure[index2];
-              int rowIndex = vistaDbKeyColumn.RowIndex;
-              if (rowIndex == this.column.ColumnIndex)
-              {
-                int keyColumnOrder = index1.FullTextSearch ? rowIndex : index2;
-                this.AddIndex(index1, keyColumnOrder, vistaDbKeyColumn.Descending);
-                if (index1.KeyStructure.Length == 1)
-                  return;
-              }
+                if (optimizationLevel == OptimizationLevel.Full)
+                    optimizationLevel = OptimizationLevel.Part;
+                return emptyResultSet;
             }
-          }
-        }
-        if (this.results.OptimizationIndex != null)
-          return;
-        IVistaDBIndexCollection temporaryIndexes = this.column.Table.TemporaryIndexes;
-        if (temporaryIndexes == null)
-          return;
-        foreach (IVistaDBIndexInformation index in (IEnumerable<IVistaDBIndexInformation>) temporaryIndexes)
-        {
-          IVistaDBKeyColumn vistaDbKeyColumn = index.KeyStructure[0];
-          if (vistaDbKeyColumn.RowIndex == this.column.ColumnIndex)
-            this.AddIndex(index, 0, vistaDbKeyColumn.Descending);
-        }
-      }
-
-      protected virtual void OnInitializeBuilding(IDatabase db, int currentTableOrder, TableCollection sourceTables)
-      {
-        this.EvalScope(db, (Signature) this.column == (Signature) null ? (SourceTable) null : this.column.Table, currentTableOrder, sourceTables);
-      }
-
-      protected virtual void OnAnalyze()
-      {
-        this.FindIndexes();
-      }
-
-      internal void Analyze()
-      {
-        if (this.leftValue != (Signature) null)
-          this.leftValue.SetChanged();
-        if (this.rightValue != (Signature) null)
-          this.rightValue.SetChanged();
-        this.OnAnalyze();
-      }
-
-      internal string GetOptimizedIndexName(int tableOrder)
-      {
-        if (!this.optimized || this.results == null)
-          return (string) null;
-        return this.results.OptimizationIndexByTableOrder(tableOrder);
-      }
-
-      internal IVistaDBIndexInformation SimplifyConjunction(int tableOrder, out bool resetFullOptimization)
-      {
-        bool inverted = this.inverted;
-        this.inverted = false;
-        if (inverted && this.results.Count > 1)
-        {
-          this.SetOptimizableResult(Triangular.Value.True);
-          resetFullOptimization = true;
-          return (IVistaDBIndexInformation) null;
-        }
-        resetFullOptimization = false;
-        return this.results[tableOrder]?.SimplifyConjunction(this, inverted);
-      }
-
-      internal void SimplifyDisjunction(int tableOrder)
-      {
-        bool inverted = this.inverted;
-        this.inverted = false;
-        this.results[tableOrder]?.SimplifyBeforeDisjunction(this, inverted);
-      }
-
-      internal virtual void ActivateMustBeBitmap(int tableOrder)
-      {
-      }
-
-      internal void FindIndexes()
-      {
-        this.OnFindIndexes();
-      }
-
-      internal void InitializeBuilding(IDatabase db, int currentTableOrder, TableCollection sourceTables)
-      {
-        this.results.Clear();
-        this.optimizedResult = Triangular.Value.Undefined;
-        this.inverted = this.originInverted;
-        this.alwaysNull = false;
-        this.OnInitializeBuilding(db, currentTableOrder, sourceTables);
-      }
-
-      internal void Invertion()
-      {
-        this.OnInvertion();
-      }
-
-      private bool OptimizeFullDisjunctionResult(IDatabase db, int currentTableOrder, ConstraintOperations.Constraint left, ConstraintOperations.Constraint right)
-      {
-        if (left.optimizedResult != Triangular.Value.Undefined && right.optimizedResult != Triangular.Value.Undefined)
-        {
-          this.optimizedResult = Triangular.Or(left.optimizedResult, right.optimizedResult);
-          return true;
-        }
-        if (left.optimizedResult != Triangular.Value.Undefined)
-        {
-          if (left.optimizedResult == Triangular.Value.True)
-          {
-            this.SetOptimizableResult(Triangular.Value.True);
-            return true;
-          }
-          this.PropagateFrom(right);
-          return true;
-        }
-        if (right.optimizedResult == Triangular.Value.Undefined)
-          return false;
-        if (right.optimizedResult == Triangular.Value.True)
-        {
-          this.SetOptimizableResult(Triangular.Value.True);
-          return true;
-        }
-        this.PropagateFrom(left);
-        return true;
-      }
-
-      private bool OptimizeFullConjunctionResult(IDatabase db, int currentTableOrder, ConstraintOperations.Constraint left, ConstraintOperations.Constraint right)
-      {
-        if (left.optimizedResult != Triangular.Value.Undefined && right.optimizedResult != Triangular.Value.Undefined)
-        {
-          this.SetOptimizableResult(Triangular.And(left.optimizedResult, right.optimizedResult));
-          return true;
-        }
-        if (left.optimizedResult != Triangular.Value.Undefined)
-        {
-          if (left.optimizedResult == Triangular.Value.False)
-          {
-            this.SetOptimizableResult(Triangular.Value.False);
-            return true;
-          }
-          this.PropagateFrom(right);
-          return true;
-        }
-        if (right.optimizedResult == Triangular.Value.Undefined)
-          return false;
-        if (right.optimizedResult == Triangular.Value.False)
-        {
-          this.SetOptimizableResult(Triangular.Value.False);
-          return true;
-        }
-        this.PropagateFrom(left);
-        return true;
-      }
-
-      internal void Disjunction(IDatabase db, int currentTableOrder, ConstraintOperations.Constraint left, ConstraintOperations.Constraint right, out bool resetFullOptimization)
-      {
-        this.SetOptimizableResult(Triangular.Value.Undefined);
-        left.ActivateMustBeBitmap(currentTableOrder);
-        right.ActivateMustBeBitmap(currentTableOrder);
-        if (left.results.Count > 1 || right.results.Count > 1)
-        {
-          this.SetOptimizableResult(Triangular.Value.False);
-          resetFullOptimization = true;
-        }
-        else
-        {
-          resetFullOptimization = false;
-          if (left.ShouldBeMerged)
-            left.SimplifyDisjunction(currentTableOrder);
-          if (right.ShouldBeMerged)
-            right.SimplifyDisjunction(currentTableOrder);
-          if (this.OptimizeFullDisjunctionResult(db, currentTableOrder, left, right))
-            return;
-          foreach (ConstraintOperations.AccumulatedResults.OptimizationInfo optimizationInfo in left.results.Values)
-          {
-            SourceTable table = optimizationInfo.Table;
-            if (table.CollectionOrder != currentTableOrder)
+            bool resetFullOptimization = false;
+            foreach (Constraint constraint1 in (List<Constraint>)constraints)
             {
-              this.SetOptimizableResult(Triangular.Value.False);
-              break;
-            }
-            ConstraintOperations.AccumulatedResults.OptimizationInfo result = right.results[table.CollectionOrder];
-            if (result != null)
-            {
-              ConstraintOperations.AccumulatedResults.OptimizationInfo resultInfo = optimizationInfo.Disjunction(db, result, left, right);
-              if (resultInfo == null)
-              {
-                this.SetOptimizableResult(Triangular.Value.False);
-                break;
-              }
-              this.results.AddTableResult(resultInfo);
-            }
-          }
-        }
-      }
-
-      internal void Conjunction(IDatabase db, int currentTableOrder, ConstraintOperations.Constraint left, ConstraintOperations.Constraint right, out bool resetFullOptimization)
-      {
-        this.SetOptimizableResult(Triangular.Value.Undefined);
-        left.ActivateMustBeBitmap(currentTableOrder);
-        right.ActivateMustBeBitmap(currentTableOrder);
-        resetFullOptimization = false;
-        if (left.inverted)
-          left.SimplifyConjunction(currentTableOrder, out resetFullOptimization);
-        if (right.inverted)
-          right.SimplifyConjunction(currentTableOrder, out resetFullOptimization);
-        if (this.OptimizeFullConjunctionResult(db, currentTableOrder, left, right))
-          return;
-        this.results.Clear();
-        foreach (ConstraintOperations.AccumulatedResults.OptimizationInfo resultInfo1 in left.results.Values)
-        {
-          SourceTable table = resultInfo1.Table;
-          if (table.CollectionOrder >= currentTableOrder)
-          {
-            ConstraintOperations.AccumulatedResults.OptimizationInfo result = right.results[table.CollectionOrder];
-            if (result != null)
-            {
-              if (table.CollectionOrder == currentTableOrder)
-              {
-                ConstraintOperations.AccumulatedResults.OptimizationInfo resultInfo2 = resultInfo1.Conjunction(db, result, left, right);
-                if (resultInfo2 == null)
+                switch (constraint1.Type)
                 {
-                  this.SetOptimizableResult(Triangular.Value.False);
-                  return;
+                    case ConstraintType.And:
+                        Constraint left1 = Pop();
+                        Constraint right1 = Pop();
+                        constraint1.Conjunction(database, tableOrder, left1, right1, out resetFullOptimization);
+                        Push((object)constraint1);
+                        break;
+                    case ConstraintType.Or:
+                        Constraint left2 = Pop();
+                        Constraint right2 = Pop();
+                        constraint1.Disjunction(database, tableOrder, left2, right2, out resetFullOptimization);
+                        Push((object)constraint1);
+                        break;
+                    case ConstraintType.Not:
+                        Constraint constraint2 = Pop();
+                        constraint2.Invertion();
+                        Push((object)constraint2);
+                        break;
+                    default:
+                        constraint1.InitializeBuilding(database, tableOrder, sourceTables);
+                        Push((object)constraint1);
+                        break;
                 }
-                this.results.AddTableResult(resultInfo2);
-              }
-              else
-                this.results.AddTableResult(resultInfo1);
+                if (resetFullOptimization && optimizationLevel == OptimizationLevel.Full)
+                    optimizationLevel = OptimizationLevel.Part;
             }
-          }
-        }
-        foreach (ConstraintOperations.AccumulatedResults.OptimizationInfo resultInfo in right.results.Values)
-        {
-          SourceTable table = resultInfo.Table;
-          if (left.results[table.CollectionOrder] == null)
-            this.results.AddTableResult(resultInfo);
-        }
-      }
-
-      internal bool ActivateFilter(int tableOrder, out bool resetFullOptimization)
-      {
-        ConstraintOperations.AccumulatedResults.OptimizationInfo result = this.results[tableOrder];
-        if (result == null || result.Table.CollectionOrder > tableOrder)
-        {
-          resetFullOptimization = false;
-          if (this.optimizedResult != Triangular.Value.False)
-            return this.optimizedResult == Triangular.Value.Null;
-          return true;
-        }
-        IVistaDBIndexInformation index = this.SimplifyConjunction(tableOrder, out resetFullOptimization);
-        if (index == null)
-        {
-          if (this.optimizedResult != Triangular.Value.False)
-            return this.optimizedResult == Triangular.Value.Null;
-          return true;
-        }
-        IOptimizedFilter filter = result.Filter;
-        if (filter != null)
-        {
-          if (filter.RowCount == 0L)
-            return true;
-          result.Table.BeginOptimizedFiltering(filter, index.Name);
-        }
-        IRow leftScope = result.GetLeftScope(index);
-        IRow rightScope = result.GetRightScope(index);
-        if (leftScope != null && rightScope != null)
-        {
-          result.Table.ActiveIndex = index.Name;
-          return result.Table.SetScope(leftScope, rightScope);
-        }
-        if (this.optimizedResult != Triangular.Value.False)
-          return this.optimizedResult == Triangular.Value.Null;
-        return true;
-      }
-
-      internal string GetJoinedTable(SourceTable table)
-      {
-        if (this.rightValue != (Signature) null && this.rightValue is ColumnSignature)
-        {
-          SourceTable table1 = ((ColumnSignature) this.rightValue).Table;
-          if (table1.CollectionOrder == table.CollectionOrder + 1)
-            return table1.Alias;
-        }
-        if (this.leftValue != (Signature) null && this.leftValue is ColumnSignature)
-        {
-          SourceTable table1 = ((ColumnSignature) this.leftValue).Table;
-          if (table1.CollectionOrder == table.CollectionOrder - 1)
-            return table1.Alias;
-        }
-        return (string) null;
-      }
-    }
-
-    private class ColumnCompareConstraint : ConstraintOperations.Constraint
-    {
-      internal ColumnCompareConstraint(ColumnSignature column, Signature leftConstantValue, Signature rightConstantValue, CompareOperation compareOperation, bool fts)
-        : base(ConstraintOperations.ConstraintType.Bitwise, column, leftConstantValue, rightConstantValue, compareOperation, fts)
-      {
-      }
-
-      protected override bool NullValuesExcluded
-      {
-        get
-        {
-          return true;
-        }
-      }
-
-      protected override void OnEvalScope(IDatabase db, SourceTable table, int currentTableOrder, TableCollection sourceTables)
-      {
-        if (this.results.OptimizationIndex == null)
-          this.SetOptimizableResult(Triangular.Value.True);
-        else
-          base.OnEvalScope(db, table, currentTableOrder, sourceTables);
-      }
-    }
-
-    private class JoinColumnCompareConstraint : ConstraintOperations.ColumnCompareConstraint
-    {
-      private string keyExpression;
-
-      internal JoinColumnCompareConstraint(ColumnSignature column, Signature leftConstantValue, Signature rightConstantValue, CompareOperation compareOperation)
-        : base(column, leftConstantValue, rightConstantValue, compareOperation, false)
-      {
-      }
-
-      protected override bool NullValuesExcluded
-      {
-        get
-        {
-          return true;
-        }
-      }
-
-      protected override void OnAnalyze()
-      {
-        ColumnSignature leftValue = this.leftValue as ColumnSignature;
-        ColumnSignature columnSignature = object.ReferenceEquals((object) this.leftValue, (object) this.rightValue) ? (ColumnSignature) null : this.rightValue as ColumnSignature;
-        if (!((Signature) leftValue == (Signature) null) && leftValue.Table == this.ColumnSignature.Table || !((Signature) columnSignature == (Signature) null) && columnSignature.Table == this.ColumnSignature.Table)
-          return;
-        base.OnAnalyze();
-      }
-
-      protected override void OnFindIndexes()
-      {
-        base.OnFindIndexes();
-        if (this.Optimized)
-          return;
-        this.keyExpression = this.ColumnSignature.ColumnName;
-        this.Optimized = true;
-        this.FullOptimized = true;
-      }
-
-      protected override void OnInitializeBuilding(IDatabase db, int currentTableOrder, TableCollection sourceTables)
-      {
-        if (this.results.OptimizationIndex == null && this.keyExpression != null)
-        {
-          this.FindIndexes();
-          if (this.results.OptimizationIndex == null)
-          {
-            this.ColumnSignature.Table.CreateIndex(this.keyExpression, true);
-            this.FindIndexes();
-          }
-        }
-        base.OnInitializeBuilding(db, currentTableOrder, sourceTables);
-      }
-    }
-
-    private class JoinColumnEqualityConstraint : ConstraintOperations.JoinColumnCompareConstraint
-    {
-      private readonly ColumnSignature leftColumnSignature;
-
-      internal JoinColumnEqualityConstraint(ColumnSignature rightColumn, ColumnSignature leftColumn)
-        : base(rightColumn, (Signature) leftColumn, (Signature) leftColumn, CompareOperation.Equal)
-      {
-        this.leftColumnSignature = leftColumn;
-      }
-
-      internal ColumnSignature RightColumnSignature
-      {
-        get
-        {
-          return this.ColumnSignature;
-        }
-      }
-
-      internal ColumnSignature LeftColumnSignature
-      {
-        get
-        {
-          return this.leftColumnSignature;
-        }
-      }
-
-      protected override void OnAnalyze()
-      {
-        base.OnAnalyze();
-        SourceTable table = this.RightColumnSignature.Table;
-        if (!((Signature) table.OptimizedIndexColumn == (Signature) null) || !((Signature) table.OptimizedKeyColumn == (Signature) null))
-          return;
-        int collectionOrder = table.CollectionOrder;
-        IVistaDBIndexInformation optimizationIndex = this.results.OptimizationIndex;
-        if (optimizationIndex == null)
-          return;
-        string name = optimizationIndex.Name;
-        IVistaDBKeyColumn[] keyStructure = optimizationIndex.KeyStructure;
-        if (string.IsNullOrEmpty(this.results.OptimizationIndexByTableOrder(collectionOrder)) || optimizationIndex.FullTextSearch || (keyStructure == null || keyStructure[0].RowIndex != this.RightColumnSignature.ColumnIndex))
-          return;
-        bool useCache = optimizationIndex.Unique && keyStructure.Length == 1;
-        table.SetJoinOptimizationColumns(this.leftColumnSignature, this.RightColumnSignature, name, useCache);
-      }
-
-      protected override void OnFindIndexes()
-      {
-        base.OnFindIndexes();
-      }
-
-      protected override void OnEvalScope(IDatabase db, SourceTable table, int currentTableOrder, TableCollection sourceTables)
-      {
-        base.OnEvalScope(db, table, currentTableOrder, sourceTables);
-      }
-    }
-
-    private class IsNullConstraint : ConstraintOperations.ColumnCompareConstraint
-    {
-      private bool includeNulls;
-      private bool originIncludeNulls;
-
-      internal IsNullConstraint(ColumnSignature column, bool isNull)
-        : base(column, (Signature) null, (Signature) null, CompareOperation.IsNull, false)
-      {
-        this.includeNulls = isNull;
-        this.originIncludeNulls = isNull;
-      }
-
-      protected override void OnEvalScope(IDatabase db, SourceTable table, int currentTableOrder, TableCollection sourceTables)
-      {
-        base.OnEvalScope(db, table, currentTableOrder, sourceTables);
-        if (this.includeNulls || this.optimizedResult != Triangular.Value.Undefined)
-          return;
-        this.includeNulls = true;
-        this.Invertion();
-      }
-
-      protected override void OnInitializeBuilding(IDatabase db, int currentTableOrder, TableCollection sourceTables)
-      {
-        this.includeNulls = this.originIncludeNulls;
-        base.OnInitializeBuilding(db, currentTableOrder, sourceTables);
-      }
-
-      internal override bool ExcludeNulls
-      {
-        get
-        {
-          return !this.includeNulls;
-        }
-      }
-
-      protected override void OnInvertion()
-      {
-        if (this.optimizedResult != Triangular.Value.Undefined)
-        {
-          base.OnInvertion();
-        }
-        else
-        {
-          ConstraintOperations.AccumulatedResults.OptimizationInfo.ScopeInfo evaluatedScope = this.results.EvaluatedScope;
-          if (this.includeNulls)
-          {
-            evaluatedScope.LeftScope.InitTop();
-            evaluatedScope.RightScope.InitBottom();
-            evaluatedScope.LeftScope.RowId = Row.MaxRowId;
-            evaluatedScope.RightScope.RowId = Row.MinRowId;
-            this.includeNulls = false;
-          }
-          else
-          {
-            for (int index = 0; index < evaluatedScope.RightScope.Count; ++index)
+            Constraint constraint = Pop();
+            try
             {
-              ((IValue) evaluatedScope.LeftScope[index]).Value = (object) null;
-              ((IValue) evaluatedScope.RightScope[index]).Value = (object) null;
+                return constraint.ActivateFilter(tableOrder, out resetFullOptimization);
             }
-            evaluatedScope.LeftScope.RowId = Row.MinRowId + 1U;
-            evaluatedScope.RightScope.RowId = Row.MaxRowId - 1U;
-            this.includeNulls = true;
-          }
+            finally
+            {
+                if (resetFullOptimization && optimizationLevel == OptimizationLevel.Full)
+                    optimizationLevel = OptimizationLevel.Part;
+            }
         }
-      }
 
-      internal override void ActivateMustBeBitmap(int tableOrder)
-      {
-        if (this.optimizedResult != Triangular.Value.Undefined)
-          return;
-        this.results[tableOrder]?.FinalizeBitmap((ConstraintOperations.Constraint) this);
-      }
-    }
-
-    private class ConstantsCompareConstraint : ConstraintOperations.Constraint
-    {
-      internal ConstantsCompareConstraint(Signature leftConstant, Signature rightConstant, CompareOperation cmp)
-        : base(ConstraintOperations.ConstraintType.Bitwise, (ColumnSignature) null, leftConstant, rightConstant, cmp, false)
-      {
-      }
-
-      protected override bool NullValuesExcluded
-      {
-        get
+        internal bool AddLogicalBetween(ColumnSignature column, Signature low, Signature high, bool fts)
         {
-          return true;
+            if (column.SignatureType != SignatureType.MultiplyColumn && low.SignatureType != SignatureType.Column && high.SignatureType != SignatureType.Column)
+                return AddScopeValueContraint(column, low, high, fts);
+            return false;
         }
-      }
 
-      protected override void OnEvalScope(IDatabase db, SourceTable table, int currentTableOrder, TableCollection sourceTables)
-      {
-        IColumn column1 = this.leftValue.Execute();
-        IColumn column2 = this.rightValue.Execute();
-        if (this.leftValue.IsNull || this.rightValue.IsNull)
+        internal bool AddLogicalIsNull(Signature columnOperand, bool isNull)
         {
-          this.SetOptimizableResult(Triangular.Value.False);
-          this.alwaysNull = true;
+            if (columnOperand.SignatureType == SignatureType.Column)
+                return AddNullValueConstraint((ColumnSignature)columnOperand, isNull);
+            return false;
         }
-        else
+
+        internal bool AddLogicalCompare(Signature leftOperand, Signature rightOperand, CompareOperation cmp, CompareOperation revCmp, bool fts)
         {
-          this.alwaysNull = false;
-          IColumn column3 = (IColumn) ((Row.Column) column1).Duplicate(false);
-          db.Conversion.Convert((IValue) column2, (IValue) column3);
-          int num = column1.Compare((IVistaDBColumn) column3);
-          this.SetOptimizableResult(num == 0 && (this.compareOperation == CompareOperation.Equal || this.compareOperation == CompareOperation.GreaterOrEqual || this.compareOperation == CompareOperation.LessOrEqual) || num < 0 && (this.compareOperation == CompareOperation.Less || this.compareOperation == CompareOperation.LessOrEqual || this.compareOperation == CompareOperation.NotEqual) || num > 0 && (this.compareOperation == CompareOperation.Greater || this.compareOperation == CompareOperation.GreaterOrEqual || this.compareOperation == CompareOperation.NotEqual) ? Triangular.Value.True : Triangular.Value.False);
+            if (leftOperand.SignatureType == SignatureType.Column && rightOperand.SignatureType == SignatureType.Column)
+                return AddJoinConstraint((ColumnSignature)leftOperand, (ColumnSignature)rightOperand, cmp, revCmp);
+            if (leftOperand.SignatureType == SignatureType.Column)
+                return AddValueConstraint((ColumnSignature)leftOperand, rightOperand, cmp, fts, false);
+            if (rightOperand.SignatureType == SignatureType.Column)
+                return AddValueConstraint((ColumnSignature)rightOperand, leftOperand, revCmp, false, false);
+            if ((leftOperand.SignatureType == SignatureType.Parameter || leftOperand.SignatureType == SignatureType.Constant) && (rightOperand.SignatureType == SignatureType.Parameter || rightOperand.SignatureType == SignatureType.Constant))
+                return AddConstantConstraint(leftOperand, rightOperand, cmp);
+            return false;
         }
-      }
 
-      protected override void OnInvertion()
-      {
-        if (this.IsAlwaysNull || this.optimizedResult == Triangular.Value.Undefined)
-          return;
-        this.SetOptimizableResult(Triangular.Not(this.optimizedResult));
-      }
+        internal bool AddLogicalExpression(Signature operand)
+        {
+            return false;
+        }
 
-      protected override void OnFindIndexes()
-      {
-        this.Optimized = true;
-        this.FullOptimized = true;
-      }
+        internal bool AddLogicalNot()
+        {
+            constraints.Add((Constraint)new NotBundle());
+            return true;
+        }
+
+        internal bool AddLogicalAnd()
+        {
+            constraints.Add((Constraint)new AndBundle());
+            return true;
+        }
+
+        internal bool AddLogicalOr()
+        {
+            constraints.Add((Constraint)new OrBundle());
+            return true;
+        }
+
+        internal bool RollBackAddedConstraints(int oldCount)
+        {
+            int count = Count - oldCount;
+            if (count <= 0)
+                return false;
+            if (oldCount <= 0)
+            {
+                ClearConstraints();
+                return true;
+            }
+            constraints.RemoveRange(oldCount, count);
+            return true;
+        }
+
+        internal void ClearConstraints()
+        {
+            constraints.Clear();
+            Clear();
+        }
+
+        internal string GetIndexName(int rowIndex, int tableOrder)
+        {
+            if (optimizationLevel == OptimizationLevel.None)
+                return (string)null;
+            foreach (Constraint constraint in (List<Constraint>)constraints)
+            {
+                if (constraint.Type == ConstraintType.Bitwise)
+                {
+                    string optimizedIndexName = constraint.GetOptimizedIndexName(tableOrder);
+                    if (optimizedIndexName != null)
+                        return optimizedIndexName;
+                }
+            }
+            return (string)null;
+        }
+
+        internal string GetJoinedTable(int orOrder, SourceTable table)
+        {
+            if (optimizationLevel == OptimizationLevel.None)
+                return (string)null;
+            foreach (Constraint constraint in (List<Constraint>)constraints)
+            {
+                if (constraint.Type == ConstraintType.Bitwise)
+                {
+                    string joinedTable = constraint.GetJoinedTable(table);
+                    if (joinedTable != null)
+                        return joinedTable;
+                }
+            }
+            return (string)null;
+        }
+
+        private enum ConstraintType
+        {
+            Bitwise,
+            And,
+            Or,
+            Not,
+        }
+
+        private class OptimizationParts : List<Constraint>
+        {
+            internal OptimizationParts()
+              : base(20)
+            {
+            }
+        }
+
+        private class AccumulatedResults : Dictionary<int, AccumulatedResults.OptimizationInfo>
+        {
+            private int keyColumnOrder = -1;
+            private SourceTable table;
+            private IVistaDBIndexInformation activeIndex;
+            private bool descending;
+
+            internal new OptimizationInfo this[int tableOrder]
+            {
+                get
+                {
+                    if (!ContainsKey(tableOrder))
+                        return (OptimizationInfo)null;
+                    return base[tableOrder];
+                }
+            }
+
+            internal OptimizationInfo.ScopeInfo EvaluatedScope
+            {
+                get
+                {
+                    return this[table.CollectionOrder].GetScopeInfo(activeIndex);
+                }
+            }
+
+            internal IVistaDBIndexInformation OptimizationIndex
+            {
+                get
+                {
+                    return activeIndex;
+                }
+            }
+
+            internal int KeyColumnOrder
+            {
+                get
+                {
+                    return keyColumnOrder;
+                }
+            }
+
+            internal bool Descending
+            {
+                get
+                {
+                    return descending;
+                }
+            }
+
+            internal void InitOptimization(SourceTable table, IVistaDBIndexInformation index, int keyColumnOrder, bool descending)
+            {
+                this.table = table;
+                activeIndex = index;
+                this.keyColumnOrder = keyColumnOrder;
+                this.descending = descending;
+            }
+
+            internal void InitTableResult(IRow leftScope, IRow rightScope)
+            {
+                Add(table.CollectionOrder, new OptimizationInfo(table, activeIndex, leftScope, rightScope));
+            }
+
+            internal void AddTableResult(OptimizationInfo resultInfo)
+            {
+                Add(resultInfo.Table.CollectionOrder, resultInfo);
+            }
+
+            internal void CopyFrom(AccumulatedResults accumulatedResults)
+            {
+                Clear();
+                foreach (OptimizationInfo resultInfo in accumulatedResults.Values)
+                    AddTableResult(resultInfo);
+            }
+
+            internal string OptimizationIndexByTableOrder(int tableOrder)
+            {
+                if (table == null || table.CollectionOrder != tableOrder)
+                    return (string)null;
+                if (activeIndex != null)
+                    return activeIndex.Name;
+                return (string)null;
+            }
+
+            internal class OptimizationInfo
+            {
+                private ScopeInfoCollection scopes = new ScopeInfoCollection();
+                private SourceTable table;
+                private IOptimizedFilter filter;
+                private IVistaDBIndexInformation filterIndex;
+
+                internal OptimizationInfo(SourceTable table, IVistaDBIndexInformation index, IRow leftScope, IRow rightScope)
+                {
+                    this.table = table;
+                    filterIndex = index;
+                    scopes.AddScope(index, leftScope, rightScope);
+                }
+
+                internal SourceTable Table
+                {
+                    get
+                    {
+                        return table;
+                    }
+                }
+
+                internal IOptimizedFilter Filter
+                {
+                    get
+                    {
+                        return filter;
+                    }
+                }
+
+                internal bool ShouldBeMerged
+                {
+                    get
+                    {
+                        if (scopes.Count > 1)
+                            return true;
+                        if (scopes.Count == 1)
+                            return filter != null;
+                        return false;
+                    }
+                }
+
+                internal ScopeInfo GetScopeInfo(IVistaDBIndexInformation index)
+                {
+                    return scopes[index.Name];
+                }
+
+                internal IRow GetLeftScope(IVistaDBIndexInformation index)
+                {
+                    return scopes[index.Name]?.LeftScope;
+                }
+
+                internal IRow GetRightScope(IVistaDBIndexInformation index)
+                {
+                    return scopes[index.Name]?.RightScope;
+                }
+
+                private void ConvertToBitmapAndConjunction(string scopeIndexName, Constraint parentConstraint)
+                {
+                    ScopeInfo scope = scopes[scopeIndexName];
+                    filterIndex = scope.Index;
+                    IOptimizedFilter filter = table.BuildFilterMap(scopeIndexName, scope.LeftScope, scope.RightScope, parentConstraint.ExcludeNulls);
+                    if (this.filter == null)
+                        this.filter = filter;
+                    else
+                        this.filter.Conjunction(filter);
+                    scopes.Remove((object)scopeIndexName);
+                }
+
+                private void ConvertToBitmapAndDisjunction(string scopeIndexName, Constraint parentConstraint)
+                {
+                    ScopeInfo scope = scopes[scopeIndexName];
+                    filterIndex = scope.Index;
+                    IOptimizedFilter filter = table.BuildFilterMap(scopeIndexName, scope.LeftScope, scope.RightScope, parentConstraint.ExcludeNulls);
+                    if (this.filter == null)
+                        this.filter = filter;
+                    else
+                        this.filter.Disjunction(filter);
+                    scopes.Remove((object)scopeIndexName);
+                }
+
+                internal OptimizationInfo Disjunction(IDatabase db, OptimizationInfo rightInfo, Constraint leftParent, Constraint rightParent)
+                {
+                    foreach (string key in (IEnumerable)((Hashtable)scopes.Clone()).Keys)
+                    {
+                        ScopeInfo scope = rightInfo.scopes[key];
+                        if (scope == null)
+                        {
+                            ConvertToBitmapAndDisjunction(key, leftParent);
+                        }
+                        else
+                        {
+                            bool emptyResult;
+                            if (!scopes[key].Disjunction(scope, out emptyResult))
+                            {
+                                rightInfo.ConvertToBitmapAndDisjunction(key, rightParent);
+                                ConvertToBitmapAndDisjunction(key, leftParent);
+                            }
+                            else if (emptyResult)
+                                return (OptimizationInfo)null;
+                        }
+                    }
+                    foreach (string key in (IEnumerable)((Hashtable)rightInfo.scopes.Clone()).Keys)
+                    {
+                        if (scopes[key] == null)
+                            rightInfo.ConvertToBitmapAndDisjunction(key, rightParent);
+                    }
+                    if (filter != null)
+                    {
+                        filter.Disjunction(rightInfo.filter);
+                        filterIndex = rightInfo.filterIndex;
+                    }
+                    return this;
+                }
+
+                internal OptimizationInfo Conjunction(IDatabase db, OptimizationInfo rightInfo, Constraint leftParent, Constraint rightParent)
+                {
+                    foreach (string key in (IEnumerable)((Hashtable)scopes.Clone()).Keys)
+                    {
+                        ScopeInfo scope = rightInfo.scopes[key];
+                        if (scope != null)
+                        {
+                            bool emptyResult;
+                            if (!scopes[key].Conjunction(scope, out emptyResult))
+                            {
+                                rightInfo.ConvertToBitmapAndConjunction(key, rightParent);
+                                ConvertToBitmapAndConjunction(key, leftParent);
+                            }
+                            else if (emptyResult)
+                                return (OptimizationInfo)null;
+                        }
+                    }
+                    foreach (string key in (IEnumerable)rightInfo.scopes.Keys)
+                    {
+                        if (scopes[key] == null)
+                            scopes.AddScope(rightInfo.scopes[key]);
+                    }
+                    if (filter != null && rightInfo.filter != null)
+                    {
+                        filter.Conjunction(rightInfo.filter);
+                        filterIndex = rightInfo.filterIndex;
+                    }
+                    else if (rightInfo.filter != null)
+                    {
+                        filter = rightInfo.filter;
+                        filterIndex = rightInfo.filterIndex;
+                    }
+                    return this;
+                }
+
+                internal void SimplifyBeforeDisjunction(Constraint parentConstraint, bool invert)
+                {
+                    foreach (string key in (IEnumerable)((Hashtable)scopes.Clone()).Keys)
+                        ConvertToBitmapAndConjunction(key, parentConstraint);
+                    if (!invert)
+                        return;
+                    filter.Invert(true);
+                }
+
+                internal IVistaDBIndexInformation SimplifyConjunction(Constraint parentConstraint, bool forceFinalBitmapAndInvert)
+                {
+                    int num = 0;
+                    IVistaDBIndexInformation indexInformation = (IVistaDBIndexInformation)null;
+                    foreach (string key in (IEnumerable)((Hashtable)scopes.Clone()).Keys)
+                    {
+                        if (num++ == 0)
+                            indexInformation = scopes[key].Index;
+                        else
+                            ConvertToBitmapAndConjunction(key, parentConstraint);
+                    }
+                    if (forceFinalBitmapAndInvert)
+                    {
+                        if (indexInformation != null)
+                            ConvertToBitmapAndConjunction(indexInformation.Name, parentConstraint);
+                        filter.Invert(true);
+                    }
+                    return indexInformation ?? filterIndex;
+                }
+
+                internal void FinalizeBitmap(Constraint parentConstraint)
+                {
+                    foreach (string key in (IEnumerable)((Hashtable)scopes.Clone()).Keys)
+                        ConvertToBitmapAndConjunction(key, parentConstraint);
+                }
+
+                private class ScopeInfoCollection : InsensitiveHashtable
+                {
+                    internal ScopeInfoCollection()
+                    {
+                    }
+
+                    internal ScopeInfo this[string indexName]
+                    {
+                        get
+                        {
+                            if (!Contains((object)indexName))
+                                return (ScopeInfo)null;
+                            return (ScopeInfo)this[(object)indexName];
+                        }
+                    }
+
+                    internal void AddScope(IVistaDBIndexInformation scopeIndex, IRow leftScope, IRow rightScope)
+                    {
+                        Add((object)scopeIndex.Name, (object)new ScopeInfo(scopeIndex, leftScope, rightScope));
+                    }
+
+                    internal void AddScope(ScopeInfo scopeInfo)
+                    {
+                        Add((object)scopeInfo.Index.Name, (object)scopeInfo);
+                    }
+                }
+
+                internal class ScopeInfo
+                {
+                    private IVistaDBIndexInformation index;
+                    private IRow leftScope;
+                    private IRow rightScope;
+
+                    internal ScopeInfo(IVistaDBIndexInformation index, IRow leftScope, IRow rightScope)
+                    {
+                        this.index = index;
+                        this.leftScope = leftScope;
+                        this.rightScope = rightScope;
+                    }
+
+                    internal IVistaDBIndexInformation Index
+                    {
+                        get
+                        {
+                            return index;
+                        }
+                    }
+
+                    internal IRow LeftScope
+                    {
+                        get
+                        {
+                            return leftScope;
+                        }
+                    }
+
+                    internal IRow RightScope
+                    {
+                        get
+                        {
+                            return rightScope;
+                        }
+                    }
+
+                    private IRow LessOf(IRow firstScope, IRow secondScope)
+                    {
+                        if (secondScope.Compare((IVistaDBRow)firstScope) <= 0)
+                            return secondScope;
+                        return firstScope;
+                    }
+
+                    private IRow GreatestOf(IRow firstScope, IRow secondScope)
+                    {
+                        if (secondScope.Compare((IVistaDBRow)firstScope) >= 0)
+                            return secondScope;
+                        return firstScope;
+                    }
+
+                    private bool IsIntersection(ScopeInfo right)
+                    {
+                        IRow leftScope1 = leftScope;
+                        IRow rightScope = this.rightScope;
+                        IRow leftScope2 = right.leftScope;
+                        return right.rightScope.CompareKey((IVistaDBRow)leftScope1) >= 0 && rightScope.CompareKey((IVistaDBRow)leftScope2) >= 0;
+                    }
+
+                    internal bool Conjunction(ScopeInfo right, out bool emptyResult)
+                    {
+                        if (!IsIntersection(right))
+                        {
+                            emptyResult = false;
+                            return false;
+                        }
+                        IRow row1 = GreatestOf(leftScope, right.leftScope);
+                        IRow row2 = LessOf(rightScope, right.rightScope);
+                        leftScope = row1;
+                        rightScope = row2;
+                        emptyResult = leftScope.CompareKey((IVistaDBRow)rightScope) > 0;
+                        return true;
+                    }
+
+                    internal bool Disjunction(ScopeInfo right, out bool emptyResult)
+                    {
+                        if (!IsIntersection(right))
+                        {
+                            emptyResult = false;
+                            return false;
+                        }
+                        IRow row1 = LessOf(leftScope, right.leftScope);
+                        IRow row2 = GreatestOf(rightScope, right.rightScope);
+                        leftScope = row1;
+                        rightScope = row2;
+                        emptyResult = leftScope.CompareKey((IVistaDBRow)rightScope) > 0;
+                        return true;
+                    }
+                }
+            }
+
+            private class BitmapFilters : Hashtable
+            {
+            }
+        }
+
+        private class Constraint
+        {
+            protected Triangular.Value optimizedResult = Triangular.Value.Undefined;
+            protected AccumulatedResults results = new AccumulatedResults();
+            private ConstraintType type;
+            private ColumnSignature column;
+            protected Signature leftValue;
+            protected Signature rightValue;
+            private bool inverted;
+            private bool originInverted;
+            protected bool alwaysNull;
+            protected CompareOperation compareOperation;
+            private bool useFtsIndex;
+            private bool optimized;
+            private bool fullOptimized;
+
+            protected Constraint(ConstraintType type)
+            {
+                compareOperation = CompareOperation.Equal;
+                this.type = type;
+            }
+
+            protected Constraint(ConstraintType type, ColumnSignature column, Signature leftValue, Signature rightValue, CompareOperation compareOpration, bool fts)
+              : this(type)
+            {
+                this.column = column;
+                this.leftValue = leftValue;
+                this.rightValue = rightValue;
+                compareOperation = compareOpration;
+                useFtsIndex = fts;
+                if (!((Signature)column != (Signature)null))
+                    return;
+                switch (compareOpration)
+                {
+                    case CompareOperation.NotEqual:
+                        inverted = true;
+                        originInverted = true;
+                        compareOperation = CompareOperation.Equal;
+                        break;
+                    case CompareOperation.Greater:
+                        if (!(rightValue == (Signature)null))
+                            break;
+                        inverted = true;
+                        originInverted = true;
+                        compareOperation = CompareOperation.LessOrEqual;
+                        this.rightValue = leftValue;
+                        this.leftValue = (Signature)null;
+                        break;
+                    case CompareOperation.Less:
+                        if (!(leftValue == (Signature)null))
+                            break;
+                        inverted = true;
+                        originInverted = true;
+                        compareOperation = CompareOperation.GreaterOrEqual;
+                        this.leftValue = rightValue;
+                        this.rightValue = (Signature)null;
+                        break;
+                }
+            }
+
+            internal bool Optimized
+            {
+                get
+                {
+                    return optimized;
+                }
+                set
+                {
+                    optimized = value;
+                }
+            }
+
+            internal bool FullOptimized
+            {
+                get
+                {
+                    return fullOptimized;
+                }
+                set
+                {
+                    fullOptimized = value;
+                }
+            }
+
+            internal ConstraintType Type
+            {
+                get
+                {
+                    return type;
+                }
+            }
+
+            internal bool IsBundle
+            {
+                get
+                {
+                    return type != ConstraintType.Bitwise;
+                }
+            }
+
+            internal bool IsOrBundle
+            {
+                get
+                {
+                    return type == ConstraintType.Or;
+                }
+            }
+
+            protected ColumnSignature ColumnSignature
+            {
+                get
+                {
+                    return column;
+                }
+            }
+
+            internal bool IsAlwaysNull
+            {
+                get
+                {
+                    return alwaysNull;
+                }
+            }
+
+            protected virtual bool NullValuesExcluded
+            {
+                get
+                {
+                    return false;
+                }
+            }
+
+            internal virtual bool ExcludeNulls
+            {
+                get
+                {
+                    return true;
+                }
+            }
+
+            internal bool ShouldBeMerged
+            {
+                get
+                {
+                    if (inverted)
+                        return true;
+                    foreach (AccumulatedResults.OptimizationInfo optimizationInfo in results.Values)
+                    {
+                        if (optimizationInfo.ShouldBeMerged)
+                            return true;
+                    }
+                    return false;
+                }
+            }
+
+            private bool TestIfEvaluable(ColumnSignature signature, TableCollection sourceTables, int currentTableOrder)
+            {
+                SourceTable table = signature.Table;
+                if (table == null || !sourceTables.Contains(table) || table.CollectionOrder < currentTableOrder)
+                    return true;
+                SetOptimizableResult(Triangular.Value.True);
+                return false;
+            }
+
+            protected void AddIndex(IVistaDBIndexInformation index, int keyColumnOrder, bool descending)
+            {
+                if (results.Count > 0)
+                    return;
+                results.InitOptimization(column.Table, index, keyColumnOrder, descending);
+                optimized = true;
+                fullOptimized = true;
+            }
+
+            private void EvalScope(IDatabase db, SourceTable table, int currentTableOrder, TableCollection sourceTables)
+            {
+                OnEvalScope(db, table, currentTableOrder, sourceTables);
+            }
+
+            internal void SetOptimizableResult(Triangular.Value value)
+            {
+                optimizedResult = value;
+                fullOptimized = optimized = value != Triangular.Value.Undefined;
+                results.Clear();
+                inverted = false;
+            }
+
+            private void PropagateFrom(Constraint constraint)
+            {
+                column = constraint.column;
+                results.CopyFrom(constraint.results);
+                alwaysNull = constraint.alwaysNull;
+                inverted = constraint.inverted;
+                optimizedResult = constraint.optimizedResult;
+            }
+
+            protected virtual void OnEvalScope(IDatabase db, SourceTable table, int currentTableOrder, TableCollection sourceTables)
+            {
+                if (optimizedResult != Triangular.Value.Undefined)
+                    return;
+                if (table.CollectionOrder != currentTableOrder)
+                {
+                    SetOptimizableResult(Triangular.Value.True);
+                }
+                else
+                {
+                    ColumnSignature leftValue = this.leftValue as ColumnSignature;
+                    ColumnSignature signature = ReferenceEquals((object)this.leftValue, (object)rightValue) ? (ColumnSignature)null : rightValue as ColumnSignature;
+                    if ((Signature)leftValue != (Signature)null && !TestIfEvaluable(leftValue, sourceTables, currentTableOrder) || (Signature)signature != (Signature)null && !TestIfEvaluable(signature, sourceTables, currentTableOrder))
+                        return;
+                    bool descending = results.Descending;
+                    IRow indexStructure = column.Table.DoGetIndexStructure(results.OptimizationIndex.Name);
+                    IRow rightScope = indexStructure.CopyInstance();
+                    indexStructure.InitTop();
+                    rightScope.InitBottom();
+                    indexStructure.RowId = Row.MinRowId + 1U;
+                    rightScope.RowId = Row.MaxRowId - 1U;
+                    if (compareOperation == CompareOperation.IsNull)
+                    {
+                        for (int index = 0; index < 1; ++index)
+                        {
+                            ((IValue)indexStructure[index]).Value = (object)null;
+                            ((IValue)rightScope[index]).Value = (object)null;
+                        }
+                        results.InitTableResult(indexStructure, rightScope);
+                    }
+                    else
+                    {
+                        if (!descending && this.leftValue == (Signature)null)
+                            indexStructure.RowId = Row.MaxRowId;
+                        if (descending && rightValue == (Signature)null)
+                            rightScope.RowId = Row.MinRowId;
+                        IRow row1;
+                        IRow row2;
+                        if (descending)
+                        {
+                            row1 = rightScope;
+                            row2 = indexStructure;
+                        }
+                        else
+                        {
+                            row1 = indexStructure;
+                            row2 = rightScope;
+                        }
+                        int keyColumnOrder = results.KeyColumnOrder;
+                        IColumn column = (IColumn)null;
+                        if (this.leftValue != (Signature)null)
+                        {
+                            column = this.leftValue.Execute();
+                            if (column.IsNull && NullValuesExcluded)
+                            {
+                                SetOptimizableResult(Triangular.Value.False);
+                                alwaysNull = true;
+                                return;
+                            }
+                            if (results.OptimizationIndex.FullTextSearch)
+                            {
+                                ((IValue)row1[0]).Value = (object)(short)keyColumnOrder;
+                                db.Conversion.Convert((IValue)column, (IValue)row1[1]);
+                            }
+                            else
+                                db.Conversion.Convert((IValue)column, (IValue)row1[keyColumnOrder]);
+                            if (compareOperation == CompareOperation.Greater)
+                                row1.RowId = descending ? Row.MinRowId : Row.MaxRowId;
+                        }
+                        if (rightValue != (Signature)null)
+                        {
+                            if (!ReferenceEquals((object)this.leftValue, (object)rightValue))
+                            {
+                                column = rightValue.Execute();
+                                if (column.IsNull && NullValuesExcluded)
+                                {
+                                    SetOptimizableResult(Triangular.Value.False);
+                                    alwaysNull = true;
+                                    return;
+                                }
+                            }
+                            if (results.OptimizationIndex.FullTextSearch)
+                            {
+                                ((IValue)row2[0]).Value = (object)(short)keyColumnOrder;
+                                db.Conversion.Convert((IValue)column, (IValue)row2[1]);
+                            }
+                            else
+                                db.Conversion.Convert((IValue)column, (IValue)row2[keyColumnOrder]);
+                            if (compareOperation == CompareOperation.Less)
+                                row2.RowId = descending ? Row.MaxRowId : Row.MinRowId;
+                        }
+                        if (indexStructure.Compare((IVistaDBRow)rightScope) > 0)
+                            SetOptimizableResult(Triangular.Value.False);
+                        results.InitTableResult(indexStructure, rightScope);
+                    }
+                }
+            }
+
+            protected virtual void OnInvertion()
+            {
+                if (IsAlwaysNull)
+                    inverted = false;
+                else
+                    inverted = !inverted;
+            }
+
+            protected virtual void OnFindIndexes()
+            {
+                IVistaDBTableSchema tableSchema = column.Table.GetTableSchema();
+                if (tableSchema == null)
+                    return;
+                foreach (IVistaDBIndexInformation index1 in (IEnumerable<IVistaDBIndexInformation>)tableSchema.Indexes.Values)
+                {
+                    if (!(useFtsIndex ^ index1.FullTextSearch))
+                    {
+                        int index2 = 0;
+                        for (int index3 = index1.FullTextSearch ? index1.KeyStructure.Length : 1; index2 < index3; ++index2)
+                        {
+                            IVistaDBKeyColumn vistaDbKeyColumn = index1.KeyStructure[index2];
+                            int rowIndex = vistaDbKeyColumn.RowIndex;
+                            if (rowIndex == column.ColumnIndex)
+                            {
+                                int keyColumnOrder = index1.FullTextSearch ? rowIndex : index2;
+                                AddIndex(index1, keyColumnOrder, vistaDbKeyColumn.Descending);
+                                if (index1.KeyStructure.Length == 1)
+                                    return;
+                            }
+                        }
+                    }
+                }
+                if (results.OptimizationIndex != null)
+                    return;
+                IVistaDBIndexCollection temporaryIndexes = column.Table.TemporaryIndexes;
+                if (temporaryIndexes == null)
+                    return;
+                foreach (IVistaDBIndexInformation index in (IEnumerable<IVistaDBIndexInformation>)temporaryIndexes)
+                {
+                    IVistaDBKeyColumn vistaDbKeyColumn = index.KeyStructure[0];
+                    if (vistaDbKeyColumn.RowIndex == column.ColumnIndex)
+                        AddIndex(index, 0, vistaDbKeyColumn.Descending);
+                }
+            }
+
+            protected virtual void OnInitializeBuilding(IDatabase db, int currentTableOrder, TableCollection sourceTables)
+            {
+                EvalScope(db, (Signature)column == (Signature)null ? (SourceTable)null : column.Table, currentTableOrder, sourceTables);
+            }
+
+            protected virtual void OnAnalyze()
+            {
+                FindIndexes();
+            }
+
+            internal void Analyze()
+            {
+                if (leftValue != (Signature)null)
+                    leftValue.SetChanged();
+                if (rightValue != (Signature)null)
+                    rightValue.SetChanged();
+                OnAnalyze();
+            }
+
+            internal string GetOptimizedIndexName(int tableOrder)
+            {
+                if (!optimized || results == null)
+                    return (string)null;
+                return results.OptimizationIndexByTableOrder(tableOrder);
+            }
+
+            internal IVistaDBIndexInformation SimplifyConjunction(int tableOrder, out bool resetFullOptimization)
+            {
+                bool inverted = this.inverted;
+                this.inverted = false;
+                if (inverted && results.Count > 1)
+                {
+                    SetOptimizableResult(Triangular.Value.True);
+                    resetFullOptimization = true;
+                    return (IVistaDBIndexInformation)null;
+                }
+                resetFullOptimization = false;
+                return results[tableOrder]?.SimplifyConjunction(this, inverted);
+            }
+
+            internal void SimplifyDisjunction(int tableOrder)
+            {
+                bool inverted = this.inverted;
+                this.inverted = false;
+                results[tableOrder]?.SimplifyBeforeDisjunction(this, inverted);
+            }
+
+            internal virtual void ActivateMustBeBitmap(int tableOrder)
+            {
+            }
+
+            internal void FindIndexes()
+            {
+                OnFindIndexes();
+            }
+
+            internal void InitializeBuilding(IDatabase db, int currentTableOrder, TableCollection sourceTables)
+            {
+                results.Clear();
+                optimizedResult = Triangular.Value.Undefined;
+                inverted = originInverted;
+                alwaysNull = false;
+                OnInitializeBuilding(db, currentTableOrder, sourceTables);
+            }
+
+            internal void Invertion()
+            {
+                OnInvertion();
+            }
+
+            private bool OptimizeFullDisjunctionResult(IDatabase db, int currentTableOrder, Constraint left, Constraint right)
+            {
+                if (left.optimizedResult != Triangular.Value.Undefined && right.optimizedResult != Triangular.Value.Undefined)
+                {
+                    optimizedResult = Triangular.Or(left.optimizedResult, right.optimizedResult);
+                    return true;
+                }
+                if (left.optimizedResult != Triangular.Value.Undefined)
+                {
+                    if (left.optimizedResult == Triangular.Value.True)
+                    {
+                        SetOptimizableResult(Triangular.Value.True);
+                        return true;
+                    }
+                    PropagateFrom(right);
+                    return true;
+                }
+                if (right.optimizedResult == Triangular.Value.Undefined)
+                    return false;
+                if (right.optimizedResult == Triangular.Value.True)
+                {
+                    SetOptimizableResult(Triangular.Value.True);
+                    return true;
+                }
+                PropagateFrom(left);
+                return true;
+            }
+
+            private bool OptimizeFullConjunctionResult(IDatabase db, int currentTableOrder, Constraint left, Constraint right)
+            {
+                if (left.optimizedResult != Triangular.Value.Undefined && right.optimizedResult != Triangular.Value.Undefined)
+                {
+                    SetOptimizableResult(Triangular.And(left.optimizedResult, right.optimizedResult));
+                    return true;
+                }
+                if (left.optimizedResult != Triangular.Value.Undefined)
+                {
+                    if (left.optimizedResult == Triangular.Value.False)
+                    {
+                        SetOptimizableResult(Triangular.Value.False);
+                        return true;
+                    }
+                    PropagateFrom(right);
+                    return true;
+                }
+                if (right.optimizedResult == Triangular.Value.Undefined)
+                    return false;
+                if (right.optimizedResult == Triangular.Value.False)
+                {
+                    SetOptimizableResult(Triangular.Value.False);
+                    return true;
+                }
+                PropagateFrom(left);
+                return true;
+            }
+
+            internal void Disjunction(IDatabase db, int currentTableOrder, Constraint left, Constraint right, out bool resetFullOptimization)
+            {
+                SetOptimizableResult(Triangular.Value.Undefined);
+                left.ActivateMustBeBitmap(currentTableOrder);
+                right.ActivateMustBeBitmap(currentTableOrder);
+                if (left.results.Count > 1 || right.results.Count > 1)
+                {
+                    SetOptimizableResult(Triangular.Value.False);
+                    resetFullOptimization = true;
+                }
+                else
+                {
+                    resetFullOptimization = false;
+                    if (left.ShouldBeMerged)
+                        left.SimplifyDisjunction(currentTableOrder);
+                    if (right.ShouldBeMerged)
+                        right.SimplifyDisjunction(currentTableOrder);
+                    if (OptimizeFullDisjunctionResult(db, currentTableOrder, left, right))
+                        return;
+                    foreach (AccumulatedResults.OptimizationInfo optimizationInfo in left.results.Values)
+                    {
+                        SourceTable table = optimizationInfo.Table;
+                        if (table.CollectionOrder != currentTableOrder)
+                        {
+                            SetOptimizableResult(Triangular.Value.False);
+                            break;
+                        }
+                        AccumulatedResults.OptimizationInfo result = right.results[table.CollectionOrder];
+                        if (result != null)
+                        {
+                            AccumulatedResults.OptimizationInfo resultInfo = optimizationInfo.Disjunction(db, result, left, right);
+                            if (resultInfo == null)
+                            {
+                                SetOptimizableResult(Triangular.Value.False);
+                                break;
+                            }
+                            results.AddTableResult(resultInfo);
+                        }
+                    }
+                }
+            }
+
+            internal void Conjunction(IDatabase db, int currentTableOrder, Constraint left, Constraint right, out bool resetFullOptimization)
+            {
+                SetOptimizableResult(Triangular.Value.Undefined);
+                left.ActivateMustBeBitmap(currentTableOrder);
+                right.ActivateMustBeBitmap(currentTableOrder);
+                resetFullOptimization = false;
+                if (left.inverted)
+                    left.SimplifyConjunction(currentTableOrder, out resetFullOptimization);
+                if (right.inverted)
+                    right.SimplifyConjunction(currentTableOrder, out resetFullOptimization);
+                if (OptimizeFullConjunctionResult(db, currentTableOrder, left, right))
+                    return;
+                results.Clear();
+                foreach (AccumulatedResults.OptimizationInfo resultInfo1 in left.results.Values)
+                {
+                    SourceTable table = resultInfo1.Table;
+                    if (table.CollectionOrder >= currentTableOrder)
+                    {
+                        AccumulatedResults.OptimizationInfo result = right.results[table.CollectionOrder];
+                        if (result != null)
+                        {
+                            if (table.CollectionOrder == currentTableOrder)
+                            {
+                                AccumulatedResults.OptimizationInfo resultInfo2 = resultInfo1.Conjunction(db, result, left, right);
+                                if (resultInfo2 == null)
+                                {
+                                    SetOptimizableResult(Triangular.Value.False);
+                                    return;
+                                }
+                                results.AddTableResult(resultInfo2);
+                            }
+                            else
+                                results.AddTableResult(resultInfo1);
+                        }
+                    }
+                }
+                foreach (AccumulatedResults.OptimizationInfo resultInfo in right.results.Values)
+                {
+                    SourceTable table = resultInfo.Table;
+                    if (left.results[table.CollectionOrder] == null)
+                        results.AddTableResult(resultInfo);
+                }
+            }
+
+            internal bool ActivateFilter(int tableOrder, out bool resetFullOptimization)
+            {
+                AccumulatedResults.OptimizationInfo result = results[tableOrder];
+                if (result == null || result.Table.CollectionOrder > tableOrder)
+                {
+                    resetFullOptimization = false;
+                    if (optimizedResult != Triangular.Value.False)
+                        return optimizedResult == Triangular.Value.Null;
+                    return true;
+                }
+                IVistaDBIndexInformation index = SimplifyConjunction(tableOrder, out resetFullOptimization);
+                if (index == null)
+                {
+                    if (optimizedResult != Triangular.Value.False)
+                        return optimizedResult == Triangular.Value.Null;
+                    return true;
+                }
+                IOptimizedFilter filter = result.Filter;
+                if (filter != null)
+                {
+                    if (filter.RowCount == 0L)
+                        return true;
+                    result.Table.BeginOptimizedFiltering(filter, index.Name);
+                }
+                IRow leftScope = result.GetLeftScope(index);
+                IRow rightScope = result.GetRightScope(index);
+                if (leftScope != null && rightScope != null)
+                {
+                    result.Table.ActiveIndex = index.Name;
+                    return result.Table.SetScope(leftScope, rightScope);
+                }
+                if (optimizedResult != Triangular.Value.False)
+                    return optimizedResult == Triangular.Value.Null;
+                return true;
+            }
+
+            internal string GetJoinedTable(SourceTable table)
+            {
+                if (rightValue != (Signature)null && rightValue is ColumnSignature)
+                {
+                    SourceTable table1 = ((ColumnSignature)rightValue).Table;
+                    if (table1.CollectionOrder == table.CollectionOrder + 1)
+                        return table1.Alias;
+                }
+                if (leftValue != (Signature)null && leftValue is ColumnSignature)
+                {
+                    SourceTable table1 = ((ColumnSignature)leftValue).Table;
+                    if (table1.CollectionOrder == table.CollectionOrder - 1)
+                        return table1.Alias;
+                }
+                return (string)null;
+            }
+        }
+
+        private class ColumnCompareConstraint : Constraint
+        {
+            internal ColumnCompareConstraint(ColumnSignature column, Signature leftConstantValue, Signature rightConstantValue, CompareOperation compareOperation, bool fts)
+              : base(ConstraintType.Bitwise, column, leftConstantValue, rightConstantValue, compareOperation, fts)
+            {
+            }
+
+            protected override bool NullValuesExcluded
+            {
+                get
+                {
+                    return true;
+                }
+            }
+
+            protected override void OnEvalScope(IDatabase db, SourceTable table, int currentTableOrder, TableCollection sourceTables)
+            {
+                if (results.OptimizationIndex == null)
+                    SetOptimizableResult(Triangular.Value.True);
+                else
+                    base.OnEvalScope(db, table, currentTableOrder, sourceTables);
+            }
+        }
+
+        private class JoinColumnCompareConstraint : ColumnCompareConstraint
+        {
+            private string keyExpression;
+
+            internal JoinColumnCompareConstraint(ColumnSignature column, Signature leftConstantValue, Signature rightConstantValue, CompareOperation compareOperation)
+              : base(column, leftConstantValue, rightConstantValue, compareOperation, false)
+            {
+            }
+
+            protected override bool NullValuesExcluded
+            {
+                get
+                {
+                    return true;
+                }
+            }
+
+            protected override void OnAnalyze()
+            {
+                ColumnSignature leftValue = this.leftValue as ColumnSignature;
+                ColumnSignature columnSignature = ReferenceEquals((object)this.leftValue, (object)rightValue) ? (ColumnSignature)null : rightValue as ColumnSignature;
+                if (!((Signature)leftValue == (Signature)null) && leftValue.Table == ColumnSignature.Table || !((Signature)columnSignature == (Signature)null) && columnSignature.Table == ColumnSignature.Table)
+                    return;
+                base.OnAnalyze();
+            }
+
+            protected override void OnFindIndexes()
+            {
+                base.OnFindIndexes();
+                if (Optimized)
+                    return;
+                keyExpression = ColumnSignature.ColumnName;
+                Optimized = true;
+                FullOptimized = true;
+            }
+
+            protected override void OnInitializeBuilding(IDatabase db, int currentTableOrder, TableCollection sourceTables)
+            {
+                if (results.OptimizationIndex == null && keyExpression != null)
+                {
+                    FindIndexes();
+                    if (results.OptimizationIndex == null)
+                    {
+                        ColumnSignature.Table.CreateIndex(keyExpression, true);
+                        FindIndexes();
+                    }
+                }
+                base.OnInitializeBuilding(db, currentTableOrder, sourceTables);
+            }
+        }
+
+        private class JoinColumnEqualityConstraint : JoinColumnCompareConstraint
+        {
+            private readonly ColumnSignature leftColumnSignature;
+
+            internal JoinColumnEqualityConstraint(ColumnSignature rightColumn, ColumnSignature leftColumn)
+              : base(rightColumn, (Signature)leftColumn, (Signature)leftColumn, CompareOperation.Equal)
+            {
+                leftColumnSignature = leftColumn;
+            }
+
+            internal ColumnSignature RightColumnSignature
+            {
+                get
+                {
+                    return ColumnSignature;
+                }
+            }
+
+            internal ColumnSignature LeftColumnSignature
+            {
+                get
+                {
+                    return leftColumnSignature;
+                }
+            }
+
+            protected override void OnAnalyze()
+            {
+                base.OnAnalyze();
+                SourceTable table = RightColumnSignature.Table;
+                if (!((Signature)table.OptimizedIndexColumn == (Signature)null) || !((Signature)table.OptimizedKeyColumn == (Signature)null))
+                    return;
+                int collectionOrder = table.CollectionOrder;
+                IVistaDBIndexInformation optimizationIndex = results.OptimizationIndex;
+                if (optimizationIndex == null)
+                    return;
+                string name = optimizationIndex.Name;
+                IVistaDBKeyColumn[] keyStructure = optimizationIndex.KeyStructure;
+                if (string.IsNullOrEmpty(results.OptimizationIndexByTableOrder(collectionOrder)) || optimizationIndex.FullTextSearch || (keyStructure == null || keyStructure[0].RowIndex != RightColumnSignature.ColumnIndex))
+                    return;
+                bool useCache = optimizationIndex.Unique && keyStructure.Length == 1;
+                table.SetJoinOptimizationColumns(leftColumnSignature, RightColumnSignature, name, useCache);
+            }
+
+            protected override void OnFindIndexes()
+            {
+                base.OnFindIndexes();
+            }
+
+            protected override void OnEvalScope(IDatabase db, SourceTable table, int currentTableOrder, TableCollection sourceTables)
+            {
+                base.OnEvalScope(db, table, currentTableOrder, sourceTables);
+            }
+        }
+
+        private class IsNullConstraint : ColumnCompareConstraint
+        {
+            private bool includeNulls;
+            private bool originIncludeNulls;
+
+            internal IsNullConstraint(ColumnSignature column, bool isNull)
+              : base(column, (Signature)null, (Signature)null, CompareOperation.IsNull, false)
+            {
+                includeNulls = isNull;
+                originIncludeNulls = isNull;
+            }
+
+            protected override void OnEvalScope(IDatabase db, SourceTable table, int currentTableOrder, TableCollection sourceTables)
+            {
+                base.OnEvalScope(db, table, currentTableOrder, sourceTables);
+                if (includeNulls || optimizedResult != Triangular.Value.Undefined)
+                    return;
+                includeNulls = true;
+                Invertion();
+            }
+
+            protected override void OnInitializeBuilding(IDatabase db, int currentTableOrder, TableCollection sourceTables)
+            {
+                includeNulls = originIncludeNulls;
+                base.OnInitializeBuilding(db, currentTableOrder, sourceTables);
+            }
+
+            internal override bool ExcludeNulls
+            {
+                get
+                {
+                    return !includeNulls;
+                }
+            }
+
+            protected override void OnInvertion()
+            {
+                if (optimizedResult != Triangular.Value.Undefined)
+                {
+                    base.OnInvertion();
+                }
+                else
+                {
+                    AccumulatedResults.OptimizationInfo.ScopeInfo evaluatedScope = results.EvaluatedScope;
+                    if (includeNulls)
+                    {
+                        evaluatedScope.LeftScope.InitTop();
+                        evaluatedScope.RightScope.InitBottom();
+                        evaluatedScope.LeftScope.RowId = Row.MaxRowId;
+                        evaluatedScope.RightScope.RowId = Row.MinRowId;
+                        includeNulls = false;
+                    }
+                    else
+                    {
+                        for (int index = 0; index < evaluatedScope.RightScope.Count; ++index)
+                        {
+                            ((IValue)evaluatedScope.LeftScope[index]).Value = (object)null;
+                            ((IValue)evaluatedScope.RightScope[index]).Value = (object)null;
+                        }
+                        evaluatedScope.LeftScope.RowId = Row.MinRowId + 1U;
+                        evaluatedScope.RightScope.RowId = Row.MaxRowId - 1U;
+                        includeNulls = true;
+                    }
+                }
+            }
+
+            internal override void ActivateMustBeBitmap(int tableOrder)
+            {
+                if (optimizedResult != Triangular.Value.Undefined)
+                    return;
+                results[tableOrder]?.FinalizeBitmap((Constraint)this);
+            }
+        }
+
+        private class ConstantsCompareConstraint : Constraint
+        {
+            internal ConstantsCompareConstraint(Signature leftConstant, Signature rightConstant, CompareOperation cmp)
+              : base(ConstraintType.Bitwise, (ColumnSignature)null, leftConstant, rightConstant, cmp, false)
+            {
+            }
+
+            protected override bool NullValuesExcluded
+            {
+                get
+                {
+                    return true;
+                }
+            }
+
+            protected override void OnEvalScope(IDatabase db, SourceTable table, int currentTableOrder, TableCollection sourceTables)
+            {
+                IColumn column1 = leftValue.Execute();
+                IColumn column2 = rightValue.Execute();
+                if (leftValue.IsNull || rightValue.IsNull)
+                {
+                    SetOptimizableResult(Triangular.Value.False);
+                    alwaysNull = true;
+                }
+                else
+                {
+                    alwaysNull = false;
+                    IColumn column3 = (IColumn)((Row.Column)column1).Duplicate(false);
+                    db.Conversion.Convert((IValue)column2, (IValue)column3);
+                    int num = column1.Compare((IVistaDBColumn)column3);
+                    SetOptimizableResult(num == 0 && (compareOperation == CompareOperation.Equal || compareOperation == CompareOperation.GreaterOrEqual || compareOperation == CompareOperation.LessOrEqual) || num < 0 && (compareOperation == CompareOperation.Less || compareOperation == CompareOperation.LessOrEqual || compareOperation == CompareOperation.NotEqual) || num > 0 && (compareOperation == CompareOperation.Greater || compareOperation == CompareOperation.GreaterOrEqual || compareOperation == CompareOperation.NotEqual) ? Triangular.Value.True : Triangular.Value.False);
+                }
+            }
+
+            protected override void OnInvertion()
+            {
+                if (IsAlwaysNull || optimizedResult == Triangular.Value.Undefined)
+                    return;
+                SetOptimizableResult(Triangular.Not(optimizedResult));
+            }
+
+            protected override void OnFindIndexes()
+            {
+                Optimized = true;
+                FullOptimized = true;
+            }
+        }
+
+        private class NotBundle : Constraint
+        {
+            internal NotBundle()
+              : base(ConstraintType.Not)
+            {
+            }
+        }
+
+        private class AndBundle : Constraint
+        {
+            internal AndBundle()
+              : base(ConstraintType.And)
+            {
+            }
+        }
+
+        private class OrBundle : Constraint
+        {
+            internal OrBundle()
+              : base(ConstraintType.Or)
+            {
+            }
+        }
     }
-
-    private class NotBundle : ConstraintOperations.Constraint
-    {
-      internal NotBundle()
-        : base(ConstraintOperations.ConstraintType.Not)
-      {
-      }
-    }
-
-    private class AndBundle : ConstraintOperations.Constraint
-    {
-      internal AndBundle()
-        : base(ConstraintOperations.ConstraintType.And)
-      {
-      }
-    }
-
-    private class OrBundle : ConstraintOperations.Constraint
-    {
-      internal OrBundle()
-        : base(ConstraintOperations.ConstraintType.Or)
-      {
-      }
-    }
-  }
 }

@@ -9,14 +9,14 @@ internal sealed class AssemblyCompanyUrlAttribute : Attribute
 
   public AssemblyCompanyUrlAttribute(string url)
   {
-    this._url = url;
+    _url = url;
   }
 
   public string CompanyUrl
   {
     get
     {
-      return this._url;
+      return _url;
     }
   }
 }

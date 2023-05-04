@@ -13,10 +13,10 @@
 
     protected override void DoInitLanguageOperators()
     {
-      Signature signature1 = (Signature) new Append(";", this.Count);
-      signature1.Entry = this.Add(signature1);
-      Signature signature2 = (Signature) new Descending("DESC", this.Count, this.PARENTHESIS + 1);
-      signature2.Entry = this.Add(signature2);
+      Signature signature1 = (Signature) new Append(";", Count);
+      signature1.Entry = Add(signature1);
+      Signature signature2 = (Signature) new Descending("DESC", Count, PARENTHESIS + 1);
+      signature2.Entry = Add(signature2);
     }
 
     protected override void DoInitMathOperators()

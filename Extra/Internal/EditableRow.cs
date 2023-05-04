@@ -13,7 +13,7 @@ namespace VistaDB.Extra.Internal
     {
       get
       {
-        return this.parent.GetDataRow(this.index);
+        return parent.GetDataRow(index);
       }
     }
 
@@ -21,11 +21,11 @@ namespace VistaDB.Extra.Internal
     {
       get
       {
-        return this.index;
+        return index;
       }
       set
       {
-        this.index = value;
+        index = value;
       }
     }
 
@@ -37,35 +37,35 @@ namespace VistaDB.Extra.Internal
 
     internal void SetDataToColumn(int index, object value)
     {
-      if (this.parent.State == TypeOfOperation.Nothing)
-        this.parent.State = TypeOfOperation.Update;
-      if (this.parent.State == TypeOfOperation.Insert)
-        this.parent.State = TypeOfOperation.Insert | TypeOfOperation.Update;
-      this.parent.SetDataToColumn(this.index, index, value);
+      if (parent.State == TypeOfOperation.Nothing)
+        parent.State = TypeOfOperation.Update;
+      if (parent.State == TypeOfOperation.Insert)
+        parent.State = TypeOfOperation.Insert | TypeOfOperation.Update;
+      parent.SetDataToColumn(this.index, index, value);
     }
 
     void IEditableObject.BeginEdit()
     {
-      this.parent.ChangeRowValues((long) this.index);
+      parent.ChangeRowValues((long) index);
     }
 
     void IEditableObject.CancelEdit()
     {
-      this.parent.CancelInsert();
+      parent.CancelInsert();
     }
 
     void IEditableObject.EndEdit()
     {
       try
       {
-        switch (this.parent.SynchronizeTableData(this.index))
+        switch (parent.SynchronizeTableData(index))
         {
           case 1:
           case 2:
           case 3:
-            this.parent.PostInsert();
-            this.parent.RefreshList();
-            this.parent.State = TypeOfOperation.Nothing;
+            parent.PostInsert();
+            parent.RefreshList();
+            parent.State = TypeOfOperation.Nothing;
             break;
         }
       }
@@ -80,7 +80,7 @@ namespace VistaDB.Extra.Internal
             ((IEditableObject) this).CancelEdit();
             break;
           case 2022:
-            this.parent.RefreshList();
+            parent.RefreshList();
             break;
         }
         if (errorId != 2020L)

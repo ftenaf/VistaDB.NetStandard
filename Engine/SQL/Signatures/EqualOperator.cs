@@ -13,15 +13,15 @@ namespace VistaDB.Engine.SQL.Signatures
     public override SignatureType OnPrepare()
     {
       SignatureType signatureType = base.OnPrepare();
-      this.CalcOptimizeLevel();
+      CalcOptimizeLevel();
       return signatureType;
     }
 
     protected override bool CompareOperands()
     {
-      if (this.rightOperandIsSubQuery)
-        return ((SubQuerySignature) this.rightOperand).IsValuePresent(this.leftValue, this.checkAll, CompareOperation.Equal);
-      return this.leftValue.Compare((IVistaDBColumn) this.rightValue) == 0;
+      if (rightOperandIsSubQuery)
+        return ((SubQuerySignature) rightOperand).IsValuePresent(leftValue, checkAll, CompareOperation.Equal);
+      return leftValue.Compare((IVistaDBColumn) rightValue) == 0;
     }
 
     protected override CompareOperation GetCompareOperation()
@@ -38,10 +38,10 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       leftColumn = (ColumnSignature) null;
       rightColumn = (ColumnSignature) null;
-      if (this.GetCompareOperation() != CompareOperation.Equal)
+      if (GetCompareOperation() != CompareOperation.Equal)
         return false;
-      leftColumn = this.leftOperand as ColumnSignature;
-      rightColumn = this.rightOperand as ColumnSignature;
+      leftColumn = leftOperand as ColumnSignature;
+      rightColumn = rightOperand as ColumnSignature;
       if ((Signature) leftColumn != (Signature) null)
         return (Signature) rightColumn != (Signature) null;
       return false;

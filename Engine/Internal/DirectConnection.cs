@@ -20,9 +20,8 @@ namespace VistaDB.Engine.Internal
   {
     private static readonly StorageManager storageManager = new StorageManager();
     private Dictionary<ulong, DatabaseMetaTable> databases = new Dictionary<ulong, DatabaseMetaTable>();
-    private const string DataDirectoryToken = "|DataDirectory|";
 
-    internal static DirectConnection CreateInstance(VistaDBEngine engine, long id)
+        internal static DirectConnection CreateInstance(VistaDBEngine engine, long id)
     {
       return new DirectConnection(engine, id);
     }
@@ -34,9 +33,9 @@ namespace VistaDB.Engine.Internal
 
     private void CloseDatabases()
     {
-      if (this.databases.Count == 0)
+      if (databases.Count == 0)
         return;
-      foreach (DatabaseMetaTable databaseMetaTable in new List<DatabaseMetaTable>((IEnumerable<DatabaseMetaTable>) this.databases.Values))
+      foreach (DatabaseMetaTable databaseMetaTable in new List<DatabaseMetaTable>((IEnumerable<DatabaseMetaTable>) databases.Values))
         databaseMetaTable?.Dispose();
     }
 
@@ -64,7 +63,7 @@ namespace VistaDB.Engine.Internal
     {
       get
       {
-        return DirectConnection.storageManager;
+        return storageManager;
       }
     }
 
@@ -94,7 +93,7 @@ namespace VistaDB.Engine.Internal
       bool firstPosition = true;
       for (int index2 = index1; index2 < length; ++index2)
       {
-        if (!DirectConnection.IsCorrectNameSymbol(name[index2], ref firstPosition, true))
+        if (!IsCorrectNameSymbol(name[index2], ref firstPosition, true))
           return false;
       }
       return true;
@@ -116,19 +115,19 @@ namespace VistaDB.Engine.Internal
     {
       if (database == null)
         return;
-      this.databases.Remove(database.Id);
+      databases.Remove(database.Id);
     }
 
     internal IVistaDBDatabase CreateDatabase(string fileName, bool stayExclusive, string cryptoKeyString, int pageSize, int LCID, bool caseSensitive, bool inMemory, bool isolated)
     {
       if (!inMemory)
-        fileName = DirectConnection.TreatDataPath(fileName);
+        fileName = TreatDataPath(fileName);
       try
       {
         EncryptionKey cryptoKey = EncryptionKey.Create(cryptoKeyString);
         DatabaseMetaTable instance = DatabaseMetaTable.CreateInstance(fileName, this, cryptoKey, pageSize, LCID, caseSensitive, false);
         instance.Create(stayExclusive, inMemory, isolated);
-        this.databases.Add(instance.Id, instance);
+        databases.Add(instance.Id, instance);
         return (IVistaDBDatabase) instance;
       }
       catch (Exception ex)
@@ -149,11 +148,11 @@ namespace VistaDB.Engine.Internal
           str = Path.GetTempFileName();
           File.Delete(str);
         }
-        catch (SecurityException ex)
-        {
-          str = Path.Combine(this.TemporaryPath, "VistaDB." + Guid.NewGuid().ToString() + ".tmp");
+        catch (SecurityException)
+                {
+          str = Path.Combine(TemporaryPath, "VistaDB." + Guid.NewGuid().ToString() + ".tmp");
         }
-        return this.CreateDatabase(str, true, cryptoKeyString, pageSize, LCID, caseSensitive, true, false);
+        return CreateDatabase(str, true, cryptoKeyString, pageSize, LCID, caseSensitive, true, false);
       }
       catch (Exception ex)
       {
@@ -163,19 +162,19 @@ namespace VistaDB.Engine.Internal
 
     public IVistaDBDatabase CreateDatabase(string fileName, bool stayExclusive, string cryptoKeyString, int pageSize, int LCID, bool caseSensitive)
     {
-      return this.CreateDatabase(fileName, stayExclusive, cryptoKeyString, pageSize, LCID, caseSensitive, false, false);
+      return CreateDatabase(fileName, stayExclusive, cryptoKeyString, pageSize, LCID, caseSensitive, false, false);
     }
 
     public IVistaDBDatabase CreateInMemoryDatabase(string cryptoKeyString, int LCID, bool caseSensitive)
     {
-      return this.CreateInMemoryDatabase(cryptoKeyString, 0, LCID, caseSensitive);
+      return CreateInMemoryDatabase(cryptoKeyString, 0, LCID, caseSensitive);
     }
 
     public IVistaDBDatabase CreateIsolatedDatabase(string fileName, string cryptoKeyString, int pageSize, int LCID, bool caseSensitive)
     {
       try
       {
-        return this.CreateDatabase(fileName, true, cryptoKeyString, pageSize, LCID, caseSensitive, false, true);
+        return CreateDatabase(fileName, true, cryptoKeyString, pageSize, LCID, caseSensitive, false, true);
       }
       catch (Exception ex)
       {
@@ -185,7 +184,7 @@ namespace VistaDB.Engine.Internal
 
     private IVistaDBDatabase OpenDatabase(string fileName, VistaDBDatabaseOpenMode mode, string cryptoKeyString, bool toPack, bool isolated)
     {
-      fileName = DirectConnection.TreatDataPath(fileName);
+      fileName = TreatDataPath(fileName);
       try
       {
         EncryptionKey cryptoKey = EncryptionKey.Create(cryptoKeyString);
@@ -198,7 +197,7 @@ namespace VistaDB.Engine.Internal
         {
           int num = instance.Rowset.PageSize / StorageHandle.DEFAULT_SIZE_OF_PAGE;
         }
-        this.databases.Add(instance.Id, instance);
+        databases.Add(instance.Id, instance);
         return (IVistaDBDatabase) instance;
       }
       catch (Exception ex)
@@ -209,7 +208,7 @@ namespace VistaDB.Engine.Internal
 
     public IVistaDBDatabase OpenDatabase(string fileName, VistaDBDatabaseOpenMode mode, string cryptoKeyString)
     {
-      return this.OpenDatabase(fileName, mode, cryptoKeyString, false, false);
+      return OpenDatabase(fileName, mode, cryptoKeyString, false, false);
     }
 
     public IVistaDBDatabase OpenIsolatedDatabase(string fileName, VistaDBDatabaseOpenMode mode, string cryptoKeyString)
@@ -218,7 +217,7 @@ namespace VistaDB.Engine.Internal
       {
         if (mode != VistaDBDatabaseOpenMode.ExclusiveReadOnly && mode != VistaDBDatabaseOpenMode.ExclusiveReadWrite && mode != VistaDBDatabaseOpenMode.SharedReadOnly)
           throw new VistaDBException(158, mode.ToString());
-        return this.OpenDatabase(fileName, mode, cryptoKeyString, false, true);
+        return OpenDatabase(fileName, mode, cryptoKeyString, false, true);
       }
       catch (Exception ex)
       {
@@ -230,19 +229,19 @@ namespace VistaDB.Engine.Internal
     {
       if (backup)
         File.Copy(fileName, fileName + ".backupCopy", true);
-      return (DatabaseMetaTable) this.OpenDatabase(fileName, VistaDBDatabaseOpenMode.ExclusiveReadWrite, cryptoKeyString, true, false);
+      return (DatabaseMetaTable) OpenDatabase(fileName, VistaDBDatabaseOpenMode.ExclusiveReadWrite, cryptoKeyString, true, false);
     }
 
     private void Repair(string fileName, string cryptoKeyString, OperationCallbackDelegate operationCallback)
     {
-      this.PackDatabaseInternal(fileName, cryptoKeyString, false, operationCallback, true);
+      PackDatabaseInternal(fileName, cryptoKeyString, false, operationCallback, true);
     }
 
     private void PackDatabaseInternal(string fileName, string cryptoKeyString, bool backup, OperationCallbackDelegate operationCallbackDelegate, bool repair)
     {
       try
       {
-        using (DatabaseMetaTable databaseMetaTable = this.PrepareShrinking(fileName, cryptoKeyString, backup))
+        using (DatabaseMetaTable databaseMetaTable = PrepareShrinking(fileName, cryptoKeyString, backup))
         {
           databaseMetaTable.SetRepairMode(repair);
           //databaseMetaTable.SetOperationCallbackDelegate(operationCallbackDelegate);
@@ -259,7 +258,7 @@ namespace VistaDB.Engine.Internal
     {
       try
       {
-        using (DatabaseMetaTable databaseMetaTable = this.PrepareShrinking(fileName, cryptoKeyString, backup))
+        using (DatabaseMetaTable databaseMetaTable = PrepareShrinking(fileName, cryptoKeyString, backup))
         {
           //databaseMetaTable.SetOperationCallbackDelegate(operationCallbackDelegate);
           databaseMetaTable.Pack(newcryptoKeyString, newPageSize, newLCID, newCaseSensitive);
@@ -273,52 +272,52 @@ namespace VistaDB.Engine.Internal
 
     void IVistaDBDDA.PackDatabase(string fileName, string cryptoKeyString, bool backup, OperationCallbackDelegate operationCallback)
     {
-      this.PackDatabaseInternal(fileName, cryptoKeyString, backup, operationCallback, false);
+      PackDatabaseInternal(fileName, cryptoKeyString, backup, operationCallback, false);
     }
 
     void IVistaDBDDA.PackDatabase(string fileName)
     {
-      this.PackDatabaseInternal(fileName, (string) null, false, (OperationCallbackDelegate) null, false);
+      PackDatabaseInternal(fileName, (string) null, false, (OperationCallbackDelegate) null, false);
     }
 
     void IVistaDBDDA.PackDatabase(string fileName, OperationCallbackDelegate operationCallback)
     {
-      this.PackDatabaseInternal(fileName, (string) null, false, operationCallback, false);
+      PackDatabaseInternal(fileName, (string) null, false, operationCallback, false);
     }
 
     void IVistaDBDDA.PackDatabase(string fileName, string currentcryptoKeyString, string newcryptoKeyString, int newPageSize, int newLCID, bool newCaseSensitive, bool backup, OperationCallbackDelegate operationCallback)
     {
-      this.PackDatabaseInternal(fileName, currentcryptoKeyString, newcryptoKeyString, newPageSize, newLCID, newCaseSensitive, backup, operationCallback);
+      PackDatabaseInternal(fileName, currentcryptoKeyString, newcryptoKeyString, newPageSize, newLCID, newCaseSensitive, backup, operationCallback);
     }
 
     void IVistaDBDDA.RepairDatabase(string fileName, string cryptoKeyString, OperationCallbackDelegate operationCallback)
     {
-      this.Repair(fileName, cryptoKeyString, operationCallback);
+      Repair(fileName, cryptoKeyString, operationCallback);
     }
 
     void IVistaDBDDA.RepairDatabase(string fileName, OperationCallbackDelegate operationCallback)
     {
-      this.Repair(fileName, (string) null, operationCallback);
+      Repair(fileName, (string) null, operationCallback);
     }
 
     void IVistaDBDDA.RepairDatabase(string fileName)
     {
-      this.Repair(fileName, (string) null, (OperationCallbackDelegate) null);
+      Repair(fileName, (string) null, (OperationCallbackDelegate) null);
     }
 
     protected override void Dispose(bool disposing)
     {
-      lock (this.SyncRoot)
+      lock (SyncRoot)
       {
         if (disposing)
         {
           try
           {
-            this.CloseDatabases();
+            CloseDatabases();
           }
           finally
           {
-            this.databases.Clear();
+            databases.Clear();
           }
         }
         base.Dispose(disposing);

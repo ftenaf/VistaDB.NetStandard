@@ -13,25 +13,25 @@
     {
       get
       {
-        lock (this.m_SyncLock)
+        lock (m_SyncLock)
           return base[key];
       }
       set
       {
-        lock (this.m_SyncLock)
+        lock (m_SyncLock)
           base[key] = value;
       }
     }
 
     public new void Clear()
     {
-      lock (this.m_SyncLock)
+      lock (m_SyncLock)
         base.Clear();
     }
 
     public new void Pack(bool forcePack)
     {
-      lock (this.m_SyncLock)
+      lock (m_SyncLock)
         base.Pack(forcePack);
     }
   }

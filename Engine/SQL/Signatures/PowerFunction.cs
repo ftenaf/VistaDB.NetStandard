@@ -8,14 +8,14 @@ namespace VistaDB.Engine.SQL.Signatures
     public PowerFunction(SQLParser parser)
       : base(parser, 2, true)
     {
-      this.dataType = VistaDBType.Float;
-      this.parameterTypes[0] = VistaDBType.Float;
-      this.parameterTypes[1] = VistaDBType.Float;
+      dataType = VistaDBType.Float;
+      parameterTypes[0] = VistaDBType.Float;
+      parameterTypes[1] = VistaDBType.Float;
     }
 
     protected override object ExecuteSubProgram()
     {
-      return (object) Math.Pow((double) ((IValue) this.paramValues[0]).Value, (double) ((IValue) this.paramValues[1]).Value);
+      return (object) Math.Pow((double) ((IValue) paramValues[0]).Value, (double) ((IValue) paramValues[1]).Value);
     }
   }
 }

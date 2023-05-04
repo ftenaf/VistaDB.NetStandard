@@ -19,38 +19,38 @@ namespace VistaDB.Engine.SQL.Signatures
       : base(parser)
     {
       parser.SkipToken(true);
-      this.inputExpression = parser.IsToken("WHEN") ? (Signature) null : parser.NextSignature(false, true, 6);
-      this.whenExpressions = new List<Signature>();
-      this.thenExpressions = new List<Signature>();
+      inputExpression = parser.IsToken("WHEN") ? (Signature) null : parser.NextSignature(false, true, 6);
+      whenExpressions = new List<Signature>();
+      thenExpressions = new List<Signature>();
       while (parser.IsToken("WHEN"))
       {
         Signature signature = parser.NextSignature(true, true, 6);
-        if (this.inputExpression != (Signature) null && !(signature is ConstantSignature) && !(signature is UnaryMinusOperator))
+        if (inputExpression != (Signature) null && !(signature is ConstantSignature) && !(signature is UnaryMinusOperator))
           throw new VistaDBSQLException(635, "", signature.LineNo, signature.SymbolNo);
-        this.whenExpressions.Add(signature);
+        whenExpressions.Add(signature);
         parser.ExpectedExpression("THEN");
-        this.thenExpressions.Add(parser.NextSignature(true, true, 6));
+        thenExpressions.Add(parser.NextSignature(true, true, 6));
       }
-      if (this.whenExpressions.Count == 0)
-        throw new VistaDBSQLException(581, "", this.lineNo, this.symbolNo);
-      this.elseExpression = !parser.IsToken("ELSE") ? (Signature) null : parser.NextSignature(true, true, 6);
+      if (whenExpressions.Count == 0)
+        throw new VistaDBSQLException(581, "", lineNo, symbolNo);
+      elseExpression = !parser.IsToken("ELSE") ? (Signature) null : parser.NextSignature(true, true, 6);
       parser.ExpectedExpression("END");
-      this.signatureType = SignatureType.Expression;
-      this.conditionType = VistaDBType.Unknown;
-      this.tempValue = (IColumn) null;
-      this.width = 0;
+      signatureType = SignatureType.Expression;
+      conditionType = VistaDBType.Unknown;
+      tempValue = (IColumn) null;
+      width = 0;
     }
 
     protected override bool IsEquals(Signature signature)
     {
-      if (this.GetType() != signature.GetType())
+      if (GetType() != signature.GetType())
         return false;
       CaseFunction caseFunction = (CaseFunction) signature;
-      if (this.whenExpressions.Count != caseFunction.whenExpressions.Count || this.elseExpression != caseFunction.elseExpression || this.inputExpression != caseFunction.inputExpression)
+      if (whenExpressions.Count != caseFunction.whenExpressions.Count || elseExpression != caseFunction.elseExpression || inputExpression != caseFunction.inputExpression)
         return false;
-      for (int index = 0; index < this.whenExpressions.Count; ++index)
+      for (int index = 0; index < whenExpressions.Count; ++index)
       {
-        if (this.whenExpressions[index] != caseFunction.whenExpressions[index] || this.thenExpressions[index] != caseFunction.thenExpressions[index])
+        if (whenExpressions[index] != caseFunction.whenExpressions[index] || thenExpressions[index] != caseFunction.thenExpressions[index])
           return false;
       }
       return true;
@@ -58,40 +58,40 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override void RelinkParameters(Signature signature, ref int columnCount)
     {
-      if (this.inputExpression != (Signature) null)
-        this.inputExpression = this.inputExpression.Relink(signature, ref columnCount);
-      if (this.elseExpression != (Signature) null)
-        this.elseExpression = this.elseExpression.Relink(signature, ref columnCount);
-      for (int index = 0; index < this.whenExpressions.Count; ++index)
+      if (inputExpression != (Signature) null)
+        inputExpression = inputExpression.Relink(signature, ref columnCount);
+      if (elseExpression != (Signature) null)
+        elseExpression = elseExpression.Relink(signature, ref columnCount);
+      for (int index = 0; index < whenExpressions.Count; ++index)
       {
-        this.whenExpressions[index].Relink(this.whenExpressions[index], ref columnCount);
-        this.thenExpressions[index].Relink(this.thenExpressions[index], ref columnCount);
+        whenExpressions[index].Relink(whenExpressions[index], ref columnCount);
+        thenExpressions[index].Relink(thenExpressions[index], ref columnCount);
       }
     }
 
     public override void SetChanged()
     {
-      if (this.inputExpression != (Signature) null)
-        this.inputExpression.SetChanged();
-      if (this.elseExpression != (Signature) null)
-        this.elseExpression.SetChanged();
-      for (int index = 0; index < this.whenExpressions.Count; ++index)
+      if (inputExpression != (Signature) null)
+        inputExpression.SetChanged();
+      if (elseExpression != (Signature) null)
+        elseExpression.SetChanged();
+      for (int index = 0; index < whenExpressions.Count; ++index)
       {
-        this.whenExpressions[index].SetChanged();
-        this.thenExpressions[index].SetChanged();
+        whenExpressions[index].SetChanged();
+        thenExpressions[index].SetChanged();
       }
     }
 
     public override void ClearChanged()
     {
-      if (this.inputExpression != (Signature) null)
-        this.inputExpression.ClearChanged();
-      if (this.elseExpression != (Signature) null)
-        this.elseExpression.ClearChanged();
-      for (int index = 0; index < this.whenExpressions.Count; ++index)
+      if (inputExpression != (Signature) null)
+        inputExpression.ClearChanged();
+      if (elseExpression != (Signature) null)
+        elseExpression.ClearChanged();
+      for (int index = 0; index < whenExpressions.Count; ++index)
       {
-        this.whenExpressions[index].ClearChanged();
-        this.thenExpressions[index].ClearChanged();
+        whenExpressions[index].ClearChanged();
+        thenExpressions[index].ClearChanged();
       }
     }
 
@@ -99,27 +99,27 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       bool flag = false;
       distinct = false;
-      if (this.inputExpression != (Signature) null && this.inputExpression.HasAggregateFunction(out distinct))
+      if (inputExpression != (Signature) null && inputExpression.HasAggregateFunction(out distinct))
       {
         if (distinct)
           return true;
         flag = true;
       }
-      if (this.elseExpression != (Signature) null && this.elseExpression.HasAggregateFunction(out distinct))
+      if (elseExpression != (Signature) null && elseExpression.HasAggregateFunction(out distinct))
       {
         if (distinct)
           return true;
         flag = true;
       }
-      for (int index = 0; index < this.whenExpressions.Count; ++index)
+      for (int index = 0; index < whenExpressions.Count; ++index)
       {
-        if (this.whenExpressions[index].HasAggregateFunction(out distinct))
+        if (whenExpressions[index].HasAggregateFunction(out distinct))
         {
           if (distinct)
             return true;
           flag = true;
         }
-        if (this.thenExpressions[index].HasAggregateFunction(out distinct))
+        if (thenExpressions[index].HasAggregateFunction(out distinct))
         {
           if (distinct)
             return true;
@@ -132,74 +132,74 @@ namespace VistaDB.Engine.SQL.Signatures
     public override SignatureType OnPrepare()
     {
       SignatureType signatureType = SignatureType.Constant;
-      if (this.inputExpression != (Signature) null)
+      if (inputExpression != (Signature) null)
       {
-        this.inputExpression = ConstantSignature.PrepareAndCheckConstant(this.inputExpression, VistaDBType.Unknown);
-        this.conditionType = this.inputExpression.DataType;
-        if (this.inputExpression.SignatureType != SignatureType.Constant)
+        inputExpression = ConstantSignature.PrepareAndCheckConstant(inputExpression, VistaDBType.Unknown);
+        conditionType = inputExpression.DataType;
+        if (inputExpression.SignatureType != SignatureType.Constant)
           signatureType = SignatureType.Expression;
       }
       else
-        this.conditionType = VistaDBType.Bit;
+        conditionType = VistaDBType.Bit;
       if (signatureType == SignatureType.Constant)
       {
-        signatureType = this.PrepareBody();
+        signatureType = PrepareBody();
       }
       else
       {
-        int num = (int) this.PrepareBody();
+        int num = (int) PrepareBody();
       }
-      this.tempValue = this.CreateColumn(this.conditionType);
-      if (signatureType != SignatureType.Constant && !this.AlwaysNull)
+      tempValue = CreateColumn(conditionType);
+      if (signatureType != SignatureType.Constant && !AlwaysNull)
         return this.signatureType;
       return SignatureType.Constant;
     }
 
     protected override IColumn InternalExecute()
     {
-      if (this.GetIsChanged())
+      if (GetIsChanged())
       {
         bool flag = false;
-        for (int index = 0; index < this.whenExpressions.Count; ++index)
+        for (int index = 0; index < whenExpressions.Count; ++index)
         {
-          this.Convert((IValue) this.whenExpressions[index].Execute(), (IValue) this.tempValue);
-          if (this.inputExpression == (Signature) null)
+          Convert((IValue) whenExpressions[index].Execute(), (IValue) tempValue);
+          if (inputExpression == (Signature) null)
           {
-            if (this.tempValue.IsNull || !(bool) ((IValue) this.tempValue).Value)
+            if (tempValue.IsNull || !(bool) ((IValue) tempValue).Value)
               continue;
           }
           else
           {
-            this.inputExpression.Execute();
-            if (this.inputExpression.Result.Compare((IVistaDBColumn) this.tempValue) != 0)
+            inputExpression.Execute();
+            if (inputExpression.Result.Compare((IVistaDBColumn) tempValue) != 0)
               continue;
           }
-          this.Convert((IValue) this.thenExpressions[index].Execute(), (IValue) this.result);
+          Convert((IValue) thenExpressions[index].Execute(), (IValue) result);
           flag = true;
           break;
         }
-        if (!flag && this.elseExpression != (Signature) null)
+        if (!flag && elseExpression != (Signature) null)
         {
-          this.Convert((IValue) this.elseExpression.Execute(), (IValue) this.result);
+          Convert((IValue) elseExpression.Execute(), (IValue) result);
           flag = true;
         }
         if (!flag)
-          ((IValue) this.result).Value = (object) null;
+          ((IValue) result).Value = (object) null;
       }
-      return this.result;
+      return result;
     }
 
     public override bool AlwaysNull
     {
       get
       {
-        if (this.inputExpression != (Signature) null && this.inputExpression.AlwaysNull)
+        if (inputExpression != (Signature) null && inputExpression.AlwaysNull)
           return true;
-        if (!(this.elseExpression == (Signature) null) && !this.elseExpression.AlwaysNull)
+        if (!(elseExpression == (Signature) null) && !elseExpression.AlwaysNull)
           return false;
-        for (int index = 0; index < this.whenExpressions.Count; ++index)
+        for (int index = 0; index < whenExpressions.Count; ++index)
         {
-          if (!this.whenExpressions[index].AlwaysNull && !this.thenExpressions[index].AlwaysNull)
+          if (!whenExpressions[index].AlwaysNull && !thenExpressions[index].AlwaysNull)
             return false;
         }
         return true;
@@ -208,29 +208,29 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override bool InternalGetIsChanged()
     {
-      bool flag = this.inputExpression != (Signature) null && this.inputExpression.GetIsChanged() || this.elseExpression != (Signature) null && this.elseExpression.GetIsChanged();
+      bool flag = inputExpression != (Signature) null && inputExpression.GetIsChanged() || elseExpression != (Signature) null && elseExpression.GetIsChanged();
       int index = 0;
-      for (int count = this.whenExpressions.Count; !flag && index < count; ++index)
-        flag = this.whenExpressions[index].GetIsChanged() || this.thenExpressions[index].GetIsChanged();
+      for (int count = whenExpressions.Count; !flag && index < count; ++index)
+        flag = whenExpressions[index].GetIsChanged() || thenExpressions[index].GetIsChanged();
       return flag;
     }
 
     public override void GetAggregateFunctions(List<AggregateFunction> list)
     {
-      if (this.inputExpression != (Signature) null)
-        this.inputExpression.GetAggregateFunctions(list);
-      if (this.elseExpression != (Signature) null)
-        this.elseExpression.GetAggregateFunctions(list);
-      for (int index = 0; index < this.whenExpressions.Count; ++index)
+      if (inputExpression != (Signature) null)
+        inputExpression.GetAggregateFunctions(list);
+      if (elseExpression != (Signature) null)
+        elseExpression.GetAggregateFunctions(list);
+      for (int index = 0; index < whenExpressions.Count; ++index)
       {
-        this.whenExpressions[index].GetAggregateFunctions(list);
-        this.thenExpressions[index].GetAggregateFunctions(list);
+        whenExpressions[index].GetAggregateFunctions(list);
+        thenExpressions[index].GetAggregateFunctions(list);
       }
     }
 
     public override int GetWidth()
     {
-      return this.width;
+      return width;
     }
 
     public override int ColumnCount
@@ -238,44 +238,44 @@ namespace VistaDB.Engine.SQL.Signatures
       get
       {
         int num = 0;
-        if (this.inputExpression != (Signature) null)
-          num += this.inputExpression.ColumnCount;
-        if (this.elseExpression != (Signature) null)
-          num += this.elseExpression.ColumnCount;
-        for (int index = 0; index < this.whenExpressions.Count; ++index)
-          num = num + this.whenExpressions[index].ColumnCount + this.thenExpressions[index].ColumnCount;
+        if (inputExpression != (Signature) null)
+          num += inputExpression.ColumnCount;
+        if (elseExpression != (Signature) null)
+          num += elseExpression.ColumnCount;
+        for (int index = 0; index < whenExpressions.Count; ++index)
+          num = num + whenExpressions[index].ColumnCount + thenExpressions[index].ColumnCount;
         return num;
       }
     }
 
     private SignatureType PrepareBody()
     {
-      int count = this.whenExpressions.Count;
+      int count = whenExpressions.Count;
       SignatureType signatureType1 = SignatureType.Constant;
       SignatureType signatureType2 = SignatureType.Constant;
       SignatureType[] signatureTypeArray = new SignatureType[count];
       for (int index = 0; index < count; ++index)
       {
-        if (this.PrepareWhenExpression(index) != SignatureType.Constant)
+        if (PrepareWhenExpression(index) != SignatureType.Constant)
           signatureType2 = SignatureType.Expression;
-        signatureTypeArray[index] = this.PrepareThenExpression(index);
+        signatureTypeArray[index] = PrepareThenExpression(index);
       }
-      if (this.elseExpression != (Signature) null)
+      if (elseExpression != (Signature) null)
       {
-        signatureType1 = this.elseExpression.Prepare();
-        this.CalcMaxDataType(this.elseExpression);
+        signatureType1 = elseExpression.Prepare();
+        CalcMaxDataType(elseExpression);
       }
       for (int index = 0; index < count; ++index)
       {
-        Signature signature = this.TryConvertToConst(this.thenExpressions[index], signatureTypeArray[index]);
+        Signature signature = TryConvertToConst(thenExpressions[index], signatureTypeArray[index]);
         if (signature.SignatureType != SignatureType.Constant)
           signatureType2 = SignatureType.Expression;
-        this.thenExpressions[index] = signature;
+        thenExpressions[index] = signature;
       }
-      if (this.elseExpression != (Signature) null)
+      if (elseExpression != (Signature) null)
       {
-        this.elseExpression = this.TryConvertToConst(this.elseExpression, signatureType1);
-        if (this.elseExpression.SignatureType != SignatureType.Constant)
+        elseExpression = TryConvertToConst(elseExpression, signatureType1);
+        if (elseExpression.SignatureType != SignatureType.Constant)
           signatureType2 = SignatureType.Expression;
       }
       return signatureType2;
@@ -283,56 +283,47 @@ namespace VistaDB.Engine.SQL.Signatures
 
     private SignatureType PrepareWhenExpression(int index)
     {
-      Signature signature = ConstantSignature.PrepareAndCheckConstant(this.whenExpressions[index], this.conditionType);
-      this.whenExpressions[index] = signature;
-      if (Utils.CompatibleTypes(signature.DataType, this.conditionType))
+      Signature signature = ConstantSignature.PrepareAndCheckConstant(whenExpressions[index], conditionType);
+      whenExpressions[index] = signature;
+      if (Utils.CompatibleTypes(signature.DataType, conditionType))
         return signature.SignatureType;
-      if (this.inputExpression == (Signature) null)
-        throw new VistaDBSQLException(582, "", this.lineNo, this.symbolNo);
-      throw new VistaDBSQLException(583, "", this.lineNo, this.symbolNo);
+      if (inputExpression == (Signature) null)
+        throw new VistaDBSQLException(582, "", lineNo, symbolNo);
+      throw new VistaDBSQLException(583, "", lineNo, symbolNo);
     }
 
     private SignatureType PrepareThenExpression(int index)
     {
-      Signature thenExpression = this.thenExpressions[index];
+      Signature thenExpression = thenExpressions[index];
       SignatureType signatureType = thenExpression.Prepare();
-      this.thenExpressions[index] = thenExpression;
-      this.CalcMaxDataType(thenExpression);
+      thenExpressions[index] = thenExpression;
+      CalcMaxDataType(thenExpression);
       return signatureType;
     }
 
     private void CalcMaxDataType(Signature expr)
     {
-      if (Utils.CompareRank(this.dataType, expr.DataType) >= 0)
+      if (Utils.CompareRank(dataType, expr.DataType) >= 0)
         return;
-      this.dataType = expr.DataType;
+      dataType = expr.DataType;
       int num = expr.GetWidth();
-      if (Utils.IsCharacterDataType(this.dataType))
+      if (Utils.IsCharacterDataType(dataType))
       {
         if (num == 0)
           num = 30;
-        if (this.width >= num)
+        if (width >= num)
           return;
-        this.width = num;
+        width = num;
       }
       else
-        this.width = num;
+        width = num;
     }
 
     private Signature TryConvertToConst(Signature expr, SignatureType signatureType)
     {
-      if (signatureType == SignatureType.Constant && (expr.SignatureType != SignatureType.Constant || expr.DataType != this.dataType))
-        return (Signature) ConstantSignature.CreateSignature(expr.Execute(), this.dataType, expr.Parent);
+      if (signatureType == SignatureType.Constant && (expr.SignatureType != SignatureType.Constant || expr.DataType != dataType))
+        return (Signature) ConstantSignature.CreateSignature(expr.Execute(), dataType, expr.Parent);
       return expr;
     }
-
-    private VistaDBType GetMaxType(VistaDBType type1, VistaDBType type2)
-    {
-      if (type1 == VistaDBType.Unknown)
-        return type2;
-      if (!Utils.CompatibleTypes(type1, type2))
-        throw new VistaDBSQLException(584, "", this.lineNo, this.symbolNo);
-      return Utils.GetMaxDataType(type1, type2);
     }
-  }
 }

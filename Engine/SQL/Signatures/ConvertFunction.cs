@@ -13,7 +13,7 @@ namespace VistaDB.Engine.SQL.Signatures
     private int width;
     private int style;
     private int len;
-    private ConvertFunction.StyleType styleType;
+    private StyleType styleType;
     private int styleIndex;
 
     public ConvertFunction(SQLParser parser)
@@ -21,57 +21,57 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       parser.SkipToken(true);
       if (!parser.IsToken("("))
-        throw new VistaDBSQLException(500, "\"(\"", this.lineNo, this.symbolNo);
+        throw new VistaDBSQLException(500, "\"(\"", lineNo, symbolNo);
       parser.SkipToken(true);
-      this.dataType = parser.ReadDataType(out this.len);
-      if (this.len == 0)
-        this.len = 30;
+      dataType = parser.ReadDataType(out len);
+      if (len == 0)
+        len = 30;
       parser.ExpectedExpression(",");
-      this.parameters.Add(parser.NextSignature(true, true, 6));
+      parameters.Add(parser.NextSignature(true, true, 6));
       if (parser.IsToken(","))
       {
         parser.SkipToken(true);
         if (parser.TokenValue.TokenType != TokenType.Integer)
-          throw new VistaDBSQLException(550, "CONVERT", this.lineNo, this.symbolNo);
-        this.style = int.Parse(parser.TokenValue.Token, CrossConversion.NumberFormat);
+          throw new VistaDBSQLException(550, "CONVERT", lineNo, symbolNo);
+        style = int.Parse(parser.TokenValue.Token, CrossConversion.NumberFormat);
         parser.SkipToken(true);
       }
       else
-        this.style = 0;
+        style = 0;
       parser.ExpectedExpression(")");
-      this.paramValues = new IColumn[1];
-      this.parameterTypes = new VistaDBType[1];
-      this.parameterTypes[0] = this.style == 0 ? this.dataType : VistaDBType.Unknown;
-      this.signatureType = SignatureType.Expression;
-      this.skipNull = true;
-      this.width = 0;
-      this.styleType = ConvertFunction.StyleType.None;
-      this.styleIndex = -1;
-      if (this.style == 0)
+      paramValues = new IColumn[1];
+      parameterTypes = new VistaDBType[1];
+      parameterTypes[0] = style == 0 ? dataType : VistaDBType.Unknown;
+      signatureType = SignatureType.Expression;
+      skipNull = true;
+      width = 0;
+      styleType = StyleType.None;
+      styleIndex = -1;
+      if (style == 0)
         return;
-      if (this.style >= 1 && this.style <= ConvertFunction.dateFormat1.Length)
+      if (style >= 1 && style <= dateFormat1.Length)
       {
-        this.styleType = ConvertFunction.StyleType.DateWithoutCentury;
-        this.styleIndex = this.style - 1;
+        styleType = StyleType.DateWithoutCentury;
+        styleIndex = style - 1;
       }
       else
       {
-        if (this.style < 101 || this.style > ConvertFunction.dateFormat1.Length + 100)
+        if (style < 101 || style > dateFormat1.Length + 100)
           return;
-        this.styleType = ConvertFunction.StyleType.DateWithCentury;
-        this.styleIndex = this.style - 101;
+        styleType = StyleType.DateWithCentury;
+        styleIndex = style - 101;
       }
     }
 
     public override SignatureType OnPrepare()
     {
-      this[0] = ConstantSignature.PrepareAndCheckConstant(this[0], this.parameterTypes[0]);
-      if (!Utils.CompatibleTypes(this[0].DataType, this.dataType))
-        throw new VistaDBSQLException(550, this.text, this.lineNo, this.symbolNo);
-      this.paramValues[0] = this.CreateColumn(this[0].DataType);
-      this.width = !Utils.IsCharacterDataType(this.dataType) || Utils.IsCharacterDataType(this[0].DataType) ? this[0].GetWidth() : this.len;
-      if (this[0].SignatureType != SignatureType.Constant && !this.AlwaysNull)
-        return this.signatureType;
+      this[0] = ConstantSignature.PrepareAndCheckConstant(this[0], parameterTypes[0]);
+      if (!Utils.CompatibleTypes(this[0].DataType, dataType))
+        throw new VistaDBSQLException(550, text, lineNo, symbolNo);
+      paramValues[0] = CreateColumn(this[0].DataType);
+      width = !Utils.IsCharacterDataType(dataType) || Utils.IsCharacterDataType(this[0].DataType) ? this[0].GetWidth() : len;
+      if (this[0].SignatureType != SignatureType.Constant && !AlwaysNull)
+        return signatureType;
       return SignatureType.Constant;
     }
 
@@ -80,44 +80,44 @@ namespace VistaDB.Engine.SQL.Signatures
       if (!base.IsEquals(signature))
         return false;
       ConvertFunction convertFunction = (ConvertFunction) signature;
-      if (this.dataType == signature.DataType && this.len == convertFunction.len)
-        return this.style == convertFunction.style;
+      if (dataType == signature.DataType && len == convertFunction.len)
+        return style == convertFunction.style;
       return false;
     }
 
     protected override object ExecuteSubProgram()
     {
-      VistaDBType type = this.paramValues[0].Type;
-      if (this.style != 0 && Utils.IsCharacterDataType(this.dataType))
+      VistaDBType type = paramValues[0].Type;
+      if (style != 0 && Utils.IsCharacterDataType(dataType))
       {
         if (Utils.IsDateDataType(type))
         {
-          switch (this.styleType)
+          switch (styleType)
           {
-            case ConvertFunction.StyleType.DateWithoutCentury:
-              return (object) ((DateTime) ((IValue) this.paramValues[0]).Value).ToString(ConvertFunction.dateFormat1[this.styleIndex]);
-            case ConvertFunction.StyleType.DateWithCentury:
-              return (object) ((DateTime) ((IValue) this.paramValues[0]).Value).ToString(ConvertFunction.dateFormat2[this.styleIndex]);
+            case StyleType.DateWithoutCentury:
+              return (object) ((DateTime) ((IValue) paramValues[0]).Value).ToString(dateFormat1[styleIndex]);
+            case StyleType.DateWithCentury:
+              return (object) ((DateTime) ((IValue) paramValues[0]).Value).ToString(dateFormat2[styleIndex]);
           }
         }
       }
-      else if (this.style != 0 && Utils.IsDateDataType(this.dataType) && Utils.IsCharacterDataType(type))
+      else if (style != 0 && Utils.IsDateDataType(dataType) && Utils.IsCharacterDataType(type))
       {
-        switch (this.styleType)
+        switch (styleType)
         {
-          case ConvertFunction.StyleType.DateWithoutCentury:
-            return (object) DateTime.ParseExact((string) ((IValue) this.paramValues[0]).Value, ConvertFunction.dateFormat1[this.styleIndex], (IFormatProvider) CultureInfo.InvariantCulture.DateTimeFormat);
-          case ConvertFunction.StyleType.DateWithCentury:
-            return (object) DateTime.ParseExact((string) ((IValue) this.paramValues[0]).Value, ConvertFunction.dateFormat2[this.styleIndex], (IFormatProvider) CultureInfo.InvariantCulture.DateTimeFormat);
+          case StyleType.DateWithoutCentury:
+            return (object) DateTime.ParseExact((string) ((IValue) paramValues[0]).Value, dateFormat1[styleIndex], (IFormatProvider) CultureInfo.InvariantCulture.DateTimeFormat);
+          case StyleType.DateWithCentury:
+            return (object) DateTime.ParseExact((string) ((IValue) paramValues[0]).Value, dateFormat2[styleIndex], (IFormatProvider) CultureInfo.InvariantCulture.DateTimeFormat);
         }
       }
-      this.Convert((IValue) this.paramValues[0], (IValue) this.result);
-      return ((IValue) this.result).Value;
+      Convert((IValue) paramValues[0], (IValue) result);
+      return ((IValue) result).Value;
     }
 
     public override int GetWidth()
     {
-      return this.width;
+      return width;
     }
 
     private enum StyleType

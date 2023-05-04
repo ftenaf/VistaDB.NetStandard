@@ -7,7 +7,7 @@ namespace VistaDB.Engine.Core
     internal VarcharColumn(string val, int maxSize, int codePage, CultureInfo culture, bool caseInsensitive)
       : base(val, maxSize, codePage, culture, caseInsensitive)
     {
-      this.ResetType(VistaDBType.VarChar);
+      ResetType(VistaDBType.VarChar);
     }
 
     internal VarcharColumn(VarcharColumn col)
@@ -22,8 +22,8 @@ namespace VistaDB.Engine.Core
 
     public override string ToString()
     {
-      if (!this.IsNull)
-        return this.Value.ToString();
+      if (!IsNull)
+        return Value.ToString();
       return "<null>";
     }
   }

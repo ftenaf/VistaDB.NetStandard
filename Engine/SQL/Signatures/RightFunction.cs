@@ -7,15 +7,15 @@ namespace VistaDB.Engine.SQL.Signatures
     public RightFunction(SQLParser parser)
       : base(parser, 2, true)
     {
-      this.dataType = VistaDBType.NChar;
-      this.parameterTypes[0] = VistaDBType.NChar;
-      this.parameterTypes[1] = VistaDBType.Int;
+      dataType = VistaDBType.NChar;
+      parameterTypes[0] = VistaDBType.NChar;
+      parameterTypes[1] = VistaDBType.Int;
     }
 
     protected override object ExecuteSubProgram()
     {
-      string str = (string) ((IValue) this.paramValues[0]).Value;
-      int length = (int) ((IValue) this.paramValues[1]).Value;
+      string str = (string) ((IValue) paramValues[0]).Value;
+      int length = (int) ((IValue) paramValues[1]).Value;
       if (length > str.Length)
         length = str.Length;
       return (object) str.Substring(str.Length - length, length);

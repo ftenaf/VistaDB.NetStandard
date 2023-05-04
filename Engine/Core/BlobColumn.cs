@@ -3,7 +3,7 @@
   internal class BlobColumn : ExtendedColumn
   {
     private static readonly int typeReferenceSize = 1;
-    private BlobColumn.BlobType subType;
+    private BlobType subType;
 
     internal BlobColumn()
       : base(VistaDBType.Image)
@@ -13,14 +13,14 @@
     internal BlobColumn(BlobColumn column)
       : base((ExtendedColumn) column)
     {
-      this.subType = column.subType;
+      subType = column.subType;
     }
 
     protected override ushort InheritedSize
     {
       get
       {
-        return (ushort) ((uint) base.InheritedSize + (uint) BlobColumn.typeReferenceSize);
+        return (ushort) ((uint) base.InheritedSize + (uint)typeReferenceSize);
       }
     }
 
@@ -40,23 +40,23 @@
     internal override int ConvertToByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
       offset = base.ConvertToByteArray(buffer, offset, precedenceColumn);
-      buffer[offset] = (byte) this.subType;
-      offset += BlobColumn.typeReferenceSize;
+      buffer[offset] = (byte) subType;
+      offset += typeReferenceSize;
       return offset;
     }
 
     internal override int ConvertFromByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
       offset = base.ConvertFromByteArray(buffer, offset, precedenceColumn);
-      this.subType = (BlobColumn.BlobType) buffer[offset];
-      offset += BlobColumn.typeReferenceSize;
+      subType = (BlobType) buffer[offset];
+      offset += typeReferenceSize;
       return offset;
     }
 
     internal override void CreateFullCopy(Row.Column srcColumn)
     {
       base.CreateFullCopy(srcColumn);
-      this.subType = ((BlobColumn) srcColumn).subType;
+      subType = ((BlobColumn) srcColumn).subType;
     }
 
     protected override long Collate(Row.Column col)

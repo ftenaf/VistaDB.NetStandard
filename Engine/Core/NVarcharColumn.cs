@@ -7,7 +7,7 @@ namespace VistaDB.Engine.Core
     internal NVarcharColumn(string val, int maxSize, CultureInfo culture, bool caseInsensitive, int codePage)
       : base(val, maxSize, NCharColumn.MakeUpUnicodePage(codePage), culture, caseInsensitive)
     {
-      this.ResetType(VistaDBType.NVarChar);
+      ResetType(VistaDBType.NVarChar);
     }
 
     internal NVarcharColumn(NVarcharColumn col)

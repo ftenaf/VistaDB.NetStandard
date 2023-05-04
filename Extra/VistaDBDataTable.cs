@@ -15,8 +15,7 @@ namespace VistaDB.Extra
     private TypeOfOperation state = TypeOfOperation.Nothing;
     private bool allowRemove = true;
     private bool allowNew = true;
-    private const int CacheCapacity = 1;
-    private VistaDBDataRowCache cache;
+        private VistaDBDataRowCache cache;
     private EditableRow currentRow;
     private bool exclusive;
     private bool readOnly;
@@ -26,76 +25,76 @@ namespace VistaDB.Extra
 
     private VistaDBDataTable(IVistaDBDatabase db, string tblName, bool exclusive, bool readOnly)
     {
-      this.tableName = tblName;
+      tableName = tblName;
       this.exclusive = exclusive;
       this.readOnly = readOnly;
-      this.extendedColumns = new List<IVistaDBColumnAttributes>();
+      extendedColumns = new List<IVistaDBColumnAttributes>();
       this.db = db;
     }
 
     public VistaDBDataTable(IVistaDBDatabase db, string tableName)
       : this(db, tableName, true, false)
     {
-      this.cache = new VistaDBDataRowCache(db, tableName, this.exclusive, this.readOnly);
+      cache = new VistaDBDataRowCache(db, tableName, exclusive, readOnly);
     }
 
     public VistaDBDataTable(IVistaDBDatabase db, string tableName, bool exclusive, bool readOnly, string indexName, int cacheSize, bool optimisticLocking)
       : this(db, tableName, exclusive, readOnly)
     {
-      this.cache = new VistaDBDataRowCache(db, tableName, exclusive, readOnly, cacheSize, indexName, optimisticLocking);
+      cache = new VistaDBDataRowCache(db, tableName, exclusive, readOnly, cacheSize, indexName, optimisticLocking);
     }
 
     public event ListChangedEventHandler ListChanged;
 
     public void Close()
     {
-      this.cache.CloseTable();
+      cache.CloseTable();
     }
 
     public void SetFilter(string expression, bool optimize)
     {
-      this.cache.SetFilter(expression, optimize);
-      if (this.ListChanged == null)
+      cache.SetFilter(expression, optimize);
+      if (ListChanged == null)
         return;
-      this.ListChanged((object) this, new ListChangedEventArgs(ListChangedType.Reset, 0));
+      ListChanged((object) this, new ListChangedEventArgs(ListChangedType.Reset, 0));
     }
 
     public bool Find(string keyExpr, string idxName, bool partMach, bool softPos)
     {
-      if (!this.cache.Find(keyExpr, idxName, partMach, softPos))
+      if (!cache.Find(keyExpr, idxName, partMach, softPos))
         return false;
-      this.RefreshList();
+      RefreshList();
       return true;
     }
 
     public void ClearFilter()
     {
-      this.cache.SetFilter((string) null, true);
-      this.RefreshList();
+      cache.SetFilter((string) null, true);
+      RefreshList();
     }
 
     public void SetScope(string lowExpr, string highExpr)
     {
-      this.cache.SetScope(lowExpr, highExpr);
-      this.RefreshList();
+      cache.SetScope(lowExpr, highExpr);
+      RefreshList();
     }
 
     public void ClearScope()
     {
-      this.cache.ResetScope();
-      this.RefreshList();
+      cache.ResetScope();
+      RefreshList();
     }
 
     public bool SetActiveIndex(string indexName, int selectedRow)
     {
       try
       {
-        long num = this.cache.ChangeActiveIndex((long) selectedRow, indexName);
-        if (this.ListChanged == null)
+        long num = cache.ChangeActiveIndex((long) selectedRow, indexName);
+        if (ListChanged == null)
           return false;
-        if (num > -1L && num < this.cache.TableRowCount)
-          this.ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemMoved, selectedRow, (int) num));
-        this.ListChanged((object) this, new ListChangedEventArgs(ListChangedType.Reset, -1));
+        if (num > -1L && num < cache.TableRowCount)
+          ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemMoved, selectedRow, (int) num));
+        ListChanged((object) this, new ListChangedEventArgs(ListChangedType.Reset, -1));
       }
       catch (VistaDBDataTableException ex)
       {
@@ -109,44 +108,44 @@ namespace VistaDB.Extra
     {
       get
       {
-        return this.cache.GetTableActiveIndex();
+        return cache.GetTableActiveIndex();
       }
     }
 
     public long GetCurrentRowId(long rowPosition)
     {
-      if (this.state != TypeOfOperation.Nothing)
+      if (state != TypeOfOperation.Nothing)
         return -1;
-      return this.cache.GetCurrentRowID(rowPosition);
+      return cache.GetCurrentRowID(rowPosition);
     }
 
     internal TypeOfOperation State
     {
       get
       {
-        return this.state;
+        return state;
       }
       set
       {
-        this.state = value;
+        state = value;
       }
     }
 
     internal bool CancelInsert()
     {
-      if ((this.state & TypeOfOperation.Insert) == TypeOfOperation.Insert)
+      if ((state & TypeOfOperation.Insert) == TypeOfOperation.Insert)
       {
-        this.allowRemove = true;
-        this.cache.CancelInsert();
-        if (this.ListChanged != null)
-          this.ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemDeleted, this.Count));
+        allowRemove = true;
+        cache.CancelInsert();
+        if (ListChanged != null)
+          ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemDeleted, Count));
       }
-      if (this.state == TypeOfOperation.Update)
+      if (state == TypeOfOperation.Update)
       {
-        this.cache.ResetInsertedRow();
-        this.ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemChanged, (int) this.curentRowNumber));
+        cache.ResetInsertedRow();
+        ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemChanged, (int) curentRowNumber));
       }
-      this.state = TypeOfOperation.Nothing;
+      state = TypeOfOperation.Nothing;
       return true;
     }
 
@@ -154,53 +153,53 @@ namespace VistaDB.Extra
     {
       try
       {
-        if (this.ListChanged == null)
+        if (ListChanged == null)
           return false;
-        this.cache.FillInsertedRow(rowPos);
-        if (this.cache.CheckRowCount() != 0)
-          this.ListChanged((object) this, new ListChangedEventArgs(ListChangedType.Reset, 0));
-        if (rowPos < (long) this.Count)
-          this.ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemChanged, (int) rowPos));
+        cache.FillInsertedRow(rowPos);
+        if (cache.CheckRowCount() != 0)
+          ListChanged((object) this, new ListChangedEventArgs(ListChangedType.Reset, 0));
+        if (rowPos < (long) Count)
+          ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemChanged, (int) rowPos));
         return true;
       }
-      catch (Exception ex)
-      {
+      catch (Exception)
+            {
         return false;
       }
     }
 
     internal IVistaDBRow GetDataRow(int index)
     {
-      return this.cache.GetDataRow(index);
+      return cache.GetDataRow(index);
     }
 
     internal void SetDataToColumn(int keyIndex, int colIndex, object value)
     {
-      this.cache.SetDataToColumn(keyIndex, colIndex, value);
+      cache.SetDataToColumn(keyIndex, colIndex, value);
     }
 
     internal int SynchronizeTableData(int index)
     {
-      return this.cache.SynchronizeTableData(index, this.state);
+      return cache.SynchronizeTableData(index, state);
     }
 
     internal void PostInsert()
     {
-      if (this.ListChanged == null)
+      if (ListChanged == null)
         return;
-      if (this.state == TypeOfOperation.Update)
-        this.ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemChanged, (int) this.curentRowNumber));
+      if (state == TypeOfOperation.Update)
+        ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemChanged, (int) curentRowNumber));
       else
-        this.ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemAdded, (int) this.curentRowNumber));
-      this.cache.IsInserting = false;
-      this.allowRemove = true;
+        ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemAdded, (int) curentRowNumber));
+      cache.IsInserting = false;
+      allowRemove = true;
     }
 
     internal void RefreshList()
     {
-      if (this.ListChanged == null)
+      if (ListChanged == null)
         return;
-      this.ListChanged((object) this, new ListChangedEventArgs(ListChangedType.Reset, 0));
+      ListChanged((object) this, new ListChangedEventArgs(ListChangedType.Reset, 0));
     }
 
     void IBindingList.AddIndex(PropertyDescriptor property)
@@ -212,22 +211,22 @@ namespace VistaDB.Extra
     {
       try
       {
-        if (this.state == TypeOfOperation.Insert)
-          return (object) this.currentRow;
-        this.state = TypeOfOperation.Insert;
-        if (this.ListChanged == null)
+        if (state == TypeOfOperation.Insert)
+          return (object) currentRow;
+        state = TypeOfOperation.Insert;
+        if (ListChanged == null)
           return (object) null;
-        this.cache.InsertRow();
-        this.ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemAdded, this.Count - 1));
-        this.allowRemove = false;
-        return (object) new EditableRow(this, this.Count - 1);
+        cache.InsertRow();
+        ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemAdded, Count - 1));
+        allowRemove = false;
+        return (object) new EditableRow(this, Count - 1);
       }
-      catch (VistaDBDataTableException ex)
-      {
-        this.ListChanged((object) this, new ListChangedEventArgs(ListChangedType.Reset, 0));
+      catch (VistaDBDataTableException)
+            {
+        ListChanged((object) this, new ListChangedEventArgs(ListChangedType.Reset, 0));
       }
-      catch (Exception ex)
-      {
+      catch (Exception)
+            {
       }
       return (object) null;
     }
@@ -244,7 +243,7 @@ namespace VistaDB.Extra
     {
       get
       {
-        return this.allowNew;
+        return allowNew;
       }
     }
 
@@ -252,7 +251,7 @@ namespace VistaDB.Extra
     {
       get
       {
-        return this.allowRemove;
+        return allowRemove;
       }
     }
 
@@ -270,7 +269,7 @@ namespace VistaDB.Extra
     {
       get
       {
-        if (this.ActiveIndex != "")
+        if (ActiveIndex != "")
           return ((IBindingList) this).SortProperty != null;
         return false;
       }
@@ -328,16 +327,16 @@ namespace VistaDB.Extra
 
     int IList.Add(object value)
     {
-      if (this.ListChanged != null)
-        this.ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemAdded, this.Count - 1));
+      if (ListChanged != null)
+        ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemAdded, Count - 1));
       return 0;
     }
 
     void IList.Clear()
     {
-      this.allowNew = false;
-      this.allowRemove = false;
-      this.cache.CloseTable();
+      allowNew = false;
+      allowRemove = false;
+      cache.CloseTable();
     }
 
     bool IList.Contains(object value)
@@ -378,32 +377,32 @@ namespace VistaDB.Extra
 
     void IList.RemoveAt(int index)
     {
-      if (this.cache.IsInserting && index == this.Count || (index < 0 || index >= this.Count))
+      if (cache.IsInserting && index == Count || (index < 0 || index >= Count))
         return;
-      this.state = TypeOfOperation.Delete;
+      state = TypeOfOperation.Delete;
       try
       {
-        this.cache.DeleteRow((long) index);
-        if (this.ListChanged == null)
+        cache.DeleteRow((long) index);
+        if (ListChanged == null)
           return;
-        this.ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemDeleted, index));
+        ListChanged((object) this, new ListChangedEventArgs(ListChangedType.ItemDeleted, index));
       }
-      catch (VistaDBException ex)
-      {
-        if (this.ListChanged != null)
-          this.ListChanged((object) this, new ListChangedEventArgs(ListChangedType.Reset, 0));
+      catch (VistaDBException)
+            {
+        if (ListChanged != null)
+          ListChanged((object) this, new ListChangedEventArgs(ListChangedType.Reset, 0));
         throw;
       }
-      catch (Exception ex)
-      {
-        this.cache.Clear();
-        if (this.ListChanged == null)
+      catch (Exception)
+            {
+        cache.Clear();
+        if (ListChanged == null)
           return;
-        this.ListChanged((object) this, new ListChangedEventArgs(ListChangedType.Reset, 0));
+        ListChanged((object) this, new ListChangedEventArgs(ListChangedType.Reset, 0));
       }
       finally
       {
-        this.state = TypeOfOperation.Nothing;
+        state = TypeOfOperation.Nothing;
       }
     }
 
@@ -411,9 +410,9 @@ namespace VistaDB.Extra
     {
       get
       {
-        this.currentRow = new EditableRow(this, index);
-        this.curentRowNumber = (long) index;
-        return (object) this.currentRow;
+        currentRow = new EditableRow(this, index);
+        curentRowNumber = (long) index;
+        return (object) currentRow;
       }
       set
       {
@@ -429,7 +428,7 @@ namespace VistaDB.Extra
     {
       get
       {
-        return (int) this.cache.TableRowCount;
+        return (int) cache.TableRowCount;
       }
     }
 
@@ -437,11 +436,11 @@ namespace VistaDB.Extra
     {
       get
       {
-        if (this.extendedColumns.Count == 0)
+        if (extendedColumns.Count == 0)
           return (IVistaDBColumnAttributes[]) null;
-        IVistaDBColumnAttributes[] columnAttributesArray = new IVistaDBColumnAttributes[this.extendedColumns.Count];
+        IVistaDBColumnAttributes[] columnAttributesArray = new IVistaDBColumnAttributes[extendedColumns.Count];
         for (int index = 0; index < columnAttributesArray.Length; ++index)
-          columnAttributesArray[index] = this.extendedColumns[index];
+          columnAttributesArray[index] = extendedColumns[index];
         return columnAttributesArray;
       }
     }
@@ -450,7 +449,7 @@ namespace VistaDB.Extra
     {
       get
       {
-        return this.exclusive;
+        return exclusive;
       }
     }
 
@@ -458,7 +457,7 @@ namespace VistaDB.Extra
     {
       get
       {
-        return this.db.TableSchema(this.tableName);
+        return db.TableSchema(tableName);
       }
     }
 
@@ -466,11 +465,11 @@ namespace VistaDB.Extra
     {
       get
       {
-        return this.cache.OptimisticLock;
+        return cache.OptimisticLock;
       }
       set
       {
-        this.cache.OptimisticLock = value;
+        cache.OptimisticLock = value;
       }
     }
 
@@ -478,7 +477,7 @@ namespace VistaDB.Extra
     {
       get
       {
-        return this.readOnly;
+        return readOnly;
       }
     }
 
@@ -508,16 +507,16 @@ namespace VistaDB.Extra
       try
       {
         PropertyDescriptorCollection descriptorCollection = new PropertyDescriptorCollection((PropertyDescriptor[]) null);
-        IVistaDBTableSchema vistaDbTableSchema = this.db.TableSchema(this.tableName);
+        IVistaDBTableSchema vistaDbTableSchema = db.TableSchema(tableName);
         List<string> stringList = new List<string>(vistaDbTableSchema.Identities.Count);
         foreach (IVistaDBIdentityInformation identityInformation in (IEnumerable<IVistaDBIdentityInformation>) vistaDbTableSchema.Identities.Values)
           stringList.Add(identityInformation.ColumnName);
-        this.extendedColumns.Clear();
+        extendedColumns.Clear();
         foreach (IVistaDBColumnAttributes columnAttributes in (IEnumerable<IVistaDBColumnAttributes>) vistaDbTableSchema)
         {
           if (columnAttributes.ExtendedType || columnAttributes.Type == VistaDBType.VarBinary)
-            this.extendedColumns.Add(columnAttributes);
-          descriptorCollection.Add((PropertyDescriptor) new VistaDB.Extra.Internal.DataTablePropertyDescriptor(columnAttributes.Name, columnAttributes.SystemType, columnAttributes.RowIndex, columnAttributes.Type, stringList.Contains(columnAttributes.Name)));
+            extendedColumns.Add(columnAttributes);
+          descriptorCollection.Add((PropertyDescriptor) new DataTablePropertyDescriptor(columnAttributes.Name, columnAttributes.SystemType, columnAttributes.RowIndex, columnAttributes.Type, stringList.Contains(columnAttributes.Name)));
         }
         return descriptorCollection;
       }

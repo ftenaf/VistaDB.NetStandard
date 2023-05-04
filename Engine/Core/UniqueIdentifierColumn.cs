@@ -8,12 +8,12 @@ namespace VistaDB.Engine.Core
     public static readonly Guid maxValue = new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff");
 
     internal UniqueIdentifierColumn()
-      : base((object) null, VistaDBType.UniqueIdentifier, UniqueIdentifierColumn.GuidSize)
+      : base((object) null, VistaDBType.UniqueIdentifier, GuidSize)
     {
     }
 
     internal UniqueIdentifierColumn(Guid val)
-      : base((object) val, VistaDBType.UniqueIdentifier, UniqueIdentifierColumn.GuidSize)
+      : base((object) val, VistaDBType.UniqueIdentifier, GuidSize)
     {
     }
 
@@ -34,7 +34,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (object) UniqueIdentifierColumn.maxValue;
+        return (object)maxValue;
       }
     }
 
@@ -61,26 +61,26 @@ namespace VistaDB.Engine.Core
 
     internal override int ConvertToByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      Array.Copy((Array) ((Guid) this.Value).ToByteArray(), 0, (Array) buffer, offset, UniqueIdentifierColumn.GuidSize);
-      return offset + UniqueIdentifierColumn.GuidSize;
+      Array.Copy((Array) ((Guid) Value).ToByteArray(), 0, (Array) buffer, offset, GuidSize);
+      return offset + GuidSize;
     }
 
     internal override int ConvertFromByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      byte[] b = new byte[UniqueIdentifierColumn.GuidSize];
-      Array.Copy((Array) buffer, offset, (Array) b, 0, UniqueIdentifierColumn.GuidSize);
-      this.val = (object) new Guid(b);
-      return offset + UniqueIdentifierColumn.GuidSize;
+      byte[] b = new byte[GuidSize];
+      Array.Copy((Array) buffer, offset, (Array) b, 0, GuidSize);
+      val = (object) new Guid(b);
+      return offset + GuidSize;
     }
 
     protected override long Collate(Row.Column col)
     {
-      Guid guid1 = (Guid) this.Value;
+      Guid guid1 = (Guid) Value;
       Guid guid2 = (Guid) col.Value;
       byte[] byteArray1 = guid1.ToByteArray();
       byte[] byteArray2 = guid2.ToByteArray();
       long num = 0;
-      for (int index = 0; index < UniqueIdentifierColumn.GuidSize && num == 0L; ++index)
+      for (int index = 0; index < GuidSize && num == 0L; ++index)
         num = (long) ((int) byteArray1[index] - (int) byteArray2[index]);
       return num;
     }

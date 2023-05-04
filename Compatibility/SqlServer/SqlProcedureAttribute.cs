@@ -6,7 +6,7 @@ namespace VistaDB.Compatibility.SqlServer
   {
     public SqlProcedureAttribute()
     {
-      this.Name = (string) null;
+      Name = (string) null;
     }
 
     public string Name { get; set; }

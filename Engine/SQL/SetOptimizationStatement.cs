@@ -16,12 +16,12 @@ namespace VistaDB.Engine.SQL
       parser.SkipToken(true);
       if (parser.IsToken("ON"))
       {
-        this.optimization = true;
+        optimization = true;
       }
       else
       {
         parser.ExpectedExpression("OFF", "ON");
-        this.optimization = false;
+        optimization = false;
       }
       parser.SkipToken(false);
     }
@@ -33,7 +33,7 @@ namespace VistaDB.Engine.SQL
 
     protected override IQueryResult OnExecuteQuery()
     {
-      this.connection.SetOptimization(this.optimization);
+      connection.SetOptimization(optimization);
       return (IQueryResult) null;
     }
   }

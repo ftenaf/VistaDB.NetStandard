@@ -2,29 +2,29 @@
 {
   internal class Triangular
   {
-    internal static Triangular.Value Not(Triangular.Value v)
+    internal static Value Not(Value v)
     {
-      if (v == Triangular.Value.Null)
+      if (v == Value.Null)
         return v;
-      return v == Triangular.Value.True ? Triangular.Value.False : Triangular.Value.True;
+      return v == Value.True ? Value.False : Value.True;
     }
 
-    internal static Triangular.Value And(Triangular.Value a, Triangular.Value b)
+    internal static Value And(Value a, Value b)
     {
-      if (a == Triangular.Value.False)
-        return Triangular.Value.False;
-      if (a == Triangular.Value.True || b != Triangular.Value.True)
+      if (a == Value.False)
+        return Value.False;
+      if (a == Value.True || b != Value.True)
         return b;
-      return Triangular.Value.Null;
+      return Value.Null;
     }
 
-    internal static Triangular.Value Or(Triangular.Value a, Triangular.Value b)
+    internal static Value Or(Value a, Value b)
     {
-      if (a == Triangular.Value.True)
-        return Triangular.Value.True;
-      if (a == Triangular.Value.False)
+      if (a == Value.True)
+        return Value.True;
+      if (a == Value.False)
         return b;
-      return b == Triangular.Value.True ? Triangular.Value.True : Triangular.Value.Null;
+      return b == Value.True ? Value.True : Value.Null;
     }
 
     internal enum Value : byte

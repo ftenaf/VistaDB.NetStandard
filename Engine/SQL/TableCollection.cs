@@ -8,14 +8,14 @@ namespace VistaDB.Engine.SQL
     {
       foreach (SourceTable sourceTable in (List<SourceTable>) this)
         sourceTable.Open();
-      this.AllOpen = true;
+      AllOpen = true;
     }
 
     internal void Close()
     {
       foreach (SourceTable sourceTable in (List<SourceTable>) this)
         sourceTable.Close();
-      this.AllOpen = false;
+      AllOpen = false;
     }
 
     internal void Prepare()
@@ -32,18 +32,18 @@ namespace VistaDB.Engine.SQL
 
     internal void AddTable(SourceTable sourceTable)
     {
-      if (this.HasNative && !sourceTable.IsNativeTable)
-        this.HasNative = false;
-      else if (this.Count == 0 && sourceTable.IsNativeTable)
-        this.HasNative = true;
-      this.Add(sourceTable);
+      if (HasNative && !sourceTable.IsNativeTable)
+        HasNative = false;
+      else if (Count == 0 && sourceTable.IsNativeTable)
+        HasNative = true;
+      Add(sourceTable);
     }
 
     internal void Free()
     {
       foreach (SourceTable sourceTable in (List<SourceTable>) this)
         sourceTable.FreeTable();
-      this.AllOpen = false;
+      AllOpen = false;
     }
 
     internal bool AllOpen { get; private set; }

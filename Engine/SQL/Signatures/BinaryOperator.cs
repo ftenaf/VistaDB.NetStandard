@@ -15,60 +15,60 @@ namespace VistaDB.Engine.SQL.Signatures
       : base(parser)
     {
       this.leftOperand = leftOperand;
-      this.signatureType = SignatureType.Expression;
-      this.DoParseRightOperand(parser, priority);
+      signatureType = SignatureType.Expression;
+      DoParseRightOperand(parser, priority);
     }
 
     protected virtual void DoParseRightOperand(SQLParser parser, int priority)
     {
-      this.rightOperand = parser.NextSignature(true, true, priority);
+      rightOperand = parser.NextSignature(true, true, priority);
     }
 
     protected override bool IsEquals(Signature signature)
     {
-      if (this.GetType() == signature.GetType() && this.leftOperand == ((BinaryOperator) signature).leftOperand)
-        return this.rightOperand == ((BinaryOperator) signature).rightOperand;
+      if (GetType() == signature.GetType() && leftOperand == ((BinaryOperator) signature).leftOperand)
+        return rightOperand == ((BinaryOperator) signature).rightOperand;
       return false;
     }
 
     protected override void RelinkParameters(Signature signature, ref int columnCount)
     {
-      this.leftOperand = this.leftOperand.Relink(signature, ref columnCount);
-      this.rightOperand = this.rightOperand.Relink(signature, ref columnCount);
+      leftOperand = leftOperand.Relink(signature, ref columnCount);
+      rightOperand = rightOperand.Relink(signature, ref columnCount);
     }
 
     public override void SetChanged()
     {
-      this.needsEvaluation = true;
-      this.leftOperand.SetChanged();
-      this.rightOperand.SetChanged();
+      needsEvaluation = true;
+      leftOperand.SetChanged();
+      rightOperand.SetChanged();
     }
 
     public override void ClearChanged()
     {
-      this.needsEvaluation = false;
-      this.leftOperand.ClearChanged();
-      this.rightOperand.ClearChanged();
+      needsEvaluation = false;
+      leftOperand.ClearChanged();
+      rightOperand.ClearChanged();
     }
 
     protected override bool InternalGetIsChanged()
     {
-      if (!this.needsEvaluation && !this.leftOperand.GetIsChanged())
-        return this.rightOperand.GetIsChanged();
+      if (!needsEvaluation && !leftOperand.GetIsChanged())
+        return rightOperand.GetIsChanged();
       return true;
     }
 
     public override void GetAggregateFunctions(List<AggregateFunction> list)
     {
-      this.leftOperand.GetAggregateFunctions(list);
-      this.rightOperand.GetAggregateFunctions(list);
+      leftOperand.GetAggregateFunctions(list);
+      rightOperand.GetAggregateFunctions(list);
     }
 
     public override bool HasAggregateFunction(out bool distinct)
     {
       bool distinct1;
       bool distinct2;
-      bool flag = this.leftOperand.HasAggregateFunction(out distinct1) | this.rightOperand.HasAggregateFunction(out distinct2);
+      bool flag = leftOperand.HasAggregateFunction(out distinct1) | rightOperand.HasAggregateFunction(out distinct2);
       distinct = distinct1 || distinct2;
       return flag;
     }
@@ -77,8 +77,8 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        if (!this.leftOperand.AlwaysNull)
-          return this.rightOperand.AlwaysNull;
+        if (!leftOperand.AlwaysNull)
+          return rightOperand.AlwaysNull;
         return true;
       }
     }
@@ -87,7 +87,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.leftOperand.ColumnCount + this.rightOperand.ColumnCount;
+        return leftOperand.ColumnCount + rightOperand.ColumnCount;
       }
     }
   }

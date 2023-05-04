@@ -13,7 +13,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public override Signature CreateSignature(SQLParser parser)
     {
-      return (Signature) new StoredProcedure(parser, this.sp);
+      return (Signature) new StoredProcedure(parser, sp);
     }
   }
 }

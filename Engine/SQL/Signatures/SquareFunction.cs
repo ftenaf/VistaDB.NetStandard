@@ -8,13 +8,13 @@ namespace VistaDB.Engine.SQL.Signatures
     public SquareFunction(SQLParser parser)
       : base(parser, 1, true)
     {
-      this.dataType = VistaDBType.Float;
-      this.parameterTypes[0] = VistaDBType.Float;
+      dataType = VistaDBType.Float;
+      parameterTypes[0] = VistaDBType.Float;
     }
 
     protected override object ExecuteSubProgram()
     {
-      return (object) Math.Pow((double) ((IValue) this.paramValues[0]).Value, 2.0);
+      return (object) Math.Pow((double) ((IValue) paramValues[0]).Value, 2.0);
     }
   }
 }

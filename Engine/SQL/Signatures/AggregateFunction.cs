@@ -18,56 +18,56 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       parser.SkipToken(true);
       if (!parser.IsToken("("))
-        throw new VistaDBSQLException(500, "\"(\"", this.lineNo, this.symbolNo);
-      this.distinct = false;
+        throw new VistaDBSQLException(500, "\"(\"", lineNo, symbolNo);
+      distinct = false;
       parser.SkipToken(true);
       if (allowAll && parser.IsToken("*"))
       {
-        this.expression = (Signature) null;
+        expression = (Signature) null;
         parser.SkipToken(true);
       }
       else
       {
         if (parser.TokenEndsWith("*"))
-          throw new VistaDBSQLException(656, "", this.lineNo, this.symbolNo);
+          throw new VistaDBSQLException(656, "", lineNo, symbolNo);
         if (parser.IsToken("DISTINCT"))
         {
           this.distinct = true;
           parser.SkipToken(true);
           if (parser.TokenEndsWith("*"))
-            throw new VistaDBSQLException(658, "", this.lineNo, this.symbolNo);
+            throw new VistaDBSQLException(658, "", lineNo, symbolNo);
         }
         else if (parser.IsToken("ALL"))
         {
           parser.SkipToken(true);
           if (parser.TokenEndsWith("*"))
-            throw new VistaDBSQLException(657, "", this.lineNo, this.symbolNo);
+            throw new VistaDBSQLException(657, "", lineNo, symbolNo);
         }
-        this.expression = parser.NextSignature(false, true, 6);
+        expression = parser.NextSignature(false, true, 6);
         bool distinct;
-        if (this.expression.HasAggregateFunction(out distinct))
-          throw new VistaDBSQLException(551, "", this.lineNo, this.symbolNo);
+        if (expression.HasAggregateFunction(out distinct))
+          throw new VistaDBSQLException(551, "", lineNo, symbolNo);
       }
       parser.ExpectedExpression(")");
-      this.signatureType = SignatureType.Expression;
-      this.val = (object) null;
-      this.all = this.expression == (Signature) null;
-      this.changed = false;
-      this.countOptimized = false;
+      signatureType = SignatureType.Expression;
+      val = (object) null;
+      all = expression == (Signature) null;
+      changed = false;
+      countOptimized = false;
     }
 
     protected override IColumn InternalExecute()
     {
-      return this.result;
+      return result;
     }
 
     protected override bool IsEquals(Signature signature)
     {
-      if (this.GetType() != signature.GetType())
+      if (GetType() != signature.GetType())
         return false;
       AggregateFunction aggregateFunction = (AggregateFunction) signature;
-      if (this.expression == aggregateFunction.expression)
-        return this.distinct == aggregateFunction.distinct;
+      if (expression == aggregateFunction.expression)
+        return distinct == aggregateFunction.distinct;
       return false;
     }
 
@@ -77,16 +77,16 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public override void SetChanged()
     {
-      if (this.expression != (Signature) null)
-        this.expression.SetChanged();
-      this.changed = false;
+      if (expression != (Signature) null)
+        expression.SetChanged();
+      changed = false;
     }
 
     public override void ClearChanged()
     {
-      if (this.expression != (Signature) null)
-        this.expression.ClearChanged();
-      this.changed = false;
+      if (expression != (Signature) null)
+        expression.ClearChanged();
+      changed = false;
     }
 
     public override bool HasAggregateFunction(out bool distinct)
@@ -97,9 +97,9 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public override SignatureType OnPrepare()
     {
-      if (this.expression != (Signature) null)
-        this.expression = ConstantSignature.PrepareAndCheckConstant(this.expression, VistaDBType.Unknown);
-      return this.signatureType;
+      if (expression != (Signature) null)
+        expression = ConstantSignature.PrepareAndCheckConstant(expression, VistaDBType.Unknown);
+      return signatureType;
     }
 
     public override bool AlwaysNull
@@ -112,8 +112,8 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override bool InternalGetIsChanged()
     {
-      if (!this.changed && !(this.expression == (Signature) null))
-        return this.expression.GetIsChanged();
+      if (!changed && !(expression == (Signature) null))
+        return expression.GetIsChanged();
       return true;
     }
 
@@ -134,7 +134,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.distinct;
+        return distinct;
       }
     }
 
@@ -142,56 +142,56 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.expression;
+        return expression;
       }
     }
 
     public void CreateEmptyResult()
     {
-      if (this.result == null)
-        this.result = this.CreateColumn(this.dataType);
-      this.val = this.InternalCreateEmptyResult();
-      ((IValue) this.result).Value = this.val;
-      this.changed = true;
+      if (result == null)
+        result = CreateColumn(dataType);
+      val = InternalCreateEmptyResult();
+      ((IValue) result).Value = val;
+      changed = true;
     }
 
     public void CreateNewGroup(object newVal)
     {
-      if (this.result == null)
-        this.result = this.CreateColumn(this.dataType);
-      this.val = this.InternalCreateNewGroup(newVal);
-      this.changed = true;
+      if (result == null)
+        result = CreateColumn(dataType);
+      val = InternalCreateNewGroup(newVal);
+      changed = true;
     }
 
     public bool AddRowToGroup(object newVal)
     {
-      this.val = this.InternalAddRowToGroup(newVal);
-      return !this.countOptimized;
+      val = InternalAddRowToGroup(newVal);
+      return !countOptimized;
     }
 
     public void FinishGroup()
     {
-      this.val = this.InternalFinishGroup();
-      ((IValue) this.result).Value = this.val;
+      val = InternalFinishGroup();
+      ((IValue) result).Value = val;
     }
 
     public void CreateNewGroupAndSerialize(object newVal, ref object serObj)
     {
-      this.CreateNewGroup(newVal);
-      this.InternalSerialize(ref serObj);
+      CreateNewGroup(newVal);
+      InternalSerialize(ref serObj);
     }
 
     public void AddRowToGroupAndSerialize(object newVal, ref object serObj)
     {
-      this.InternalDeserialize(serObj);
-      this.AddRowToGroup(newVal);
-      this.InternalSerialize(ref serObj);
+      InternalDeserialize(serObj);
+      AddRowToGroup(newVal);
+      InternalSerialize(ref serObj);
     }
 
     public void FinishGroup(object serObj)
     {
-      this.InternalDeserialize(serObj);
-      this.FinishGroup();
+      InternalDeserialize(serObj);
+      FinishGroup();
     }
 
     protected abstract void InternalSerialize(ref object serObj);

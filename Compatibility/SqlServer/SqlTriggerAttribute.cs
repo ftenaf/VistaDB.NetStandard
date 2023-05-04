@@ -6,9 +6,9 @@ namespace VistaDB.Compatibility.SqlServer
   {
     public SqlTriggerAttribute()
     {
-      this.Event = (string) null;
-      this.Name = (string) null;
-      this.Target = (string) null;
+      Event = (string) null;
+      Name = (string) null;
+      Target = (string) null;
     }
 
     public string Event { get; set; }

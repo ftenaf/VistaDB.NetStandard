@@ -18,48 +18,48 @@ namespace VistaDB.Engine.SQL
     protected override void OnParse(LocalSQLConnection connection, SQLParser parser)
     {
       parser.SkipToken(true);
-      this.variables = parser.ParseVariables();
-      if (this.variables == null)
-        throw new VistaDBSQLException(509, "Missing @variable. Example: DECLARE @variable Integer;", this.lineNo, this.symbolNo);
-      foreach (SQLParser.VariableDeclaration variable in this.variables)
+      variables = parser.ParseVariables();
+      if (variables == null)
+        throw new VistaDBSQLException(509, "Missing @variable. Example: DECLARE @variable Integer;", lineNo, symbolNo);
+      foreach (SQLParser.VariableDeclaration variable in variables)
       {
-        if (this.DoGetParam(variable.Name) != null)
-          throw new VistaDBSQLException(620, 64.ToString() + variable.Name, this.lineNo, this.symbolNo);
-        this.DoSetParam(variable.Name, (object) null, variable.DataType, ParameterDirection.Input);
+        if (DoGetParam(variable.Name) != null)
+          throw new VistaDBSQLException(620, 64.ToString() + variable.Name, lineNo, symbolNo);
+        DoSetParam(variable.Name, (object) null, variable.DataType, ParameterDirection.Input);
       }
     }
 
     protected override VistaDBType OnPrepareQuery()
     {
-      foreach (SQLParser.VariableDeclaration variable in this.variables)
+      foreach (SQLParser.VariableDeclaration variable in variables)
       {
         if (variable.Signature != (Signature) null)
         {
           int num = (int) variable.Signature.Prepare();
         }
-        if (variable.DataType == VistaDBType.Unknown && this.parent.DoGetTemporaryTableName(variable.Name) != null)
-          this.parent.DoGetTemporaryTableName(variable.Name).ExecuteQuery();
+        if (variable.DataType == VistaDBType.Unknown && parent.DoGetTemporaryTableName(variable.Name) != null)
+          parent.DoGetTemporaryTableName(variable.Name).ExecuteQuery();
       }
       return VistaDBType.Unknown;
     }
 
     protected override IQueryResult OnExecuteQuery()
     {
-      if (this.variables == null)
+      if (variables == null)
         return (IQueryResult) null;
-      foreach (SQLParser.VariableDeclaration variable in this.variables)
+      foreach (SQLParser.VariableDeclaration variable in variables)
       {
         Signature signature = variable.Signature;
         if (signature != (Signature) null)
         {
           if (variable.Default == null)
-            variable.Default = (IValue) this.Database.CreateEmptyColumn(variable.DataType);
-          this.Database.Conversion.Convert((IValue) signature.Execute(), variable.Default);
+            variable.Default = (IValue) Database.CreateEmptyColumn(variable.DataType);
+          Database.Conversion.Convert((IValue) signature.Execute(), variable.Default);
           signature.SetChanged();
-          this.DoSetParam(variable.Name, variable.Default.Value, variable.DataType, ParameterDirection.Input);
+          DoSetParam(variable.Name, variable.Default.Value, variable.DataType, ParameterDirection.Input);
         }
         else
-          this.DoSetParam(variable.Name, (object) null, variable.DataType, ParameterDirection.Input);
+          DoSetParam(variable.Name, (object) null, variable.DataType, ParameterDirection.Input);
       }
       return (IQueryResult) null;
     }

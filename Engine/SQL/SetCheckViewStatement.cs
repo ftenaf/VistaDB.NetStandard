@@ -18,12 +18,12 @@ namespace VistaDB.Engine.SQL
       parser.SkipToken(true);
       if (parser.IsToken("ON"))
       {
-        this.checkView = true;
+        checkView = true;
       }
       else
       {
         parser.ExpectedExpression("OFF");
-        this.checkView = false;
+        checkView = false;
       }
       parser.SkipToken(false);
     }
@@ -35,7 +35,7 @@ namespace VistaDB.Engine.SQL
 
     protected override IQueryResult OnExecuteQuery()
     {
-      this.connection.SetCheckView(this.checkView);
+      connection.SetCheckView(checkView);
       return (IQueryResult) null;
     }
   }

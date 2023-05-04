@@ -9,12 +9,12 @@ namespace VistaDB.Engine.Core
     public static readonly BitColumn False = new BitColumn(false);
 
     internal BitColumn()
-      : base((object) null, VistaDBType.Bit, BitColumn.BooleanSize)
+      : base((object) null, VistaDBType.Bit, BooleanSize)
     {
     }
 
     internal BitColumn(bool val)
-      : base((object) val, VistaDBType.Bit, BitColumn.BooleanSize)
+      : base((object) val, VistaDBType.Bit, BooleanSize)
     {
     }
 
@@ -62,19 +62,19 @@ namespace VistaDB.Engine.Core
 
     internal override int ConvertToByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      buffer[offset] = (bool) this.Value ? (byte) 1 : (byte) 0;
-      return offset + BitColumn.BooleanSize;
+      buffer[offset] = (bool) Value ? (byte) 1 : (byte) 0;
+      return offset + BooleanSize;
     }
 
     internal override int ConvertFromByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      this.val = (object) BitConverter.ToBoolean(buffer, offset);
-      return offset + BitColumn.BooleanSize;
+      val = (object) BitConverter.ToBoolean(buffer, offset);
+      return offset + BooleanSize;
     }
 
     protected override long Collate(Row.Column col)
     {
-      return (long) (((bool) this.Value ? 1 : 0) - ((bool) col.Value ? 1 : 0));
+      return (long) (((bool) Value ? 1 : 0) - ((bool) col.Value ? 1 : 0));
     }
   }
 }

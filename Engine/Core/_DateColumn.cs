@@ -5,10 +5,7 @@ namespace VistaDB.Engine.Core
 {
   internal class _DateColumn : Row.Column
   {
-    private const int DateSize = 4;
-    private const long ticksPerDay = 864000000000;
-
-    internal _DateColumn()
+        internal _DateColumn()
       : base((object) null, VistaDBType.NChar | VistaDBType.SmallMoney, 4)
     {
     }
@@ -70,18 +67,18 @@ namespace VistaDB.Engine.Core
 
     internal override int ConvertToByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      return VdbBitConverter.GetBytes((uint) (((DateTime) this.Value).Date.Ticks / 864000000000L), buffer, offset, 4);
+      return VdbBitConverter.GetBytes((uint) (((DateTime) Value).Date.Ticks / 864000000000L), buffer, offset, 4);
     }
 
     internal override int ConvertFromByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      this.val = (object) new DateTime((long) BitConverter.ToUInt32(buffer, offset) * 864000000000L);
+      val = (object) new DateTime((long) BitConverter.ToUInt32(buffer, offset) * 864000000000L);
       return offset + 4;
     }
 
     protected override long Collate(Row.Column col)
     {
-      return (long) DateTime.Compare((DateTime) this.Value, (DateTime) col.Value);
+      return (long) DateTime.Compare((DateTime) Value, (DateTime) col.Value);
     }
   }
 }

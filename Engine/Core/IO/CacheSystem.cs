@@ -8,7 +8,7 @@ namespace VistaDB.Engine.Core.IO
   internal class CacheSystem : Dictionary<ulong, CacheSystem.Page>
   {
     private long fileLength = -1;
-    private readonly CacheSystem.PageCache pageCache = new CacheSystem.PageCache();
+    private readonly PageCache pageCache = new PageCache();
     private readonly object syncObject = new object();
     private int pageSize;
     private FileStream fileStream;
@@ -17,7 +17,7 @@ namespace VistaDB.Engine.Core.IO
     {
       this.pageSize = pageSize;
       this.fileStream = fileStream;
-      long fileLength = (long) this.FileLength;
+      long fileLength = (long) FileLength;
       this.syncObject = syncObject;
     }
 
@@ -25,45 +25,45 @@ namespace VistaDB.Engine.Core.IO
     {
       get
       {
-        if (this.fileLength == -1L)
-          this.fileLength = this.fileStream.Length;
-        return (ulong) this.fileLength;
+        if (fileLength == -1L)
+          fileLength = fileStream.Length;
+        return (ulong) fileLength;
       }
       set
       {
-        this.fileLength = (long) value;
+        fileLength = (long) value;
       }
     }
 
     internal void Initialize()
     {
-      this.fileLength = -1L;
+      fileLength = -1L;
     }
 
-    private CacheSystem.Page CreateNewPage(ulong storageId, ulong pageId)
+    private Page CreateNewPage(ulong storageId, ulong pageId)
     {
-      CacheSystem.Page page = new CacheSystem.Page(storageId, pageId, this.pageSize, this);
-      this.pageCache[pageId] = page;
+            Page page = new Page(storageId, pageId, pageSize, this);
+      pageCache[pageId] = page;
       if ((long) storageId == (long) pageId)
-        this.Add(pageId, page);
+        Add(pageId, page);
       return page;
     }
 
-    private CacheSystem.Page OpenNewPage(ulong storageId, ulong pageId, bool forceRead)
+    private Page OpenNewPage(ulong storageId, ulong pageId, bool forceRead)
     {
-      CacheSystem.Page newValue = new CacheSystem.Page(storageId, pageId, this.pageSize, this);
-      this.pageCache.AddToWeakCache(pageId, newValue);
+            Page newValue = new Page(storageId, pageId, pageSize, this);
+      pageCache.AddToWeakCache(pageId, newValue);
       if (forceRead)
-        newValue.Refresh(this.fileStream, true);
-      this.Add(pageId, newValue);
+        newValue.Refresh(fileStream, true);
+      Add(pageId, newValue);
       return newValue;
     }
 
-    private CacheSystem.Page FindPage(ulong pageId)
+    private Page FindPage(ulong pageId)
     {
-      CacheSystem.Page page;
-      if (!this.TryGetValue(pageId, out page))
-        page = this.pageCache[pageId];
+            Page page;
+      if (!TryGetValue(pageId, out page))
+        page = pageCache[pageId];
       return page;
     }
 
@@ -73,21 +73,21 @@ namespace VistaDB.Engine.Core.IO
       ulong num2 = filePosition + (ulong) length - 1UL;
       int length1 = length;
       int offset1 = offset;
-      ulong num3 = num1 - num1 % (ulong) this.pageSize;
-      ulong num4 = num2 - num2 % (ulong) this.pageSize;
-      lock (this.SyncRoot)
+      ulong num3 = num1 - num1 % (ulong) pageSize;
+      ulong num4 = num2 - num2 % (ulong) pageSize;
+      lock (SyncRoot)
       {
         ulong pageId = num3;
         while (pageId <= num4)
         {
           if (length1 > 0)
           {
-            bool flag1 = filePosition > pageId || filePosition + (ulong) length1 < pageId + (ulong) this.pageSize;
-            CacheSystem.Page page = this.FindPage(pageId);
+            bool flag1 = filePosition > pageId || filePosition + (ulong) length1 < pageId + (ulong) pageSize;
+                        Page page = FindPage(pageId);
             bool flag2 = page != null;
             if (!flag2)
             {
-              page = toRead ? this.CreateNewPage(storageId, pageId) : this.OpenNewPage(storageId, pageId, forceRead && flag1);
+              page = toRead ? CreateNewPage(storageId, pageId) : OpenNewPage(storageId, pageId, forceRead && flag1);
               forceRead = forceRead || toRead;
             }
             else
@@ -97,25 +97,25 @@ namespace VistaDB.Engine.Core.IO
               if (toRead)
               {
                 if (forceRead && !page.IsDirty)
-                  page.Refresh(this.fileStream, toRead, flag2 ? length1 : this.pageSize);
+                  page.Refresh(fileStream, toRead, flag2 ? length1 : pageSize);
                 length1 -= page.ReadFromCache(data, ref offset1, ref filePosition, length1);
               }
               else
               {
                 length1 -= page.WriteToCache(data, ref offset1, ref filePosition, length1);
-                lock (this.syncObject)
+                lock (syncObject)
                 {
-                  if (this.FileLength <= pageId)
-                    this.FileLength = pageId + (ulong) this.pageSize;
+                  if (FileLength <= pageId)
+                    FileLength = pageId + (ulong) pageSize;
                 }
               }
             }
-            catch (Exception ex)
-            {
-              this.RemovePage(pageId);
+            catch (Exception)
+                        {
+              RemovePage(pageId);
               throw;
             }
-            pageId += (ulong) this.pageSize;
+            pageId += (ulong) pageSize;
           }
           else
             break;
@@ -124,50 +124,50 @@ namespace VistaDB.Engine.Core.IO
       return length;
     }
 
-    internal void DirtyPage(CacheSystem.Page page)
+    internal void DirtyPage(Page page)
     {
-      lock (this.SyncRoot)
+      lock (SyncRoot)
       {
-        if (this.ContainsKey(page.PageId))
+        if (ContainsKey(page.PageId))
           return;
-        this.Add(page.PageId, page);
+        Add(page.PageId, page);
       }
     }
 
-    internal void FreshPage(CacheSystem.Page page)
+    internal void FreshPage(Page page)
     {
       if ((long) page.PageId == (long) page.StorageId)
         return;
-      lock (this.SyncRoot)
+      lock (SyncRoot)
       {
-        if (!this.ContainsKey(page.PageId))
+        if (!ContainsKey(page.PageId))
           return;
-        this.Remove(page.PageId);
-        CacheSystem.Page page1 = this.pageCache[page.PageId];
+        Remove(page.PageId);
+                Page page1 = pageCache[page.PageId];
       }
     }
 
     internal bool RemovePage(ulong pageId)
     {
-      lock (this.SyncRoot)
+      lock (SyncRoot)
       {
-        bool flag = this.Remove(pageId);
-        return this.pageCache.Remove(pageId) || flag;
+        bool flag = Remove(pageId);
+        return pageCache.Remove(pageId) || flag;
       }
     }
 
     internal void Flush()
     {
-      lock (this.SyncRoot)
+      lock (SyncRoot)
       {
-        foreach (CacheSystem.Page page in new List<CacheSystem.Page>((IEnumerable<CacheSystem.Page>) this.Values))
+        foreach (Page page in new List<Page>((IEnumerable<Page>) Values))
         {
           if (page.IsDirty)
-            page.Refresh(this.fileStream, false);
+            page.Refresh(fileStream, false);
           else if ((long) page.PageId != (long) page.StorageId)
-            this.Remove(page.PageId);
+            Remove(page.PageId);
         }
-        this.Initialize();
+        Initialize();
       }
     }
 
@@ -177,37 +177,37 @@ namespace VistaDB.Engine.Core.IO
 
     internal void ClearAssociative(ulong storageId)
     {
-      lock (this.SyncRoot)
+      lock (SyncRoot)
       {
-        foreach (CacheSystem.Page page in this.pageCache.GetAllByStorage(storageId))
-          this.RemovePage(page.PageId);
+        foreach (Page page in pageCache.GetAllByStorage(storageId))
+          RemovePage(page.PageId);
       }
     }
 
     internal void ResetPageSize(int newPageSize)
     {
-      this.pageSize = newPageSize;
+      pageSize = newPageSize;
     }
 
     internal int ReadPage(DataStorage storage, ulong pageId, byte[] buffer, int offset, int length)
     {
-      return this.OnHandleDataIO(storage.StorageId, buffer, offset, pageId, length, true, false);
+      return OnHandleDataIO(storage.StorageId, buffer, offset, pageId, length, true, false);
     }
 
     internal int WritePage(DataStorage storage, ulong pageId, byte[] buffer, int offset, int length)
     {
-      return this.OnHandleDataIO(storage.StorageId, buffer, offset, pageId, length, false, false);
+      return OnHandleDataIO(storage.StorageId, buffer, offset, pageId, length, false, false);
     }
 
     internal bool ReadRow(DataStorage storage, Row row, int maxLength, bool force)
     {
-      this.OnHandleDataIO(storage.StorageId, row.Buffer, 0, row.Position, maxLength, true, force);
+      OnHandleDataIO(storage.StorageId, row.Buffer, 0, row.Position, maxLength, true, force);
       return true;
     }
 
     internal bool WriteRow(DataStorage storage, Row row, int maxLength)
     {
-      this.OnHandleDataIO(storage.StorageId, row.Buffer, 0, row.Position, maxLength, false, true);
+      OnHandleDataIO(storage.StorageId, row.Buffer, 0, row.Position, maxLength, false, true);
       return true;
     }
 
@@ -215,15 +215,15 @@ namespace VistaDB.Engine.Core.IO
     {
       get
       {
-        return this.syncObject;
+        return syncObject;
       }
     }
 
     public new void Clear()
     {
       base.Clear();
-      this.pageCache.Clear();
-      this.Initialize();
+      pageCache.Clear();
+      Initialize();
     }
 
     internal class Page
@@ -238,15 +238,15 @@ namespace VistaDB.Engine.Core.IO
       {
         this.storageId = storageId;
         this.pageId = pageId;
-        this.buffer = new byte[pageSize];
-        this.cache = cacheSystem;
+        buffer = new byte[pageSize];
+        cache = cacheSystem;
       }
 
       internal bool IsDirty
       {
         get
         {
-          return this.isDirty;
+          return isDirty;
         }
       }
 
@@ -254,7 +254,7 @@ namespace VistaDB.Engine.Core.IO
       {
         get
         {
-          return this.pageId;
+          return pageId;
         }
       }
 
@@ -262,16 +262,16 @@ namespace VistaDB.Engine.Core.IO
       {
         get
         {
-          return this.storageId;
+          return storageId;
         }
       }
 
       internal int ReadFromCache(byte[] dataBuffer, ref int offset, ref ulong filePosition, int length)
       {
-        int sourceIndex = (int) ((long) filePosition - (long) this.pageId);
-        int num = this.buffer.Length - sourceIndex;
+        int sourceIndex = (int) ((long) filePosition - (long) pageId);
+        int num = buffer.Length - sourceIndex;
         int length1 = length <= num ? length : num;
-        Array.Copy((Array) this.buffer, sourceIndex, (Array) dataBuffer, offset, length1);
+        Array.Copy((Array) buffer, sourceIndex, (Array) dataBuffer, offset, length1);
         offset += length1;
         filePosition += (ulong) length1;
         return length1;
@@ -279,13 +279,13 @@ namespace VistaDB.Engine.Core.IO
 
       internal int WriteToCache(byte[] dataBuffer, ref int offset, ref ulong filePosition, int length)
       {
-        int destinationIndex = (int) ((long) filePosition - (long) this.pageId);
-        int num = this.buffer.Length - destinationIndex;
+        int destinationIndex = (int) ((long) filePosition - (long) pageId);
+        int num = buffer.Length - destinationIndex;
         int length1 = length <= num ? length : num;
-        Array.Copy((Array) dataBuffer, offset, (Array) this.buffer, destinationIndex, length1);
-        if (this.cache != null && !this.isDirty)
-          this.cache.DirtyPage(this);
-        this.isDirty = true;
+        Array.Copy((Array) dataBuffer, offset, (Array) buffer, destinationIndex, length1);
+        if (cache != null && !isDirty)
+          cache.DirtyPage(this);
+        isDirty = true;
         offset += length1;
         filePosition += (ulong) length1;
         return length1;
@@ -293,29 +293,29 @@ namespace VistaDB.Engine.Core.IO
 
       internal void Refresh(FileStream fileStream, bool toRead)
       {
-        this.Refresh(fileStream, toRead, this.buffer.Length);
+        Refresh(fileStream, toRead, buffer.Length);
       }
 
       internal void Refresh(FileStream fileStream, bool toRead, int len)
       {
-        len = len < this.buffer.Length ? len : this.buffer.Length;
+        len = len < buffer.Length ? len : buffer.Length;
         try
         {
-          fileStream.Seek((long) this.pageId, SeekOrigin.Begin);
+          fileStream.Seek((long) pageId, SeekOrigin.Begin);
           if (toRead)
           {
-            if (!this.IsNewPageVersion())
+            if (!IsNewPageVersion())
               return;
-            fileStream.Read(this.buffer, 0, len);
+            fileStream.Read(buffer, 0, len);
           }
           else
-            fileStream.Write(this.buffer, 0, len);
+            fileStream.Write(buffer, 0, len);
         }
         finally
         {
-          this.isDirty = false;
-          if (this.cache != null && (long) this.pageId != (long) this.storageId)
-            this.cache.FreshPage(this);
+          isDirty = false;
+          if (cache != null && (long) pageId != (long) storageId)
+            cache.FreshPage(this);
         }
       }
 
@@ -325,31 +325,31 @@ namespace VistaDB.Engine.Core.IO
       }
     }
 
-    internal class PageCache : WeakReferenceCache<ulong, CacheSystem.Page>
+    internal class PageCache : WeakReferenceCache<ulong, Page>
     {
       internal PageCache()
         : base(50)
       {
       }
 
-      internal IEnumerator<CacheSystem.Page> EnumerateByStorage(ulong storageId)
+      internal IEnumerator<Page> EnumerateByStorage(ulong storageId)
       {
-        IEnumerator<CacheSystem.Page> enumerator = this.EnumerateEntireCache();
+        IEnumerator<Page> enumerator = EnumerateEntireCache();
         while (enumerator.MoveNext())
         {
-          CacheSystem.Page page = enumerator.Current;
+                    Page page = enumerator.Current;
           if (page != null && (long) page.StorageId == (long) storageId)
             yield return page;
         }
       }
 
-      internal List<CacheSystem.Page> GetAllByStorage(ulong storageId)
+      internal List<Page> GetAllByStorage(ulong storageId)
       {
-        List<CacheSystem.Page> pageList = new List<CacheSystem.Page>();
-        IEnumerator<CacheSystem.Page> enumerator = this.EnumerateByStorage(storageId);
+        List<Page> pageList = new List<Page>();
+        IEnumerator<Page> enumerator = EnumerateByStorage(storageId);
         while (enumerator.MoveNext())
         {
-          CacheSystem.Page current = enumerator.Current;
+                    Page current = enumerator.Current;
           if (current != null)
             pageList.Add(current);
         }

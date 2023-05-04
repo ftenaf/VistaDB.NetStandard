@@ -10,23 +10,23 @@ namespace VistaDB.Engine.SQL.Signatures
 {
   internal class CLRStoredProcedure : Function
   {
-    private static IDictionary<Type, VistaDBType> TypesMap = CLRStoredProcedure.InitializeTypeMap();
-    private static IDictionary<VistaDBType, Type> TypesReMap = CLRStoredProcedure.InitializeTypeReMap();
+    private static IDictionary<Type, VistaDBType> TypesMap = InitializeTypeMap();
+    private static IDictionary<VistaDBType, Type> TypesReMap = InitializeTypeReMap();
     protected string procedureName;
     protected MethodInfo method;
     protected MethodInfo fillRow;
     private VistaDBValue[] values;
-    private List<CLRStoredProcedure.OutParameter> outParams;
+    private List<OutParameter> outParams;
 
     public CLRStoredProcedure(SQLParser parser, string procedureName)
       : base(parser, -1, false)
     {
       this.procedureName = procedureName;
-      this.method = (MethodInfo) null;
-      this.fillRow = (MethodInfo) null;
-      this.values = (VistaDBValue[]) null;
-      this.outParams = (List<CLRStoredProcedure.OutParameter>) null;
-      this.skipNull = false;
+      method = (MethodInfo) null;
+      fillRow = (MethodInfo) null;
+      values = (VistaDBValue[]) null;
+      outParams = (List<OutParameter>) null;
+      skipNull = false;
     }
 
     private static IDictionary<Type, VistaDBType> InitializeTypeMap()
@@ -103,16 +103,16 @@ namespace VistaDB.Engine.SQL.Signatures
     private VistaDBType ConvertType(Type type)
     {
       VistaDBType vistaDbType;
-      if (!CLRStoredProcedure.TypesMap.TryGetValue(type, out vistaDbType))
-        throw new VistaDBSQLException(614, this.procedureName, this.lineNo, this.symbolNo);
+      if (!TypesMap.TryGetValue(type, out vistaDbType))
+        throw new VistaDBSQLException(614, procedureName, lineNo, symbolNo);
       return vistaDbType;
     }
 
     private Type ConvertType(VistaDBType type)
     {
       Type type1;
-      if (!CLRStoredProcedure.TypesReMap.TryGetValue(type, out type1))
-        throw new VistaDBSQLException(614, this.procedureName, this.lineNo, this.symbolNo);
+      if (!TypesReMap.TryGetValue(type, out type1))
+        throw new VistaDBSQLException(614, procedureName, lineNo, symbolNo);
       return type1;
     }
 
@@ -120,48 +120,48 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       try
       {
-        this.method = this.parent.Database.PrepareInvoke(this.procedureName, out this.fillRow);
+        method = parent.Database.PrepareInvoke(procedureName, out fillRow);
       }
       catch (Exception ex)
       {
-        throw new VistaDBSQLException(ex, 607, this.procedureName, this.lineNo, this.symbolNo);
+        throw new VistaDBSQLException(ex, 607, procedureName, lineNo, symbolNo);
       }
-      if (this.fillRow == null)
-        this.dataType = this.ConvertType(this.method.ReturnType);
+      if (fillRow == null)
+        dataType = ConvertType(method.ReturnType);
       else
-        this.dataType = VistaDBType.Unknown;
-      ParameterInfo[] parameters = this.method.GetParameters();
-      if (parameters.Length != this.ParamCount)
-        throw new VistaDBSQLException(501, this.procedureName, this.lineNo, this.symbolNo);
-      this.values = new VistaDBValue[this.ParamCount];
+        dataType = VistaDBType.Unknown;
+      ParameterInfo[] parameters = method.GetParameters();
+      if (parameters.Length != ParamCount)
+        throw new VistaDBSQLException(501, procedureName, lineNo, symbolNo);
+      values = new VistaDBValue[ParamCount];
       int valueIndex = 0;
-      for (int paramCount = this.ParamCount; valueIndex < paramCount; ++valueIndex)
+      for (int paramCount = ParamCount; valueIndex < paramCount; ++valueIndex)
       {
-        VistaDBType vistaDbType = this.GetVistaDBType(parameters[valueIndex], out this.values[valueIndex]);
-        this.parameterTypes[valueIndex] = vistaDbType;
+        VistaDBType vistaDbType = GetVistaDBType(parameters[valueIndex], out values[valueIndex]);
+        parameterTypes[valueIndex] = vistaDbType;
         Signature signature = this[valueIndex];
         if (signature.SignatureType == SignatureType.Parameter)
         {
-          if (this.outParams == null)
-            this.outParams = new List<CLRStoredProcedure.OutParameter>();
-          this.outParams.Add(new CLRStoredProcedure.OutParameter((ParameterSignature) signature, valueIndex));
+          if (outParams == null)
+            outParams = new List<OutParameter>();
+          outParams.Add(new OutParameter((ParameterSignature) signature, valueIndex));
         }
       }
     }
 
     protected VistaDBType GetVistaDBType(ParameterInfo param, out VistaDBValue val)
     {
-      Type type1 = CLRStoredProcedure.GetParameterType(param);
-      VistaDBType type2 = this.ConvertType(type1);
+      Type type1 = GetParameterType(param);
+      VistaDBType type2 = ConvertType(type1);
       if (!type1.IsSubclassOf(typeof (VistaDBValue)))
-        type1 = this.ConvertType(type2);
+        type1 = ConvertType(type2);
       val = (VistaDBValue) type1.GetConstructor(new Type[0]).Invoke(new object[0]);
       return type2;
     }
 
     protected static object GetTrueValue(VistaDBValue value, ParameterInfo parameter)
     {
-      Type parameterType = CLRStoredProcedure.GetParameterType(parameter);
+      Type parameterType = GetParameterType(parameter);
       if (parameterType.IsSubclassOf(typeof (VistaDBValue)))
         return (object) value;
       if (parameterType.IsPrimitive || parameterType.Equals(typeof (string)))
@@ -278,9 +278,9 @@ namespace VistaDB.Engine.SQL.Signatures
       }
       else
       {
-        if (object.ReferenceEquals((object) dest, value))
+        if (ReferenceEquals((object) dest, value))
           return;
-        dest.Value = CLRStoredProcedure.GetTrueValue(value);
+        dest.Value = GetTrueValue(value);
       }
     }
 
@@ -312,7 +312,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public override SignatureType OnPrepare()
     {
-      this.PrepareProcedure();
+      PrepareProcedure();
       int num = (int) base.OnPrepare();
       return SignatureType.Expression;
     }
@@ -320,54 +320,54 @@ namespace VistaDB.Engine.SQL.Signatures
     protected override object ExecuteSubProgram()
     {
       int index1 = 0;
-      for (int paramCount = this.ParamCount; index1 < paramCount; ++index1)
-        this.values[index1].Value = ((IValue) this.paramValues[index1]).Value;
-      object[] parameters1 = new object[this.values.Length];
-      if (this.values != null)
+      for (int paramCount = ParamCount; index1 < paramCount; ++index1)
+        values[index1].Value = ((IValue) paramValues[index1]).Value;
+      object[] parameters1 = new object[values.Length];
+      if (values != null)
       {
-        ParameterInfo[] parameters2 = this.method.GetParameters();
+        ParameterInfo[] parameters2 = method.GetParameters();
         int index2 = 0;
         for (int length = parameters2.Length; index2 < length; ++index2)
-          parameters1[index2] = CLRStoredProcedure.GetTrueValue(this.values[index2], parameters2[index2]);
+          parameters1[index2] = GetTrueValue(values[index2], parameters2[index2]);
       }
       object obj;
       try
       {
-        obj = this.method.Invoke((object) null, parameters1);
+        obj = method.Invoke((object) null, parameters1);
       }
       catch (Exception ex)
       {
-        throw new VistaDBSQLException(ex, 615, this.procedureName, this.lineNo, this.symbolNo);
+        throw new VistaDBSQLException(ex, 615, procedureName, lineNo, symbolNo);
       }
-      if (obj != null && this.returnParameter != null)
-        CLRStoredProcedure.SetTrueValue(this.returnParameter, obj);
+      if (obj != null && returnParameter != null)
+                SetTrueValue(returnParameter, obj);
       if (parameters1 != null)
       {
         int index2 = 0;
         for (int length = parameters1.Length; index2 < length; ++index2)
-          CLRStoredProcedure.SetTrueValue(this.values[index2], parameters1[index2]);
+                    SetTrueValue(values[index2], parameters1[index2]);
       }
-      if (this.outParams != null)
+      if (outParams != null)
       {
-        ParameterInfo[] parameters2 = this.method.GetParameters();
+        ParameterInfo[] parameters2 = method.GetParameters();
         int index2 = 0;
-        int count = this.outParams.Count;
+        int count = outParams.Count;
         for (int length = parameters2.Length; index2 < count && index2 < length; ++index2)
         {
-          CLRStoredProcedure.OutParameter outParam = this.outParams[index2];
+                    OutParameter outParam = outParams[index2];
           if ((parameters2[outParam.ValueIndex].Attributes & ParameterAttributes.Out) == ParameterAttributes.Out || outParam.Param.SignatureType == SignatureType.Parameter)
           {
-            object val = this.values[outParam.ValueIndex].Value;
-            if (Utils.CompatibleTypes(outParam.Param.DataType, this.paramValues[index2].Type))
+            object val = values[outParam.ValueIndex].Value;
+            if (Utils.CompatibleTypes(outParam.Param.DataType, paramValues[index2].Type))
               outParam.Param.SetOutParamValue(val);
           }
         }
       }
-      if (this.fillRow != null)
+      if (fillRow != null)
         return obj;
       if (obj is VistaDBValue)
         return ((VistaDBValue) obj).Value;
-      return CLRStoredProcedure.GetTrueValue(obj);
+      return GetTrueValue(obj);
     }
 
     private class OutParameter
@@ -377,8 +377,8 @@ namespace VistaDB.Engine.SQL.Signatures
 
       public OutParameter(ParameterSignature param, int valueIndex)
       {
-        this.Param = param;
-        this.ValueIndex = valueIndex;
+        Param = param;
+        ValueIndex = valueIndex;
       }
     }
   }

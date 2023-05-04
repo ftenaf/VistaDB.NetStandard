@@ -16,8 +16,8 @@ namespace VistaDB.Engine.SQL.Signatures
     internal StoredFunction(SQLParser parser, IUserDefinedFunctionInformation udf)
       : base(parser, -1, false)
     {
-      this.storedFunction = udf;
-      this.skipNull = false;
+      storedFunction = udf;
+      skipNull = false;
     }
 
     protected override void ParseParameters(SQLParser parser)
@@ -29,66 +29,66 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public override SignatureType OnPrepare()
     {
-      this.PrepareQueryStatement();
-      if (this.paramValues.Length != this.parameters.Count)
-        throw new VistaDBSQLException(501, this.text, this.lineNo, this.symbolNo);
+      PrepareQueryStatement();
+      if (paramValues.Length != parameters.Count)
+        throw new VistaDBSQLException(501, text, lineNo, symbolNo);
       int num = (int) base.OnPrepare();
       return SignatureType.Expression;
     }
 
     protected override object ExecuteSubProgram()
     {
-      if (this.variables != null)
+      if (variables != null)
       {
         uint num = 0;
-        foreach (SQLParser.VariableDeclaration variable in this.variables)
+        foreach (SQLParser.VariableDeclaration variable in variables)
         {
-          this.bodyStatement.DoSetParam(variable.Name, ((IValue) this.paramValues[num]).Value, variable.DataType, variable.Direction);
+          bodyStatement.DoSetParam(variable.Name, ((IValue) paramValues[num]).Value, variable.DataType, variable.Direction);
           ++num;
         }
       }
-      this.bodyStatement.DoSetReturnParameter(this.returnParameter);
-      this.bodyStatement.ExecuteQuery();
-      return this.returnParameter.Value;
+      bodyStatement.DoSetReturnParameter(returnParameter);
+      bodyStatement.ExecuteQuery();
+      return returnParameter.Value;
     }
 
     private void PrepareQueryStatement()
     {
-      this.dataType = VistaDBType.Int;
-      if (this.bodyStatement != null)
-        this.parameters.Clear();
-      this.bodyStatement = this.parent.Connection.CreateStoredFunctionStatement(this.parent, this.storedFunction.Statement, out this.dataType, out this.variables, out this.resultTableStatement);
-      this.returnParameter = (IParameter) new BatchStatement.ParamInfo((object) null, this.dataType, ParameterDirection.ReturnValue);
-      if (this.resultTableStatement != null)
-        this.resultTableStatement.ExecuteQuery();
-      if (this.variables == null)
+      dataType = VistaDBType.Int;
+      if (bodyStatement != null)
+        parameters.Clear();
+      bodyStatement = parent.Connection.CreateStoredFunctionStatement(parent, storedFunction.Statement, out dataType, out variables, out resultTableStatement);
+      returnParameter = (IParameter) new BatchStatement.ParamInfo((object) null, dataType, ParameterDirection.ReturnValue);
+      if (resultTableStatement != null)
+        resultTableStatement.ExecuteQuery();
+      if (variables == null)
         return;
-      this.ThreadDefaultValues();
-      this.parameterTypes = new VistaDBType[this.variables.Count];
-      this.paramValues = new IColumn[this.variables.Count];
+      ThreadDefaultValues();
+      parameterTypes = new VistaDBType[variables.Count];
+      paramValues = new IColumn[variables.Count];
       int num = 0;
-      foreach (SQLParser.VariableDeclaration variable in this.variables)
+      foreach (SQLParser.VariableDeclaration variable in variables)
       {
-        if (this.bodyStatement.DoGetParam(variable.Name) != null)
-          throw new VistaDBSQLException(620, 64.ToString() + variable.Name, this.lineNo, this.symbolNo);
-        this.bodyStatement.DoSetParam(variable.Name, (object) null, variable.DataType, ParameterDirection.Input);
-        this.parameterTypes[num++] = variable.DataType;
+        if (bodyStatement.DoGetParam(variable.Name) != null)
+          throw new VistaDBSQLException(620, 64.ToString() + variable.Name, lineNo, symbolNo);
+        bodyStatement.DoSetParam(variable.Name, (object) null, variable.DataType, ParameterDirection.Input);
+        parameterTypes[num++] = variable.DataType;
       }
     }
 
     private void ThreadDefaultValues()
     {
       int index = -1;
-      foreach (SQLParser.VariableDeclaration variable in this.variables)
+      foreach (SQLParser.VariableDeclaration variable in variables)
       {
         ++index;
-        if (!(this.parameters[index] != (Signature) null))
+        if (!(parameters[index] != (Signature) null))
         {
           if (variable.Default == null)
-            throw new VistaDBSQLException(641, variable.Name, this.LineNo, this.SymbolNo);
-          IColumn column = this.CreateColumn(variable.DataType);
-          this.parent.Database.Conversion.Convert(variable.Default, (IValue) column);
-          this.parameters[index] = (Signature) ConstantSignature.CreateSignature(column, this.parent);
+            throw new VistaDBSQLException(641, variable.Name, LineNo, SymbolNo);
+          IColumn column = CreateColumn(variable.DataType);
+          parent.Database.Conversion.Convert(variable.Default, (IValue) column);
+          parameters[index] = (Signature) ConstantSignature.CreateSignature(column, parent);
         }
       }
     }

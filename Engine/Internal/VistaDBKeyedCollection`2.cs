@@ -21,7 +21,7 @@ namespace VistaDB.Engine.Internal
     {
       get
       {
-        return (ICollection<TKey>) this.Keys;
+        return (ICollection<TKey>) Keys;
       }
     }
 
@@ -29,18 +29,18 @@ namespace VistaDB.Engine.Internal
     {
       get
       {
-        return (ICollection<TValue>) this.Values;
+        return (ICollection<TValue>) Values;
       }
     }
 
     bool IVistaDBKeyedCollection<TKey, TValue>.ContainsKey(TKey key)
     {
-      return this.ContainsKey(key);
+      return ContainsKey(key);
     }
 
     bool IVistaDBKeyedCollection<TKey, TValue>.TryGetValue(TKey key, out TValue value)
     {
-      return this.TryGetValue(key, out value);
+      return TryGetValue(key, out value);
     }
 
     TValue IVistaDBKeyedCollection<TKey, TValue>.this[TKey key]
@@ -48,7 +48,7 @@ namespace VistaDB.Engine.Internal
       get
       {
         TValue obj;
-        if (!this.TryGetValue(key, out obj))
+        if (!TryGetValue(key, out obj))
           return default (TValue);
         return obj;
       }
@@ -66,19 +66,19 @@ namespace VistaDB.Engine.Internal
 
     bool ICollection<TValue>.Contains(TValue item)
     {
-      return this.ContainsValue(item);
+      return ContainsValue(item);
     }
 
     void ICollection<TValue>.CopyTo(TValue[] array, int arrayIndex)
     {
-      new List<TValue>((IEnumerable<TValue>) this.Values).ToArray().CopyTo((Array) array, arrayIndex);
+      new List<TValue>((IEnumerable<TValue>) Values).ToArray().CopyTo((Array) array, arrayIndex);
     }
 
     int ICollection<TValue>.Count
     {
       get
       {
-        return this.Count;
+        return Count;
       }
     }
 
@@ -97,12 +97,12 @@ namespace VistaDB.Engine.Internal
 
     IEnumerator<TValue> IEnumerable<TValue>.GetEnumerator()
     {
-      return (IEnumerator<TValue>) this.Values.GetEnumerator();
+      return (IEnumerator<TValue>) Values.GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()
     {
-      return (IEnumerator) this.Values.GetEnumerator();
+      return (IEnumerator) Values.GetEnumerator();
     }
   }
 }

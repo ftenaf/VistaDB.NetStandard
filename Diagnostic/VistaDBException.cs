@@ -12,9 +12,9 @@ namespace VistaDB.Diagnostic
     private static char[] trimmingArray = new char[3]{ '\r', '\n', ' ' };
 
     internal VistaDBException(Exception e, int errorId, string hint)
-      : base(VistaDBException.CreateMessage(errorId, hint, e), e)
+      : base(CreateMessage(errorId, hint, e), e)
     {
-      this.HResult = errorId;
+      HResult = errorId;
     }
 
     internal VistaDBException(int errorId)
@@ -47,11 +47,11 @@ namespace VistaDB.Diagnostic
     {
       get
       {
-        if (this.InnerException == null)
+        if (InnerException == null)
           return base.Message;
-        if (!(this.InnerException is VistaDBException))
-          return this.GetNonVistaDBExceptionMessage(this.InnerException) + base.Message;
-        return this.InnerException.Message + base.Message;
+        if (!(InnerException is VistaDBException))
+          return GetNonVistaDBExceptionMessage(InnerException) + base.Message;
+        return InnerException.Message + base.Message;
       }
     }
 
@@ -60,33 +60,33 @@ namespace VistaDB.Diagnostic
       string str = string.Empty;
       for (Exception exception = e; exception != null; exception = exception.InnerException)
         str = exception.Message + "\r\n" + str;
-      return str.Trim(VistaDBException.trimmingArray);
+      return str.Trim(trimmingArray);
     }
 
     public string LevelMessage
     {
       get
       {
-        return base.Message.Trim(VistaDBException.trimmingArray);
+        return base.Message.Trim(trimmingArray);
       }
     }
 
     private static string CreateMessage(int errorId, string hint, Exception parentException)
     {
-      return (parentException is VistaDBException ? "" : "\r\n") + VistaDBException.errors.GetMessage(errorId) + " " + hint + "\r\n";
+      return (parentException is VistaDBException ? "" : "\r\n") + errors.GetMessage(errorId) + " " + hint + "\r\n";
     }
 
     public int ErrorId
     {
       get
       {
-        return this.HResult;
+        return HResult;
       }
     }
 
     public bool Contains(long errorId)
     {
-      for (Exception innerException = this.InnerException; innerException != null; innerException = innerException.InnerException)
+      for (Exception innerException = InnerException; innerException != null; innerException = innerException.InnerException)
       {
         if (innerException is VistaDBException && (long) ((VistaDBException) innerException).ErrorId == errorId)
           return true;

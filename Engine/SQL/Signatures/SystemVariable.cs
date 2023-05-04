@@ -17,7 +17,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override bool IsEquals(Signature signature)
     {
-      return this.GetType() == signature.GetType();
+      return GetType() == signature.GetType();
     }
 
     protected override void RelinkParameters(Signature signature, ref int columnCount)

@@ -11,9 +11,9 @@ namespace VistaDB.Engine.Core.Cryptography
     private BlowFish algo;
 
     internal BlowFishEncryption(string encryptionKeyBase)
-      : base(EncryptionKey.Create(encryptionKeyBase), BlowFishEncryption.MINKEY_BLOWFISH_ENCRYPTION, BlowFishEncryption.MAXKEY_BLOWFISH_ENCRYPTION)
+      : base(EncryptionKey.Create(encryptionKeyBase), MINKEY_BLOWFISH_ENCRYPTION, MAXKEY_BLOWFISH_ENCRYPTION)
     {
-      this.algo = new BlowFish(this.EncryptionKeyString);
+      algo = new BlowFish(EncryptionKeyString);
     }
 
     protected override void OnEncrypt(byte[] source, byte[] destination, int offset, int len)
@@ -21,16 +21,16 @@ namespace VistaDB.Engine.Core.Cryptography
       int startIndex1 = offset;
       int offset1 = offset;
       int num = len;
-      while (len >= BlowFishEncryption.step)
+      while (len >= step)
       {
         int int32_1 = BitConverter.ToInt32(source, startIndex1);
-        int startIndex2 = startIndex1 + BlowFishEncryption.halfStep;
+        int startIndex2 = startIndex1 + halfStep;
         int int32_2 = BitConverter.ToInt32(source, startIndex2);
-        startIndex1 = startIndex2 + BlowFishEncryption.halfStep;
-        this.algo.Encrypt(ref int32_1, ref int32_2);
-        int bytes = VdbBitConverter.GetBytes((uint) int32_1, destination, offset1, BlowFishEncryption.halfStep);
-        offset1 = VdbBitConverter.GetBytes((uint) int32_2, destination, bytes, BlowFishEncryption.halfStep);
-        len -= BlowFishEncryption.step;
+        startIndex1 = startIndex2 + halfStep;
+        algo.Encrypt(ref int32_1, ref int32_2);
+        int bytes = VdbBitConverter.GetBytes((uint) int32_1, destination, offset1, halfStep);
+        offset1 = VdbBitConverter.GetBytes((uint) int32_2, destination, bytes, halfStep);
+        len -= step;
       }
       if (len <= 0)
         return;
@@ -42,16 +42,16 @@ namespace VistaDB.Engine.Core.Cryptography
       int startIndex1 = offset;
       int offset1 = offset;
       int num = len;
-      while (len >= BlowFishEncryption.step)
+      while (len >= step)
       {
         int int32_1 = BitConverter.ToInt32(source, startIndex1);
-        int startIndex2 = startIndex1 + BlowFishEncryption.halfStep;
+        int startIndex2 = startIndex1 + halfStep;
         int int32_2 = BitConverter.ToInt32(source, startIndex2);
-        startIndex1 = startIndex2 + BlowFishEncryption.halfStep;
-        this.algo.Decrypt(ref int32_1, ref int32_2);
-        int bytes = VdbBitConverter.GetBytes((uint) int32_1, destination, offset1, BlowFishEncryption.halfStep);
-        offset1 = VdbBitConverter.GetBytes((uint) int32_2, destination, bytes, BlowFishEncryption.halfStep);
-        len -= BlowFishEncryption.step;
+        startIndex1 = startIndex2 + halfStep;
+        algo.Decrypt(ref int32_1, ref int32_2);
+        int bytes = VdbBitConverter.GetBytes((uint) int32_1, destination, offset1, halfStep);
+        offset1 = VdbBitConverter.GetBytes((uint) int32_2, destination, bytes, halfStep);
+        len -= step;
       }
       if (len <= 0)
         return;

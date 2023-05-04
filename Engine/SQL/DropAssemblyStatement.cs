@@ -11,8 +11,8 @@ namespace VistaDB.Engine.SQL
 
     protected override IQueryResult OnExecuteQuery()
     {
-      foreach (string tableName in this.tableNames)
-        this.Database.DropAssembly(tableName, false);
+      foreach (string tableName in tableNames)
+        Database.DropAssembly(tableName, false);
       return (IQueryResult) null;
     }
   }

@@ -6,7 +6,7 @@ namespace VistaDB.Engine.Core
 {
   internal class Header : Row
   {
-    private uint lastDataVersionOnDisk = Row.MinVersion;
+    private uint lastDataVersionOnDisk = MinVersion;
     private int signatureEntry;
     private int rowNumberEntry;
     private ulong position;
@@ -15,21 +15,21 @@ namespace VistaDB.Engine.Core
     private bool modifiedVersion;
     private int pageSize;
 
-    protected Header(DataStorage parentStorage, Header.HeaderId id, ulong dataReference, int signature, int pageSize)
+    protected Header(DataStorage parentStorage, HeaderId id, ulong dataReference, int signature, int pageSize)
       : base((uint) id, 0U, dataReference, true, parentStorage.Encryption, (int[]) null)
     {
       this.parentStorage = parentStorage;
       this.pageSize = pageSize;
-      this.alignment = true;
-      this.signatureEntry = this.AppendColumn((IColumn) new IntColumn(signature));
-      this.rowNumberEntry = this.AppendColumn((IColumn) new IntColumn(0));
+      alignment = true;
+      signatureEntry = AppendColumn((IColumn) new IntColumn(signature));
+      rowNumberEntry = AppendColumn((IColumn) new IntColumn(0));
     }
 
     protected DataStorage ParentStorage
     {
       get
       {
-        return this.parentStorage;
+        return parentStorage;
       }
     }
 
@@ -37,12 +37,12 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (uint) (int) this[this.signatureEntry].Value;
+        return (uint) (int) this[signatureEntry].Value;
       }
       set
       {
-        this.Modified = (int) this.Signature != (int) value;
-        this[this.signatureEntry].Value = (object) (int) value;
+        Modified = (int) Signature != (int) value;
+        this[signatureEntry].Value = (object) (int) value;
       }
     }
 
@@ -50,12 +50,12 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return (uint) (int) this[this.rowNumberEntry].Value;
+        return (uint) (int) this[rowNumberEntry].Value;
       }
       set
       {
-        this.Modified = (int) this.RowCount != (int) value;
-        this[this.rowNumberEntry].Value = (object) (int) value;
+        Modified = (int) RowCount != (int) value;
+        this[rowNumberEntry].Value = (object) (int) value;
       }
     }
 
@@ -63,12 +63,12 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.RowVersion;
+        return RowVersion;
       }
       set
       {
-        this.ModifiedVersion = (int) this.RowVersion != (int) value;
-        this.RowVersion = value;
+        ModifiedVersion = (int) RowVersion != (int) value;
+        RowVersion = value;
       }
     }
 
@@ -76,7 +76,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.Buffer.Length;
+        return Buffer.Length;
       }
     }
 
@@ -84,66 +84,66 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.pageSize;
+        return pageSize;
       }
     }
 
     internal void Activate(ulong position)
     {
       this.position = position;
-      this.OnActivate(position);
+      OnActivate(position);
     }
 
     internal void Build(ulong position)
     {
       this.position = position;
-      this.OnBuild(position);
+      OnBuild(position);
     }
 
     internal void ResetVersionInfo()
     {
-      this.DoResetVersion();
-      this.modified = false;
-      this.modifiedVersion = false;
+      DoResetVersion();
+      modified = false;
+      modifiedVersion = false;
     }
 
     internal void KeepSchemaVersion()
     {
-      this.DoKeepVersion();
+      DoKeepVersion();
     }
 
     internal void Flush()
     {
-      if (!this.modified)
+      if (!modified)
       {
-        if (!this.modifiedVersion)
+        if (!modifiedVersion)
           return;
       }
       try
       {
-        this.Write(this.parentStorage, this.modified ? Row.RowScope.All : Row.RowScope.Head);
-        this.modified = false;
-        this.modifiedVersion = false;
+        Write(parentStorage, modified ? RowScope.All : RowScope.Head);
+        modified = false;
+        modifiedVersion = false;
       }
       catch (Exception ex)
       {
-        throw new VistaDBException(ex, 106, this.parentStorage.Name);
+        throw new VistaDBException(ex, 106, parentStorage.Name);
       }
     }
 
     internal void Update()
     {
-      this.OnUpdate();
+      OnUpdate();
     }
 
     protected virtual void OnUpdate()
     {
-      this.Read(Row.RowScope.All);
+      Read(RowScope.All);
     }
 
     protected virtual void DoResetVersion()
     {
-      this.Version = this.lastDataVersionOnDisk;
+      Version = lastDataVersionOnDisk;
     }
 
     protected virtual void DoKeepVersion()
@@ -154,13 +154,13 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        if (!this.modifiedVersion)
-          return this.modified;
+        if (!modifiedVersion)
+          return modified;
         return true;
       }
       set
       {
-        this.modified = value || this.modified;
+        modified = value || modified;
       }
     }
 
@@ -168,11 +168,11 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.modifiedVersion;
+        return modifiedVersion;
       }
       set
       {
-        this.modifiedVersion = value || this.modifiedVersion;
+        modifiedVersion = value || modifiedVersion;
       }
     }
 
@@ -180,24 +180,24 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        long version = (long) this.Version;
-        this.Read(this.ParentStorage.VirtualLocks ? Row.RowScope.All : Row.RowScope.Head);
-        return (long) this.Version != version;
+        long version = (long) Version;
+        Read(ParentStorage.VirtualLocks ? RowScope.All : RowScope.Head);
+        return (long) Version != version;
       }
     }
 
     protected virtual void OnActivate(ulong position)
     {
-      this.AssignBuffer();
-      this.Position = position;
-      this.Read(Row.RowScope.All);
+      AssignBuffer();
+      Position = position;
+      Read(RowScope.All);
     }
 
     protected virtual void OnBuild(ulong position)
     {
-      this.AssignBuffer();
-      this.Position = position;
-      this.Flush();
+      AssignBuffer();
+      Position = position;
+      Flush();
     }
 
     protected virtual void OnAfterRead(int pageSize, bool justVersion)
@@ -212,25 +212,25 @@ namespace VistaDB.Engine.Core
       this.pageSize = pageSize;
     }
 
-    private void Read(Row.RowScope scope)
+    private void Read(RowScope scope)
     {
       try
       {
-        this.Read(this.parentStorage, scope, true);
-        this.OnAfterRead(0, scope == Row.RowScope.Head);
-        this.lastDataVersionOnDisk = this.Version;
+        Read(parentStorage, scope, true);
+        OnAfterRead(0, scope == RowScope.Head);
+        lastDataVersionOnDisk = Version;
       }
       catch (Exception ex)
       {
-        throw new VistaDBException(ex, 105, this.parentStorage.Name);
+        throw new VistaDBException(ex, 105, parentStorage.Name);
       }
     }
 
     internal void AssignBuffer()
     {
-      int memoryApartment = this.GetMemoryApartment((Row) null);
-      int pageSize = this.PageSize;
-      this.FormatLength = memoryApartment + (pageSize - memoryApartment % pageSize) % pageSize;
+      int memoryApartment = GetMemoryApartment((Row) null);
+      int pageSize = PageSize;
+      FormatLength = memoryApartment + (pageSize - memoryApartment % pageSize) % pageSize;
     }
 
     internal enum HeaderId : uint

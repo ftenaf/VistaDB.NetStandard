@@ -7,17 +7,17 @@ namespace VistaDB.Engine.SQL.Signatures
     public SubStringFunction(SQLParser parser)
       : base(parser, 3, true)
     {
-      this.dataType = VistaDBType.NChar;
-      this.parameterTypes[0] = VistaDBType.NChar;
-      this.parameterTypes[1] = VistaDBType.Int;
-      this.parameterTypes[2] = VistaDBType.Int;
+      dataType = VistaDBType.NChar;
+      parameterTypes[0] = VistaDBType.NChar;
+      parameterTypes[1] = VistaDBType.Int;
+      parameterTypes[2] = VistaDBType.Int;
     }
 
     protected override object ExecuteSubProgram()
     {
-      string str = (string) ((IValue) this.paramValues[0]).Value;
-      int startIndex = (int) ((IValue) this.paramValues[1]).Value - 1;
-      int length = (int) ((IValue) this.paramValues[2]).Value;
+      string str = (string) ((IValue) paramValues[0]).Value;
+      int startIndex = (int) ((IValue) paramValues[1]).Value - 1;
+      int length = (int) ((IValue) paramValues[2]).Value;
       if (startIndex < 0 || startIndex >= str.Length || length < 0)
         return (object) null;
       if (startIndex == 0 && length >= str.Length)

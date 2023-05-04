@@ -13,18 +13,18 @@ namespace VistaDB.Engine.SQL
     protected override IQueryResult OnExecuteQuery()
     {
       bool flag1 = false;
-      bool flag2 = this.Database.NestedTransactionLevel == 0;
+      bool flag2 = Database.NestedTransactionLevel == 0;
       IStoredProcedureInformation sp = (IStoredProcedureInformation) null;
-      if (this.Database.GetStoredProcedures()[this.name] == null)
-        throw new VistaDBSQLException(607, this.name, this.lineNo, this.symbolNo);
+      if (Database.GetStoredProcedures()[name] == null)
+        throw new VistaDBSQLException(607, name, lineNo, symbolNo);
       try
       {
         if (flag2)
-          this.Database.BeginTransaction();
+          Database.BeginTransaction();
         else
-          sp = this.Database.GetStoredProcedures()[this.name];
-        this.Database.DeleteStoredProcedureObject(this.name);
-        this.Database.CreateStoredProcedureObject(this.storedProcedure);
+          sp = Database.GetStoredProcedures()[name];
+        Database.DeleteStoredProcedureObject(name);
+        Database.CreateStoredProcedureObject(storedProcedure);
         flag1 = true;
       }
       finally
@@ -32,12 +32,12 @@ namespace VistaDB.Engine.SQL
         if (flag2)
         {
           if (flag1)
-            this.Database.CommitTransaction();
+            Database.CommitTransaction();
           else
-            this.Database.RollbackTransaction();
+            Database.RollbackTransaction();
         }
         else if (!flag1)
-          this.Database.CreateStoredProcedureObject(sp);
+          Database.CreateStoredProcedureObject(sp);
       }
       return (IQueryResult) null;
     }

@@ -17,25 +17,25 @@ namespace VistaDB.Engine.SQL.Signatures
     internal SpStoredProcedures(SQLParser parser, int resultColumnsCount)
       : base(parser, 0, resultColumnsCount)
     {
-      if (this.ParamCount > 0)
-        throw new VistaDBSQLException(501, "SP_STORED_PROCEDURES", this.lineNo, this.symbolNo);
-      this.currentParamPos = -1;
-      this.resultColumnTypes[0] = VistaDBType.NVarChar;
-      this.resultColumnTypes[1] = VistaDBType.NVarChar;
-      this.resultColumnTypes[2] = VistaDBType.NText;
-      this.resultColumnTypes[3] = VistaDBType.SmallInt;
-      this.resultColumnTypes[4] = VistaDBType.NVarChar;
-      this.resultColumnTypes[5] = VistaDBType.Int;
-      this.resultColumnTypes[6] = VistaDBType.Bit;
-      this.resultColumnTypes[7] = VistaDBType.NVarChar;
-      this.resultColumnNames[0] = "PROC_NAME";
-      this.resultColumnNames[1] = "PROC_DESCRIPTION";
-      this.resultColumnNames[2] = "PROC_BODY";
-      this.resultColumnNames[3] = "PARAM_ORDER";
-      this.resultColumnNames[4] = "PARAM_NAME";
-      this.resultColumnNames[5] = "PARAM_TYPE";
-      this.resultColumnNames[6] = "IS_PARAM_OUT";
-      this.resultColumnNames[7] = "DEFAULT_VALUE";
+      if (ParamCount > 0)
+        throw new VistaDBSQLException(501, "SP_STORED_PROCEDURES", lineNo, symbolNo);
+      currentParamPos = -1;
+      resultColumnTypes[0] = VistaDBType.NVarChar;
+      resultColumnTypes[1] = VistaDBType.NVarChar;
+      resultColumnTypes[2] = VistaDBType.NText;
+      resultColumnTypes[3] = VistaDBType.SmallInt;
+      resultColumnTypes[4] = VistaDBType.NVarChar;
+      resultColumnTypes[5] = VistaDBType.Int;
+      resultColumnTypes[6] = VistaDBType.Bit;
+      resultColumnTypes[7] = VistaDBType.NVarChar;
+      resultColumnNames[0] = "PROC_NAME";
+      resultColumnNames[1] = "PROC_DESCRIPTION";
+      resultColumnNames[2] = "PROC_BODY";
+      resultColumnNames[3] = "PARAM_ORDER";
+      resultColumnNames[4] = "PARAM_NAME";
+      resultColumnNames[5] = "PARAM_TYPE";
+      resultColumnNames[6] = "IS_PARAM_OUT";
+      resultColumnNames[7] = "DEFAULT_VALUE";
     }
 
     internal SpStoredProcedures(SQLParser parser)
@@ -47,25 +47,25 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       try
       {
-        this.curentProcStatement = (Statement) this.parent.Connection.CreateStoredProcedureStatement(this.parent, procStatement, out this.paramsList);
+        curentProcStatement = (Statement) parent.Connection.CreateStoredProcedureStatement(parent, procStatement, out paramsList);
       }
-      catch (Exception ex)
-      {
+      catch (Exception)
+            {
       }
-      this.currentParamPos = 0;
+      currentParamPos = 0;
       return -1;
     }
 
     protected virtual void FillRow(IRow row, IStoredProcedureInformation sp)
     {
-      if (this.currentParamPos < 0)
-        this.resultType = this.ParseProcedure(sp.Statement);
+      if (currentParamPos < 0)
+        resultType = ParseProcedure(sp.Statement);
       ((IValue) row[0]).Value = (object) sp.Name;
       ((IValue) row[1]).Value = (object) sp.Description;
       ((IValue) row[2]).Value = (object) sp.Statement;
-      if (this.paramsList == null)
+      if (paramsList == null)
       {
-        this.currentParamPos = -1;
+        currentParamPos = -1;
         ((IValue) row[3]).Value = (object) (short) -1;
         ((IValue) row[4]).Value = (object) string.Empty;
         ((IValue) row[5]).Value = (object) 31;
@@ -73,8 +73,8 @@ namespace VistaDB.Engine.SQL.Signatures
       }
       else
       {
-        SQLParser.VariableDeclaration variableDeclaration = this.paramsList[this.currentParamPos];
-        ((IValue) row[3]).Value = (object) (short) this.currentParamPos;
+        SQLParser.VariableDeclaration variableDeclaration = paramsList[currentParamPos];
+        ((IValue) row[3]).Value = (object) (short) currentParamPos;
         ((IValue) row[4]).Value = (object) (64.ToString() + variableDeclaration.Name);
         ((IValue) row[5]).Value = (object) variableDeclaration.DataType;
         ((IValue) row[6]).Value = (object) (variableDeclaration.Direction != ParameterDirection.Input);
@@ -90,26 +90,26 @@ namespace VistaDB.Engine.SQL.Signatures
         }
         else
           ((IValue) row[7]).Value = (object) string.Empty;
-        if (++this.currentParamPos < this.paramsList.Count)
+        if (++currentParamPos < paramsList.Count)
           return;
-        this.currentParamPos = -1;
+        currentParamPos = -1;
       }
     }
 
     public override bool First(IRow row)
     {
-      this.enumerator.Reset();
-      if (!this.enumerator.MoveNext())
+      enumerator.Reset();
+      if (!enumerator.MoveNext())
         return false;
-      this.FillRow(row, this.enumerator.Current as IStoredProcedureInformation);
+      FillRow(row, enumerator.Current as IStoredProcedureInformation);
       return true;
     }
 
     public override bool GetNextResult(IRow row)
     {
-      if (this.currentParamPos < 0 && !this.enumerator.MoveNext())
+      if (currentParamPos < 0 && !enumerator.MoveNext())
         return false;
-      this.FillRow(row, this.enumerator.Current as IStoredProcedureInformation);
+      FillRow(row, enumerator.Current as IStoredProcedureInformation);
       return true;
     }
 
@@ -120,7 +120,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object ExecuteSubProgram()
     {
-      this.enumerator = (IEnumerator) this.Parent.Database.GetStoredProcedures().GetEnumerator();
+      enumerator = (IEnumerator) Parent.Database.GetStoredProcedures().GetEnumerator();
       return (object) null;
     }
   }

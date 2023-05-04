@@ -7,7 +7,7 @@ namespace VistaDB.Engine.SQL.Signatures
     public PIFunction(SQLParser parser)
       : base(parser, 0, true)
     {
-      this.dataType = VistaDBType.Float;
+      dataType = VistaDBType.Float;
     }
 
     protected override object ExecuteSubProgram()

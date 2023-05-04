@@ -16,38 +16,38 @@ namespace VistaDB
 
     public CastableEnumerator(IEnumerator<T> enumerator)
     {
-      this._enum = enumerator;
+      _enum = enumerator;
     }
 
     public K Current
     {
       get
       {
-        return (K) this._enum.Current;
+        return (K) _enum.Current;
       }
     }
 
     public void Dispose()
     {
-      this._enum.Dispose();
+      _enum.Dispose();
     }
 
     object IEnumerator.Current
     {
       get
       {
-        return (object) this.Current;
+        return (object) Current;
       }
     }
 
     public bool MoveNext()
     {
-      return this._enum.MoveNext();
+      return _enum.MoveNext();
     }
 
     public void Reset()
     {
-      this._enum.Reset();
+      _enum.Reset();
     }
   }
 }

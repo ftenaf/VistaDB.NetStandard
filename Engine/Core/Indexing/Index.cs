@@ -18,7 +18,7 @@ namespace VistaDB.Engine.Core.Indexing
     private Row highUserScope;
     private Row lowQueryScope;
     private Row highQueryScope;
-    private DataStorage.ScopeType currentScope;
+    private ScopeType currentScope;
     private Parser parser;
     private bool activation;
     private bool forcedTreeSeek;
@@ -40,11 +40,11 @@ namespace VistaDB.Engine.Core.Indexing
       this.parser = parser;
     }
 
-    internal Index.IndexHeader Header
+    internal new IndexHeader Header
     {
       get
       {
-        return (Index.IndexHeader) base.Header;
+        return (IndexHeader) base.Header;
       }
     }
 
@@ -52,7 +52,7 @@ namespace VistaDB.Engine.Core.Indexing
     {
       get
       {
-        return this.tree;
+        return tree;
       }
     }
 
@@ -60,7 +60,7 @@ namespace VistaDB.Engine.Core.Indexing
     {
       get
       {
-        return this.parser;
+        return parser;
       }
     }
 
@@ -68,7 +68,7 @@ namespace VistaDB.Engine.Core.Indexing
     {
       get
       {
-        return this.Header.Primary;
+        return Header.Primary;
       }
     }
 
@@ -76,8 +76,8 @@ namespace VistaDB.Engine.Core.Indexing
     {
       get
       {
-        if (!this.Header.Unique)
-          return this.Header.Sparse;
+        if (!Header.Unique)
+          return Header.Sparse;
         return true;
       }
     }
@@ -86,7 +86,7 @@ namespace VistaDB.Engine.Core.Indexing
     {
       get
       {
-        return this.Header.Sparse;
+        return Header.Sparse;
       }
     }
 
@@ -94,7 +94,7 @@ namespace VistaDB.Engine.Core.Indexing
     {
       get
       {
-        return this.Header.Fts;
+        return Header.Fts;
       }
     }
 
@@ -102,7 +102,7 @@ namespace VistaDB.Engine.Core.Indexing
     {
       get
       {
-        return this.Header.ForeignKey;
+        return Header.ForeignKey;
       }
     }
 
@@ -110,9 +110,9 @@ namespace VistaDB.Engine.Core.Indexing
     {
       get
       {
-        if (this.WrapperDatabase != null)
-          return this.WrapperDatabase.CaseSensitive;
-        return this.Header.CaseSensitive;
+        if (WrapperDatabase != null)
+          return WrapperDatabase.CaseSensitive;
+        return Header.CaseSensitive;
       }
     }
 
@@ -121,17 +121,17 @@ namespace VistaDB.Engine.Core.Indexing
       get
       {
         uint num = 0;
-        if (this.IsUnique)
+        if (IsUnique)
           num |= 4U;
-        if (this.IsSparse)
+        if (IsSparse)
           num |= 512U;
-        if (this.IsPrimary)
+        if (IsPrimary)
           num |= 8U;
-        if (this.CaseSensitive)
+        if (CaseSensitive)
           num |= 64U;
-        if (this.IsForeignKey)
+        if (IsForeignKey)
           num |= 16U;
-        if (this.IsFts)
+        if (IsFts)
           num |= 32U;
         return num;
       }
@@ -141,11 +141,11 @@ namespace VistaDB.Engine.Core.Indexing
     {
       get
       {
-        return this.noRI_KeyUpdate;
+        return noRI_KeyUpdate;
       }
       set
       {
-        this.noRI_KeyUpdate = value;
+        noRI_KeyUpdate = value;
       }
     }
 
@@ -153,7 +153,7 @@ namespace VistaDB.Engine.Core.Indexing
     {
       get
       {
-        return this.currentPrimaryKey;
+        return currentPrimaryKey;
       }
     }
 
@@ -193,15 +193,15 @@ namespace VistaDB.Engine.Core.Indexing
     {
       get
       {
-        if (this.WrapperDatabase != null)
-          return this.WrapperDatabase.ForcedCollectionMode;
+        if (WrapperDatabase != null)
+          return WrapperDatabase.ForcedCollectionMode;
         return false;
       }
       set
       {
-        if (this.WrapperDatabase == null)
+        if (WrapperDatabase == null)
           return;
-        this.WrapperDatabase.ForcedCollectionMode = value;
+        WrapperDatabase.ForcedCollectionMode = value;
       }
     }
 
@@ -217,7 +217,7 @@ namespace VistaDB.Engine.Core.Indexing
     {
       get
       {
-        return this.lowUserScope;
+        return lowUserScope;
       }
     }
 
@@ -225,7 +225,7 @@ namespace VistaDB.Engine.Core.Indexing
     {
       get
       {
-        return this.highUserScope;
+        return highUserScope;
       }
     }
 
@@ -233,15 +233,15 @@ namespace VistaDB.Engine.Core.Indexing
     {
       get
       {
-        return this.WrapperDatabase.Conversion;
+        return WrapperDatabase.Conversion;
       }
     }
 
     protected void SavePrimaryKey(Row key)
     {
-      if (this.currentPrimaryKey == null)
+      if (currentPrimaryKey == null)
         return;
-      this.currentPrimaryKey.Copy(key);
+      currentPrimaryKey.Copy(key);
     }
 
     protected void SetParser(Parser parser)
@@ -266,14 +266,14 @@ namespace VistaDB.Engine.Core.Indexing
 
     private void CreateTreeInstance()
     {
-      this.tree = this.OnCreateTreeInstance();
+      tree = OnCreateTreeInstance();
     }
 
     private void CreateIndex()
     {
       try
       {
-        this.OnCreateIndex();
+        OnCreateIndex();
       }
       catch (Exception ex)
       {
@@ -285,13 +285,13 @@ namespace VistaDB.Engine.Core.Indexing
     {
       try
       {
-        this.OnActivateIndex();
+        OnActivateIndex();
       }
       catch (Exception ex)
       {
-        if (this.WrapperDatabase == null)
-          throw new VistaDBException(ex, 135, this.Name);
-        throw new VistaDBException(ex, 134, this.Alias);
+        if (WrapperDatabase == null)
+          throw new VistaDBException(ex, 135, Name);
+        throw new VistaDBException(ex, 134, Alias);
       }
     }
 
@@ -299,7 +299,7 @@ namespace VistaDB.Engine.Core.Indexing
     {
       try
       {
-        return this.OnDeactivateIndex();
+        return OnDeactivateIndex();
       }
       catch (Exception ex)
       {
@@ -309,65 +309,65 @@ namespace VistaDB.Engine.Core.Indexing
 
     internal void ReactivateIndex()
     {
-      if (this.tree == null)
+      if (tree == null)
         return;
       try
       {
-        this.OnReactivateIndex();
+        OnReactivateIndex();
       }
       catch (Exception ex)
       {
-        if (this.tree != null)
-          this.tree.Clear();
-        if (this.WrapperDatabase == null)
-          throw new VistaDBException(ex, 135, this.Name);
-        throw new VistaDBException(ex, 134, this.Alias);
+        if (tree != null)
+          tree.Clear();
+        if (WrapperDatabase == null)
+          throw new VistaDBException(ex, 135, Name);
+        throw new VistaDBException(ex, 134, Alias);
       }
     }
 
     internal virtual int DoSplitPolicy(int oldCount)
     {
-      return this.SplitPolicy_3_4(oldCount);
+      return SplitPolicy_3_4(oldCount);
     }
 
     protected virtual void OnCreateIndex()
     {
-      this.CreateTreeInstance();
-      this.tree.CreateRoot();
+      CreateTreeInstance();
+      tree.CreateRoot();
     }
 
     protected virtual void OnActivateIndex()
     {
-      this.LockStorage();
+      LockStorage();
       try
       {
-        this.CreateTreeInstance();
-        this.tree.ActivateRoot(this.Header.RootPosition);
+        CreateTreeInstance();
+        tree.ActivateRoot(Header.RootPosition);
       }
       finally
       {
-        this.UnlockStorage(true);
+        UnlockStorage(true);
       }
     }
 
     protected virtual bool OnDeactivateIndex()
     {
-      this.Handle.ClearWholeCache(this.StorageId, false);
-      if (this.tree != null)
-        this.tree.Dispose();
-      this.tree = (Tree) null;
+      Handle.ClearWholeCache(StorageId, false);
+      if (tree != null)
+        tree.Dispose();
+      tree = (Tree) null;
       return true;
     }
 
     protected virtual void OnReactivateIndex()
     {
-      if (this.bmpFilters != null)
-        this.bmpFilters.Clear();
-      this.tree.Clear();
-      this.Handle.ClearWholeCache(this.StorageId, false);
-      this.Header.Update();
-      this.ActivateDefaultRow();
-      this.tree.ActivateRoot(this.Header.RootPosition);
+      if (bmpFilters != null)
+        bmpFilters.Clear();
+      tree.Clear();
+      Handle.ClearWholeCache(StorageId, false);
+      Header.Update();
+      ActivateDefaultRow();
+      tree.ActivateRoot(Header.RootPosition);
     }
 
     protected virtual Tree OnCreateTreeInstance()
@@ -419,48 +419,48 @@ namespace VistaDB.Engine.Core.Indexing
       }
       finally
       {
-        if (this.tree != null)
-          this.tree.Clear();
+        if (tree != null)
+          tree.Clear();
       }
     }
 
     protected override void OnOpenStorage(StorageHandle.StorageMode openMode, ulong headerPosition)
     {
-      this.activation = true;
+      activation = true;
       try
       {
         base.OnOpenStorage(openMode, headerPosition);
-        this.ActivateIndex();
+        ActivateIndex();
       }
       finally
       {
-        this.activation = false;
+        activation = false;
       }
     }
 
     protected override void OnCreateStorage(StorageHandle.StorageMode openMode, ulong headerPosition)
     {
       base.OnCreateStorage(openMode, headerPosition);
-      this.CreateIndex();
+      CreateIndex();
     }
 
     protected override void OnCloseStorage()
     {
-      this.DeactivateIndex();
+      DeactivateIndex();
       base.OnCloseStorage();
     }
 
     protected override StorageHandle OnAttachLockStorage(ulong headerPosition)
     {
       StorageHandle storageHandle = base.OnAttachLockStorage(headerPosition);
-      if (this.NoLocks || this.WrapperDatabase == null || this.VirtualLocks)
+      if (NoLocks || WrapperDatabase == null || VirtualLocks)
         return storageHandle;
       int num = 5;
       while (true)
       {
         try
         {
-          return this.ParentConnection.StorageManager.OpenOrCreateTemporaryStorage(this.WrapperDatabase.Name + (object) '$' + headerPosition.ToString() + ".vdb4lck", true, this.PageSize, (this.WrapperDatabase.Handle.IsolatedStorage ? 1 : 0) != 0, (this.ParentConnection.PersistentLockFiles ? 1 : 0) != 0);
+          return ParentConnection.StorageManager.OpenOrCreateTemporaryStorage(WrapperDatabase.Name + (object) '$' + headerPosition.ToString() + ".vdb4lck", true, PageSize, (WrapperDatabase.Handle.IsolatedStorage ? 1 : 0) != 0, (ParentConnection.PersistentLockFiles ? 1 : 0) != 0);
         }
         catch (Exception ex)
         {
@@ -474,20 +474,20 @@ namespace VistaDB.Engine.Core.Indexing
 
     protected override void OnLowLevelLockStorage(ulong offset, int bytes)
     {
-      this.Handle.Lock(this.Header.Position, 1, 0UL);
+      Handle.Lock(Header.Position, 1, 0UL);
     }
 
     protected override void OnLowLevelUnlockStorage(ulong offset, int bytes)
     {
-      if (this.Handle == null)
+      if (Handle == null)
         return;
-      this.Handle.Unlock(this.Header.Position, 1, 0UL);
+      Handle.Unlock(Header.Position, 1, 0UL);
     }
 
     protected override bool OnLockStorage()
     {
       if (base.OnLockStorage())
-        return !this.activation;
+        return !activation;
       return false;
     }
 
@@ -499,60 +499,60 @@ namespace VistaDB.Engine.Core.Indexing
     protected override void OnActivateHeader(ulong position)
     {
       base.OnActivateHeader(position);
-      this.dynamicDescend = this.Header.Descend;
+      dynamicDescend = Header.Descend;
     }
 
     protected override void OnUpdateStorageVersion(ref bool newVersion)
     {
-      if (this.activation)
+      if (activation)
         return;
       base.OnUpdateStorageVersion(ref newVersion);
-      newVersion = newVersion || this.tree != null && this.tree.IsCacheEmpty;
+      newVersion = newVersion || tree != null && tree.IsCacheEmpty;
       if (!newVersion)
         return;
-      this.ReactivateIndex();
+      ReactivateIndex();
     }
 
     protected override void OnFlushStorageVersion()
     {
-      this.Header.RootPosition = this.tree.RootNode.Id;
-      this.tree.FlushTree();
+      Header.RootPosition = tree.RootNode.Id;
+      tree.FlushTree();
       base.OnFlushStorageVersion();
     }
 
     protected override void OnAllocateRows()
     {
       base.OnAllocateRows();
-      this.lowUserScope = this.TopRow.CopyInstance();
-      this.highUserScope = this.BottomRow.CopyInstance();
-      this.lowQueryScope = this.TopRow.CopyInstance();
-      this.highQueryScope = this.BottomRow.CopyInstance();
-      this.currentScope = DataStorage.ScopeType.None;
-      if (!this.IsPrimary)
+      lowUserScope = TopRow.CopyInstance();
+      highUserScope = BottomRow.CopyInstance();
+      lowQueryScope = TopRow.CopyInstance();
+      highQueryScope = BottomRow.CopyInstance();
+      currentScope = ScopeType.None;
+      if (!IsPrimary)
         return;
-      this.currentPrimaryKey = this.DoAllocateCachedPkInstance();
+      currentPrimaryKey = DoAllocateCachedPkInstance();
     }
 
     protected virtual Row DoAllocateCachedPkInstance()
     {
-      return this.CurrentRow.CopyInstance();
+      return CurrentRow.CopyInstance();
     }
 
     protected override void OnGoCurrentRow(bool soft)
     {
-      if (this.forcedTreeSeek || (int) this.CurrentRow.RowId != (int) this.tree.CurrentKey.RowId || ((int) this.CurrentRow.RowVersion != (int) this.tree.CurrentKey.RowVersion || (int) this.CurrentRow.RowId == (int) Row.MinRowId) || !this.tree.CurrentNode.IsLeaf)
+      if (forcedTreeSeek || (int) CurrentRow.RowId != (int) tree.CurrentKey.RowId || ((int) CurrentRow.RowVersion != (int) tree.CurrentKey.RowVersion || (int) CurrentRow.RowId == (int) Row.MinRowId) || !tree.CurrentNode.IsLeaf)
       {
-        switch (this.tree.GoKey(this.CurrentRow, (Node) null).KeyRank)
+        switch (tree.GoKey(CurrentRow, (Node) null).KeyRank)
         {
           case Node.KeyPosition.OnLeft:
             if (!soft)
             {
-              this.tree.GoPrevKey();
+              tree.GoPrevKey();
               break;
             }
             break;
           case Node.KeyPosition.OnRight:
-            this.tree.GoNextKey();
+            tree.GoNextKey();
             break;
         }
       }
@@ -561,67 +561,67 @@ namespace VistaDB.Engine.Core.Indexing
 
     protected override void OnNextRow()
     {
-      this.tree.GoNextKey();
+      tree.GoNextKey();
     }
 
     protected override void OnPrevRow()
     {
-      this.tree.GoPrevKey();
+      tree.GoPrevKey();
     }
 
     protected override void OnSynch(int asynchCounter)
     {
-      this.LockStorage();
+      LockStorage();
       try
       {
         base.OnSynch(asynchCounter);
       }
       finally
       {
-        this.UnlockStorage(true);
+        UnlockStorage(true);
       }
     }
 
     private void SynchronizeTreePosition()
     {
-      if (this.Tree.CurrentNode.SuspectForCorruption)
+      if (Tree.CurrentNode.SuspectForCorruption)
         throw new VistaDBException(133, "Index appears to be corrupted and cannot be used.");
-      this.CurrentRow.Copy(this.tree.CurrentKey);
-      this.BgnOfSet = this.CurrentRow - this.TopRow <= 0;
-      this.EndOfSet = this.CurrentRow - this.BottomRow >= 0;
+      CurrentRow.Copy(tree.CurrentKey);
+      BgnOfSet = CurrentRow - TopRow <= 0;
+      EndOfSet = CurrentRow - BottomRow >= 0;
     }
 
     protected override void OnUpdateCurrentRow()
     {
-      this.SynchronizeTreePosition();
+      SynchronizeTreePosition();
     }
 
     protected override bool OnMinimizeMemoryCache(bool forceClearing)
     {
-      if (this.tree == null)
+      if (tree == null)
         return false;
-      return this.tree.MinimizeTreeMemory(forceClearing);
+      return tree.MinimizeTreeMemory(forceClearing);
     }
 
     protected override bool OnFlushCurrentRow()
     {
-      if ((int) this.SatelliteRow.RowId != (int) Row.MaxRowId)
-        return this.tree.ReplaceKey(this.CurrentRow, this.SatelliteRow, this.TransactionId);
-      return this.tree.DeleteKey(this.CurrentRow, this.TransactionId);
+      if ((int) SatelliteRow.RowId != (int) Row.MaxRowId)
+        return tree.ReplaceKey(CurrentRow, SatelliteRow, TransactionId);
+      return tree.DeleteKey(CurrentRow, TransactionId);
     }
 
     protected override bool OnCreateRow(bool blank, Row newKey)
     {
       if (!base.OnCreateRow(blank, newKey))
         return false;
-      this.CurrentRow.RowId = 0U;
-      if (this.IsFts && (long) this.tree.TestEqualKeyData(newKey) == (long) newKey.RowId)
+      CurrentRow.RowId = 0U;
+      if (IsFts && (long) tree.TestEqualKeyData(newKey) == (long) newKey.RowId)
         return false;
-      if (!this.IsUnique || (long) this.tree.TestEqualKeyData(newKey) == (long) Row.MaxRowId)
+      if (!IsUnique || (long) tree.TestEqualKeyData(newKey) == (long) Row.MaxRowId)
         return true;
-      if (this.IsSparse || this.SuppressErrors)
+      if (IsSparse || SuppressErrors)
         return false;
-      throw new VistaDBException(309, this.Alias + ": " + newKey.ToString());
+      throw new VistaDBException(309, Alias + ": " + newKey.ToString());
     }
 
     protected override bool OnUpdateRow(Row oldKey, Row newKey)
@@ -629,19 +629,19 @@ namespace VistaDB.Engine.Core.Indexing
       bool flag1 = false;
       if (!base.OnUpdateRow(oldKey, newKey))
         return false;
-      bool isPrimary = this.IsPrimary;
-      bool isForeignKey = this.IsForeignKey;
-      bool flag2 = oldKey.EqualColumns(newKey, this.IsClustered);
-      this.noRI_KeyUpdate = (isForeignKey || isPrimary) && flag2;
-      if (!flag2 && this.IsUnique)
+      bool isPrimary = IsPrimary;
+      bool isForeignKey = IsForeignKey;
+      bool flag2 = oldKey.EqualColumns(newKey, IsClustered);
+      noRI_KeyUpdate = (isForeignKey || isPrimary) && flag2;
+      if (!flag2 && IsUnique)
       {
-        ulong num = this.tree.TestEqualKeyData(newKey);
+        ulong num = tree.TestEqualKeyData(newKey);
         flag1 = (long) num != (long) Row.MaxRowId && (long) num != (long) oldKey.RowId;
         if (flag1)
         {
-          if (this.SuppressErrors || this.IsSparse)
+          if (SuppressErrors || IsSparse)
             return false;
-          throw new VistaDBException(309, this.Alias + ": " + newKey.ToString());
+          throw new VistaDBException(309, Alias + ": " + newKey.ToString());
         }
       }
       if (flag1)
@@ -651,7 +651,7 @@ namespace VistaDB.Engine.Core.Indexing
 
     protected override bool OnDeleteRow(Row currentRow)
     {
-      this.SatelliteRow.RowId = Row.MaxRowId;
+      SatelliteRow.RowId = Row.MaxRowId;
       return true;
     }
 
@@ -659,8 +659,8 @@ namespace VistaDB.Engine.Core.Indexing
     {
       if (created)
       {
-        this.GoCurrentRow(false);
-        this.SynchronizeTreePosition();
+        GoCurrentRow(false);
+        SynchronizeTreePosition();
       }
       return created;
     }
@@ -669,8 +669,8 @@ namespace VistaDB.Engine.Core.Indexing
     {
       if (updated)
       {
-        this.GoCurrentRow(false);
-        this.SynchronizeTreePosition();
+        GoCurrentRow(false);
+        SynchronizeTreePosition();
       }
       return updated;
     }
@@ -679,12 +679,12 @@ namespace VistaDB.Engine.Core.Indexing
     {
       if (deleted)
       {
-        this.GoCurrentRow(true);
-        this.SynchronizeTreePosition();
-        while (!this.PassOrdinaryFilters())
+        GoCurrentRow(true);
+        SynchronizeTreePosition();
+        while (!PassOrdinaryFilters())
         {
-          this.tree.GoNextKey();
-          this.SynchronizeTreePosition();
+          tree.GoNextKey();
+          SynchronizeTreePosition();
         }
       }
       return deleted;
@@ -692,97 +692,97 @@ namespace VistaDB.Engine.Core.Indexing
 
     protected override void OnSetCurrentRow(Row key)
     {
-      this.CurrentRow.Copy(key);
+      CurrentRow.Copy(key);
       base.OnSetCurrentRow(key);
     }
 
     protected override void OnSetSatelliteRow(Row key)
     {
-      this.SatelliteRow.Copy(key);
+      SatelliteRow.Copy(key);
     }
 
     protected override bool OnIsClearScope()
     {
-      return this.currentScope != DataStorage.ScopeType.UserScope;
+      return currentScope != ScopeType.UserScope;
     }
 
-    protected override void OnClearScope(DataStorage.ScopeType scope)
+    protected override void OnClearScope(ScopeType scope)
     {
       switch (scope)
       {
-        case DataStorage.ScopeType.QueryScope:
-          if (this.currentScope == DataStorage.ScopeType.UserScope)
+        case ScopeType.QueryScope:
+          if (currentScope == ScopeType.UserScope)
           {
-            this.SetScope((Row) null, (Row) null, DataStorage.ScopeType.UserScope, true);
+            SetScope((Row) null, (Row) null, ScopeType.UserScope, true);
             return;
           }
           break;
-        case DataStorage.ScopeType.UserScope:
-          if (this.currentScope == DataStorage.ScopeType.QueryScope)
+        case ScopeType.UserScope:
+          if (currentScope == ScopeType.QueryScope)
           {
-            this.SetScope((Row) null, (Row) null, DataStorage.ScopeType.QueryScope, true);
+            SetScope((Row) null, (Row) null, ScopeType.QueryScope, true);
             return;
           }
           break;
       }
-      this.currentScope = DataStorage.ScopeType.None;
-      this.BottomRow.InitBottom();
-      this.TopRow.InitTop();
+      currentScope = ScopeType.None;
+      BottomRow.InitBottom();
+      TopRow.InitTop();
     }
 
-    protected override bool OnSetScope(Row lowValue, Row highValue, DataStorage.ScopeType scope, bool exactMatching)
+    protected override bool OnSetScope(Row lowValue, Row highValue, ScopeType scope, bool exactMatching)
     {
       switch (scope)
       {
-        case DataStorage.ScopeType.QueryScope:
+        case ScopeType.QueryScope:
           if (lowValue == null && highValue == null)
           {
-            if (this.currentScope != DataStorage.ScopeType.QueryScope)
+            if (currentScope != ScopeType.QueryScope)
               return true;
-            lowValue = this.lowQueryScope;
-            highValue = this.highQueryScope;
+            lowValue = lowQueryScope;
+            highValue = highQueryScope;
             break;
           }
-          this.lowQueryScope.Copy(lowValue);
-          this.highQueryScope.Copy(highValue);
-          this.currentScope = DataStorage.ScopeType.QueryScope;
+          lowQueryScope.Copy(lowValue);
+          highQueryScope.Copy(highValue);
+          currentScope = ScopeType.QueryScope;
           break;
-        case DataStorage.ScopeType.UserScope:
+        case ScopeType.UserScope:
           if (lowValue == null && highValue == null)
           {
-            if (this.currentScope != DataStorage.ScopeType.UserScope)
+            if (currentScope != ScopeType.UserScope)
               return true;
-            lowValue = this.lowUserScope;
-            highValue = this.highUserScope;
+            lowValue = lowUserScope;
+            highValue = highUserScope;
             break;
           }
-          this.lowUserScope.Copy(lowValue);
-          this.highUserScope.Copy(highValue);
-          this.currentScope = DataStorage.ScopeType.UserScope;
+          lowUserScope.Copy(lowValue);
+          highUserScope.Copy(highValue);
+          currentScope = ScopeType.UserScope;
           break;
       }
-      this.TopRow.InitTop();
-      this.BottomRow.InitBottom();
+      TopRow.InitTop();
+      BottomRow.InitBottom();
       if (highValue != null)
       {
-        switch (this.tree.GoKey(highValue, (Node) null).KeyRank)
+        switch (tree.GoKey(highValue, (Node) null).KeyRank)
         {
           case Node.KeyPosition.Less:
           case Node.KeyPosition.OnLeft:
-            this.BottomRow.Copy(this.tree.CurrentKey);
+            BottomRow.Copy(tree.CurrentKey);
             break;
           default:
-            this.tree.GoNextKey();
+            tree.GoNextKey();
             goto case Node.KeyPosition.Less;
         }
       }
       if (lowValue != null)
       {
-        if (this.tree.GoKey(lowValue, (Node) null).KeyRank != Node.KeyPosition.OnRight)
-          this.tree.GoPrevKey();
-        this.TopRow.Copy(this.tree.CurrentKey);
+        if (tree.GoKey(lowValue, (Node) null).KeyRank != Node.KeyPosition.OnRight)
+          tree.GoPrevKey();
+        TopRow.Copy(tree.CurrentKey);
       }
-      this.SetCurrentRow(this.TopRow);
+      SetCurrentRow(TopRow);
       return true;
     }
 
@@ -802,40 +802,40 @@ namespace VistaDB.Engine.Core.Indexing
 
     protected override bool DoCreateLinkFrom(DataStorage externalStorage, Relationships.Type type, Row newRow)
     {
-      this.FreezeRelationships();
+      FreezeRelationships();
       try
       {
-        return this.CreateRow(false, false) || this.IsUnique && this.IsSparse;
+        return CreateRow(false, false) || IsUnique && IsSparse;
       }
       finally
       {
-        this.DefreezeRelationships();
+        DefreezeRelationships();
       }
     }
 
     protected override bool DoUpdateLinkFrom(DataStorage externalStorage, Relationships.Type type, Row oldKey, Row newKey)
     {
-      this.FreezeRelationships();
+      FreezeRelationships();
       try
       {
-        return this.UpdateRow(false);
+        return UpdateRow(false);
       }
       finally
       {
-        this.DefreezeRelationships();
+        DefreezeRelationships();
       }
     }
 
     protected override bool DoDeleteLinkFrom(DataStorage externalStorage, Relationships.Type type, Row row)
     {
-      this.FreezeRelationships();
+      FreezeRelationships();
       try
       {
-        return this.DeleteRow(false);
+        return DeleteRow(false);
       }
       finally
       {
-        this.DefreezeRelationships();
+        DefreezeRelationships();
       }
     }
 
@@ -851,36 +851,36 @@ namespace VistaDB.Engine.Core.Indexing
       {
         this.forcedTreeSeek = forcedTreeSeek;
       }
-      return this.Tree.CurrentKey.EqualColumns(row, this.IsClustered);
+      return Tree.CurrentKey.EqualColumns(row, IsClustered);
     }
 
     protected override ulong OnGetFreeCluster(int pageCount)
     {
-      if (this.WrapperDatabase == null)
+      if (WrapperDatabase == null)
         return base.OnGetFreeCluster(pageCount);
-      this.WrapperDatabase.LockSpaceMap();
+      WrapperDatabase.LockSpaceMap();
       try
       {
         return base.OnGetFreeCluster(pageCount);
       }
       finally
       {
-        this.WrapperDatabase.UnlockSpaceMap();
+        WrapperDatabase.UnlockSpaceMap();
       }
     }
 
     protected override void OnSetFreeCluster(ulong clusterId, int pageCount)
     {
-      if (this.WrapperDatabase != null)
+      if (WrapperDatabase != null)
       {
-        this.WrapperDatabase.LockSpaceMap();
+        WrapperDatabase.LockSpaceMap();
         try
         {
           base.OnSetFreeCluster(clusterId, pageCount);
         }
         finally
         {
-          this.WrapperDatabase.UnlockSpaceMap();
+          WrapperDatabase.UnlockSpaceMap();
         }
       }
       else
@@ -889,12 +889,12 @@ namespace VistaDB.Engine.Core.Indexing
 
     internal void Flip()
     {
-      this.dynamicDescend = !this.dynamicDescend;
+      dynamicDescend = !dynamicDescend;
     }
 
     protected bool PartialKeyFound(Row patternRow)
     {
-      return this.OnPartialKeyFound(patternRow);
+      return OnPartialKeyFound(patternRow);
     }
 
     internal override TpStatus DoGettingAnotherTransactionStatus(uint transactionId)
@@ -904,56 +904,56 @@ namespace VistaDB.Engine.Core.Indexing
 
     internal void ClearCachedBitmaps()
     {
-      if (this.bmpFilters == null)
+      if (bmpFilters == null)
         return;
-      this.bmpFilters.Clear();
+      bmpFilters.Clear();
     }
 
     private void MarkOptimizedStatus(RowIdFilter filter, Row lowScope, Row highScope, bool markNulls, bool forcedTrueStatus)
     {
-      this.FreezeRelationships();
+      FreezeRelationships();
       bool forcedTreeSeek = this.forcedTreeSeek;
       try
       {
-        this.TopRow.Copy(lowScope);
-        this.BottomRow.Copy(highScope);
+        TopRow.Copy(lowScope);
+        BottomRow.Copy(highScope);
         this.forcedTreeSeek = true;
-        this.MoveToRow(lowScope);
-        while (!this.EndOfSet)
+        MoveToRow(lowScope);
+        while (!EndOfSet)
         {
-          if (markNulls || !this.CurrentRow.HasNulls)
-            filter.SetValidStatus(this.CurrentRow, forcedTrueStatus || !markNulls);
-          this.NextRow();
+          if (markNulls || !CurrentRow.HasNulls)
+            filter.SetValidStatus(CurrentRow, forcedTrueStatus || !markNulls);
+          NextRow();
         }
       }
       finally
       {
         this.forcedTreeSeek = forcedTreeSeek;
-        this.DefreezeRelationships();
-        this.TopRow.InitTop();
-        this.BottomRow.InitBottom();
+        DefreezeRelationships();
+        TopRow.InitTop();
+        BottomRow.InitBottom();
       }
     }
 
     internal IOptimizedFilter BuildFiltermap(Row lowConstant, Row highConstant, bool excludeNulls)
     {
-      if (this.bmpFilters == null)
-        this.bmpFilters = new RowIdFilterCollection();
-      RowIdFilter filter = this.bmpFilters.GetFilter(lowConstant, highConstant, excludeNulls);
+      if (bmpFilters == null)
+        bmpFilters = new RowIdFilterCollection();
+      RowIdFilter filter = bmpFilters.GetFilter(lowConstant, highConstant, excludeNulls);
       if (filter != null)
         return (IOptimizedFilter) filter;
       Row lowConstant1 = lowConstant.CopyInstance();
       Row highConstant1 = highConstant.CopyInstance();
       try
       {
-        filter = this.ParentRowset.NewOptimizedFilter;
+        filter = ParentRowset.NewOptimizedFilter;
         if (excludeNulls)
         {
-          this.MarkOptimizedStatus(filter, lowConstant, highConstant, false, false);
-          if (this.IsFts || !excludeNulls)
+          MarkOptimizedStatus(filter, lowConstant, highConstant, false, false);
+          if (IsFts || !excludeNulls)
             return (IOptimizedFilter) filter;
           bool flag = false;
-          foreach (Row.Column column in (List<Row.Column>) this.CurrentRow)
+          foreach (Row.Column column in (List<Row.Column>) CurrentRow)
           {
             if (column.AllowNull)
             {
@@ -964,8 +964,8 @@ namespace VistaDB.Engine.Core.Indexing
           if (!flag)
             return (IOptimizedFilter) filter;
         }
-        lowConstant = this.TopRow;
-        highConstant = this.BottomRow;
+        lowConstant = TopRow;
+        highConstant = BottomRow;
         lowConstant.RowId = Row.MinRowId;
         highConstant.RowId = Row.MaxRowId;
         for (int index = 0; index < 1; ++index)
@@ -973,36 +973,36 @@ namespace VistaDB.Engine.Core.Indexing
           lowConstant[index].Value = (object) null;
           highConstant[index].Value = (object) null;
         }
-        this.MarkOptimizedStatus(filter, lowConstant, highConstant, true, !excludeNulls);
+        MarkOptimizedStatus(filter, lowConstant, highConstant, true, !excludeNulls);
         return (IOptimizedFilter) filter;
       }
       finally
       {
-        this.TopRow.InitTop();
-        this.BottomRow.InitBottom();
-        this.bmpFilters.PutFilter(filter, lowConstant1, highConstant1, excludeNulls);
+        TopRow.InitTop();
+        BottomRow.InitBottom();
+        bmpFilters.PutFilter(filter, lowConstant1, highConstant1, excludeNulls);
       }
     }
 
     internal long GetScopeKeyCount()
     {
-      this.FreezeRelationships();
+      FreezeRelationships();
       try
       {
         int num = 0;
-        this.MoveToRow(this.TopRow);
-        if (this.BgnOfSet)
-          this.NextRow();
-        while (!this.EndOfSet)
+        MoveToRow(TopRow);
+        if (BgnOfSet)
+          NextRow();
+        while (!EndOfSet)
         {
           ++num;
-          this.NextRow();
+          NextRow();
         }
         return (long) num;
       }
       finally
       {
-        this.DefreezeRelationships();
+        DefreezeRelationships();
       }
     }
 
@@ -1022,13 +1022,13 @@ namespace VistaDB.Engine.Core.Indexing
 
     internal class RowsetHeader : StorageHeader
     {
-      internal static Index.RowsetHeader CreateInstance(DataStorage parentStorage, int pageSize, CultureInfo culture)
+      internal static RowsetHeader CreateInstance(DataStorage parentStorage, int pageSize, CultureInfo culture)
       {
-        return new Index.RowsetHeader(parentStorage, VistaDB.Engine.Core.Header.HeaderId.ROWSET_HEADER, 0, pageSize, culture);
+        return new RowsetHeader(parentStorage, HeaderId.ROWSET_HEADER, 0, pageSize, culture);
       }
 
-      protected RowsetHeader(DataStorage parentStorage, VistaDB.Engine.Core.Header.HeaderId id, int signature, int pageSize, CultureInfo culture)
-        : base(parentStorage, id, Row.EmptyReference, signature, pageSize, culture)
+      protected RowsetHeader(DataStorage parentStorage, HeaderId id, int signature, int pageSize, CultureInfo culture)
+        : base(parentStorage, id, EmptyReference, signature, pageSize, culture)
       {
       }
     }
@@ -1038,11 +1038,11 @@ namespace VistaDB.Engine.Core.Indexing
       private int rootEntry;
       private int descendEntry;
 
-      protected IndexHeader(DataStorage parentIndex, VistaDB.Engine.Core.Header.HeaderId id, Index.Type type, int pageSize, CultureInfo culture)
-        : base(parentIndex, id, Row.EmptyReference, (int) type, pageSize, culture)
+      protected IndexHeader(DataStorage parentIndex, HeaderId id, Type type, int pageSize, CultureInfo culture)
+        : base(parentIndex, id, EmptyReference, (int) type, pageSize, culture)
       {
-        this.rootEntry = this.AppendColumn((IColumn) new BigIntColumn((long) Row.EmptyReference));
-        this.descendEntry = this.AppendColumn((IColumn) new BitColumn(false));
+        rootEntry = AppendColumn((IColumn) new BigIntColumn((long)EmptyReference));
+        descendEntry = AppendColumn((IColumn) new BitColumn(false));
       }
 
       internal static bool IsUnique(uint signature)
@@ -1079,12 +1079,12 @@ namespace VistaDB.Engine.Core.Indexing
       {
         get
         {
-          return (ulong) (long) this[this.rootEntry].Value;
+          return (ulong) (long) this[rootEntry].Value;
         }
         set
         {
-          this.Modified = (long) this.RootPosition != (long) value;
-          this[this.rootEntry].Value = (object) (long) value;
+          Modified = (long) RootPosition != (long) value;
+          this[rootEntry].Value = (object) (long) value;
         }
       }
 
@@ -1092,11 +1092,11 @@ namespace VistaDB.Engine.Core.Indexing
       {
         get
         {
-          return (bool) this[this.descendEntry].Value;
+          return (bool) this[descendEntry].Value;
         }
         set
         {
-          this[this.descendEntry].Value = (object) value;
+          this[descendEntry].Value = (object) value;
         }
       }
 
@@ -1104,7 +1104,7 @@ namespace VistaDB.Engine.Core.Indexing
       {
         get
         {
-          return Index.IndexHeader.IsUnique(this.Signature);
+          return IsUnique(Signature);
         }
       }
 
@@ -1112,7 +1112,7 @@ namespace VistaDB.Engine.Core.Indexing
       {
         get
         {
-          return Index.IndexHeader.IsPrimary(this.Signature);
+          return IsPrimary(Signature);
         }
       }
 
@@ -1120,7 +1120,7 @@ namespace VistaDB.Engine.Core.Indexing
       {
         get
         {
-          return Index.IndexHeader.IsForeignKey(this.Signature);
+          return IsForeignKey(Signature);
         }
       }
 
@@ -1128,7 +1128,7 @@ namespace VistaDB.Engine.Core.Indexing
       {
         get
         {
-          return Index.IndexHeader.IsFts(this.Signature);
+          return IsFts(Signature);
         }
       }
 
@@ -1136,7 +1136,7 @@ namespace VistaDB.Engine.Core.Indexing
       {
         get
         {
-          return Index.IndexHeader.IsSparse(this.Signature);
+          return IsSparse(Signature);
         }
       }
 
@@ -1144,7 +1144,7 @@ namespace VistaDB.Engine.Core.Indexing
       {
         get
         {
-          return Index.IndexHeader.IsCaseSensitive(this.Signature);
+          return IsCaseSensitive(Signature);
         }
       }
 
@@ -1152,31 +1152,31 @@ namespace VistaDB.Engine.Core.Indexing
       {
         get
         {
-          return ((int) this.Signature & 256) == 256;
+          return ((int) Signature & 256) == 256;
         }
       }
 
       internal void CreateSchema(IVistaDBTableSchema schema)
       {
-        this.OnCreateSchema(schema);
+        OnCreateSchema(schema);
       }
 
       internal bool ActivateSchema()
       {
-        return this.OnActivateSchema();
+        return OnActivateSchema();
       }
 
       internal void SetSensitivity(bool caseSensitive)
       {
         if (caseSensitive)
-          this.Signature |= 64U;
+          Signature |= 64U;
         else
-          this.Signature &= 4294967231U;
+          Signature &= 4294967231U;
       }
 
       protected virtual void OnCreateSchema(IVistaDBTableSchema schema)
       {
-        this.Modified = true;
+        Modified = true;
       }
 
       protected virtual bool OnActivateSchema()
@@ -1186,12 +1186,12 @@ namespace VistaDB.Engine.Core.Indexing
 
       internal void RegisterSchema(IVistaDBTableSchema schema)
       {
-        this.OnRegisterSchema(schema);
+        OnRegisterSchema(schema);
       }
 
       protected virtual void OnRegisterSchema(IVistaDBTableSchema schema)
       {
-        this.ParentStorage.WrapperDatabase.RegisterRowsetSchema(this.ParentStorage, schema);
+        ParentStorage.WrapperDatabase.RegisterRowsetSchema(ParentStorage, schema);
       }
     }
   }

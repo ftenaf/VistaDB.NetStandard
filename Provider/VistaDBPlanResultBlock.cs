@@ -5,32 +5,32 @@ namespace VistaDB.Provider
 {
   public class VistaDBPlanResultBlock : VistaDBPlanBlock
   {
-    private VistaDBPlanResultBlock.ResultType resultType;
+    private ResultType resultType;
     private string queryText;
 
     internal VistaDBPlanResultBlock(IQueryStatement query, VistaDBPlanBlock[] childs)
-      : base(VistaDBPlanBlock.BlockType.Result, childs)
+      : base(BlockType.Result, childs)
     {
-      this.resultType = VistaDBPlanResultBlock.GetResultType(query);
-      this.queryText = query.CommandText;
+      resultType = GetResultType(query);
+      queryText = query.CommandText;
     }
 
-    private static VistaDBPlanResultBlock.ResultType GetResultType(IQueryStatement query)
+    private static ResultType GetResultType(IQueryStatement query)
     {
       if (query is SelectStatement)
-        return VistaDBPlanResultBlock.ResultType.Select;
+        return ResultType.Select;
       if (query is InsertStatement)
-        return VistaDBPlanResultBlock.ResultType.Insert;
+        return ResultType.Insert;
       if (query is UpdateStatement)
-        return VistaDBPlanResultBlock.ResultType.Update;
-      return query is DeleteStatement ? VistaDBPlanResultBlock.ResultType.Delete : VistaDBPlanResultBlock.ResultType.Other;
+        return ResultType.Update;
+      return query is DeleteStatement ? ResultType.Delete : ResultType.Other;
     }
 
-    public VistaDBPlanResultBlock.ResultType PlanResultType
+    public ResultType PlanResultType
     {
       get
       {
-        return this.resultType;
+        return resultType;
       }
     }
 
@@ -38,7 +38,7 @@ namespace VistaDB.Provider
     {
       get
       {
-        return this.queryText;
+        return queryText;
       }
     }
 

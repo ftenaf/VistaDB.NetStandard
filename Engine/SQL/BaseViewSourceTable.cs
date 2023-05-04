@@ -14,24 +14,24 @@ namespace VistaDB.Engine.SQL
     protected SourceTable updateTable;
     private List<string> columnNames;
 
-    public BaseViewSourceTable(VistaDB.Engine.SQL.Statement parent, IView view, List<string> columnNames, SelectStatement statement, string alias, int index, int lineNo, int symbolNo)
+    public BaseViewSourceTable(Statement parent, IView view, List<string> columnNames, SelectStatement statement, string alias, int index, int lineNo, int symbolNo)
       : base(parent, view.Name, alias, index, lineNo, symbolNo)
     {
       this.view = view;
       this.columnNames = columnNames;
       this.statement = statement;
-      this.updateTable = (SourceTable) null;
+      updateTable = (SourceTable) null;
     }
 
     private void CheckUpdatable()
     {
-      if (this.updateTable == null || !this.updateTable.IsUpdatable)
-        throw new VistaDBSQLException(605, this.tableName, this.lineNo, this.symbolNo);
+      if (updateTable == null || !updateTable.IsUpdatable)
+        throw new VistaDBSQLException(605, tableName, lineNo, symbolNo);
     }
 
     public override void Post()
     {
-      this.updateTable.Post();
+      updateTable.Post();
     }
 
     public override IVistaDBTableSchema GetTableSchema()
@@ -51,26 +51,26 @@ namespace VistaDB.Engine.SQL
 
     protected override IQuerySchemaInfo InternalPrepare()
     {
-      int num = (int) this.statement.PrepareQuery();
+      int num = (int) statement.PrepareQuery();
       return (IQuerySchemaInfo) this;
     }
 
     protected override void InternalInsert()
     {
-      this.CheckUpdatable();
-      this.updateTable.Insert();
+      CheckUpdatable();
+      updateTable.Insert();
     }
 
     protected override void InternalPutValue(int columnIndex, IColumn columnValue)
     {
-      this.CheckUpdatable();
-      this.updateTable.PutValue(columnIndex, columnValue);
+      CheckUpdatable();
+      updateTable.PutValue(columnIndex, columnValue);
     }
 
     protected override void InternalDeleteRow()
     {
-      this.CheckUpdatable();
-      this.updateTable.DeleteRow();
+      CheckUpdatable();
+      updateTable.DeleteRow();
     }
 
     public override bool IsNativeTable
@@ -85,8 +85,8 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        if (this.updateTable != null)
-          return this.updateTable.IsUpdatable;
+        if (updateTable != null)
+          return updateTable.IsUpdatable;
         return false;
       }
     }
@@ -95,26 +95,26 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.statement;
+        return statement;
       }
     }
 
     public string GetAliasName(int ordinal)
     {
-      if (this.columnNames != null)
-        return this.columnNames[ordinal];
-      return this.statement.GetAliasName(ordinal);
+      if (columnNames != null)
+        return columnNames[ordinal];
+      return statement.GetAliasName(ordinal);
     }
 
     public int GetColumnOrdinal(string name)
     {
-      if (this.columnNames == null)
-        return this.statement.GetColumnOrdinal(name);
-      LocalSQLConnection connection = this.parent.Connection;
+      if (columnNames == null)
+        return statement.GetColumnOrdinal(name);
+      LocalSQLConnection connection = parent.Connection;
       int index = 0;
-      for (int count = this.columnNames.Count; index < count; ++index)
+      for (int count = columnNames.Count; index < count; ++index)
       {
-        if (connection.CompareString(this.columnNames[index], name, true) == 0)
+        if (connection.CompareString(columnNames[index], name, true) == 0)
           return index;
       }
       return -1;
@@ -122,83 +122,83 @@ namespace VistaDB.Engine.SQL
 
     public int GetWidth(int ordinal)
     {
-      return this.statement.GetWidth(ordinal);
+      return statement.GetWidth(ordinal);
     }
 
     public bool GetIsKey(int ordinal)
     {
-      return this.statement.GetIsKey(ordinal);
+      return statement.GetIsKey(ordinal);
     }
 
     public string GetColumnName(int ordinal)
     {
-      if (this.columnNames != null)
-        return this.columnNames[ordinal];
-      return this.statement.GetColumnName(ordinal);
+      if (columnNames != null)
+        return columnNames[ordinal];
+      return statement.GetColumnName(ordinal);
     }
 
     public string GetTableName(int ordinal)
     {
-      return this.statement.GetTableName(ordinal);
+      return statement.GetTableName(ordinal);
     }
 
     public Type GetColumnType(int ordinal)
     {
-      return this.statement.GetColumnType(ordinal);
+      return statement.GetColumnType(ordinal);
     }
 
     public bool GetIsAllowNull(int ordinal)
     {
-      if (!this.alwaysAllowNull)
-        return this.statement.GetIsAllowNull(ordinal);
+      if (!alwaysAllowNull)
+        return statement.GetIsAllowNull(ordinal);
       return true;
     }
 
     public VistaDBType GetColumnVistaDBType(int ordinal)
     {
-      return this.statement.GetColumnVistaDBType(ordinal);
+      return statement.GetColumnVistaDBType(ordinal);
     }
 
     public bool GetIsAliased(int ordinal)
     {
-      return this.statement.GetIsAliased(ordinal);
+      return statement.GetIsAliased(ordinal);
     }
 
     public bool GetIsExpression(int ordinal)
     {
-      return this.statement.GetIsExpression(ordinal);
+      return statement.GetIsExpression(ordinal);
     }
 
     public bool GetIsAutoIncrement(int ordinal)
     {
-      return this.statement.GetIsAutoIncrement(ordinal);
+      return statement.GetIsAutoIncrement(ordinal);
     }
 
     public bool GetIsLong(int ordinal)
     {
-      return this.statement.GetIsLong(ordinal);
+      return statement.GetIsLong(ordinal);
     }
 
     public bool GetIsReadOnly(int ordinal)
     {
-      return this.statement.GetIsReadOnly(ordinal);
+      return statement.GetIsReadOnly(ordinal);
     }
 
     public string GetDataTypeName(int ordinal)
     {
-      return this.statement.GetDataTypeName(ordinal);
+      return statement.GetDataTypeName(ordinal);
     }
 
     public DataTable GetSchemaTable()
     {
-      DataTable schemaTable = this.statement.GetSchemaTable();
-      if (this.columnNames != null)
+      DataTable schemaTable = statement.GetSchemaTable();
+      if (columnNames != null)
       {
         int index = 0;
         for (int count = schemaTable.Rows.Count; index < count; ++index)
         {
-          schemaTable.Rows[index]["ColumnName"] = (object) this.columnNames[index];
-          schemaTable.Rows[index]["BaseColumnName"] = (object) this.columnNames[index];
+          schemaTable.Rows[index]["ColumnName"] = (object) columnNames[index];
+          schemaTable.Rows[index]["BaseColumnName"] = (object) columnNames[index];
         }
       }
       return schemaTable;
@@ -206,39 +206,39 @@ namespace VistaDB.Engine.SQL
 
     public string GetColumnDescription(int ordinal)
     {
-      return this.statement.GetColumnDescription(ordinal);
+      return statement.GetColumnDescription(ordinal);
     }
 
     public string GetColumnCaption(int ordinal)
     {
-      return this.statement.GetColumnCaption(ordinal);
+      return statement.GetColumnCaption(ordinal);
     }
 
     public bool GetIsEncrypted(int ordinal)
     {
-      return this.statement.GetIsEncrypted(ordinal);
+      return statement.GetIsEncrypted(ordinal);
     }
 
     public int GetCodePage(int ordinal)
     {
-      return this.statement.GetCodePage(ordinal);
+      return statement.GetCodePage(ordinal);
     }
 
     public string GetIdentity(int ordinal, out string step, out string seed)
     {
-      return this.statement.GetIdentity(ordinal, out step, out seed);
+      return statement.GetIdentity(ordinal, out step, out seed);
     }
 
     public string GetDefaultValue(int ordinal, out bool useInUpdate)
     {
-      return this.statement.GetDefaultValue(ordinal, out useInUpdate);
+      return statement.GetDefaultValue(ordinal, out useInUpdate);
     }
 
     public int ColumnCount
     {
       get
       {
-        return this.statement.ColumnCount;
+        return statement.ColumnCount;
       }
     }
   }

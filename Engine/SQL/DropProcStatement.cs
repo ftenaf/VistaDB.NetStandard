@@ -13,19 +13,19 @@ namespace VistaDB.Engine.SQL
 
     protected override IQueryResult OnExecuteQuery()
     {
-      IStoredProcedureCollection storedProcedures = this.Database.GetStoredProcedures();
-      IVistaDBClrProcedureCollection clrProcedures = this.Database.GetClrProcedures();
-      foreach (string tableName in this.tableNames)
+      IStoredProcedureCollection storedProcedures = Database.GetStoredProcedures();
+      IVistaDBClrProcedureCollection clrProcedures = Database.GetClrProcedures();
+      foreach (string tableName in tableNames)
       {
         if (storedProcedures.ContainsKey(tableName))
         {
-          this.Database.DeleteStoredProcedureObject(tableName);
+          Database.DeleteStoredProcedureObject(tableName);
         }
         else
         {
           if (!clrProcedures.ContainsKey(tableName))
-            throw new VistaDBSQLException(607, tableName, this.lineNo, this.symbolNo);
-          this.Database.UnregisterClrProcedure(tableName);
+            throw new VistaDBSQLException(607, tableName, lineNo, symbolNo);
+          Database.UnregisterClrProcedure(tableName);
         }
       }
       return (IQueryResult) null;

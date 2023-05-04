@@ -7,7 +7,7 @@ namespace VistaDB.Engine.SQL
 {
   internal class UpdateStatement : BaseUpdateStatement
   {
-    private List<UpdateStatement.SetColumn> setColumns = new List<UpdateStatement.SetColumn>();
+    private List<SetColumn> setColumns = new List<SetColumn>();
 
     public UpdateStatement(LocalSQLConnection connection, Statement parent, SQLParser parser, long id)
       : base(connection, parent, parser, id)
@@ -19,12 +19,12 @@ namespace VistaDB.Engine.SQL
       SQLParser.TokenValueClass tokenValue = parser.TokenValue;
       parser.SkipToken(true);
       if (tokenValue.TokenType != TokenType.Unknown && tokenValue.TokenType != TokenType.Name && tokenValue.TokenType != TokenType.ComplexName)
-        throw new VistaDBSQLException(585, tokenValue.Token, this.lineNo, this.symbolNo);
+        throw new VistaDBSQLException(585, tokenValue.Token, lineNo, symbolNo);
       string tableName = parser.GetTableName((Statement) this);
-      this.destinationTable = (SourceTable) new NativeSourceTable((Statement) this, tableName, tableName, 0, tokenValue.RowNo, tokenValue.ColNo);
+      destinationTable = (SourceTable) new NativeSourceTable((Statement) this, tableName, tableName, 0, tokenValue.RowNo, tokenValue.ColNo);
       parser.SkipToken(true);
       parser.ExpectedExpression("SET");
-      this.ParseColumns(parser);
+      ParseColumns(parser);
       base.OnParse(connection, parser);
     }
 
@@ -35,7 +35,7 @@ namespace VistaDB.Engine.SQL
       {
         parser.SkipToken(true);
         if (tokenValue.TokenType != TokenType.Unknown && tokenValue.TokenType != TokenType.Name && tokenValue.TokenType != TokenType.ComplexName)
-          throw new VistaDBSQLException(586, tokenValue.Token, this.lineNo, this.symbolNo);
+          throw new VistaDBSQLException(586, tokenValue.Token, lineNo, symbolNo);
         int rowNo = tokenValue.RowNo;
         int colNo = tokenValue.ColNo;
         string objectName;
@@ -43,56 +43,56 @@ namespace VistaDB.Engine.SQL
         parser.SkipToken(true);
         parser.ExpectedExpression("=");
         Signature exprValue = parser.NextSignature(true, true, 6);
-        this.setColumns.Add(new UpdateStatement.SetColumn((Statement) this, complexName, objectName, exprValue, rowNo, colNo));
+        setColumns.Add(new SetColumn((Statement) this, complexName, objectName, exprValue, rowNo, colNo));
       }
       while (parser.IsToken(","));
     }
 
     protected override void ExecuteSimple()
     {
-      this.destinationTable.DoOpenExternalRelationships(false, false);
+      destinationTable.DoOpenExternalRelationships(false, false);
       try
       {
         base.ExecuteSimple();
       }
       finally
       {
-        this.destinationTable.DoFreeExternalRelationships();
+        destinationTable.DoFreeExternalRelationships();
       }
     }
 
     protected override void DoPrepareTriggers()
     {
-      this.destinationTable.PrepareTriggers(TriggerAction.AfterUpdate);
+      destinationTable.PrepareTriggers(TriggerAction.AfterUpdate);
     }
 
     protected override void DoExecuteTriggers(bool justReset)
     {
-      this.destinationTable.ExecuteTriggers(TriggerAction.AfterUpdate, justReset);
+      destinationTable.ExecuteTriggers(TriggerAction.AfterUpdate, justReset);
     }
 
     protected override void PrepareSetColumns()
     {
-      IQuerySchemaInfo schema = this.destinationTable.Schema;
-      foreach (UpdateStatement.SetColumn setColumn in this.setColumns)
+      IQuerySchemaInfo schema = destinationTable.Schema;
+      foreach (SetColumn setColumn in setColumns)
         setColumn.Prepare(schema);
     }
 
     protected override bool AcceptRow()
     {
-      if (!this.destinationTable.RowAvailable)
+      if (!destinationTable.RowAvailable)
         return true;
-      foreach (UpdateStatement.SetColumn setColumn in this.setColumns)
-        this.destinationTable.PutValue(setColumn.ColumnIndex, setColumn.Execute());
-      this.destinationTable.Post();
-      ++this.affectedRows;
+      foreach (SetColumn setColumn in setColumns)
+        destinationTable.PutValue(setColumn.ColumnIndex, setColumn.Execute());
+      destinationTable.Post();
+      ++affectedRows;
       return true;
     }
 
     public override void SetChanged()
     {
-      this.whereClause.SetChanged();
-      foreach (UpdateStatement.SetColumn setColumn in this.setColumns)
+      whereClause.SetChanged();
+      foreach (SetColumn setColumn in setColumns)
         setColumn.SetChanged();
     }
 
@@ -113,38 +113,38 @@ namespace VistaDB.Engine.SQL
         this.tableAlias = tableAlias;
         this.columnName = columnName;
         this.exprValue = exprValue;
-        this.columnIndex = -1;
+        columnIndex = -1;
         this.lineNo = lineNo;
         this.symbolNo = symbolNo;
-        this.dataType = VistaDBType.Unknown;
+        dataType = VistaDBType.Unknown;
       }
 
       public void Prepare(IQuerySchemaInfo schema)
       {
-        this.columnIndex = schema.GetColumnOrdinal(this.columnName);
-        if (this.columnIndex < 0)
-          throw new VistaDBSQLException(567, this.columnName, this.lineNo, this.symbolNo);
-        this.dataType = schema.GetColumnVistaDBType(this.columnIndex);
-        if (this.exprValue.Prepare() != SignatureType.Constant || this.exprValue.SignatureType == SignatureType.Constant)
+        columnIndex = schema.GetColumnOrdinal(columnName);
+        if (columnIndex < 0)
+          throw new VistaDBSQLException(567, columnName, lineNo, symbolNo);
+        dataType = schema.GetColumnVistaDBType(columnIndex);
+        if (exprValue.Prepare() != SignatureType.Constant || exprValue.SignatureType == SignatureType.Constant)
           return;
-        this.exprValue = (Signature) ConstantSignature.CreateSignature(this.exprValue.Execute(), this.DataType, this.parent);
+        exprValue = (Signature) ConstantSignature.CreateSignature(exprValue.Execute(), DataType, parent);
       }
 
       public IColumn Execute()
       {
-        return this.exprValue.Execute();
+        return exprValue.Execute();
       }
 
       public void SetChanged()
       {
-        this.exprValue.SetChanged();
+        exprValue.SetChanged();
       }
 
       public int ColumnIndex
       {
         get
         {
-          return this.columnIndex;
+          return columnIndex;
         }
       }
 
@@ -152,7 +152,7 @@ namespace VistaDB.Engine.SQL
       {
         get
         {
-          return this.dataType;
+          return dataType;
         }
       }
     }

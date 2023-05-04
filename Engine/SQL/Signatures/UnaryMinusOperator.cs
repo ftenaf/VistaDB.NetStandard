@@ -12,15 +12,15 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override IColumn InternalExecute()
     {
-      if (this.GetIsChanged())
+      if (GetIsChanged())
       {
-        Row.Column column = -(Row.Column) this.operand.Execute();
-        if (this.result == null)
-          this.result = this.CreateColumn(column.Type);
-        ((IValue) this.result).Value = column.Value;
-        this.needsEvaluation = false;
+        Row.Column column = -(Row.Column) operand.Execute();
+        if (result == null)
+          result = CreateColumn(column.Type);
+        ((IValue) result).Value = column.Value;
+        needsEvaluation = false;
       }
-      return this.result;
+      return result;
     }
   }
 }

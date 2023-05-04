@@ -9,7 +9,7 @@
 
     protected override bool CompareOperands()
     {
-      return !((IValueList) this.rightOperand).IsValuePresent(this.leftValue);
+      return !((IValueList) rightOperand).IsValuePresent(leftValue);
     }
 
     protected override bool OnOptimize(ConstraintOperations constrainOperations)

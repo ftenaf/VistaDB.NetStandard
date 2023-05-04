@@ -96,8 +96,8 @@ namespace VistaDB.Engine.Core
 				str = Path.GetTempFileName();
 				File.Delete(str);
 			}
-			catch (SecurityException ex)
-			{
+			catch (SecurityException)
+            {
 				str = Path.Combine(Path.GetDirectoryName(Database.Handle.Name), Path.GetFileNameWithoutExtension(Database.Handle.Name) + "." + Guid.NewGuid().ToString() + ".tmp");
 			}
 			try
@@ -195,7 +195,7 @@ namespace VistaDB.Engine.Core
 							foreach (string name2 in stringList2)
 							{
 								IVistaDBConstraintInformation constraint = schema.Constraints[name2];
-								string scriptExpression = DatabaseMetaTable.FixBadDate(constraint.Expression);
+								string scriptExpression = FixBadDate(constraint.Expression);
 								if (!scriptExpression.Equals(constraint.Expression) || stringList1.Contains(name2.ToUpperInvariant()) || name2.StartsWith(string.Format("{0}.NewConstraint", schema.Name)) && int.TryParse(name2.Substring(schema.Name.Length + 14), out int result) && name2.Equals(string.Format("{0}.NewConstraint{1}", schema.Name, result)))
 								{
 									schema.DropConstraint(name2);
@@ -217,7 +217,7 @@ namespace VistaDB.Engine.Core
 								IVistaDBDefaultValueInformation defaultValue = schema.DefaultValues[vistaDbColumn.Name];
 								if (defaultValue != null)
 								{
-									string scriptExpression = DatabaseMetaTable.FixBadDate(defaultValue.Expression);
+									string scriptExpression = FixBadDate(defaultValue.Expression);
 									if (!scriptExpression.Equals(defaultValue.Expression))
 									{
 										schema.DropDefaultValue(vistaDbColumn.Name);
@@ -237,8 +237,8 @@ namespace VistaDB.Engine.Core
 									{
 										vistaDbTable.ExportData(table, null);
 									}
-									catch (VistaDBException ex)
-									{
+									catch (VistaDBException)
+                                    {
 										if (!Database.RepairMode)
 										{
 											if (!flag1)
@@ -250,8 +250,8 @@ namespace VistaDB.Engine.Core
 								{
 									database.Database.CreateTableObjects((Table)table, schema);
 								}
-								catch (VistaDBException ex)
-								{
+								catch (VistaDBException)
+                                {
 									if (!Database.RepairMode && !flag1)
 										throw;
 									else if (flag1)
@@ -330,7 +330,7 @@ namespace VistaDB.Engine.Core
 
 		private IVistaDBTableSchema GetModificationTableSchema(Table table)
 		{
-			IVistaDBTableSchema vistaDbTableSchema = new Table.TableSchema(table.Name, Table.TableType.Default, null, ulong.MaxValue, Database);
+			IVistaDBTableSchema vistaDbTableSchema = new TableSchema(table.Name, TableType.Default, null, ulong.MaxValue, Database);
 			foreach (IColumn column in table.Rowset.CurrentRow)
 				vistaDbTableSchema.AddColumn(column.Name, column.Type, column.MaxLength, 0);
 			return vistaDbTableSchema;
@@ -341,7 +341,7 @@ namespace VistaDB.Engine.Core
 			if (name == null)
 				return null;
 			name = Row.Column.FixName(name);
-			if (VistaDBContext.SQLChannel.IsAvailable && (Database.DatabaseObject.EqualNames(name, Table.TriggeredDelete) || Database.DatabaseObject.EqualNames(name, Table.TriggeredInsert)))
+			if (VistaDBContext.SQLChannel.IsAvailable && (Database.DatabaseObject.EqualNames(name, TriggeredDelete) || Database.DatabaseObject.EqualNames(name, TriggeredInsert)))
 			{
 				TriggerContext triggerContext = VistaDBContext.SQLChannel.TriggerContext;
 				foreach (Table modificationTable in triggerContext.ModificationTables)
@@ -616,7 +616,7 @@ namespace VistaDB.Engine.Core
 
 		IVistaDBTableSchema IVistaDBDatabase.NewTable(string name)
 		{
-			return new Table.TableSchema(name, Table.TableType.Default, null, 0UL, Database);
+			return new TableSchema(name, TableType.Default, null, 0UL, Database);
 		}
 
 		IVistaDBTableSchema IVistaDBDatabase.TableSchema(string name)
@@ -657,7 +657,7 @@ namespace VistaDB.Engine.Core
 			if (HasTemporaryTable(newName))
 				temporaryDatabase.AlterTable(newName, schema);
 			else
-				Database.AlterTable(newName, (Table.TableSchema)schema, false, false);
+				Database.AlterTable(newName, (TableSchema)schema, false, false);
 		}
 
 		void IVistaDBTable.SetDDAEventDelegate(IVistaDBDDAEventDelegate eventDelegate)
@@ -1079,8 +1079,8 @@ namespace VistaDB.Engine.Core
 					base.Dispose();
 				isDisposed = true;
 			}
-			catch (Exception ex)
-			{
+			catch (Exception)
+            {
 				throw;
 			}
 		}

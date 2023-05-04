@@ -5,11 +5,11 @@ namespace VistaDB.Engine.Core.Scripting
   internal class Assign : Signature
   {
     internal Assign(string name, int groupId, VistaDBType type)
-      : base(name, groupId, Signature.Operations.Nomark, Signature.Priorities.Setting, VistaDBType.Bit)
+      : base(name, groupId, Operations.Nomark, Priorities.Setting, VistaDBType.Bit)
     {
-      this.allowUnaryToFollow = true;
-      this.AddParameter(type);
-      this.AddParameter(VistaDBType.Unknown);
+      allowUnaryToFollow = true;
+      AddParameter(type);
+      AddParameter(VistaDBType.Unknown);
     }
 
     protected override void OnExecute(ProcedureCode pcode, int entry, Connection connection, DataStorage contextStorage, Row contextRow, ref bool bypassNextGroup, Row rowResult)

@@ -13,36 +13,36 @@ namespace VistaDB.Engine.SQL.Signatures
     internal SpForeignKeyFunction(SQLParser parser)
       : base(parser, 0, 10)
     {
-      if (this.ParamCount > 0)
-        throw new VistaDBSQLException(501, "SP_INDEXES", this.lineNo, this.symbolNo);
-      this.resultColumnTypes[0] = VistaDBType.NVarChar;
-      this.resultColumnTypes[1] = VistaDBType.NVarChar;
-      this.resultColumnTypes[2] = VistaDBType.NVarChar;
-      this.resultColumnTypes[3] = VistaDBType.NVarChar;
-      this.resultColumnTypes[4] = VistaDBType.SmallInt;
-      this.resultColumnTypes[5] = VistaDBType.SmallInt;
-      this.resultColumnTypes[6] = VistaDBType.SmallInt;
-      this.resultColumnTypes[7] = VistaDBType.NVarChar;
-      this.resultColumnTypes[8] = VistaDBType.NVarChar;
-      this.resultColumnTypes[9] = VistaDBType.NVarChar;
-      this.resultColumnNames[0] = "PKTABLE_NAME";
-      this.resultColumnNames[1] = "PKCOLUMN_NAME";
-      this.resultColumnNames[2] = "FKTABLE_NAME";
-      this.resultColumnNames[3] = "FKCOLUMN_NAME";
-      this.resultColumnNames[4] = "KEY_SEQ";
-      this.resultColumnNames[5] = "UPDATE_RULE";
-      this.resultColumnNames[6] = "DELETE_RULE";
-      this.resultColumnNames[7] = "FK_NAME";
-      this.resultColumnNames[8] = "PK_NAME";
-      this.resultColumnNames[9] = "DEFERRABILITY";
+      if (ParamCount > 0)
+        throw new VistaDBSQLException(501, "SP_INDEXES", lineNo, symbolNo);
+      resultColumnTypes[0] = VistaDBType.NVarChar;
+      resultColumnTypes[1] = VistaDBType.NVarChar;
+      resultColumnTypes[2] = VistaDBType.NVarChar;
+      resultColumnTypes[3] = VistaDBType.NVarChar;
+      resultColumnTypes[4] = VistaDBType.SmallInt;
+      resultColumnTypes[5] = VistaDBType.SmallInt;
+      resultColumnTypes[6] = VistaDBType.SmallInt;
+      resultColumnTypes[7] = VistaDBType.NVarChar;
+      resultColumnTypes[8] = VistaDBType.NVarChar;
+      resultColumnTypes[9] = VistaDBType.NVarChar;
+      resultColumnNames[0] = "PKTABLE_NAME";
+      resultColumnNames[1] = "PKCOLUMN_NAME";
+      resultColumnNames[2] = "FKTABLE_NAME";
+      resultColumnNames[3] = "FKCOLUMN_NAME";
+      resultColumnNames[4] = "KEY_SEQ";
+      resultColumnNames[5] = "UPDATE_RULE";
+      resultColumnNames[6] = "DELETE_RULE";
+      resultColumnNames[7] = "FK_NAME";
+      resultColumnNames[8] = "PK_NAME";
+      resultColumnNames[9] = "DEFERRABILITY";
     }
 
     public override bool First(IRow row)
     {
-      this.enumerator.Reset();
-      if (!this.enumerator.MoveNext())
+      enumerator.Reset();
+      if (!enumerator.MoveNext())
         return false;
-      this.FillRow(row, this.enumerator.Current as IVistaDBRelationshipInformation, 0);
+      FillRow(row, enumerator.Current as IVistaDBRelationshipInformation, 0);
       return true;
     }
 
@@ -58,9 +58,9 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public override bool GetNextResult(IRow row)
     {
-      if (!this.enumerator.MoveNext())
+      if (!enumerator.MoveNext())
         return false;
-      this.FillRow(row, this.enumerator.Current as IVistaDBRelationshipInformation, 0);
+      FillRow(row, enumerator.Current as IVistaDBRelationshipInformation, 0);
       return true;
     }
 
@@ -71,8 +71,8 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object ExecuteSubProgram()
     {
-      this.relationships = this.parent.Database.Relationships;
-      this.enumerator = (IEnumerator) this.relationships.GetEnumerator();
+      relationships = parent.Database.Relationships;
+      enumerator = (IEnumerator) relationships.GetEnumerator();
       return (object) null;
     }
   }

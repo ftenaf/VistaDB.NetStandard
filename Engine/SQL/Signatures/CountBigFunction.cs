@@ -5,17 +5,17 @@
     public CountBigFunction(SQLParser parser)
       : base(parser, true)
     {
-      this.dataType = VistaDBType.BigInt;
+      dataType = VistaDBType.BigInt;
     }
 
     protected override void InternalSerialize(ref object serObj)
     {
-      serObj = this.val;
+      serObj = val;
     }
 
     protected override void InternalDeserialize(object serObj)
     {
-      this.val = serObj;
+      val = serObj;
     }
 
     protected override object InternalCreateEmptyResult()
@@ -25,19 +25,19 @@
 
     protected override object InternalCreateNewGroup(object newVal)
     {
-      return (object) (this.all || newVal != null ? 1L : 0L);
+      return (object) (all || newVal != null ? 1L : 0L);
     }
 
     protected override object InternalAddRowToGroup(object newVal)
     {
-      if (!this.all && newVal == null)
-        return this.val;
-      return (object) ((long) this.val + 1L);
+      if (!all && newVal == null)
+        return val;
+      return (object) ((long) val + 1L);
     }
 
     protected override object InternalFinishGroup()
     {
-      return this.val;
+      return val;
     }
   }
 }

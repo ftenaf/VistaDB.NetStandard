@@ -28,12 +28,12 @@ namespace VistaDB.Engine.Core
     }
 
     internal RealColumn()
-      : base((object) null, VistaDBType.Real, RealColumn.SingleSize)
+      : base((object) null, VistaDBType.Real, SingleSize)
     {
     }
 
     internal RealColumn(float val)
-      : base((object) val, VistaDBType.Real, RealColumn.SingleSize)
+      : base((object) val, VistaDBType.Real, SingleSize)
     {
     }
 
@@ -81,68 +81,68 @@ namespace VistaDB.Engine.Core
 
     internal override int ConvertToByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      Array.Copy((Array) BitConverter.GetBytes((float) this.Value), 0, (Array) buffer, offset, RealColumn.SingleSize);
-      return offset + RealColumn.SingleSize;
+      Array.Copy((Array) BitConverter.GetBytes((float) Value), 0, (Array) buffer, offset, SingleSize);
+      return offset + SingleSize;
     }
 
     internal override int ConvertFromByteArray(byte[] buffer, int offset, Row.Column precedenceColumn)
     {
-      this.val = (object) BitConverter.ToSingle(buffer, offset);
-      return offset + RealColumn.SingleSize;
+      val = (object) BitConverter.ToSingle(buffer, offset);
+      return offset + SingleSize;
     }
 
     protected override long Collate(Row.Column col)
     {
-      float num1 = (float) this.Value;
+      float num1 = (float) Value;
       float num2 = (float) col.Value;
       return (double) num1 > (double) num2 ? 1L : ((double) num1 < (double) num2 ? -1L : 0L);
     }
 
     protected override Row.Column DoUnaryMinus()
     {
-      this.Value = (object) (float) -(double) (float) this.Value;
+      Value = (object) (float) -(double) (float) Value;
       return (Row.Column) this;
     }
 
     protected override Row.Column DoMultiplyBy(Row.Column col)
     {
-      this.Value = (object) (float) ((double) (float) this.Value * (double) RealColumn.CustValue(col));
+      Value = (object) (float) ((double) (float) Value * (double)CustValue(col));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoMinus(Row.Column col)
     {
-      this.Value = (object) (float) ((double) (float) this.Value - (double) RealColumn.CustValue(col));
+      Value = (object) (float) ((double) (float) Value - (double)CustValue(col));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoPlus(Row.Column col)
     {
-      this.Value = (object) (float) ((double) (float) this.Value + (double) RealColumn.CustValue(col));
+      Value = (object) (float) ((double) (float) Value + (double)CustValue(col));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoDivideBy(Row.Column denominator)
     {
-      this.Value = (object) (float) ((double) (float) this.Value / (double) RealColumn.CustValue(denominator));
+      Value = (object) (float) ((double) (float) Value / (double)CustValue(denominator));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoGetDividedBy(Row.Column numerator)
     {
-      this.Value = (object) (float) ((double) RealColumn.CustValue(numerator) / (double) (float) this.Value);
+      Value = (object) (float) ((double)CustValue(numerator) / (double) (float) Value);
       return (Row.Column) this;
     }
 
     protected override Row.Column DoModBy(Row.Column denominator)
     {
-      this.Value = (object) (float) ((double) (float) this.Value % (double) RealColumn.CustValue(denominator));
+      Value = (object) (float) ((double) (float) Value % (double)CustValue(denominator));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoGetModBy(Row.Column numerator)
     {
-      this.Value = (object) (float) ((double) RealColumn.CustValue(numerator) % (double) (float) this.Value);
+      Value = (object) (float) ((double)CustValue(numerator) % (double) (float) Value);
       return (Row.Column) this;
     }
   }

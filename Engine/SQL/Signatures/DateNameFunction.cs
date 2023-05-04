@@ -11,28 +11,28 @@ namespace VistaDB.Engine.SQL.Signatures
     public DateNameFunction(SQLParser parser)
       : base(parser, 1)
     {
-      this.parameterTypes[0] = VistaDBType.DateTime;
-      this.dataType = VistaDBType.NChar;
-      this.dateFormatInfo = (DateTimeFormatInfo) null;
+      parameterTypes[0] = VistaDBType.DateTime;
+      dataType = VistaDBType.NChar;
+      dateFormatInfo = (DateTimeFormatInfo) null;
     }
 
     public override SignatureType OnPrepare()
     {
-      this.dateFormatInfo = this.parent.Database.Culture.DateTimeFormat;
+      dateFormatInfo = parent.Database.Culture.DateTimeFormat;
       return base.OnPrepare();
     }
 
     protected override object ExecuteSubProgram()
     {
-      DateTime dateTime = (DateTime) ((IValue) this.paramValues[0]).Value;
-      switch (this.datePart)
+      DateTime dateTime = (DateTime) ((IValue) paramValues[0]).Value;
+      switch (datePart)
       {
         case DatePart.Year:
           return (object) dateTime.Year.ToString();
         case DatePart.Quarter:
           return (object) ((dateTime.Month - 1) / 3 + 1).ToString();
         case DatePart.Month:
-          return (object) this.dateFormatInfo.MonthNames[dateTime.Month - 1];
+          return (object) dateFormatInfo.MonthNames[dateTime.Month - 1];
         case DatePart.DayOfYear:
           return (object) dateTime.DayOfYear.ToString();
         case DatePart.Day:
@@ -40,7 +40,7 @@ namespace VistaDB.Engine.SQL.Signatures
         case DatePart.Week:
           return (object) ((dateTime.DayOfYear - 1) / 7 + 1).ToString();
         case DatePart.WeekDay:
-          return (object) this.dateFormatInfo.DayNames[(int) dateTime.DayOfWeek];
+          return (object) dateFormatInfo.DayNames[(int) dateTime.DayOfWeek];
         case DatePart.Hour:
           return (object) dateTime.Hour.ToString();
         case DatePart.Minute:

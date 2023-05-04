@@ -13,7 +13,7 @@ namespace VistaDB.Engine.SQL
     public CreateTableStatement(LocalSQLConnection connection, Statement parent, SQLParser parser, long id)
       : base(connection, parent, parser, id)
     {
-      this.createInPrepare = !string.IsNullOrEmpty(this.tableName) && this.tableName[0] == '#';
+      createInPrepare = !string.IsNullOrEmpty(tableName) && tableName[0] == '#';
     }
 
     protected override void OnParse(LocalSQLConnection connection, SQLParser parser)
@@ -22,60 +22,60 @@ namespace VistaDB.Engine.SQL
       if (parser.IsToken("DESCRIPTION"))
       {
         parser.SkipToken(true);
-        this.tableDescription = parser.TokenValue.Token;
+        tableDescription = parser.TokenValue.Token;
         parser.SkipToken(true);
       }
-      this.ParseSchema(parser);
+      ParseSchema(parser);
     }
 
     private void ParseSchema(SQLParser parser)
     {
       parser.ExpectedExpression("(");
-      this.ParseColumns(parser);
+      ParseColumns(parser);
       parser.ExpectedExpression(")");
       parser.SkipToken(false);
       if (!parser.IsToken("FOR"))
         return;
       parser.SkipToken(true);
       parser.ExpectedExpression("SYNCHRONIZATION");
-      this.forSync = true;
+      forSync = true;
       parser.SkipToken(false);
     }
 
     protected override VistaDBType OnPrepareQuery()
     {
       int num = (int) base.OnPrepareQuery();
-      if (this.createInPrepare)
+      if (createInPrepare)
       {
-        this.createInPrepare = false;
-        this.OnExecuteQuery();
-        this.createInPrepare = true;
+        createInPrepare = false;
+        OnExecuteQuery();
+        createInPrepare = true;
       }
       return VistaDBType.Unknown;
     }
 
     protected override IQueryResult OnExecuteQuery()
     {
-      if (this.createInPrepare)
+      if (createInPrepare)
         return (IQueryResult) null;
-      if (this.connection.Database == null)
+      if (connection.Database == null)
         throw new VistaDBSQLException(623, string.Empty, 0, 0);
-      using (IVistaDBTableSchema vistaDbTableSchema = this.connection.Database.NewTable(this.tableName))
+      using (IVistaDBTableSchema vistaDbTableSchema = connection.Database.NewTable(tableName))
       {
-        this.AddColumns(vistaDbTableSchema);
-        this.AddConstraints(vistaDbTableSchema);
-        vistaDbTableSchema.Description = this.tableDescription;
+        AddColumns(vistaDbTableSchema);
+        AddConstraints(vistaDbTableSchema);
+        vistaDbTableSchema.Description = tableDescription;
         try
         {
-          using (IVistaDBTable table = this.tableName[0] == '#' ? this.connection.Database.CreateTemporaryTable(vistaDbTableSchema) : this.connection.Database.CreateTable(vistaDbTableSchema, true, false))
-            this.AddForeignKeys(table);
-          if (this.forSync)
-            this.connection.Database.ActivateSyncService(this.tableName);
+          using (IVistaDBTable table = tableName[0] == '#' ? connection.Database.CreateTemporaryTable(vistaDbTableSchema) : connection.Database.CreateTable(vistaDbTableSchema, true, false))
+            AddForeignKeys(table);
+          if (forSync)
+            connection.Database.ActivateSyncService(tableName);
         }
         catch (VistaDBException ex)
         {
-          if (!ex.Contains(145L) && this.connection.Database.ContainsTable(this.tableName))
-            this.connection.Database.DropTable(this.tableName);
+          if (!ex.Contains(145L) && connection.Database.ContainsTable(tableName))
+            connection.Database.DropTable(tableName);
           throw;
         }
       }
@@ -86,14 +86,14 @@ namespace VistaDB.Engine.SQL
     {
       get
       {
-        return this.tableName;
+        return tableName;
       }
     }
 
     internal void CreateUniqueName(string paramName)
     {
-      this.tableName = "#" + (object) '_' + CreateTableStatement.tableIdCounter.ToString() + (object) '_' + paramName;
-      ++CreateTableStatement.tableIdCounter;
+      tableName = "#" + (object) '_' + tableIdCounter.ToString() + (object) '_' + paramName;
+      ++tableIdCounter;
     }
   }
 }

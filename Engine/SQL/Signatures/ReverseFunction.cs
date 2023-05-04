@@ -8,13 +8,13 @@ namespace VistaDB.Engine.SQL.Signatures
     public ReverseFunction(SQLParser parser)
       : base(parser, 1, true)
     {
-      this.dataType = VistaDBType.NChar;
-      this.parameterTypes[0] = VistaDBType.NChar;
+      dataType = VistaDBType.NChar;
+      parameterTypes[0] = VistaDBType.NChar;
     }
 
     protected override object ExecuteSubProgram()
     {
-      string str = (string) ((IValue) this.paramValues[0]).Value;
+      string str = (string) ((IValue) paramValues[0]).Value;
       int length = str.Length;
       StringBuilder stringBuilder = new StringBuilder(length);
       stringBuilder.Length = length;

@@ -16,53 +16,53 @@ namespace VistaDB.Engine.SQL.Signatures
     public SpIndexesFuncion(SQLParser parser)
       : base(parser, 1, 13)
     {
-      this.keyColumnIndex = -1;
-      if (this.ParamCount > 1)
-        throw new VistaDBSQLException(501, "SP_INDEXES", this.lineNo, this.symbolNo);
-      if (this.ParamCount == 1)
-        this.parameterTypes[0] = VistaDBType.NChar;
-      this.resultColumnTypes[0] = VistaDBType.NVarChar;
-      this.resultColumnTypes[1] = VistaDBType.NVarChar;
-      this.resultColumnTypes[2] = VistaDBType.NVarChar;
-      this.resultColumnTypes[3] = VistaDBType.SmallInt;
-      this.resultColumnTypes[4] = VistaDBType.NVarChar;
-      this.resultColumnTypes[5] = VistaDBType.NVarChar;
-      this.resultColumnTypes[6] = VistaDBType.SmallInt;
-      this.resultColumnTypes[7] = VistaDBType.Int;
-      this.resultColumnTypes[8] = VistaDBType.NVarChar;
-      this.resultColumnTypes[9] = VistaDBType.VarChar;
-      this.resultColumnTypes[10] = VistaDBType.Int;
-      this.resultColumnTypes[11] = VistaDBType.Int;
-      this.resultColumnTypes[12] = VistaDBType.NVarChar;
-      this.resultColumnNames[0] = "TABLE_CAT";
-      this.resultColumnNames[1] = "TABLE_SCHEM";
-      this.resultColumnNames[2] = "TABLE_NAME";
-      this.resultColumnNames[3] = "NON_UNIQUE";
-      this.resultColumnNames[4] = "INDEX_QUALIFER";
-      this.resultColumnNames[5] = "INDEX_NAME";
-      this.resultColumnNames[6] = "TYPE";
-      this.resultColumnNames[7] = "ORDINAL_POSITION";
-      this.resultColumnNames[8] = "COLUMN_NAME";
-      this.resultColumnNames[9] = "ASC_OR_DESC";
-      this.resultColumnNames[10] = "PK";
-      this.resultColumnNames[11] = "FullTextSearch";
-      this.resultColumnNames[12] = "KEY_EXPRESSION";
+      keyColumnIndex = -1;
+      if (ParamCount > 1)
+        throw new VistaDBSQLException(501, "SP_INDEXES", lineNo, symbolNo);
+      if (ParamCount == 1)
+        parameterTypes[0] = VistaDBType.NChar;
+      resultColumnTypes[0] = VistaDBType.NVarChar;
+      resultColumnTypes[1] = VistaDBType.NVarChar;
+      resultColumnTypes[2] = VistaDBType.NVarChar;
+      resultColumnTypes[3] = VistaDBType.SmallInt;
+      resultColumnTypes[4] = VistaDBType.NVarChar;
+      resultColumnTypes[5] = VistaDBType.NVarChar;
+      resultColumnTypes[6] = VistaDBType.SmallInt;
+      resultColumnTypes[7] = VistaDBType.Int;
+      resultColumnTypes[8] = VistaDBType.NVarChar;
+      resultColumnTypes[9] = VistaDBType.VarChar;
+      resultColumnTypes[10] = VistaDBType.Int;
+      resultColumnTypes[11] = VistaDBType.Int;
+      resultColumnTypes[12] = VistaDBType.NVarChar;
+      resultColumnNames[0] = "TABLE_CAT";
+      resultColumnNames[1] = "TABLE_SCHEM";
+      resultColumnNames[2] = "TABLE_NAME";
+      resultColumnNames[3] = "NON_UNIQUE";
+      resultColumnNames[4] = "INDEX_QUALIFER";
+      resultColumnNames[5] = "INDEX_NAME";
+      resultColumnNames[6] = "TYPE";
+      resultColumnNames[7] = "ORDINAL_POSITION";
+      resultColumnNames[8] = "COLUMN_NAME";
+      resultColumnNames[9] = "ASC_OR_DESC";
+      resultColumnNames[10] = "PK";
+      resultColumnNames[11] = "FullTextSearch";
+      resultColumnNames[12] = "KEY_EXPRESSION";
     }
 
     private void FillRow(IRow row, IVistaDBIndexInformation indexInfo, int keyColumnIndex)
     {
-      ((IValue) row[0]).Value = (object) Path.GetFileNameWithoutExtension(this.parent.Database.Name);
+      ((IValue) row[0]).Value = (object) Path.GetFileNameWithoutExtension(parent.Database.Name);
       ((IValue) row[1]).Value = (object) (91.ToString() + "DBO" + (object) ']');
-      ((IValue) row[2]).Value = (object) this.tableName;
+      ((IValue) row[2]).Value = (object) tableName;
       ((IValue) row[3]).Value = (object) (short) (indexInfo.Unique ? 0 : 1);
-      ((IValue) row[4]).Value = (object) this.tableName;
+      ((IValue) row[4]).Value = (object) tableName;
       ((IValue) row[5]).Value = (object) indexInfo.Name;
       ((IValue) row[6]).Value = (object) (short) 3;
       ((IValue) row[7]).Value = (object) (keyColumnIndex + 1);
       int rowIndex = indexInfo.KeyStructure[keyColumnIndex].RowIndex;
       bool descending = indexInfo.KeyStructure[keyColumnIndex].Descending;
       this.keyColumnIndex = ++keyColumnIndex < indexInfo.KeyStructure.Length ? keyColumnIndex : -1;
-      ((IValue) row[8]).Value = (object) this.schema[rowIndex].Name;
+      ((IValue) row[8]).Value = (object) schema[rowIndex].Name;
       ((IValue) row[9]).Value = descending ? (object) "D" : (object) "A";
       ((IValue) row[10]).Value = (object) (indexInfo.Primary ? 1 : 0);
       ((IValue) row[11]).Value = (object) (indexInfo.FullTextSearch ? 1 : 0);
@@ -71,42 +71,42 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override object ExecuteSubProgram()
     {
-      this.tableName = ((IValue) this.paramValues[0]).Value as string;
+      tableName = ((IValue) paramValues[0]).Value as string;
       try
       {
-        this.schema = this.parent.Database.TableSchema(this.tableName);
+        schema = parent.Database.TableSchema(tableName);
       }
       catch (VistaDBException ex)
       {
-        throw new VistaDBSQLException((Exception) ex, 572, this.tableName, this.lineNo, this.symbolNo);
+        throw new VistaDBSQLException((Exception) ex, 572, tableName, lineNo, symbolNo);
       }
       catch
       {
         throw;
       }
-      this.enumerator = (IEnumerator) this.schema.Indexes.GetEnumerator();
+      enumerator = (IEnumerator) schema.Indexes.GetEnumerator();
       return (object) null;
     }
 
     public override bool First(IRow row)
     {
-      this.enumerator.Reset();
-      if (!this.enumerator.MoveNext())
+      enumerator.Reset();
+      if (!enumerator.MoveNext())
         return false;
-      IVistaDBIndexInformation current = this.enumerator.Current as IVistaDBIndexInformation;
-      this.FillRow(row, current, 0);
+      IVistaDBIndexInformation current = enumerator.Current as IVistaDBIndexInformation;
+      FillRow(row, current, 0);
       return true;
     }
 
     public override bool GetNextResult(IRow row)
     {
-      if (this.keyColumnIndex < 0)
+      if (keyColumnIndex < 0)
       {
-        if (!this.enumerator.MoveNext())
+        if (!enumerator.MoveNext())
           return false;
-        this.keyColumnIndex = 0;
+        keyColumnIndex = 0;
       }
-      this.FillRow(row, this.enumerator.Current as IVistaDBIndexInformation, this.keyColumnIndex);
+      FillRow(row, enumerator.Current as IVistaDBIndexInformation, keyColumnIndex);
       return true;
     }
 

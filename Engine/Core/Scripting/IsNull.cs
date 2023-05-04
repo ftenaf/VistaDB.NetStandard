@@ -5,11 +5,11 @@ namespace VistaDB.Engine.Core.Scripting
   internal class IsNull : Signature
   {
     internal IsNull(string name, int groupId)
-      : base(name, groupId, Signature.Operations.IsNull, Signature.Priorities.IsBitwise, VistaDBType.Bit)
+      : base(name, groupId, Operations.IsNull, Priorities.IsBitwise, VistaDBType.Bit)
     {
-      this.allowUnaryToFollow = true;
-      this.AddParameter(VistaDBType.Unknown);
-      this.AddParameter(VistaDBType.Unknown);
+      allowUnaryToFollow = true;
+      AddParameter(VistaDBType.Unknown);
+      AddParameter(VistaDBType.Unknown);
     }
 
     protected override void OnExecute(ProcedureCode pcode, int entry, Connection connection, DataStorage contextStorage, Row contextRow, ref bool bypassNextGroup, Row rowResult)

@@ -23,8 +23,8 @@ namespace VistaDB.Engine.Core.Indexing
     {
       this.patternRow = patternRow;
       this.fileManager = fileManager;
-      int num = 33554432 / Band.KeyApartment(patternRow);
-      this.Capacity = maxCapacity > num ? num : maxCapacity / pieces;
+      int num = 33554432 / KeyApartment(patternRow);
+      Capacity = maxCapacity > num ? num : maxCapacity / pieces;
       this.isolated = isolated;
     }
 
@@ -32,7 +32,7 @@ namespace VistaDB.Engine.Core.Indexing
     {
       get
       {
-        return this.keyCount;
+        return keyCount;
       }
     }
 
@@ -40,7 +40,7 @@ namespace VistaDB.Engine.Core.Indexing
     {
       get
       {
-        return this.pieceCount;
+        return pieceCount;
       }
     }
 
@@ -53,106 +53,106 @@ namespace VistaDB.Engine.Core.Indexing
     {
       int length = 0;
       Row precedenceRow = this.precedenceRow;
-      for (int index = 0; index < this.Count; ++index)
+      for (int index = 0; index < Count; ++index)
       {
         Row row = this[index];
         length += row.GetMemoryApartment(precedenceRow);
         precedenceRow = row;
       }
-      if (this.buffer == null || this.buffer.Length < length)
-        this.buffer = new byte[length];
+      if (buffer == null || buffer.Length < length)
+        buffer = new byte[length];
       int num = 0;
-      for (int index = 0; index < this.Count; ++index)
+      for (int index = 0; index < Count; ++index)
       {
         Row row = this[index];
-        num = row.FormatRowBuffer(this.buffer, num, this.precedenceRow);
+        num = row.FormatRowBuffer(buffer, num, this.precedenceRow);
         this.precedenceRow = row;
       }
-      if (this.storageHandle == null)
-        this.storageHandle = this.fileManager.CreateTemporaryStorage(StorageHandle.DEFAULT_SIZE_OF_PAGE, false, this.isolated);
-      this.storageHandle.DirectWriteBuffer(this.buffer, num);
-      this.Clear();
+      if (storageHandle == null)
+        storageHandle = fileManager.CreateTemporaryStorage(StorageHandle.DEFAULT_SIZE_OF_PAGE, false, isolated);
+      storageHandle.DirectWriteBuffer(buffer, num);
+      Clear();
     }
 
     private void ReadFromFile()
     {
-      this.Clear();
-      this.peekIndex = 0;
-      if (this.readOffset == 0)
+      Clear();
+      peekIndex = 0;
+      if (readOffset == 0)
       {
-        int length = (int) this.storageHandle.DirectGetLength();
-        if (this.buffer == null || this.buffer.Length < length)
-          this.buffer = new byte[length];
-        this.storageHandle.DirectReadBuffer(this.buffer, length);
-        this.precedenceRow = (Row) null;
+        int length = (int) storageHandle.DirectGetLength();
+        if (buffer == null || buffer.Length < length)
+          buffer = new byte[length];
+        storageHandle.DirectReadBuffer(buffer, length);
+        precedenceRow = (Row) null;
       }
-      for (int index = 0; index < this.Capacity && this.readOffset < this.buffer.Length; ++index)
+      for (int index = 0; index < Capacity && readOffset < buffer.Length; ++index)
       {
-        Row row = this.patternRow.CopyInstance();
-        this.readOffset = row.UnformatRowBuffer(this.buffer, this.readOffset, this.precedenceRow);
-        this.precedenceRow = row;
-        this.Add(row);
+        Row row = patternRow.CopyInstance();
+        readOffset = row.UnformatRowBuffer(buffer, readOffset, precedenceRow);
+        precedenceRow = row;
+        Add(row);
       }
     }
 
     internal void FlushTailPortion(bool cleanUp)
     {
-      this.WriteToFile();
-      this.storageHandle.DirectSeek(0L, SeekOrigin.Begin);
-      this.readOffset = 0;
-      this.precedenceRow = (Row) null;
+      WriteToFile();
+      storageHandle.DirectSeek(0L, SeekOrigin.Begin);
+      readOffset = 0;
+      precedenceRow = (Row) null;
       if (!cleanUp)
         return;
-      this.buffer = (byte[]) null;
+      buffer = (byte[]) null;
     }
 
     internal Row PeekKey()
     {
-      if (this.keyCount == 0)
+      if (keyCount == 0)
         return (Row) null;
-      if (this.Count == 0 || this.peekIndex == this.Count)
-        this.ReadFromFile();
-      return this[this.peekIndex];
+      if (Count == 0 || peekIndex == Count)
+        ReadFromFile();
+      return this[peekIndex];
     }
 
     internal Row PopKey()
     {
-      if (this.keyCount == 0)
+      if (keyCount == 0)
         return (Row) null;
-      if (this.Count == 0 || this.peekIndex == this.Count)
-        this.ReadFromFile();
-      --this.keyCount;
-      Row row = this[this.peekIndex];
-      this[this.peekIndex] = (Row) null;
-      ++this.peekIndex;
+      if (Count == 0 || peekIndex == Count)
+        ReadFromFile();
+      --keyCount;
+      Row row = this[peekIndex];
+      this[peekIndex] = (Row) null;
+      ++peekIndex;
       return row;
     }
 
     internal void PushKey(Row row)
     {
-      if (this.Count == this.Capacity)
+      if (Count == Capacity)
       {
-        this.WriteToFile();
-        ++this.pieceCount;
+        WriteToFile();
+        ++pieceCount;
       }
-      this.Add(row);
-      ++this.keyCount;
+      Add(row);
+      ++keyCount;
     }
 
     public void Dispose()
     {
-      if (this.isDisposed)
+      if (isDisposed)
         return;
-      this.patternRow = (Row) null;
-      this.buffer = (byte[]) null;
-      this.Clear();
-      if (this.fileManager != null)
+      patternRow = (Row) null;
+      buffer = (byte[]) null;
+      Clear();
+      if (fileManager != null)
       {
-        if (this.storageHandle != null)
-          this.fileManager.CloseStorage(this.storageHandle);
-        this.fileManager = (StorageManager) null;
+        if (storageHandle != null)
+          fileManager.CloseStorage(storageHandle);
+        fileManager = (StorageManager) null;
       }
-      this.isDisposed = true;
+      isDisposed = true;
       GC.SuppressFinalize((object) this);
     }
   }

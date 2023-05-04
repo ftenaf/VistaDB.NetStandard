@@ -7,9 +7,9 @@ namespace VistaDB.Engine.SQL
 {
   internal class AlterTableStatement : BaseCreateTableStatement
   {
-    private AlterTableStatement.AlterType alterType;
-    private BaseCreateTableStatement.ColumnDescr alterColumn;
-    private List<AlterTableStatement.DropItem> dropItems;
+    private AlterType alterType;
+    private ColumnDescr alterColumn;
+    private List<DropItem> dropItems;
     private bool activateSyncService;
 
     public AlterTableStatement(LocalSQLConnection connection, Statement parent, SQLParser parser, long id)
@@ -25,43 +25,43 @@ namespace VistaDB.Engine.SQL
         parser.SkipToken(true);
         if (parser.IsToken("ON"))
         {
-          this.activateSyncService = true;
+          activateSyncService = true;
         }
         else
         {
           parser.ExpectedExpression("OFF");
-          this.activateSyncService = false;
+          activateSyncService = false;
         }
-        this.alterType = AlterTableStatement.AlterType.SyncService;
+        alterType = AlterType.SyncService;
         parser.SkipToken(false);
       }
       else if (parser.IsToken("DESCRIPTION"))
-        this.ParseNewDescription(parser);
+        ParseNewDescription(parser);
       else if (parser.IsToken("ALTER"))
-        this.ParseAlterColumn(parser);
+        ParseAlterColumn(parser);
       else if (parser.IsToken("ADD"))
       {
-        this.ParseAddColumnOrConstraint(parser);
+        ParseAddColumnOrConstraint(parser);
       }
       else
       {
         if (!parser.IsToken("DROP"))
           throw new VistaDBSQLException(507, "DESCRIPTION, ALTER COLUMN, ADD, DROP, SYNCHRONIZATION", parser.TokenValue.RowNo, parser.TokenValue.ColNo);
-        this.ParseDropColumnOrConstraint(parser);
+        ParseDropColumnOrConstraint(parser);
       }
     }
 
     private void ParseNewDescription(SQLParser parser)
     {
-      this.alterType = AlterTableStatement.AlterType.NewDescription;
+      alterType = AlterType.NewDescription;
       parser.SkipToken(true);
-      this.tableDescription = parser.TokenValue.Token;
+      tableDescription = parser.TokenValue.Token;
       parser.SkipToken(false);
     }
 
     private void ParseAlterColumn(SQLParser parser)
     {
-      this.alterType = AlterTableStatement.AlterType.AlterColumn;
+      alterType = AlterType.AlterColumn;
       parser.SkipToken(true);
       parser.ExpectedExpression("COLUMN");
       parser.SkipToken(true);
@@ -81,33 +81,33 @@ namespace VistaDB.Engine.SQL
       string identityStep;
       string caption;
       string description;
-      this.ParseColumnAttributes(out columnName, out dataType, out width, out codePage, out allowNull, out readOnly, out encrypted, out packed, out defaultValue, out setIdentity, out identitySeed, out identityStep, out caption, out description, parser);
-      this.alterColumn = new BaseCreateTableStatement.ColumnDescr((BaseCreateTableStatement) this, rowNo, colNo, columnName, dataType, width, codePage, allowNull, readOnly, encrypted, packed, defaultValue, setIdentity, identitySeed, identityStep, caption, description);
+      ParseColumnAttributes(out columnName, out dataType, out width, out codePage, out allowNull, out readOnly, out encrypted, out packed, out defaultValue, out setIdentity, out identitySeed, out identityStep, out caption, out description, parser);
+      alterColumn = new ColumnDescr((BaseCreateTableStatement) this, rowNo, colNo, columnName, dataType, width, codePage, allowNull, readOnly, encrypted, packed, defaultValue, setIdentity, identitySeed, identityStep, caption, description);
     }
 
     private void ParseAddColumnOrConstraint(SQLParser parser)
     {
-      this.alterType = AlterTableStatement.AlterType.AddColumnOrConstraint;
-      this.ParseColumns(parser);
+      alterType = AlterType.AddColumnOrConstraint;
+      ParseColumns(parser);
     }
 
     private void ParseDropColumnOrConstraint(SQLParser parser)
     {
-      this.alterType = AlterTableStatement.AlterType.DropColumnOrConstraint;
-      this.dropItems = new List<AlterTableStatement.DropItem>();
+      alterType = AlterType.DropColumnOrConstraint;
+      dropItems = new List<DropItem>();
       do
       {
         parser.SkipToken(true);
         if (parser.IsToken("COLUMN"))
         {
           parser.SkipToken(true);
-          this.dropItems.Add(new AlterTableStatement.DropItem(parser.TokenValue.Token, parser.TokenValue.RowNo, parser.TokenValue.ColNo, AlterTableStatement.DropItemType.Column));
+          dropItems.Add(new DropItem(parser.TokenValue.Token, parser.TokenValue.RowNo, parser.TokenValue.ColNo, DropItemType.Column));
         }
         else
         {
           if (parser.IsToken("CONSTRAINT") && parser.TokenValue.TokenType == TokenType.Unknown)
             parser.SkipToken(true);
-          this.dropItems.Add(new AlterTableStatement.DropItem(parser.TokenValue.Token, parser.TokenValue.RowNo, parser.TokenValue.ColNo, AlterTableStatement.DropItemType.Constraint));
+          dropItems.Add(new DropItem(parser.TokenValue.Token, parser.TokenValue.RowNo, parser.TokenValue.ColNo, DropItemType.Constraint));
         }
         parser.SkipToken(false);
       }
@@ -118,69 +118,69 @@ namespace VistaDB.Engine.SQL
     {
       base.OnExecuteQuery();
       List<string> foreignKeys = (List<string>) null;
-      using (IVistaDBTableSchema vistaDbTableSchema = this.Database.TableSchema(this.tableName))
+      using (IVistaDBTableSchema vistaDbTableSchema = Database.TableSchema(tableName))
       {
-        switch (this.alterType)
+        switch (alterType)
         {
-          case AlterTableStatement.AlterType.NewDescription:
-            vistaDbTableSchema.Description = this.tableDescription;
+          case AlterType.NewDescription:
+            vistaDbTableSchema.Description = tableDescription;
             break;
-          case AlterTableStatement.AlterType.AlterColumn:
-            this.AlterColumn(vistaDbTableSchema);
+          case AlterType.AlterColumn:
+            AlterColumn(vistaDbTableSchema);
             break;
-          case AlterTableStatement.AlterType.AddColumnOrConstraint:
-            this.AddColumns(vistaDbTableSchema);
-            this.AddConstraints(vistaDbTableSchema);
+          case AlterType.AddColumnOrConstraint:
+            AddColumns(vistaDbTableSchema);
+            AddConstraints(vistaDbTableSchema);
             break;
-          case AlterTableStatement.AlterType.DropColumnOrConstraint:
-            foreignKeys = this.DropColumnOrConstraint(vistaDbTableSchema);
+          case AlterType.DropColumnOrConstraint:
+            foreignKeys = DropColumnOrConstraint(vistaDbTableSchema);
             break;
-          case AlterTableStatement.AlterType.SyncService:
-            if (this.activateSyncService)
-              this.Database.ActivateSyncService(this.tableName);
+          case AlterType.SyncService:
+            if (activateSyncService)
+              Database.ActivateSyncService(tableName);
             else
-              this.Database.DeactivateSyncService(this.tableName);
+              Database.DeactivateSyncService(tableName);
             return (IQueryResult) null;
         }
-        this.Database.AlterTable(this.tableName, vistaDbTableSchema);
+        Database.AlterTable(tableName, vistaDbTableSchema);
       }
-      if (this.alterType == AlterTableStatement.AlterType.AddColumnOrConstraint)
+      if (alterType == AlterType.AddColumnOrConstraint)
       {
         if (this.foreignKeys.Count > 0)
         {
-          using (IVistaDBTable table = this.Database.OpenTable(this.tableName, false, false))
-            this.AddForeignKeys(table);
+          using (IVistaDBTable table = Database.OpenTable(tableName, false, false))
+            AddForeignKeys(table);
         }
       }
       else
-        this.DropForeignKeys(foreignKeys);
+        DropForeignKeys(foreignKeys);
       return (IQueryResult) null;
     }
 
     private void AlterColumn(IVistaDBTableSchema tableSchema)
     {
-      if (Utils.IsCharacterDataType(this.alterColumn.DataType))
-        tableSchema.AlterColumnType(this.alterColumn.ColumnName, this.alterColumn.DataType, this.alterColumn.Width, this.alterColumn.CodePage);
+      if (Utils.IsCharacterDataType(alterColumn.DataType))
+        tableSchema.AlterColumnType(alterColumn.ColumnName, alterColumn.DataType, alterColumn.Width, alterColumn.CodePage);
       else
-        tableSchema.AlterColumnType(this.alterColumn.ColumnName, this.alterColumn.DataType);
-      tableSchema.DefineColumnAttributes(this.alterColumn.ColumnName, this.alterColumn.AllowNull, this.alterColumn.ReadOnly, this.alterColumn.Encrypted, this.alterColumn.Packed, this.alterColumn.Caption, this.alterColumn.Description);
-      if (this.alterColumn.SetIdentity)
+        tableSchema.AlterColumnType(alterColumn.ColumnName, alterColumn.DataType);
+      tableSchema.DefineColumnAttributes(alterColumn.ColumnName, alterColumn.AllowNull, alterColumn.ReadOnly, alterColumn.Encrypted, alterColumn.Packed, alterColumn.Caption, alterColumn.Description);
+      if (alterColumn.SetIdentity)
       {
-        tableSchema.DefineIdentity(this.alterColumn.ColumnName, this.alterColumn.IdentitySeed, this.alterColumn.IdentityStep);
+        tableSchema.DefineIdentity(alterColumn.ColumnName, alterColumn.IdentitySeed, alterColumn.IdentityStep);
       }
       else
       {
-        if (tableSchema.Identities[this.alterColumn.ColumnName] != null)
-          tableSchema.DropIdentity(this.alterColumn.ColumnName);
-        if (this.alterColumn.DefaultValue != null)
+        if (tableSchema.Identities[alterColumn.ColumnName] != null)
+          tableSchema.DropIdentity(alterColumn.ColumnName);
+        if (alterColumn.DefaultValue != null)
         {
-          tableSchema.DefineDefaultValue(this.alterColumn.ColumnName, this.alterColumn.DefaultValue, this.alterColumn.DefaultValueUseInUpdate, this.alterColumn.DefaultValueDescription);
+          tableSchema.DefineDefaultValue(alterColumn.ColumnName, alterColumn.DefaultValue, alterColumn.DefaultValueUseInUpdate, alterColumn.DefaultValueDescription);
         }
         else
         {
-          if (tableSchema.DefaultValues[this.alterColumn.ColumnName] == null)
+          if (tableSchema.DefaultValues[alterColumn.ColumnName] == null)
             return;
-          tableSchema.DropDefaultValue(this.alterColumn.ColumnName);
+          tableSchema.DropDefaultValue(alterColumn.ColumnName);
         }
       }
     }
@@ -188,14 +188,14 @@ namespace VistaDB.Engine.SQL
     private List<string> DropColumnOrConstraint(IVistaDBTableSchema tableSchema)
     {
       List<string> stringList = new List<string>();
-      foreach (AlterTableStatement.DropItem dropItem in this.dropItems)
+      foreach (DropItem dropItem in dropItems)
       {
         switch (dropItem.Type)
         {
-          case AlterTableStatement.DropItemType.Column:
+          case DropItemType.Column:
             tableSchema.DropColumn(dropItem.Name);
             continue;
-          case AlterTableStatement.DropItemType.Constraint:
+          case DropItemType.Constraint:
             if (tableSchema.Constraints[dropItem.Name] != null)
             {
               tableSchema.DropConstraint(dropItem.Name);
@@ -216,7 +216,7 @@ namespace VistaDB.Engine.SQL
     {
       if (foreignKeys == null || foreignKeys.Count == 0)
         return;
-      using (IVistaDBTable vistaDbTable = this.Database.OpenTable(this.tableName, false, false))
+      using (IVistaDBTable vistaDbTable = Database.OpenTable(tableName, false, false))
       {
         foreach (string foreignKey in foreignKeys)
           vistaDbTable.DropForeignKey(foreignKey);
@@ -228,9 +228,9 @@ namespace VistaDB.Engine.SQL
       private string name;
       private int lineNo;
       private int symbolNo;
-      private AlterTableStatement.DropItemType type;
+      private DropItemType type;
 
-      public DropItem(string name, int lineNo, int symbolNo, AlterTableStatement.DropItemType type)
+      public DropItem(string name, int lineNo, int symbolNo, DropItemType type)
       {
         this.name = name;
         this.lineNo = lineNo;
@@ -242,7 +242,7 @@ namespace VistaDB.Engine.SQL
       {
         get
         {
-          return this.name;
+          return name;
         }
       }
 
@@ -250,7 +250,7 @@ namespace VistaDB.Engine.SQL
       {
         get
         {
-          return this.lineNo;
+          return lineNo;
         }
       }
 
@@ -258,15 +258,15 @@ namespace VistaDB.Engine.SQL
       {
         get
         {
-          return this.symbolNo;
+          return symbolNo;
         }
       }
 
-      public AlterTableStatement.DropItemType Type
+      public DropItemType Type
       {
         get
         {
-          return this.type;
+          return type;
         }
       }
     }

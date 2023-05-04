@@ -13,46 +13,46 @@ namespace VistaDB.Engine.Core.Scripting
     private char[] name;
     private int nameLen;
     private int groupId;
-    private Signature.Operations operation;
+    private Operations operation;
     private VistaDBType returnType;
-    private Signature.Priorities priority;
-    private Signature.Parameters parameters;
+    private Priorities priority;
+    private Parameters parameters;
     private char[] bgnOfGroup;
     private char[] endOfGroup;
     private char[] delimiter;
     private char spaceChar;
     private int endOfGroupEntry;
-    private int bypassToGroup;
+    private readonly int bypassToGroup;
     private int numberOperands;
     protected int unaryOffset;
     protected bool allowUnaryToFollow;
 
-    protected Signature(string name, int groupId, Signature.Operations operation, Signature.Priorities priority, VistaDBType returnType, string bgnOfGroup, string delimiter, char spaceChar, string endOfGroup, int endOfGroupEntry)
+    protected Signature(string name, int groupId, Operations operation, Priorities priority, VistaDBType returnType, string bgnOfGroup, string delimiter, char spaceChar, string endOfGroup, int endOfGroupEntry)
     {
-      this.SetName(name);
+      SetName(name);
       this.groupId = groupId;
       this.operation = operation;
       this.returnType = returnType;
       this.spaceChar = spaceChar;
       this.priority = priority;
-      this.parameters = new Signature.Parameters();
-      this.SetBeginOfGroup(bgnOfGroup);
-      this.SetEndOfGroup(endOfGroup);
-      this.SetDelimiter(delimiter);
+      parameters = new Parameters();
+      SetBeginOfGroup(bgnOfGroup);
+      SetEndOfGroup(endOfGroup);
+      SetDelimiter(delimiter);
       this.endOfGroupEntry = endOfGroupEntry;
     }
 
-    protected Signature(string name, int groupId, Signature.Operations operation, Signature.Priorities priority, VistaDBType returnType)
+    protected Signature(string name, int groupId, Operations operation, Priorities priority, VistaDBType returnType)
       : this(name, groupId, operation, priority, returnType, "(", ",", ' ', ")", 0)
     {
     }
 
-    protected Signature(string name, int groupId, Signature.Operations operation, Signature.Priorities priority, VistaDBType returnType, int endOfGroupId)
+    protected Signature(string name, int groupId, Operations operation, Priorities priority, VistaDBType returnType, int endOfGroupId)
       : this(name, groupId, operation, priority, returnType, "(", ",", ' ', ")", endOfGroupId)
     {
     }
 
-    protected Signature(string name, int groupId, Signature.Operations operation, Signature.Priorities priority, VistaDBType returnType, string bgnOfGroup, string delimiter, char spaceChar, string endOfGroup)
+    protected Signature(string name, int groupId, Operations operation, Priorities priority, VistaDBType returnType, string bgnOfGroup, string delimiter, char spaceChar, string endOfGroup)
       : this(name, groupId, operation, priority, returnType, bgnOfGroup, delimiter, spaceChar, endOfGroup, 0)
     {
     }
@@ -85,9 +85,9 @@ namespace VistaDB.Engine.Core.Scripting
 
     private void SetDelimiter(string delimiter)
     {
-      if (this.endOfGroup == null)
+      if (endOfGroup == null)
       {
-        this.endOfGroup = (char[]) null;
+        endOfGroup = (char[]) null;
       }
       else
       {
@@ -100,7 +100,7 @@ namespace VistaDB.Engine.Core.Scripting
     {
       get
       {
-        return this.bgnOfGroup;
+        return bgnOfGroup;
       }
     }
 
@@ -108,7 +108,7 @@ namespace VistaDB.Engine.Core.Scripting
     {
       get
       {
-        return this.endOfGroup;
+        return endOfGroup;
       }
     }
 
@@ -116,7 +116,7 @@ namespace VistaDB.Engine.Core.Scripting
     {
       get
       {
-        return this.endOfGroupEntry;
+        return endOfGroupEntry;
       }
     }
 
@@ -124,7 +124,7 @@ namespace VistaDB.Engine.Core.Scripting
     {
       get
       {
-        return this.delimiter;
+        return delimiter;
       }
     }
 
@@ -132,7 +132,7 @@ namespace VistaDB.Engine.Core.Scripting
     {
       get
       {
-        return this.spaceChar;
+        return spaceChar;
       }
     }
 
@@ -140,7 +140,7 @@ namespace VistaDB.Engine.Core.Scripting
     {
       get
       {
-        return this.numberOperands;
+        return numberOperands;
       }
     }
 
@@ -148,7 +148,7 @@ namespace VistaDB.Engine.Core.Scripting
     {
       get
       {
-        return this.bypassToGroup;
+        return bypassToGroup;
       }
     }
 
@@ -156,7 +156,7 @@ namespace VistaDB.Engine.Core.Scripting
     {
       get
       {
-        return this.groupId;
+        return groupId;
       }
     }
 
@@ -164,11 +164,11 @@ namespace VistaDB.Engine.Core.Scripting
     {
       get
       {
-        return this.entry;
+        return entry;
       }
       set
       {
-        this.entry = value;
+        entry = value;
       }
     }
 
@@ -176,15 +176,15 @@ namespace VistaDB.Engine.Core.Scripting
     {
       get
       {
-        return this.entry + this.unaryOffset;
+        return entry + unaryOffset;
       }
     }
 
-    internal Signature.Operations Operation
+    internal Operations Operation
     {
       get
       {
-        return this.operation;
+        return operation;
       }
     }
 
@@ -192,7 +192,7 @@ namespace VistaDB.Engine.Core.Scripting
     {
       get
       {
-        return this.name;
+        return name;
       }
     }
 
@@ -200,15 +200,15 @@ namespace VistaDB.Engine.Core.Scripting
     {
       get
       {
-        return this.nameLen;
+        return nameLen;
       }
     }
 
-    internal Signature.Priorities Priority
+    internal Priorities Priority
     {
       get
       {
-        return this.priority;
+        return priority;
       }
     }
 
@@ -216,7 +216,7 @@ namespace VistaDB.Engine.Core.Scripting
     {
       get
       {
-        return this.returnType;
+        return returnType;
       }
     }
 
@@ -224,7 +224,7 @@ namespace VistaDB.Engine.Core.Scripting
     {
       get
       {
-        return this.unaryOffset > 0;
+        return unaryOffset > 0;
       }
     }
 
@@ -232,7 +232,7 @@ namespace VistaDB.Engine.Core.Scripting
     {
       get
       {
-        return this.allowUnaryToFollow;
+        return allowUnaryToFollow;
       }
     }
 
@@ -240,13 +240,13 @@ namespace VistaDB.Engine.Core.Scripting
     {
       get
       {
-        return this.NumberFormalOperands;
+        return NumberFormalOperands;
       }
     }
 
     protected virtual bool OnCompatibleType(int parameterIndex, VistaDBType actualType)
     {
-      VistaDBType parameter = this.parameters[parameterIndex];
+      VistaDBType parameter = parameters[parameterIndex];
       if (parameter != actualType)
         return parameter == VistaDBType.Unknown;
       return true;
@@ -254,7 +254,7 @@ namespace VistaDB.Engine.Core.Scripting
 
     protected virtual void OnFixReturnTypeAndParameters(Collector collector, int offset, VistaDBType newType)
     {
-      this.returnType = newType;
+      returnType = newType;
     }
 
     protected virtual void OnExecute(ProcedureCode pcode, int entry, Connection connection, DataStorage contextStorage, Row contextRow, ref bool bypassNextGroup, Row rowResult)
@@ -263,25 +263,25 @@ namespace VistaDB.Engine.Core.Scripting
 
     internal bool CompatibleType(int parameterIndex, VistaDBType actualType)
     {
-      return this.OnCompatibleType(parameterIndex, actualType);
+      return OnCompatibleType(parameterIndex, actualType);
     }
 
     internal void FixReturnTypeAndParameters(Collector collector, int offset)
     {
-      this.OnFixReturnTypeAndParameters(collector, offset, this.ReturnType);
+      OnFixReturnTypeAndParameters(collector, offset, ReturnType);
     }
 
     internal VistaDBType GetParameterType(int index)
     {
-      return this.parameters[index];
+      return parameters[index];
     }
 
     internal void SetParameterType(int index, VistaDBType type)
     {
       if (index >= 0)
-        this.parameters[index] = type;
+        parameters[index] = type;
       else
-        this.returnType = type;
+        returnType = type;
     }
 
     internal void SetName(string name)
@@ -289,19 +289,19 @@ namespace VistaDB.Engine.Core.Scripting
       if (name == null)
       {
         this.name = (char[]) null;
-        this.nameLen = 0;
+        nameLen = 0;
       }
       else
       {
         this.name = new char[name.Length];
         name.CopyTo(0, this.name, 0, name.Length);
-        this.nameLen = this.name.Length;
+        nameLen = this.name.Length;
       }
     }
 
     internal void AddParameter(VistaDBType type)
     {
-      this.numberOperands = this.parameters.AddParameter(type);
+      numberOperands = parameters.AddParameter(type);
     }
 
     internal int IncludedName(char[] buffer, int offset, CultureInfo culture)
@@ -309,17 +309,17 @@ namespace VistaDB.Engine.Core.Scripting
       if (buffer == null)
         return 0;
       int index = 0;
-      while (index < this.nameLen && index + offset < buffer.Length && char.ToUpper(buffer[index + offset], culture).Equals(this.name[index]))
+      while (index < nameLen && index + offset < buffer.Length && char.ToUpper(buffer[index + offset], culture).Equals(name[index]))
         ++index;
-      if (index != this.nameLen && (index < Signature.MinNameLength || index > this.nameLen))
+      if (index != nameLen && (index < MinNameLength || index > nameLen))
         return 0;
       return index;
     }
 
     internal bool IsSameName(char[] buffer, int offset, CultureInfo culture)
     {
-      if (this.nameLen > 0)
-        return this.IncludedName(buffer, offset, culture) == this.nameLen;
+      if (nameLen > 0)
+        return IncludedName(buffer, offset, culture) == nameLen;
       return false;
     }
 
@@ -327,7 +327,7 @@ namespace VistaDB.Engine.Core.Scripting
     {
       try
       {
-        this.OnExecute(pcode, entry, connection, contextStorage, contextRow, ref bypassNextGroup, rowResult);
+        OnExecute(pcode, entry, connection, contextStorage, contextRow, ref bypassNextGroup, rowResult);
       }
       catch (Exception ex)
       {
@@ -383,8 +383,8 @@ namespace VistaDB.Engine.Core.Scripting
     {
       internal int AddParameter(VistaDBType type)
       {
-        this.Add(type);
-        return this.Count;
+        Add(type);
+        return Count;
       }
     }
   }

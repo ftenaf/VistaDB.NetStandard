@@ -25,47 +25,47 @@ namespace VistaDB.Engine.SQL.Signatures
       : base(parser)
     {
       Statement parent = parser.Parent;
-      this.statement = new SelectStatement(parser.Parent.Connection, parent, parser, 0L);
+      statement = new SelectStatement(parser.Parent.Connection, parent, parser, 0L);
       parser.Parent = parent;
-      this.signatureType = SignatureType.Expression;
-      this.dataType = VistaDBType.Unknown;
-      this.optimizable = false;
-      this.table = (IQueryResult) null;
-      this.tempValue = (IColumn) null;
+      signatureType = SignatureType.Expression;
+      dataType = VistaDBType.Unknown;
+      optimizable = false;
+      table = (IQueryResult) null;
+      tempValue = (IColumn) null;
     }
 
     public override SignatureType OnPrepare()
     {
-      this.dataType = this.statement.PrepareQuery();
-      return this.signatureType;
+      dataType = statement.PrepareQuery();
+      return signatureType;
     }
 
     protected override IColumn InternalExecute()
     {
-      if (this.GetIsChanged())
+      if (GetIsChanged())
       {
-        this.table = this.statement.ExecuteNonLiveQuery();
+        table = statement.ExecuteNonLiveQuery();
         object obj;
         try
         {
-          this.table.FirstRow();
-          obj = !this.table.EndOfTable ? this.table.GetValue(0, VistaDBType.Unknown) : (object) null;
+          table.FirstRow();
+          obj = !table.EndOfTable ? table.GetValue(0, VistaDBType.Unknown) : (object) null;
         }
         finally
         {
-          this.table.Close();
-          this.table = (IQueryResult) null;
+          table.Close();
+          table = (IQueryResult) null;
         }
-        ((IValue) this.result).Value = obj;
+        ((IValue) result).Value = obj;
       }
-      return this.result;
+      return result;
     }
 
     public override void SwitchToTempTable(SourceRow sourceRow, int columnIndex, SelectStatement.ResultColumn resultColumn)
     {
-      if (this.statement == null)
+      if (statement == null)
         return;
-      this.statement.SwitchToTemporaryTable(sourceRow, columnIndex, resultColumn);
+      statement.SwitchToTemporaryTable(sourceRow, columnIndex, resultColumn);
     }
 
     public override bool HasAggregateFunction(out bool distinct)
@@ -77,7 +77,7 @@ namespace VistaDB.Engine.SQL.Signatures
     protected override bool IsEquals(Signature signature)
     {
       if (signature is SubQuerySignature)
-        return this.statement.IsEquals(((SubQuerySignature) signature).statement);
+        return statement.IsEquals(((SubQuerySignature) signature).statement);
       return false;
     }
 
@@ -87,12 +87,12 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public override void SetChanged()
     {
-      this.statement.SetChanged();
+      statement.SetChanged();
     }
 
     public override void ClearChanged()
     {
-      this.statement.ClearChanged();
+      statement.ClearChanged();
     }
 
     public override void GetAggregateFunctions(List<AggregateFunction> list)
@@ -101,21 +101,21 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public bool IsResultPresent()
     {
-      this.table = this.statement.ExecuteNonLiveQuery();
-      this.statement.ClearChanged();
+      table = statement.ExecuteNonLiveQuery();
+      statement.ClearChanged();
       bool flag;
       try
       {
-        flag = this.table.RowCount > 0L;
+        flag = table.RowCount > 0L;
       }
       finally
       {
-        this.table.Close();
-        this.table = (IQueryResult) null;
+        table.Close();
+        table = (IQueryResult) null;
       }
-      if (this.result == null)
-        this.result = this.CreateColumn(VistaDBType.Bit);
-      ((IValue) this.result).Value = (object) flag;
+      if (result == null)
+        result = CreateColumn(VistaDBType.Bit);
+      ((IValue) result).Value = (object) flag;
       return flag;
     }
 
@@ -129,7 +129,7 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override bool InternalGetIsChanged()
     {
-      return this.statement.GetIsChanged();
+      return statement.GetIsChanged();
     }
 
     public override int ColumnCount
@@ -142,33 +142,33 @@ namespace VistaDB.Engine.SQL.Signatures
 
     public bool IsValuePresent(IColumn val)
     {
-      return this.IsValuePresent(val, false, CompareOperation.Equal);
+      return IsValuePresent(val, false, CompareOperation.Equal);
     }
 
     public bool IsValuePresent(IColumn val, bool all, CompareOperation op)
     {
       bool flag = false;
-      if (this.table == null || this.GetIsChanged())
+      if (table == null || GetIsChanged())
       {
-        if (this.table != null)
-          this.table.Close();
-        this.table = this.statement.ExecuteNonLiveQuery();
-        this.statement.ClearChanged();
+        if (table != null)
+          table.Close();
+        table = statement.ExecuteNonLiveQuery();
+        statement.ClearChanged();
       }
-      if (this.result == null)
-        this.result = this.CreateColumn(this.dataType);
-      if (this.tempValue == null)
-        this.tempValue = this.CreateColumn(val.Type);
-      this.table.FirstRow();
-      if (this.table.EndOfTable)
+      if (result == null)
+        result = CreateColumn(dataType);
+      if (tempValue == null)
+        tempValue = CreateColumn(val.Type);
+      table.FirstRow();
+      if (table.EndOfTable)
         return false;
-      while (!this.table.EndOfTable)
+      while (!table.EndOfTable)
       {
-        ((IValue) this.result).Value = this.table.GetValue(0, VistaDBType.Unknown);
-        this.Convert((IValue) this.result, (IValue) this.tempValue);
-        if (Utils.IsCharacterDataType(val.Type) && !this.tempValue.IsNull)
-          ((IValue) this.tempValue).Value = (object) ((string) ((IValue) this.tempValue).Value).TrimEnd();
-        int num = val.Compare((IVistaDBColumn) this.tempValue);
+        ((IValue) result).Value = table.GetValue(0, VistaDBType.Unknown);
+        Convert((IValue) result, (IValue) tempValue);
+        if (Utils.IsCharacterDataType(val.Type) && !tempValue.IsNull)
+          ((IValue) tempValue).Value = (object) ((string) ((IValue) tempValue).Value).TrimEnd();
+        int num = val.Compare((IVistaDBColumn) tempValue);
         switch (op)
         {
           case CompareOperation.Equal:
@@ -194,7 +194,7 @@ namespace VistaDB.Engine.SQL.Signatures
           return false;
         if (!all && flag)
           return true;
-        this.table.NextRow();
+        table.NextRow();
       }
       return all;
     }

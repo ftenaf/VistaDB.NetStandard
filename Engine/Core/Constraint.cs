@@ -33,7 +33,7 @@ namespace VistaDB.Engine.Core
       return (option & 1) == 1;
     }
 
-    internal Constraint(string name, EvalStack evaluation, Filter.FilterType typeId)
+    internal Constraint(string name, EvalStack evaluation, FilterType typeId)
       : base(evaluation, typeId, true, true, (int) typeId)
     {
       this.name = name;
@@ -43,7 +43,7 @@ namespace VistaDB.Engine.Core
     {
       get
       {
-        return this.name;
+        return name;
       }
     }
 

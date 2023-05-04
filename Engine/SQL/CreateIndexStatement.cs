@@ -12,11 +12,10 @@ namespace VistaDB.Engine.SQL
     private bool clustered;
     private string indexName;
     private string tableName;
-    private List<CreateIndexStatement.Column> columns;
+    private List<Column> columns;
     private string expression;
-    private string forExpression;
 
-    public CreateIndexStatement(LocalSQLConnection connection, Statement parent, SQLParser parser, long id)
+        public CreateIndexStatement(LocalSQLConnection connection, Statement parent, SQLParser parser, long id)
       : base(connection, parent, parser, id)
     {
     }
@@ -25,61 +24,61 @@ namespace VistaDB.Engine.SQL
     {
       if (parser.IsToken("FULLTEXT"))
       {
-        this.fullText = true;
+        fullText = true;
         parser.SkipToken(true);
       }
       else
-        this.fullText = false;
+        fullText = false;
       if (parser.IsToken("UNIQUE"))
       {
-        this.unique = true;
+        unique = true;
         parser.SkipToken(true);
       }
       else
-        this.unique = false;
+        unique = false;
       if (parser.IsToken("CLUSTERED"))
       {
-        this.clustered = true;
+        clustered = true;
         parser.SkipToken(true);
       }
       else
       {
-        this.clustered = false;
+        clustered = false;
         if (parser.IsToken("NONCLUSTERED"))
           parser.SkipToken(true);
       }
       parser.ExpectedExpression("INDEX");
       parser.SkipToken(true);
-      if (parser.IsToken("ON") && this.fullText)
+      if (parser.IsToken("ON") && fullText)
       {
-        this.indexName = "_FullTextIndex";
+        indexName = "_FullTextIndex";
       }
       else
       {
-        this.indexName = parser.TokenValue.Token;
+        indexName = parser.TokenValue.Token;
         parser.SkipToken(true);
       }
       parser.ExpectedExpression("ON");
       parser.SkipToken(true);
-      this.tableName = parser.GetTableName((Statement) this);
+      tableName = parser.GetTableName((Statement) this);
       parser.SkipToken(true);
       parser.ExpectedExpression("(");
-      this.ParseColumns(parser);
+      ParseColumns(parser);
       parser.ExpectedExpression(")");
       parser.SkipToken(false);
       if (!parser.IsToken("WITH"))
         return;
       parser.SkipToken(true);
       parser.ExpectedExpression("(");
-      this.ParseWithOptions(parser);
+      ParseWithOptions(parser);
       parser.ExpectedExpression(")");
       parser.SkipToken(false);
     }
 
     private void ParseColumns(SQLParser parser)
     {
-      this.expression = (string) null;
-      this.columns = new List<CreateIndexStatement.Column>();
+      expression = (string) null;
+      columns = new List<Column>();
       do
       {
         parser.SkipToken(true);
@@ -97,39 +96,26 @@ namespace VistaDB.Engine.SQL
           if (parser.IsToken("ASC"))
             parser.SkipToken(true);
         }
-        this.columns.Add(new CreateIndexStatement.Column(token, asc));
+        columns.Add(new Column(token, asc));
       }
       while (parser.IsToken(","));
     }
 
-    private void ParseExpression(SQLParser parser)
-    {
-      this.columns = (List<CreateIndexStatement.Column>) null;
-      parser.SkipToken(true);
-      this.expression = parser.TokenValue.Token;
-      parser.SkipToken(true);
-      if (!parser.IsToken(","))
-        return;
-      parser.SkipToken(true);
-      this.forExpression = parser.TokenValue.Token;
-      parser.SkipToken(true);
-    }
-
-    private void ParseWithOptions(SQLParser parser)
+        private void ParseWithOptions(SQLParser parser)
     {
       parser.SkipToken(true);
       while (!parser.IsToken(")"))
       {
         if (parser.IsToken("("))
         {
-          this.ParseWithOptions(parser);
+          ParseWithOptions(parser);
           parser.ExpectedExpression(")");
           parser.SkipToken(false);
         }
         else
         {
           if (parser.IsToken(";"))
-            throw new VistaDBSQLException(509, "Unrecognized statement separator in the WITH options in CREATE INDEX statement.", this.lineNo, this.symbolNo);
+            throw new VistaDBSQLException(509, "Unrecognized statement separator in the WITH options in CREATE INDEX statement.", lineNo, symbolNo);
           parser.SkipToken(true);
         }
       }
@@ -137,14 +123,14 @@ namespace VistaDB.Engine.SQL
 
     protected override IQueryResult OnExecuteQuery()
     {
-      int num = this.clustered ? 1 : 0;
+      int num = clustered ? 1 : 0;
       base.OnExecuteQuery();
-      using (ITable table = (ITable) this.Database.OpenTable(this.tableName, false, false))
+      using (ITable table = (ITable) Database.OpenTable(tableName, false, false))
       {
-        if (this.fullText)
-          table.CreateFTSIndex(this.indexName, this.GetExpression());
+        if (fullText)
+          table.CreateFTSIndex(indexName, GetExpression());
         else
-          table.CreateIndex(this.indexName, this.GetExpression(), false, this.unique);
+          table.CreateIndex(indexName, GetExpression(), false, unique);
         return (IQueryResult) null;
       }
     }
@@ -152,7 +138,7 @@ namespace VistaDB.Engine.SQL
     private string GetExpression()
     {
       StringBuilder stringBuilder = new StringBuilder();
-      foreach (CreateIndexStatement.Column column in this.columns)
+      foreach (Column column in columns)
       {
         if (stringBuilder.Length > 0)
           stringBuilder.Append(";");
@@ -166,8 +152,8 @@ namespace VistaDB.Engine.SQL
 
     private class Column
     {
-      private string name;
-      private bool asc;
+      private readonly string name;
+      private readonly bool asc;
 
       public Column(string name, bool asc)
       {
@@ -179,7 +165,7 @@ namespace VistaDB.Engine.SQL
       {
         get
         {
-          return this.name;
+          return name;
         }
       }
 
@@ -187,7 +173,7 @@ namespace VistaDB.Engine.SQL
       {
         get
         {
-          return this.asc;
+          return asc;
         }
       }
     }

@@ -8,13 +8,13 @@ namespace VistaDB.Engine.SQL.Signatures
     public SpaceFunction(SQLParser parser)
       : base(parser, 1, true)
     {
-      this.dataType = VistaDBType.NVarChar;
-      this.parameterTypes[0] = VistaDBType.Int;
+      dataType = VistaDBType.NVarChar;
+      parameterTypes[0] = VistaDBType.Int;
     }
 
     protected override object ExecuteSubProgram()
     {
-      int capacity = (int) ((IValue) this.paramValues[0]).Value;
+      int capacity = (int) ((IValue) paramValues[0]).Value;
       StringBuilder stringBuilder = new StringBuilder(capacity);
       stringBuilder.Length = capacity;
       for (int index = 0; index < capacity; ++index)

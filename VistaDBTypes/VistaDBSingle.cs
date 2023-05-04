@@ -8,7 +8,7 @@
 
     public VistaDBSingle(float val)
     {
-      this.Value = (object) val;
+      Value = (object) val;
     }
 
     public override object Value
@@ -41,22 +41,22 @@
 
     public float GetValueOrDefault()
     {
-      if (this.HasValue)
-        return (float) this.Value;
+      if (HasValue)
+        return (float) Value;
       return 0.0f;
     }
 
     public float GetValueOrDefault(float defaultValue)
     {
-      if (this.HasValue)
-        return (float) this.Value;
+      if (HasValue)
+        return (float) Value;
       return defaultValue;
     }
 
     public float GetValueOrDefault(VistaDBSingle defaultValue)
     {
-      if (this.HasValue)
-        return (float) this.Value;
+      if (HasValue)
+        return (float) Value;
       return (float) defaultValue.Value;
     }
   }

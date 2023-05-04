@@ -9,92 +9,92 @@ namespace VistaDB.Engine.Core
   internal class CrossConversion : IConversion
   {
     private static readonly IFormatProvider numberFormat = (IFormatProvider) CultureInfo.InvariantCulture.NumberFormat;
-    private static readonly CrossConversion.ConversionMethod[] methods = new CrossConversion.ConversionMethod[CrossConversion.CreateEntry(VistaDBType.Unknown, VistaDBType.Unknown) + 1];
+    private static readonly ConversionMethod[] methods = new ConversionMethod[CreateEntry(VistaDBType.Unknown, VistaDBType.Unknown) + 1];
     private CultureInfo culture;
 
     public static IFormatProvider NumberFormat
     {
       get
       {
-        return CrossConversion.numberFormat;
+        return numberFormat;
       }
     }
 
     static CrossConversion()
     {
-      CrossConversion.SetMethod(VistaDBType.NChar, VistaDBType.TinyInt, new CrossConversion.ConversionMethod(CrossConversion.NCharToByte));
-      CrossConversion.SetMethod(VistaDBType.NChar, VistaDBType.SmallInt, new CrossConversion.ConversionMethod(CrossConversion.NCharToInt16));
-      CrossConversion.SetMethod(VistaDBType.NChar, VistaDBType.Int, new CrossConversion.ConversionMethod(CrossConversion.NCharToInt32));
-      CrossConversion.SetMethod(VistaDBType.NChar, VistaDBType.BigInt, new CrossConversion.ConversionMethod(CrossConversion.NCharToInt64));
-      CrossConversion.SetMethod(VistaDBType.NChar, VistaDBType.Real, new CrossConversion.ConversionMethod(CrossConversion.NCharToSingle));
-      CrossConversion.SetMethod(VistaDBType.NChar, VistaDBType.Float, new CrossConversion.ConversionMethod(CrossConversion.NCharToDouble));
-      CrossConversion.SetMethod(VistaDBType.NChar, VistaDBType.Decimal, new CrossConversion.ConversionMethod(CrossConversion.NCharToDecimal));
-      CrossConversion.SetMethod(VistaDBType.NChar, VistaDBType.DateTime, new CrossConversion.ConversionMethod(CrossConversion.NCharToDateTime));
-      CrossConversion.SetMethod(VistaDBType.NChar, VistaDBType.UniqueIdentifier, new CrossConversion.ConversionMethod(CrossConversion.NCharToGuid));
-      CrossConversion.SetMethod(VistaDBType.NChar, VistaDBType.VarBinary, new CrossConversion.ConversionMethod(CrossConversion.NCharToVarBinary));
-      CrossConversion.SetMethod(VistaDBType.NChar, VistaDBType.Bit, new CrossConversion.ConversionMethod(CrossConversion.NCharToBit));
-      CrossConversion.SetMethod(VistaDBType.TinyInt, VistaDBType.NChar, new CrossConversion.ConversionMethod(CrossConversion.ByteToNChar));
-      CrossConversion.SetMethod(VistaDBType.TinyInt, VistaDBType.SmallInt, new CrossConversion.ConversionMethod(CrossConversion.ByteToInt16));
-      CrossConversion.SetMethod(VistaDBType.TinyInt, VistaDBType.Int, new CrossConversion.ConversionMethod(CrossConversion.ByteToInt32));
-      CrossConversion.SetMethod(VistaDBType.TinyInt, VistaDBType.BigInt, new CrossConversion.ConversionMethod(CrossConversion.ByteToInt64));
-      CrossConversion.SetMethod(VistaDBType.TinyInt, VistaDBType.Real, new CrossConversion.ConversionMethod(CrossConversion.ByteToSingle));
-      CrossConversion.SetMethod(VistaDBType.TinyInt, VistaDBType.Float, new CrossConversion.ConversionMethod(CrossConversion.ByteToDouble));
-      CrossConversion.SetMethod(VistaDBType.TinyInt, VistaDBType.Decimal, new CrossConversion.ConversionMethod(CrossConversion.ByteToDecimal));
-      CrossConversion.SetMethod(VistaDBType.TinyInt, VistaDBType.Bit, new CrossConversion.ConversionMethod(CrossConversion.ByteToBoolean));
-      CrossConversion.SetMethod(VistaDBType.SmallInt, VistaDBType.NChar, new CrossConversion.ConversionMethod(CrossConversion.Int16ToNChar));
-      CrossConversion.SetMethod(VistaDBType.SmallInt, VistaDBType.TinyInt, new CrossConversion.ConversionMethod(CrossConversion.Int16ToByte));
-      CrossConversion.SetMethod(VistaDBType.SmallInt, VistaDBType.Int, new CrossConversion.ConversionMethod(CrossConversion.Int16ToInt32));
-      CrossConversion.SetMethod(VistaDBType.SmallInt, VistaDBType.BigInt, new CrossConversion.ConversionMethod(CrossConversion.Int16ToInt64));
-      CrossConversion.SetMethod(VistaDBType.SmallInt, VistaDBType.Real, new CrossConversion.ConversionMethod(CrossConversion.Int16ToSingle));
-      CrossConversion.SetMethod(VistaDBType.SmallInt, VistaDBType.Float, new CrossConversion.ConversionMethod(CrossConversion.Int16ToDouble));
-      CrossConversion.SetMethod(VistaDBType.SmallInt, VistaDBType.Decimal, new CrossConversion.ConversionMethod(CrossConversion.Int16ToDecimal));
-      CrossConversion.SetMethod(VistaDBType.SmallInt, VistaDBType.Bit, new CrossConversion.ConversionMethod(CrossConversion.Int16ToBoolean));
-      CrossConversion.SetMethod(VistaDBType.Int, VistaDBType.NChar, new CrossConversion.ConversionMethod(CrossConversion.Int32ToNChar));
-      CrossConversion.SetMethod(VistaDBType.Int, VistaDBType.TinyInt, new CrossConversion.ConversionMethod(CrossConversion.Int32ToByte));
-      CrossConversion.SetMethod(VistaDBType.Int, VistaDBType.SmallInt, new CrossConversion.ConversionMethod(CrossConversion.Int32ToInt16));
-      CrossConversion.SetMethod(VistaDBType.Int, VistaDBType.BigInt, new CrossConversion.ConversionMethod(CrossConversion.Int32ToInt64));
-      CrossConversion.SetMethod(VistaDBType.Int, VistaDBType.Real, new CrossConversion.ConversionMethod(CrossConversion.Int32ToSingle));
-      CrossConversion.SetMethod(VistaDBType.Int, VistaDBType.Float, new CrossConversion.ConversionMethod(CrossConversion.Int32ToDouble));
-      CrossConversion.SetMethod(VistaDBType.Int, VistaDBType.Decimal, new CrossConversion.ConversionMethod(CrossConversion.Int32ToDecimal));
-      CrossConversion.SetMethod(VistaDBType.Int, VistaDBType.Bit, new CrossConversion.ConversionMethod(CrossConversion.Int32ToBoolean));
-      CrossConversion.SetMethod(VistaDBType.BigInt, VistaDBType.NChar, new CrossConversion.ConversionMethod(CrossConversion.Int64ToNChar));
-      CrossConversion.SetMethod(VistaDBType.BigInt, VistaDBType.TinyInt, new CrossConversion.ConversionMethod(CrossConversion.Int64ToByte));
-      CrossConversion.SetMethod(VistaDBType.BigInt, VistaDBType.SmallInt, new CrossConversion.ConversionMethod(CrossConversion.Int64ToInt16));
-      CrossConversion.SetMethod(VistaDBType.BigInt, VistaDBType.Int, new CrossConversion.ConversionMethod(CrossConversion.Int64ToInt32));
-      CrossConversion.SetMethod(VistaDBType.BigInt, VistaDBType.Real, new CrossConversion.ConversionMethod(CrossConversion.Int64ToSingle));
-      CrossConversion.SetMethod(VistaDBType.BigInt, VistaDBType.Float, new CrossConversion.ConversionMethod(CrossConversion.Int64ToDouble));
-      CrossConversion.SetMethod(VistaDBType.BigInt, VistaDBType.Decimal, new CrossConversion.ConversionMethod(CrossConversion.Int64ToDecimal));
-      CrossConversion.SetMethod(VistaDBType.BigInt, VistaDBType.Bit, new CrossConversion.ConversionMethod(CrossConversion.Int64ToBoolean));
-      CrossConversion.SetMethod(VistaDBType.BigInt, VistaDBType.VarBinary, new CrossConversion.ConversionMethod(CrossConversion.BigIntToVarBinary));
-      CrossConversion.SetMethod(VistaDBType.Real, VistaDBType.NChar, new CrossConversion.ConversionMethod(CrossConversion.SingleToNChar));
-      CrossConversion.SetMethod(VistaDBType.Real, VistaDBType.TinyInt, new CrossConversion.ConversionMethod(CrossConversion.SingleToByte));
-      CrossConversion.SetMethod(VistaDBType.Real, VistaDBType.SmallInt, new CrossConversion.ConversionMethod(CrossConversion.SingleToInt16));
-      CrossConversion.SetMethod(VistaDBType.Real, VistaDBType.Int, new CrossConversion.ConversionMethod(CrossConversion.SingleToInt32));
-      CrossConversion.SetMethod(VistaDBType.Real, VistaDBType.BigInt, new CrossConversion.ConversionMethod(CrossConversion.SingleToInt64));
-      CrossConversion.SetMethod(VistaDBType.Real, VistaDBType.Float, new CrossConversion.ConversionMethod(CrossConversion.SingleToDouble));
-      CrossConversion.SetMethod(VistaDBType.Real, VistaDBType.Decimal, new CrossConversion.ConversionMethod(CrossConversion.SingleToDecimal));
-      CrossConversion.SetMethod(VistaDBType.Float, VistaDBType.NChar, new CrossConversion.ConversionMethod(CrossConversion.DoubleToNChar));
-      CrossConversion.SetMethod(VistaDBType.Float, VistaDBType.TinyInt, new CrossConversion.ConversionMethod(CrossConversion.DoubleToByte));
-      CrossConversion.SetMethod(VistaDBType.Float, VistaDBType.SmallInt, new CrossConversion.ConversionMethod(CrossConversion.DoubleToInt16));
-      CrossConversion.SetMethod(VistaDBType.Float, VistaDBType.Int, new CrossConversion.ConversionMethod(CrossConversion.DoubleToInt32));
-      CrossConversion.SetMethod(VistaDBType.Float, VistaDBType.BigInt, new CrossConversion.ConversionMethod(CrossConversion.DoubleToInt64));
-      CrossConversion.SetMethod(VistaDBType.Float, VistaDBType.Real, new CrossConversion.ConversionMethod(CrossConversion.DoubleToSingle));
-      CrossConversion.SetMethod(VistaDBType.Float, VistaDBType.Decimal, new CrossConversion.ConversionMethod(CrossConversion.DoubleToDecimal));
-      CrossConversion.SetMethod(VistaDBType.Decimal, VistaDBType.NChar, new CrossConversion.ConversionMethod(CrossConversion.DecimalToNChar));
-      CrossConversion.SetMethod(VistaDBType.Decimal, VistaDBType.TinyInt, new CrossConversion.ConversionMethod(CrossConversion.DecimalToByte));
-      CrossConversion.SetMethod(VistaDBType.Decimal, VistaDBType.SmallInt, new CrossConversion.ConversionMethod(CrossConversion.DecimalToInt16));
-      CrossConversion.SetMethod(VistaDBType.Decimal, VistaDBType.Int, new CrossConversion.ConversionMethod(CrossConversion.DecimalToInt32));
-      CrossConversion.SetMethod(VistaDBType.Decimal, VistaDBType.BigInt, new CrossConversion.ConversionMethod(CrossConversion.DecimalToInt64));
-      CrossConversion.SetMethod(VistaDBType.Decimal, VistaDBType.Real, new CrossConversion.ConversionMethod(CrossConversion.DecimalToSingle));
-      CrossConversion.SetMethod(VistaDBType.Decimal, VistaDBType.Float, new CrossConversion.ConversionMethod(CrossConversion.DecimalToDouble));
-      CrossConversion.SetMethod(VistaDBType.Bit, VistaDBType.NChar, new CrossConversion.ConversionMethod(CrossConversion.BooleanToNChar));
-      CrossConversion.SetMethod(VistaDBType.Bit, VistaDBType.TinyInt, new CrossConversion.ConversionMethod(CrossConversion.BooleanToByte));
-      CrossConversion.SetMethod(VistaDBType.Bit, VistaDBType.SmallInt, new CrossConversion.ConversionMethod(CrossConversion.BooleanToInt16));
-      CrossConversion.SetMethod(VistaDBType.Bit, VistaDBType.Int, new CrossConversion.ConversionMethod(CrossConversion.BooleanToInt32));
-      CrossConversion.SetMethod(VistaDBType.Bit, VistaDBType.BigInt, new CrossConversion.ConversionMethod(CrossConversion.BooleanToInt64));
-      CrossConversion.SetMethod(VistaDBType.DateTime, VistaDBType.NChar, new CrossConversion.ConversionMethod(CrossConversion.DateTimeToNChar));
-      CrossConversion.SetMethod(VistaDBType.UniqueIdentifier, VistaDBType.NChar, new CrossConversion.ConversionMethod(CrossConversion.GuidToNChar));
-      CrossConversion.SetMethod(VistaDBType.VarBinary, VistaDBType.BigInt, new CrossConversion.ConversionMethod(CrossConversion.VarBinaryToBigInt));
+            SetMethod(VistaDBType.NChar, VistaDBType.TinyInt, new ConversionMethod(NCharToByte));
+            SetMethod(VistaDBType.NChar, VistaDBType.SmallInt, new ConversionMethod(NCharToInt16));
+            SetMethod(VistaDBType.NChar, VistaDBType.Int, new ConversionMethod(NCharToInt32));
+            SetMethod(VistaDBType.NChar, VistaDBType.BigInt, new ConversionMethod(NCharToInt64));
+            SetMethod(VistaDBType.NChar, VistaDBType.Real, new ConversionMethod(NCharToSingle));
+            SetMethod(VistaDBType.NChar, VistaDBType.Float, new ConversionMethod(NCharToDouble));
+            SetMethod(VistaDBType.NChar, VistaDBType.Decimal, new ConversionMethod(NCharToDecimal));
+            SetMethod(VistaDBType.NChar, VistaDBType.DateTime, new ConversionMethod(NCharToDateTime));
+            SetMethod(VistaDBType.NChar, VistaDBType.UniqueIdentifier, new ConversionMethod(NCharToGuid));
+            SetMethod(VistaDBType.NChar, VistaDBType.VarBinary, new ConversionMethod(NCharToVarBinary));
+            SetMethod(VistaDBType.NChar, VistaDBType.Bit, new ConversionMethod(NCharToBit));
+            SetMethod(VistaDBType.TinyInt, VistaDBType.NChar, new ConversionMethod(ByteToNChar));
+            SetMethod(VistaDBType.TinyInt, VistaDBType.SmallInt, new ConversionMethod(ByteToInt16));
+            SetMethod(VistaDBType.TinyInt, VistaDBType.Int, new ConversionMethod(ByteToInt32));
+            SetMethod(VistaDBType.TinyInt, VistaDBType.BigInt, new ConversionMethod(ByteToInt64));
+            SetMethod(VistaDBType.TinyInt, VistaDBType.Real, new ConversionMethod(ByteToSingle));
+            SetMethod(VistaDBType.TinyInt, VistaDBType.Float, new ConversionMethod(ByteToDouble));
+            SetMethod(VistaDBType.TinyInt, VistaDBType.Decimal, new ConversionMethod(ByteToDecimal));
+            SetMethod(VistaDBType.TinyInt, VistaDBType.Bit, new ConversionMethod(ByteToBoolean));
+            SetMethod(VistaDBType.SmallInt, VistaDBType.NChar, new ConversionMethod(Int16ToNChar));
+            SetMethod(VistaDBType.SmallInt, VistaDBType.TinyInt, new ConversionMethod(Int16ToByte));
+            SetMethod(VistaDBType.SmallInt, VistaDBType.Int, new ConversionMethod(Int16ToInt32));
+            SetMethod(VistaDBType.SmallInt, VistaDBType.BigInt, new ConversionMethod(Int16ToInt64));
+            SetMethod(VistaDBType.SmallInt, VistaDBType.Real, new ConversionMethod(Int16ToSingle));
+            SetMethod(VistaDBType.SmallInt, VistaDBType.Float, new ConversionMethod(Int16ToDouble));
+            SetMethod(VistaDBType.SmallInt, VistaDBType.Decimal, new ConversionMethod(Int16ToDecimal));
+            SetMethod(VistaDBType.SmallInt, VistaDBType.Bit, new ConversionMethod(Int16ToBoolean));
+            SetMethod(VistaDBType.Int, VistaDBType.NChar, new ConversionMethod(Int32ToNChar));
+            SetMethod(VistaDBType.Int, VistaDBType.TinyInt, new ConversionMethod(Int32ToByte));
+            SetMethod(VistaDBType.Int, VistaDBType.SmallInt, new ConversionMethod(Int32ToInt16));
+            SetMethod(VistaDBType.Int, VistaDBType.BigInt, new ConversionMethod(Int32ToInt64));
+            SetMethod(VistaDBType.Int, VistaDBType.Real, new ConversionMethod(Int32ToSingle));
+            SetMethod(VistaDBType.Int, VistaDBType.Float, new ConversionMethod(Int32ToDouble));
+            SetMethod(VistaDBType.Int, VistaDBType.Decimal, new ConversionMethod(Int32ToDecimal));
+            SetMethod(VistaDBType.Int, VistaDBType.Bit, new ConversionMethod(Int32ToBoolean));
+            SetMethod(VistaDBType.BigInt, VistaDBType.NChar, new ConversionMethod(Int64ToNChar));
+            SetMethod(VistaDBType.BigInt, VistaDBType.TinyInt, new ConversionMethod(Int64ToByte));
+            SetMethod(VistaDBType.BigInt, VistaDBType.SmallInt, new ConversionMethod(Int64ToInt16));
+            SetMethod(VistaDBType.BigInt, VistaDBType.Int, new ConversionMethod(Int64ToInt32));
+            SetMethod(VistaDBType.BigInt, VistaDBType.Real, new ConversionMethod(Int64ToSingle));
+            SetMethod(VistaDBType.BigInt, VistaDBType.Float, new ConversionMethod(Int64ToDouble));
+            SetMethod(VistaDBType.BigInt, VistaDBType.Decimal, new ConversionMethod(Int64ToDecimal));
+            SetMethod(VistaDBType.BigInt, VistaDBType.Bit, new ConversionMethod(Int64ToBoolean));
+            SetMethod(VistaDBType.BigInt, VistaDBType.VarBinary, new ConversionMethod(BigIntToVarBinary));
+            SetMethod(VistaDBType.Real, VistaDBType.NChar, new ConversionMethod(SingleToNChar));
+            SetMethod(VistaDBType.Real, VistaDBType.TinyInt, new ConversionMethod(SingleToByte));
+            SetMethod(VistaDBType.Real, VistaDBType.SmallInt, new ConversionMethod(SingleToInt16));
+            SetMethod(VistaDBType.Real, VistaDBType.Int, new ConversionMethod(SingleToInt32));
+            SetMethod(VistaDBType.Real, VistaDBType.BigInt, new ConversionMethod(SingleToInt64));
+            SetMethod(VistaDBType.Real, VistaDBType.Float, new ConversionMethod(SingleToDouble));
+            SetMethod(VistaDBType.Real, VistaDBType.Decimal, new ConversionMethod(SingleToDecimal));
+            SetMethod(VistaDBType.Float, VistaDBType.NChar, new ConversionMethod(DoubleToNChar));
+            SetMethod(VistaDBType.Float, VistaDBType.TinyInt, new ConversionMethod(DoubleToByte));
+            SetMethod(VistaDBType.Float, VistaDBType.SmallInt, new ConversionMethod(DoubleToInt16));
+            SetMethod(VistaDBType.Float, VistaDBType.Int, new ConversionMethod(DoubleToInt32));
+            SetMethod(VistaDBType.Float, VistaDBType.BigInt, new ConversionMethod(DoubleToInt64));
+            SetMethod(VistaDBType.Float, VistaDBType.Real, new ConversionMethod(DoubleToSingle));
+            SetMethod(VistaDBType.Float, VistaDBType.Decimal, new ConversionMethod(DoubleToDecimal));
+            SetMethod(VistaDBType.Decimal, VistaDBType.NChar, new ConversionMethod(DecimalToNChar));
+            SetMethod(VistaDBType.Decimal, VistaDBType.TinyInt, new ConversionMethod(DecimalToByte));
+            SetMethod(VistaDBType.Decimal, VistaDBType.SmallInt, new ConversionMethod(DecimalToInt16));
+            SetMethod(VistaDBType.Decimal, VistaDBType.Int, new ConversionMethod(DecimalToInt32));
+            SetMethod(VistaDBType.Decimal, VistaDBType.BigInt, new ConversionMethod(DecimalToInt64));
+            SetMethod(VistaDBType.Decimal, VistaDBType.Real, new ConversionMethod(DecimalToSingle));
+            SetMethod(VistaDBType.Decimal, VistaDBType.Float, new ConversionMethod(DecimalToDouble));
+            SetMethod(VistaDBType.Bit, VistaDBType.NChar, new ConversionMethod(BooleanToNChar));
+            SetMethod(VistaDBType.Bit, VistaDBType.TinyInt, new ConversionMethod(BooleanToByte));
+            SetMethod(VistaDBType.Bit, VistaDBType.SmallInt, new ConversionMethod(BooleanToInt16));
+            SetMethod(VistaDBType.Bit, VistaDBType.Int, new ConversionMethod(BooleanToInt32));
+            SetMethod(VistaDBType.Bit, VistaDBType.BigInt, new ConversionMethod(BooleanToInt64));
+            SetMethod(VistaDBType.DateTime, VistaDBType.NChar, new ConversionMethod(DateTimeToNChar));
+            SetMethod(VistaDBType.UniqueIdentifier, VistaDBType.NChar, new ConversionMethod(GuidToNChar));
+            SetMethod(VistaDBType.VarBinary, VistaDBType.BigInt, new ConversionMethod(VarBinaryToBigInt));
     }
 
     internal CrossConversion(CultureInfo culture)
@@ -107,9 +107,9 @@ namespace VistaDB.Engine.Core
       return (int) ((VistaDBType) ((int) srcType << 8) | dstType);
     }
 
-    private static void SetMethod(VistaDBType srcType, VistaDBType dstType, CrossConversion.ConversionMethod method)
+    private static void SetMethod(VistaDBType srcType, VistaDBType dstType, ConversionMethod method)
     {
-      CrossConversion.methods[CrossConversion.CreateEntry(srcType, dstType)] = method;
+            methods[CreateEntry(srcType, dstType)] = method;
     }
 
     private static void NCharToByte(IValue srcValue, IValue dstValue, CultureInfo culture)
@@ -138,7 +138,7 @@ namespace VistaDB.Engine.Core
       {
         string s = ((string) srcValue.Value).TrimEnd();
         if (s.Length > 0)
-          dstValue.Value = (object) short.Parse(s, NumberStyles.Integer, CrossConversion.numberFormat);
+          dstValue.Value = (object) short.Parse(s, NumberStyles.Integer, numberFormat);
         else
           dstValue.Value = (object) (short) 0;
       }
@@ -154,7 +154,7 @@ namespace VistaDB.Engine.Core
       {
         string s = ((string) srcValue.Value).TrimEnd();
         if (s.Length > 0)
-          dstValue.Value = (object) int.Parse(s, CrossConversion.numberFormat);
+          dstValue.Value = (object) int.Parse(s, numberFormat);
         else
           dstValue.Value = (object) 0;
       }
@@ -170,7 +170,7 @@ namespace VistaDB.Engine.Core
       {
         string s = ((string) srcValue.Value).TrimEnd();
         if (s.Length > 0)
-          dstValue.Value = (object) long.Parse(s, NumberStyles.Integer, CrossConversion.numberFormat);
+          dstValue.Value = (object) long.Parse(s, NumberStyles.Integer, numberFormat);
         else
           dstValue.Value = (object) 0L;
       }
@@ -186,7 +186,7 @@ namespace VistaDB.Engine.Core
       {
         string s = ((string) srcValue.Value).TrimEnd();
         if (s.Length > 0)
-          dstValue.Value = (object) float.Parse(s, CrossConversion.numberFormat);
+          dstValue.Value = (object) float.Parse(s, numberFormat);
         else
           dstValue.Value = (object) 0.0f;
       }
@@ -204,7 +204,7 @@ namespace VistaDB.Engine.Core
         if (s.Length > 0)
         {
           double result;
-          if (!double.TryParse(s, NumberStyles.Any, CrossConversion.numberFormat, out result))
+          if (!double.TryParse(s, NumberStyles.Any, numberFormat, out result))
             throw new VistaDBException(302, srcValue.Type.ToString() + " to " + dstValue.Type.ToString());
           dstValue.Value = (object) result;
         }
@@ -225,7 +225,7 @@ namespace VistaDB.Engine.Core
         if (s.Length <= 0)
           throw new VistaDBException(302, srcValue.Type.ToString() + " to " + dstValue.Type.ToString());
         Decimal result;
-        if (!Decimal.TryParse(s, NumberStyles.Any, CrossConversion.numberFormat, out result))
+        if (!Decimal.TryParse(s, NumberStyles.Any, numberFormat, out result))
           throw new VistaDBException(302, srcValue.Type.ToString() + " to " + dstValue.Type.ToString());
         dstValue.Value = (object) result;
       }
@@ -268,7 +268,7 @@ namespace VistaDB.Engine.Core
       {
         string s = ((string) srcValue.Value).TrimEnd();
         if (s.Length > 0)
-          dstValue.Value = (object) (long.Parse(s, NumberStyles.Integer, CrossConversion.numberFormat) > 0L);
+          dstValue.Value = (object) (long.Parse(s, NumberStyles.Integer, numberFormat) > 0L);
         else
           dstValue.Value = (object) false;
       }
@@ -325,7 +325,7 @@ namespace VistaDB.Engine.Core
     private static void Int16ToNChar(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) ((short) obj).ToString(CrossConversion.numberFormat);
+      dstValue.Value = obj == null ? obj : (object) ((short) obj).ToString(numberFormat);
     }
 
     private static void Int16ToByte(IValue srcValue, IValue dstValue, CultureInfo culture)
@@ -373,7 +373,7 @@ namespace VistaDB.Engine.Core
     private static void Int32ToNChar(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) ((int) obj).ToString(CrossConversion.numberFormat);
+      dstValue.Value = obj == null ? obj : (object) ((int) obj).ToString(numberFormat);
     }
 
     private static void Int32ToByte(IValue srcValue, IValue dstValue, CultureInfo culture)
@@ -421,7 +421,7 @@ namespace VistaDB.Engine.Core
     private static void Int64ToNChar(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) ((long) obj).ToString(CrossConversion.numberFormat);
+      dstValue.Value = obj == null ? obj : (object) ((long) obj).ToString(numberFormat);
     }
 
     private static void Int64ToByte(IValue srcValue, IValue dstValue, CultureInfo culture)
@@ -469,7 +469,7 @@ namespace VistaDB.Engine.Core
     private static void SingleToNChar(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) ((float) obj).ToString(CrossConversion.numberFormat);
+      dstValue.Value = obj == null ? obj : (object) ((float) obj).ToString(numberFormat);
     }
 
     private static void SingleToByte(IValue srcValue, IValue dstValue, CultureInfo culture)
@@ -511,7 +511,7 @@ namespace VistaDB.Engine.Core
     private static void DoubleToNChar(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) ((double) obj).ToString(CrossConversion.numberFormat);
+      dstValue.Value = obj == null ? obj : (object) ((double) obj).ToString(numberFormat);
     }
 
     private static void DoubleToByte(IValue srcValue, IValue dstValue, CultureInfo culture)
@@ -553,7 +553,7 @@ namespace VistaDB.Engine.Core
     private static void DecimalToNChar(IValue srcValue, IValue dstValue, CultureInfo culture)
     {
       object obj = srcValue.Value;
-      dstValue.Value = obj == null ? obj : (object) ((Decimal) obj).ToString(CrossConversion.numberFormat);
+      dstValue.Value = obj == null ? obj : (object) ((Decimal) obj).ToString(numberFormat);
     }
 
     private static void DecimalToByte(IValue srcValue, IValue dstValue, CultureInfo culture)
@@ -645,10 +645,10 @@ namespace VistaDB.Engine.Core
       dstValue.Value = (object) BitConverter.GetBytes((long) srcValue.Value);
     }
 
-    internal static CrossConversion.ConversionMethod Method(VistaDBType srcType, VistaDBType dstType)
+    internal static ConversionMethod Method(VistaDBType srcType, VistaDBType dstType)
     {
-      int entry = CrossConversion.CreateEntry(srcType, dstType);
-      return CrossConversion.methods[entry];
+      int entry = CreateEntry(srcType, dstType);
+      return methods[entry];
     }
 
     public void Convert(IValue srcValue, IValue dstValue)
@@ -665,16 +665,16 @@ namespace VistaDB.Engine.Core
       }
       else
       {
-        CrossConversion.ConversionMethod conversionMethod = CrossConversion.Method(srcValue.InternalType, dstValue.InternalType);
+                ConversionMethod conversionMethod = Method(srcValue.InternalType, dstValue.InternalType);
         if (conversionMethod == null)
           throw new VistaDBException(302, srcValue.Type.ToString() + " to " + dstValue.Type.ToString());
-        conversionMethod(srcValue, dstValue, this.culture);
+        conversionMethod(srcValue, dstValue, culture);
       }
     }
 
     bool IConversion.ExistConvertion(VistaDBType srcType, VistaDBType dstType)
     {
-      return CrossConversion.Method(srcType, dstType) != null;
+      return Method(srcType, dstType) != null;
     }
 
     internal delegate void ConversionMethod(IValue srcValue, IValue dstValue, CultureInfo culture);

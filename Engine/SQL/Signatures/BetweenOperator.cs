@@ -18,73 +18,73 @@ namespace VistaDB.Engine.SQL.Signatures
     public BetweenOperator(Signature expression, SQLParser parser)
       : base(parser)
     {
-      this.signatureType = SignatureType.Expression;
-      this.dataType = VistaDBType.Bit;
+      signatureType = SignatureType.Expression;
+      dataType = VistaDBType.Bit;
       this.expression = expression;
-      this.beginExpression = parser.NextSignature(true, true, 2);
+      beginExpression = parser.NextSignature(true, true, 2);
       parser.ExpectedExpression("AND");
-      this.endExpression = parser.NextSignature(true, true, 2);
-      this.beginValue = (IColumn) null;
-      this.endValue = (IColumn) null;
+      endExpression = parser.NextSignature(true, true, 2);
+      beginValue = (IColumn) null;
+      endValue = (IColumn) null;
     }
 
     public override SignatureType OnPrepare()
     {
-      this.expression = ConstantSignature.PrepareAndCheckConstant(this.expression, VistaDBType.Unknown);
-      this.beginExpression = ConstantSignature.PrepareAndCheckConstant(this.beginExpression, VistaDBType.Unknown);
-      this.endExpression = ConstantSignature.PrepareAndCheckConstant(this.endExpression, VistaDBType.Unknown);
-      VistaDBType maxDataType1 = Utils.GetMaxDataType(this.expression.DataType, this.beginExpression.DataType);
-      VistaDBType maxDataType2 = Utils.GetMaxDataType(this.expression.DataType, this.endExpression.DataType);
-      if (!Utils.CompatibleTypes(this.expression.DataType, maxDataType1) || !Utils.CompatibleTypes(this.expression.DataType, maxDataType2) || (!Utils.CompatibleTypes(this.beginExpression.DataType, maxDataType1) || !Utils.CompatibleTypes(this.endExpression.DataType, maxDataType2)))
-        throw new VistaDBSQLException(558, "BETWEEN", this.lineNo, this.symbolNo);
-      this.CalcOptimizeLevel();
-      this.beginValue = this.CreateColumn(maxDataType1);
-      this.endValue = this.CreateColumn(maxDataType2);
-      this.expValue1 = this.CreateColumn(maxDataType1);
-      this.expValue2 = maxDataType1 == maxDataType2 ? this.expValue1 : this.CreateColumn(maxDataType2);
-      if ((this.expression.SignatureType == SignatureType.Constant || this.expression.AlwaysNull) && (this.beginExpression.SignatureType == SignatureType.Constant || this.beginExpression.AlwaysNull) && (this.endExpression.SignatureType == SignatureType.Constant || this.endExpression.AlwaysNull))
+      expression = ConstantSignature.PrepareAndCheckConstant(expression, VistaDBType.Unknown);
+      beginExpression = ConstantSignature.PrepareAndCheckConstant(beginExpression, VistaDBType.Unknown);
+      endExpression = ConstantSignature.PrepareAndCheckConstant(endExpression, VistaDBType.Unknown);
+      VistaDBType maxDataType1 = Utils.GetMaxDataType(expression.DataType, beginExpression.DataType);
+      VistaDBType maxDataType2 = Utils.GetMaxDataType(expression.DataType, endExpression.DataType);
+      if (!Utils.CompatibleTypes(expression.DataType, maxDataType1) || !Utils.CompatibleTypes(expression.DataType, maxDataType2) || (!Utils.CompatibleTypes(beginExpression.DataType, maxDataType1) || !Utils.CompatibleTypes(endExpression.DataType, maxDataType2)))
+        throw new VistaDBSQLException(558, "BETWEEN", lineNo, symbolNo);
+      CalcOptimizeLevel();
+      beginValue = CreateColumn(maxDataType1);
+      endValue = CreateColumn(maxDataType2);
+      expValue1 = CreateColumn(maxDataType1);
+      expValue2 = maxDataType1 == maxDataType2 ? expValue1 : CreateColumn(maxDataType2);
+      if ((expression.SignatureType == SignatureType.Constant || expression.AlwaysNull) && (beginExpression.SignatureType == SignatureType.Constant || beginExpression.AlwaysNull) && (endExpression.SignatureType == SignatureType.Constant || endExpression.AlwaysNull))
         return SignatureType.Constant;
-      return this.signatureType;
+      return signatureType;
     }
 
     private void CalcOptimizeLevel()
     {
-      if (!this.expression.Optimizable || !this.beginExpression.Optimizable || !this.endExpression.Optimizable)
+      if (!expression.Optimizable || !beginExpression.Optimizable || !endExpression.Optimizable)
       {
-        this.optimizable = false;
+        optimizable = false;
       }
       else
       {
-        switch (this.expression.SignatureType)
+        switch (expression.SignatureType)
         {
           case SignatureType.Constant:
           case SignatureType.Column:
           case SignatureType.Parameter:
           case SignatureType.ExternalColumn:
-            switch (this.beginExpression.SignatureType)
+            switch (beginExpression.SignatureType)
             {
               case SignatureType.Constant:
               case SignatureType.Column:
               case SignatureType.Parameter:
               case SignatureType.ExternalColumn:
-                switch (this.endExpression.SignatureType)
+                switch (endExpression.SignatureType)
                 {
                   case SignatureType.Constant:
                   case SignatureType.Column:
                   case SignatureType.Parameter:
                   case SignatureType.ExternalColumn:
-                    this.optimizable = true;
+                    optimizable = true;
                     return;
                   default:
-                    this.optimizable = false;
+                    optimizable = false;
                     return;
                 }
               default:
-                this.optimizable = false;
+                optimizable = false;
                 return;
             }
           default:
-            this.optimizable = false;
+            optimizable = false;
             break;
         }
       }
@@ -92,31 +92,31 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override bool OnOptimize(ConstraintOperations constrainOperations)
     {
-      if (this.expression.SignatureType == SignatureType.Column)
-        return constrainOperations.AddLogicalBetween((ColumnSignature) this.expression, this.beginExpression, this.endExpression, false);
+      if (expression.SignatureType == SignatureType.Column)
+        return constrainOperations.AddLogicalBetween((ColumnSignature) expression, beginExpression, endExpression, false);
       return false;
     }
 
     protected override IColumn InternalExecute()
     {
-      if (this.GetIsChanged())
+      if (GetIsChanged())
       {
-        IColumn column1 = this.expression.Execute();
-        IColumn column2 = this.beginExpression.Execute();
-        IColumn column3 = this.endExpression.Execute();
+        IColumn column1 = expression.Execute();
+        IColumn column2 = beginExpression.Execute();
+        IColumn column3 = endExpression.Execute();
         bool flag = !column1.IsNull && !column2.IsNull && !column3.IsNull;
         if (flag)
         {
-          this.Convert((IValue) column2, (IValue) this.beginValue);
-          this.Convert((IValue) column3, (IValue) this.endValue);
-          this.Convert((IValue) column1, (IValue) this.expValue1);
-          if (!object.ReferenceEquals((object) this.expValue1, (object) this.expValue2))
-            this.Convert((IValue) column1, (IValue) this.expValue2);
-          flag = this.ProcessResult(this.expValue1.Compare((IVistaDBColumn) this.beginValue) >= 0 && this.expValue2.Compare((IVistaDBColumn) this.endValue) <= 0);
+          Convert((IValue) column2, (IValue) beginValue);
+          Convert((IValue) column3, (IValue) endValue);
+          Convert((IValue) column1, (IValue) expValue1);
+          if (!ReferenceEquals((object) expValue1, (object) expValue2))
+            Convert((IValue) column1, (IValue) expValue2);
+          flag = ProcessResult(expValue1.Compare((IVistaDBColumn) beginValue) >= 0 && expValue2.Compare((IVistaDBColumn) endValue) <= 0);
         }
-        ((IValue) this.result).Value = (object) flag;
+        ((IValue) result).Value = (object) flag;
       }
-      return this.result;
+      return result;
     }
 
     protected virtual bool ProcessResult(bool result)
@@ -126,47 +126,47 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override bool IsEquals(Signature signature)
     {
-      if (signature.GetType() != this.GetType())
+      if (signature.GetType() != GetType())
         return false;
       BetweenOperator betweenOperator = (BetweenOperator) signature;
-      if (this.expression == betweenOperator.expression && this.beginExpression == betweenOperator.beginExpression)
-        return this.endExpression == betweenOperator.endExpression;
+      if (expression == betweenOperator.expression && beginExpression == betweenOperator.beginExpression)
+        return endExpression == betweenOperator.endExpression;
       return false;
     }
 
     protected override void RelinkParameters(Signature signature, ref int columnCount)
     {
-      this.expression = this.expression.Relink(signature, ref columnCount);
-      this.beginExpression = this.beginExpression.Relink(signature, ref columnCount);
-      this.endExpression = this.endExpression.Relink(signature, ref columnCount);
+      expression = expression.Relink(signature, ref columnCount);
+      beginExpression = beginExpression.Relink(signature, ref columnCount);
+      endExpression = endExpression.Relink(signature, ref columnCount);
     }
 
     public override void SetChanged()
     {
-      this.expression.SetChanged();
-      this.beginExpression.SetChanged();
-      this.endExpression.SetChanged();
+      expression.SetChanged();
+      beginExpression.SetChanged();
+      endExpression.SetChanged();
     }
 
     public override void ClearChanged()
     {
-      this.expression.ClearChanged();
-      this.beginExpression.ClearChanged();
-      this.endExpression.ClearChanged();
+      expression.ClearChanged();
+      beginExpression.ClearChanged();
+      endExpression.ClearChanged();
     }
 
     protected override bool InternalGetIsChanged()
     {
-      if (!this.expression.GetIsChanged() && !this.beginExpression.GetIsChanged())
-        return this.endExpression.GetIsChanged();
+      if (!expression.GetIsChanged() && !beginExpression.GetIsChanged())
+        return endExpression.GetIsChanged();
       return true;
     }
 
     public override void GetAggregateFunctions(List<AggregateFunction> list)
     {
-      this.expression.GetAggregateFunctions(list);
-      this.beginExpression.GetAggregateFunctions(list);
-      this.endExpression.GetAggregateFunctions(list);
+      expression.GetAggregateFunctions(list);
+      beginExpression.GetAggregateFunctions(list);
+      endExpression.GetAggregateFunctions(list);
     }
 
     public override bool HasAggregateFunction(out bool distinct)
@@ -174,7 +174,7 @@ namespace VistaDB.Engine.SQL.Signatures
       bool distinct1;
       bool distinct2;
       bool distinct3;
-      bool flag = this.expression.HasAggregateFunction(out distinct1) | this.beginExpression.HasAggregateFunction(out distinct2) | this.endExpression.HasAggregateFunction(out distinct3);
+      bool flag = expression.HasAggregateFunction(out distinct1) | beginExpression.HasAggregateFunction(out distinct2) | endExpression.HasAggregateFunction(out distinct3);
       distinct = distinct1 || distinct2 || distinct3;
       return flag;
     }
@@ -183,7 +183,7 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        return this.expression.ColumnCount + this.beginExpression.ColumnCount + this.endExpression.ColumnCount;
+        return expression.ColumnCount + beginExpression.ColumnCount + endExpression.ColumnCount;
       }
     }
 
@@ -191,8 +191,8 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        if (!this.expression.AlwaysNull && !this.beginExpression.AlwaysNull)
-          return this.endExpression.AlwaysNull;
+        if (!expression.AlwaysNull && !beginExpression.AlwaysNull)
+          return endExpression.AlwaysNull;
         return true;
       }
     }
@@ -201,8 +201,8 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       get
       {
-        if (!this.expression.IsNull && !this.beginExpression.IsNull)
-          return this.endExpression.IsNull;
+        if (!expression.IsNull && !beginExpression.IsNull)
+          return endExpression.IsNull;
         return true;
       }
     }

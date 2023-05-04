@@ -17,28 +17,28 @@ namespace VistaDB.Engine.SQL.Signatures
     internal LookupFunction(SQLParser parser)
       : base(parser, 4, true)
     {
-      this.skipNull = false;
-      this.dataType = VistaDBType.Unknown;
-      this.parameterTypes[0] = VistaDBType.VarChar;
-      this.parameterTypes[1] = VistaDBType.VarChar;
-      this.parameterTypes[2] = VistaDBType.VarChar;
-      this.parameterTypes[3] = VistaDBType.Unknown;
+      skipNull = false;
+      dataType = VistaDBType.Unknown;
+      parameterTypes[0] = VistaDBType.VarChar;
+      parameterTypes[1] = VistaDBType.VarChar;
+      parameterTypes[2] = VistaDBType.VarChar;
+      parameterTypes[3] = VistaDBType.Unknown;
     }
 
     public override SignatureType OnPrepare()
     {
-      this.tableName = this.parameters[0].Text;
-      this.indexColumnName = this.parameters[1].Text;
-      this.resultColumnName = this.parameters[2].Text;
-      this[3] = ConstantSignature.PrepareAndCheckConstant(this[3], this.parameterTypes[3]);
+      tableName = parameters[0].Text;
+      indexColumnName = parameters[1].Text;
+      resultColumnName = parameters[2].Text;
+      this[3] = ConstantSignature.PrepareAndCheckConstant(this[3], parameterTypes[3]);
       try
       {
-        this.db = VistaDBContext.DDAChannel.CurrentDatabase;
-        if (this.db == null)
+        db = VistaDBContext.DDAChannel.CurrentDatabase;
+        if (db == null)
           throw new ArgumentException("Could not open database in Lookup function");
       }
-      catch (ArgumentException ex)
-      {
+      catch (ArgumentException)
+            {
         throw;
       }
       catch (Exception ex)
@@ -47,79 +47,79 @@ namespace VistaDB.Engine.SQL.Signatures
       }
       try
       {
-        this.table = this.db.OpenTable(this.tableName, false, true);
-        if (this.table == null)
-          throw new ArgumentException("Could not open table " + this.tableName + " in Lookup function");
+        table = db.OpenTable(tableName, false, true);
+        if (table == null)
+          throw new ArgumentException("Could not open table " + tableName + " in Lookup function");
       }
-      catch (ArgumentException ex)
-      {
+      catch (ArgumentException)
+            {
         throw;
       }
       catch (Exception ex)
       {
-        if (this.table != null)
-          this.table.Close();
-        throw new ArgumentException("Could not open table " + this.tableName + " in Lookup function", ex);
+        if (table != null)
+          table.Close();
+        throw new ArgumentException("Could not open table " + tableName + " in Lookup function", ex);
       }
       try
       {
-        this.table.First();
-        IVistaDBValue vistaDbValue = this.table.Get(this.indexColumnName);
+        table.First();
+        IVistaDBValue vistaDbValue = table.Get(indexColumnName);
         if (vistaDbValue == null)
         {
-          this.table.Close();
-          throw new ArgumentException("Could not find index column " + this.indexColumnName + " in Lookup function");
+          table.Close();
+          throw new ArgumentException("Could not find index column " + indexColumnName + " in Lookup function");
         }
-        this.indexType = vistaDbValue.Type;
+        indexType = vistaDbValue.Type;
       }
-      catch (ArgumentException ex)
-      {
+      catch (ArgumentException)
+            {
         throw;
       }
       catch (Exception ex)
       {
-        if (this.table != null)
-          this.table.Close();
-        throw new ArgumentException("Could not find index column " + this.indexColumnName + " in Lookup function", ex);
+        if (table != null)
+          table.Close();
+        throw new ArgumentException("Could not find index column " + indexColumnName + " in Lookup function", ex);
       }
       VistaDBType type;
       try
       {
-        IVistaDBValue vistaDbValue = this.table.Get(this.resultColumnName);
+        IVistaDBValue vistaDbValue = table.Get(resultColumnName);
         if (vistaDbValue == null)
-          throw new ArgumentException("Could not find result column " + this.resultColumnName + " in Lookup function");
+          throw new ArgumentException("Could not find result column " + resultColumnName + " in Lookup function");
         type = vistaDbValue.Type;
       }
-      catch (ArgumentException ex)
-      {
+      catch (ArgumentException)
+            {
         throw;
       }
       catch (Exception ex)
       {
-        throw new ArgumentException("Could not find result column " + this.resultColumnName + " in Lookup function", ex);
+        throw new ArgumentException("Could not find result column " + resultColumnName + " in Lookup function", ex);
       }
       finally
       {
-        if (this.table != null)
-          this.table.Close();
+        if (table != null)
+          table.Close();
       }
-      this.dataType = type;
-      this.result = this.CreateColumn(this.dataType);
-      this.parameterTypes[3] = this.indexType;
-      this.paramValues[3] = this.CreateColumn(this.indexType);
-      this.cache = CacheFactory.Instance.GetColumnCache(this.db, this.tableName, this.indexColumnName, this.indexType, this.resultColumnName);
+      dataType = type;
+      result = CreateColumn(dataType);
+      parameterTypes[3] = indexType;
+      paramValues[3] = CreateColumn(indexType);
+      cache = CacheFactory.Instance.GetColumnCache(db, tableName, indexColumnName, indexType, resultColumnName);
       return SignatureType.ExternalColumn;
     }
 
     protected override IColumn InternalExecute()
     {
-      ((IValue) this.result).Value = this.cache.GetValue(((IValue) this[3].Execute()).Value);
-      return this.result;
+      ((IValue) result).Value = cache.GetValue(((IValue) this[3].Execute()).Value);
+      return result;
     }
 
     protected override object ExecuteSubProgram()
     {
-      return ((IValue) this.result).Value;
+      return ((IValue) result).Value;
     }
   }
 }

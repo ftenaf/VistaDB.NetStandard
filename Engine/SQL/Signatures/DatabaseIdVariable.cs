@@ -7,18 +7,18 @@ namespace VistaDB.Engine.SQL.Signatures
     internal DatabaseIdVariable(SQLParser parser)
       : base(parser)
     {
-      this.dataType = VistaDBType.UniqueIdentifier;
+      dataType = VistaDBType.UniqueIdentifier;
     }
 
     protected override IColumn InternalExecute()
     {
-      ((IValue) this.result).Value = (object) this.parent.Database.VersionGuid;
-      return this.result;
+      ((IValue) result).Value = (object) parent.Database.VersionGuid;
+      return result;
     }
 
     public override SignatureType OnPrepare()
     {
-      return this.signatureType;
+      return signatureType;
     }
 
     protected override bool InternalGetIsChanged()

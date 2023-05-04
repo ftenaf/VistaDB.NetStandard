@@ -26,12 +26,12 @@ namespace VistaDB.Engine.Core
     }
 
     internal BigIntColumn()
-      : base((object) null, VistaDBType.BigInt, BigIntColumn.LongSize)
+      : base((object) null, VistaDBType.BigInt, LongSize)
     {
     }
 
     internal BigIntColumn(long val)
-      : base((object) val, VistaDBType.BigInt, BigIntColumn.LongSize)
+      : base((object) val, VistaDBType.BigInt, LongSize)
     {
     }
 
@@ -84,8 +84,8 @@ namespace VistaDB.Engine.Core
       if (precedenceColumn != (Row.Column) null)
       {
         bool inverted;
-        len = this.CalcPackedLength((long) this.val - (long) precedenceColumn.Value, out inverted, out difference);
-        if (len > BigIntColumn.LongSize)
+        len = CalcPackedLength((long) val - (long) precedenceColumn.Value, out inverted, out difference);
+        if (len > LongSize)
         {
           --len;
           buffer[offset++] = (byte) len;
@@ -100,8 +100,8 @@ namespace VistaDB.Engine.Core
       }
       else
       {
-        difference = (ulong) (long) this.Value;
-        len = BigIntColumn.LongSize;
+        difference = (ulong) (long) Value;
+        len = LongSize;
       }
       return VdbBitConverter.GetBytes(difference, buffer, offset, len);
     }
@@ -110,24 +110,24 @@ namespace VistaDB.Engine.Core
     {
       if (precedenceColumn == (Row.Column) null)
       {
-        this.val = (object) BitConverter.ToInt64(buffer, offset);
-        return offset + BigIntColumn.LongSize;
+        val = (object) BitConverter.ToInt64(buffer, offset);
+        return offset + LongSize;
       }
       int length = ((int) buffer[offset] & 15) + 1;
-      if (length > BigIntColumn.LongSize)
+      if (length > LongSize)
       {
-        this.val = (object) ((long) precedenceColumn.Value + BitConverter.ToInt64(buffer, ++offset));
-        return offset + BigIntColumn.LongSize;
+        val = (object) ((long) precedenceColumn.Value + BitConverter.ToInt64(buffer, ++offset));
+        return offset + LongSize;
       }
       if (this.compressingArray == null)
-        this.compressingArray = new byte[BigIntColumn.LongSize];
+        this.compressingArray = new byte[LongSize];
       byte[] compressingArray = this.compressingArray;
-      Array.Clear((Array) compressingArray, 0, BigIntColumn.LongSize);
+      Array.Clear((Array) compressingArray, 0, LongSize);
       Array.Copy((Array) buffer, offset, (Array) compressingArray, 0, length);
       ulong num = BitConverter.ToUInt64(compressingArray, 0) >> 5;
       if (((int) buffer[offset] & 16) == 16)
         num = ~num;
-      this.val = (object) ((long) precedenceColumn.Value + (long) num);
+      val = (object) ((long) precedenceColumn.Value + (long) num);
       return offset + length;
     }
 
@@ -135,11 +135,11 @@ namespace VistaDB.Engine.Core
     {
       if (precedenceColumn == (Row.Column) null || precedenceColumn.IsNull)
         return base.GetBufferLength(precedenceColumn);
-      if (!this.IsNull)
+      if (!IsNull)
       {
         bool inverted;
         ulong difference;
-        return this.CalcPackedLength((long) this.val - (long) precedenceColumn.Value, out inverted, out difference);
+        return CalcPackedLength((long) val - (long) precedenceColumn.Value, out inverted, out difference);
       }
       return 0;
     }
@@ -158,80 +158,80 @@ namespace VistaDB.Engine.Core
 
     protected override long Collate(Row.Column col)
     {
-      long num1 = (long) this.Value;
+      long num1 = (long) Value;
       long num2 = (long) col.Value;
       return num1 > num2 ? 1L : (num1 < num2 ? -1L : 0L);
     }
 
     protected override Row.Column DoUnaryMinus()
     {
-      this.Value = (object) -(long) this.Value;
+      Value = (object) -(long) Value;
       return (Row.Column) this;
     }
 
     protected override Row.Column DoMinus(Row.Column col)
     {
-      this.Value = (object) ((long) this.Value - BigIntColumn.CustValue(col));
+      Value = (object) ((long) Value - CustValue(col));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoPlus(Row.Column col)
     {
-      this.Value = (object) ((long) this.Value + BigIntColumn.CustValue(col));
+      Value = (object) ((long) Value + CustValue(col));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoMultiplyBy(Row.Column col)
     {
-      this.Value = (object) ((long) this.Value * BigIntColumn.CustValue(col));
+      Value = (object) ((long) Value * CustValue(col));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoDivideBy(Row.Column denominator)
     {
-      this.Value = (object) ((long) this.Value / BigIntColumn.CustValue(denominator));
+      Value = (object) ((long) Value / CustValue(denominator));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoGetDividedBy(Row.Column numerator)
     {
-      this.Value = (object) (BigIntColumn.CustValue(numerator) / (long) this.Value);
+      Value = (object) (CustValue(numerator) / (long) Value);
       return (Row.Column) this;
     }
 
     protected override Row.Column DoModBy(Row.Column denominator)
     {
-      this.Value = (object) ((long) this.Value % BigIntColumn.CustValue(denominator));
+      Value = (object) ((long) Value % CustValue(denominator));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoGetModBy(Row.Column numerator)
     {
-      this.Value = (object) (BigIntColumn.CustValue(numerator) % (long) this.Value);
+      Value = (object) (CustValue(numerator) % (long) Value);
       return (Row.Column) this;
     }
 
     protected override Row.Column DoBitwiseNot()
     {
-      this.Value = (object) ~(long) this.Value;
+      Value = (object) ~(long) Value;
       return (Row.Column) this;
     }
 
     protected override Row.Column DoBitwiseAnd(Row.Column denominator)
     {
-      this.Value = (object) ((long) this.Value & BigIntColumn.CustValue(denominator));
+      Value = (object) ((long) Value & CustValue(denominator));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoBitwiseOr(Row.Column denominator)
     {
-      this.Value = (object) ((long) this.Value | BigIntColumn.CustValue(denominator));
+      Value = (object) ((long) Value | CustValue(denominator));
       return (Row.Column) this;
     }
 
     protected override Row.Column DoBitwiseXor(Row.Column denominator)
     {
-      this.Value = (object) ((long) this.Value ^ BigIntColumn.CustValue(denominator));
+      Value = (object) ((long) Value ^ CustValue(denominator));
       return (Row.Column) this;
     }
 

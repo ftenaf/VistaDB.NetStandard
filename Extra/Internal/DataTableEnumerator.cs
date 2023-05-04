@@ -10,7 +10,7 @@ namespace VistaDB.Extra.Internal
     public DataTableEnumerator(VistaDBDataTable parent)
     {
       this.parent = parent;
-      this.Reset();
+      Reset();
     }
 
     public object Current
@@ -23,9 +23,9 @@ namespace VistaDB.Extra.Internal
 
     public bool MoveNext()
     {
-      if (this.rowPos >= this.parent.Count - 2)
+      if (rowPos >= parent.Count - 2)
         return false;
-      ++this.rowPos;
+      ++rowPos;
       return true;
     }
 

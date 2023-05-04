@@ -10,7 +10,7 @@ namespace VistaDB.Provider
     {
     }
 
-    public VistaDBCommand Command
+    new public VistaDBCommand Command
     {
       get
       {

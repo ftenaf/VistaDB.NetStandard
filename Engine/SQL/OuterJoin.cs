@@ -14,8 +14,8 @@ namespace VistaDB.Engine.SQL
 
     public override IRowSet PrepareTables(IVistaDBTableNameCollection tableNames, IViewList views, TableCollection tableList, bool alwaysAllowNull, ref int tableIndex)
     {
-      this.leftRowSet = this.leftRowSet.PrepareTables(tableNames, views, tableList, alwaysAllowNull, ref tableIndex);
-      this.rightRowSet = this.rightRowSet.PrepareTables(tableNames, views, tableList, true, ref tableIndex);
+      leftRowSet = leftRowSet.PrepareTables(tableNames, views, tableList, alwaysAllowNull, ref tableIndex);
+      rightRowSet = rightRowSet.PrepareTables(tableNames, views, tableList, true, ref tableIndex);
       return (IRowSet) this;
     }
 

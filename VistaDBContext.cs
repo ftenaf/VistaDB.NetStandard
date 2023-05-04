@@ -17,7 +17,7 @@ namespace VistaDB
       {
         get
         {
-          return VistaDBContext.SQLChannel.sqlContext.Available;
+          return sqlContext.Available;
         }
       }
 
@@ -25,7 +25,7 @@ namespace VistaDB
       {
         get
         {
-          return ((VistaDBContext.SQLChannel.SQLContextData) VistaDBContext.SQLChannel.sqlContext.CurrentContext).Pipe;
+          return ((SQLContextData)sqlContext.CurrentContext).Pipe;
         }
       }
 
@@ -33,7 +33,7 @@ namespace VistaDB
       {
         get
         {
-          return ((VistaDBContext.SQLChannel.SQLContextData) VistaDBContext.SQLChannel.sqlContext.CurrentContext)?.TriggerContext;
+          return ((SQLContextData)sqlContext.CurrentContext)?.TriggerContext;
         }
       }
 
@@ -41,7 +41,7 @@ namespace VistaDB
       {
         get
         {
-          VistaDBContext.SQLChannel.SQLContextData currentContext = (VistaDBContext.SQLChannel.SQLContextData) VistaDBContext.SQLChannel.sqlContext.CurrentContext;
+                    SQLContextData currentContext = (SQLContextData)sqlContext.CurrentContext;
           if (currentContext == null || currentContext.LocalConnection == null)
             return (VistaDBTransaction) null;
           return currentContext.LocalConnection.CurrentTransaction;
@@ -52,48 +52,48 @@ namespace VistaDB
       {
         get
         {
-          return ((VistaDBContext.SQLChannel.SQLContextData) VistaDBContext.SQLChannel.sqlContext.CurrentContext)?.LocalConnection;
+          return ((SQLContextData)sqlContext.CurrentContext)?.LocalConnection;
         }
       }
 
       internal static void ActivateContext(ILocalSQLConnection connection, VistaDBPipe pipe)
       {
-        VistaDBContext.SQLChannel.sqlContext.PushContext((IDisposable) new VistaDBContext.SQLChannel.SQLContextData(connection, pipe, VistaDBContext.SQLChannel.TriggerContext));
+                sqlContext.PushContext((IDisposable) new SQLContextData(connection, pipe, TriggerContext));
       }
 
       internal static void DeactivateContext()
       {
-        VistaDBContext.SQLChannel.sqlContext.PopContext();
+                sqlContext.PopContext();
       }
 
       internal static void PushTriggerContext(Table[] modificationTables, TriggerAction action, int columnCount)
       {
-        ((VistaDBContext.SQLChannel.SQLContextData) VistaDBContext.SQLChannel.sqlContext.CurrentContext).PushTriggerContext(modificationTables, action, columnCount);
+        ((SQLContextData)sqlContext.CurrentContext).PushTriggerContext(modificationTables, action, columnCount);
       }
 
       internal static void PopTriggerContext()
       {
-        ((VistaDBContext.SQLChannel.SQLContextData) VistaDBContext.SQLChannel.sqlContext.CurrentContext).PopTriggerContext();
+        ((SQLContextData)sqlContext.CurrentContext).PopTriggerContext();
       }
 
       internal void RegisterActiveTrigger(string tableName, TriggerAction type)
       {
-        if (!VistaDBContext.SQLChannel.IsAvailable)
+        if (!IsAvailable)
           return;
-        VistaDBContext.SQLChannel.CurrentConnection.RegisterTrigger(tableName, type);
+                CurrentConnection.RegisterTrigger(tableName, type);
       }
 
       internal void UnregisterActiveTrigger(string tableName, TriggerAction type)
       {
-        if (!VistaDBContext.SQLChannel.IsAvailable)
+        if (!IsAvailable)
           return;
-        VistaDBContext.SQLChannel.CurrentConnection.UnregisterTrigger(tableName, type);
+                CurrentConnection.UnregisterTrigger(tableName, type);
       }
 
       internal bool IsActiveTrigger(string tableName, TriggerAction type)
       {
-        if (VistaDBContext.SQLChannel.IsAvailable)
-          return VistaDBContext.SQLChannel.CurrentConnection.IsTriggerActing(tableName, type);
+        if (IsAvailable)
+          return CurrentConnection.IsTriggerActing(tableName, type);
         return false;
       }
 
@@ -107,14 +107,14 @@ namespace VistaDB
         {
           this.connection = connection;
           this.pipe = pipe;
-          this.triggerStack.Push(currentTrigger);
+          triggerStack.Push(currentTrigger);
         }
 
         internal ILocalSQLConnection LocalConnection
         {
           get
           {
-            return this.connection;
+            return connection;
           }
         }
 
@@ -122,7 +122,7 @@ namespace VistaDB
         {
           get
           {
-            return this.pipe;
+            return pipe;
           }
         }
 
@@ -130,23 +130,23 @@ namespace VistaDB
         {
           get
           {
-            return this.triggerStack.Peek();
+            return triggerStack.Peek();
           }
         }
 
         internal void PushTriggerContext(Table[] modificationTables, TriggerAction action, int columnCount)
         {
-          this.triggerStack.Push(new TriggerContext(modificationTables, action, columnCount));
+          triggerStack.Push(new TriggerContext(modificationTables, action, columnCount));
         }
 
         internal void PopTriggerContext()
         {
-          this.triggerStack.Pop();
+          triggerStack.Pop();
         }
 
         public void Dispose()
         {
-          this.triggerStack.Clear();
+          triggerStack.Clear();
           GC.SuppressFinalize((object) this);
         }
       }
@@ -160,7 +160,7 @@ namespace VistaDB
       {
         get
         {
-          return VistaDBContext.DDAChannel.ddaContext.Available;
+          return ddaContext.Available;
         }
       }
 
@@ -168,7 +168,7 @@ namespace VistaDB
       {
         get
         {
-          return ((VistaDBContext.DDAChannel.DDAContextData) VistaDBContext.DDAChannel.ddaContext.CurrentContext).Pipe;
+          return ((DDAContextData)ddaContext.CurrentContext).Pipe;
         }
       }
 
@@ -176,18 +176,18 @@ namespace VistaDB
       {
         get
         {
-          return ((VistaDBContext.DDAChannel.DDAContextData) VistaDBContext.DDAChannel.ddaContext.CurrentContext).Database;
+          return ((DDAContextData)ddaContext.CurrentContext).Database;
         }
       }
 
       internal static void ActivateContext(IVistaDBDatabase database, IVistaDBPipe pipe)
       {
-        VistaDBContext.DDAChannel.ddaContext.PushContext((IDisposable) new VistaDBContext.DDAChannel.DDAContextData(database, pipe));
+                ddaContext.PushContext((IDisposable) new DDAContextData(database, pipe));
       }
 
       internal static void DeactivateContext()
       {
-        VistaDBContext.DDAChannel.ddaContext.PopContext();
+                ddaContext.PopContext();
       }
 
       private class DDAContextData : IDisposable
@@ -205,7 +205,7 @@ namespace VistaDB
         {
           get
           {
-            return this.database;
+            return database;
           }
         }
 
@@ -213,14 +213,14 @@ namespace VistaDB
         {
           get
           {
-            return this.pipe;
+            return pipe;
           }
         }
 
         public void Dispose()
         {
-          this.database = (IVistaDBDatabase) null;
-          this.pipe = (IVistaDBPipe) null;
+          database = (IVistaDBDatabase) null;
+          pipe = (IVistaDBPipe) null;
           GC.SuppressFinalize((object) this);
         }
       }

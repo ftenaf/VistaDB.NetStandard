@@ -18,118 +18,114 @@ namespace VistaDB.Engine.SQL.Signatures
     public CLRResultSetFunction(SQLParser parser, string procedureName)
       : base(parser, procedureName)
     {
-      this.resultColumnTypes = (VistaDBType[]) null;
-      this.resultColumnNames = (string[]) null;
-      this.enumerator = (IEnumerator) null;
-      this.fillParams = (VistaDBValue[]) null;
+      resultColumnTypes = (VistaDBType[]) null;
+      resultColumnNames = (string[]) null;
+      enumerator = (IEnumerator) null;
+      fillParams = (VistaDBValue[]) null;
     }
 
-    private void PreparePipedResult()
+        private void PrepareFillRowMethod()
     {
-    }
-
-    private void PrepareFillRowMethod()
-    {
-      if (this.fillRow == null)
-        throw new VistaDBSQLException(612, this.procedureName, this.lineNo, this.symbolNo);
-      ParameterInfo[] parameters = this.fillRow.GetParameters();
+      if (fillRow == null)
+        throw new VistaDBSQLException(612, procedureName, lineNo, symbolNo);
+      ParameterInfo[] parameters = fillRow.GetParameters();
       int length = parameters.Length - 1;
       if (length == 0 || parameters[0].ParameterType != typeof (object))
-        throw new VistaDBSQLException(610, this.procedureName, this.lineNo, this.symbolNo);
-      this.fillParams = new VistaDBValue[length + 1];
-      this.resultColumnTypes = new VistaDBType[length];
-      this.resultColumnNames = new string[length];
+        throw new VistaDBSQLException(610, procedureName, lineNo, symbolNo);
+      fillParams = new VistaDBValue[length + 1];
+      resultColumnTypes = new VistaDBType[length];
+      resultColumnNames = new string[length];
       for (int index = 0; index < length; ++index)
       {
         ParameterInfo parameterInfo = parameters[index + 1];
         VistaDBValue val;
-        this.resultColumnTypes[index] = this.GetVistaDBType(parameterInfo, out val);
-        this.resultColumnNames[index] = parameterInfo.Name;
-        this.fillParams[index + 1] = val;
+        resultColumnTypes[index] = GetVistaDBType(parameterInfo, out val);
+        resultColumnNames[index] = parameterInfo.Name;
+        fillParams[index + 1] = val;
       }
     }
 
     private void FillRow(IRow row)
     {
-      ParameterInfo[] parameters1 = this.fillRow.GetParameters();
+      ParameterInfo[] parameters1 = fillRow.GetParameters();
       object[] parameters2 = new object[parameters1.Length];
-      parameters2[0] = this.enumerator.Current;
+      parameters2[0] = enumerator.Current;
       int index1 = 1;
       for (int length = parameters1.Length; index1 < length; ++index1)
-        parameters2[index1] = CLRStoredProcedure.GetTrueValue(this.fillParams[index1], parameters1[index1]);
+        parameters2[index1] = GetTrueValue(fillParams[index1], parameters1[index1]);
       try
       {
-        this.fillRow.Invoke((object) null, parameters2);
+        fillRow.Invoke((object) null, parameters2);
       }
       catch (Exception ex)
       {
-        throw new VistaDBSQLException(ex, 615, this.procedureName, this.lineNo, this.symbolNo);
+        throw new VistaDBSQLException(ex, 615, procedureName, lineNo, symbolNo);
       }
       int index2 = 1;
       for (int length = parameters1.Length; index2 < length; ++index2)
-        CLRStoredProcedure.SetTrueValue(this.fillParams[index2], parameters2[index2]);
+                SetTrueValue(fillParams[index2], parameters2[index2]);
       int index3 = 0;
       for (int count = row.Count; index3 < count; ++index3)
-        ((IValue) row[index3]).Value = this.fillParams[index3 + 1].Value;
+        ((IValue) row[index3]).Value = fillParams[index3 + 1].Value;
     }
 
     public override SignatureType OnPrepare()
     {
       SignatureType signatureType = base.OnPrepare();
-      this.PrepareFillRowMethod();
+      PrepareFillRowMethod();
       return signatureType;
     }
 
     public VistaDBType[] GetResultColumnTypes()
     {
-      return this.resultColumnTypes;
+      return resultColumnTypes;
     }
 
     public string[] GetResultColumnNames()
     {
-      return this.resultColumnNames;
+      return resultColumnNames;
     }
 
     public void Open()
     {
       object resValue;
-      if (!this.PrepareExecute(out resValue))
+      if (!PrepareExecute(out resValue))
         return;
-      this.enumerator = !(resValue is IEnumerable) ? (IEnumerator) resValue : ((IEnumerable) resValue).GetEnumerator();
-      this.canReset = true;
+      enumerator = !(resValue is IEnumerable) ? (IEnumerator) resValue : ((IEnumerable) resValue).GetEnumerator();
+      canReset = true;
       try
       {
-        this.enumerator.Reset();
+        enumerator.Reset();
       }
-      catch (NotSupportedException ex)
-      {
-        this.canReset = false;
+      catch (NotSupportedException)
+            {
+        canReset = false;
       }
     }
 
     public bool First(IRow row)
     {
-      if (this.canReset)
-        this.enumerator.Reset();
-      if (!this.enumerator.MoveNext())
+      if (canReset)
+        enumerator.Reset();
+      if (!enumerator.MoveNext())
         return false;
-      this.FillRow(row);
+      FillRow(row);
       return true;
     }
 
     public bool GetNextResult(IRow row)
     {
-      if (!this.enumerator.MoveNext())
+      if (!enumerator.MoveNext())
         return false;
-      this.FillRow(row);
+      FillRow(row);
       return true;
     }
 
     public void Close()
     {
-      if (this.enumerator is IDisposable)
-        ((IDisposable) this.enumerator).Dispose();
-      this.enumerator = (IEnumerator) null;
+      if (enumerator is IDisposable)
+        ((IDisposable) enumerator).Dispose();
+      enumerator = (IEnumerator) null;
     }
   }
 }

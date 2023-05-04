@@ -14,7 +14,7 @@ namespace VistaDB.Engine.Core.Scripting
     {
       get
       {
-        return this.Iterator < 0;
+        return Iterator < 0;
       }
     }
 
@@ -22,72 +22,72 @@ namespace VistaDB.Engine.Core.Scripting
     {
       get
       {
-        return this.Iterator;
+        return Iterator;
       }
     }
 
     internal void Push(PCodeUnit unit)
     {
-      this.Add(unit);
-      ++this.Iterator;
+      Add(unit);
+      ++Iterator;
     }
 
     internal PCodeUnit Pop()
     {
-      return this[this.Iterator--];
+      return this[Iterator--];
     }
 
     internal PCodeUnit PopBack()
     {
-      return this[++this.Iterator];
+      return this[++Iterator];
     }
 
     internal PCodeUnit PopAndFree()
     {
       try
       {
-        return this[this.Iterator];
+        return this[Iterator];
       }
       finally
       {
-        this.RemoveAt(this.Iterator--);
+        RemoveAt(Iterator--);
       }
     }
 
     internal PCodeUnit Peek()
     {
-      return this[this.Iterator];
+      return this[Iterator];
     }
 
     internal void ClearCode()
     {
-      this.Clear();
-      this.Iterator = -1;
+      Clear();
+      Iterator = -1;
     }
 
     internal void ExtractPosition(int position)
     {
-      this.RemoveAt(position);
-      if (this.Iterator < position)
+      RemoveAt(position);
+      if (Iterator < position)
         return;
-      --this.Iterator;
+      --Iterator;
     }
 
     internal void MovePeekBy(int count)
     {
-      this.Iterator += count;
+      Iterator += count;
     }
 
     internal bool GoHead()
     {
-      this.Iterator = -1;
-      return this.Count > 0;
+      Iterator = -1;
+      return Count > 0;
     }
 
     internal bool GoTail()
     {
-      this.Iterator = this.Count - 1;
-      return this.Count > 0;
+      Iterator = Count - 1;
+      return Count > 0;
     }
   }
 }

@@ -10,16 +10,16 @@
 
     public ColumnCache(ITableCache tableCache, string resultColumnName, int resultColumnIndex)
     {
-      this.TableCache = tableCache;
-      this.ResultColumnName = resultColumnName;
-      this.ResultColumnIndex = resultColumnIndex;
+      TableCache = tableCache;
+      ResultColumnName = resultColumnName;
+      ResultColumnIndex = resultColumnIndex;
     }
 
     public object GetValue(object key)
     {
-      object[] values = this.TableCache.GetValues(key);
-      if (values != null && values.Length > this.ResultColumnIndex)
-        return values[this.ResultColumnIndex];
+      object[] values = TableCache.GetValues(key);
+      if (values != null && values.Length > ResultColumnIndex)
+        return values[ResultColumnIndex];
       return (object) null;
     }
   }

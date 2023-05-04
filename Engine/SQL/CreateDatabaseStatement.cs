@@ -18,28 +18,28 @@ namespace VistaDB.Engine.SQL
     public CreateDatabaseStatement(LocalSQLConnection connection, Statement parent, SQLParser parser, long id)
       : base(connection, parent, parser, id)
     {
-      this.lcid = connection.LCID;
+      lcid = connection.LCID;
     }
 
     protected override void OnParse(LocalSQLConnection connection, SQLParser parser)
     {
       if (parser.IsToken("INMEMORY"))
       {
-        this.fileName = (string) null;
+        fileName = (string) null;
         parser.SkipToken(true);
         parser.ExpectedExpression("DATABASE");
       }
       else
       {
         parser.SkipToken(true);
-        this.fileName = parser.TokenValue.Token;
-        if (this.fileName.IndexOf(".") < 0)
-          this.fileName += ".vdb4";
+        fileName = parser.TokenValue.Token;
+        if (fileName.IndexOf(".") < 0)
+          fileName += ".vdb4";
       }
       if (!parser.SkipToken(false))
         return;
-      this.ParseParameters(parser);
-      connection.LCID = this.lcid;
+      ParseParameters(parser);
+      connection.LCID = lcid;
     }
 
     private void ParseParameters(SQLParser parser)
@@ -52,7 +52,7 @@ namespace VistaDB.Engine.SQL
         parser.SkipToken(true);
         parser.ExpectedExpression("STORAGE");
         parser.SkipToken(false);
-        this.isolatedStorage = true;
+        isolatedStorage = true;
       }
       while (parser.IsToken(","))
       {
@@ -60,19 +60,19 @@ namespace VistaDB.Engine.SQL
         if (parser.IsToken("PASSWORD"))
         {
           parser.SkipToken(true);
-          this.cryptoKeyString = tokenValue.Token;
+          cryptoKeyString = tokenValue.Token;
         }
         else if (parser.IsToken("PAGE"))
         {
           parser.SkipToken(true);
           parser.ExpectedExpression("SIZE");
           parser.SkipToken(true);
-          this.pageSize = BaseCreateStatement.StrTokenToInt(parser);
+          pageSize = StrTokenToInt(parser);
         }
         else if (parser.IsToken("LCID"))
         {
           parser.SkipToken(true);
-          this.lcid = BaseCreateStatement.StrTokenToInt(parser);
+          lcid = StrTokenToInt(parser);
         }
         else if (parser.IsToken("CASE"))
         {
@@ -81,21 +81,21 @@ namespace VistaDB.Engine.SQL
           parser.SkipToken(true);
           if (parser.IsToken("TRUE"))
           {
-            this.caseSensitive = true;
+            caseSensitive = true;
           }
           else
           {
             if (!parser.IsToken("FALSE"))
-              throw new VistaDBSQLException(593, "", this.lineNo, this.symbolNo);
-            this.caseSensitive = false;
+              throw new VistaDBSQLException(593, "", lineNo, symbolNo);
+            caseSensitive = false;
           }
         }
         else
         {
           if (!parser.IsToken("DESCRIPTION"))
-            throw new VistaDBSQLException(593, "", this.lineNo, this.symbolNo);
+            throw new VistaDBSQLException(593, "", lineNo, symbolNo);
           parser.SkipToken(true);
-          this.description = parser.TokenValue.Token;
+          description = parser.TokenValue.Token;
         }
         parser.SkipToken(false);
       }
@@ -104,19 +104,19 @@ namespace VistaDB.Engine.SQL
     protected override IQueryResult OnExecuteQuery()
     {
       base.OnExecuteQuery();
-      if (this.connection.Database != null)
-        this.connection.CloseExternalDatabase();
-      if (this.fileName != null)
+      if (connection.Database != null)
+        connection.CloseExternalDatabase();
+      if (fileName != null)
       {
-        using (IVistaDBDDA vistaDbdda = this.connection.ParentEngine.OpenDDA())
+        using (IVistaDBDDA vistaDbdda = connection.ParentEngine.OpenDDA())
         {
-          using (IVistaDBDatabase vistaDbDatabase = this.isolatedStorage ? vistaDbdda.CreateIsolatedDatabase(this.fileName, this.cryptoKeyString, this.pageSize, this.lcid, this.caseSensitive) : vistaDbdda.CreateDatabase(this.fileName, true, this.cryptoKeyString, this.pageSize, this.lcid, this.caseSensitive))
-            vistaDbDatabase.Description = this.description;
+          using (IVistaDBDatabase vistaDbDatabase = isolatedStorage ? vistaDbdda.CreateIsolatedDatabase(fileName, cryptoKeyString, pageSize, lcid, caseSensitive) : vistaDbdda.CreateDatabase(fileName, true, cryptoKeyString, pageSize, lcid, caseSensitive))
+            vistaDbDatabase.Description = description;
         }
-        this.connection.OpenDatabase(this.fileName, VistaDBDatabaseOpenMode.ExclusiveReadWrite, this.cryptoKeyString, this.isolatedStorage);
+        connection.OpenDatabase(fileName, VistaDBDatabaseOpenMode.ExclusiveReadWrite, cryptoKeyString, isolatedStorage);
       }
       else
-        this.connection.OpenInMemoryDatabase(this.cryptoKeyString, this.lcid, this.caseSensitive);
+        connection.OpenInMemoryDatabase(cryptoKeyString, lcid, caseSensitive);
       return (IQueryResult) null;
     }
   }

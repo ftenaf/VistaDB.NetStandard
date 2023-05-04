@@ -10,12 +10,12 @@ namespace VistaDB.Engine.Core.Indexing
 {
   internal class FTSIndex : RowsetIndex
   {
-    internal static FTSIndex.WordAnalyzer WordBreaker = new FTSIndex.WordAnalyzer();
+    internal static WordAnalyzer WordBreaker = new WordAnalyzer();
     private int tokenIndex = -1;
     private int columnOrderIndex = -1;
     private int occurrenceIndex = -1;
-    private FTSIndex.FtsKeys deleteFtsKeys;
-    private FTSIndex.FtsKeys insertFtsKeys;
+    private FtsKeys deleteFtsKeys;
+    private FtsKeys insertFtsKeys;
     private EvalStack ftsEvaluator;
     private Row ftsEvaluationRow;
     private FTSKeysFilter ftsFilter;
@@ -27,47 +27,47 @@ namespace VistaDB.Engine.Core.Indexing
 
     private void ClearFtsKeys()
     {
-      this.insertFtsKeys.Clear();
-      this.deleteFtsKeys.Clear();
+      insertFtsKeys.Clear();
+      deleteFtsKeys.Clear();
     }
 
     private bool FlushFtsKeys()
     {
       try
       {
-        foreach (Row deleteFtsKey in (List<Row>) this.deleteFtsKeys)
-          this.Tree.DeleteKey(deleteFtsKey, this.TransactionId);
-        this.ftsEvaluationRow.RowId = Row.MinRowId;
-        foreach (Row insertFtsKey in (List<Row>) this.insertFtsKeys)
-          this.Tree.ReplaceKey(this.ftsEvaluationRow, insertFtsKey, this.TransactionId);
+        foreach (Row deleteFtsKey in (List<Row>) deleteFtsKeys)
+          Tree.DeleteKey(deleteFtsKey, TransactionId);
+        ftsEvaluationRow.RowId = Row.MinRowId;
+        foreach (Row insertFtsKey in (List<Row>) insertFtsKeys)
+          Tree.ReplaceKey(ftsEvaluationRow, insertFtsKey, TransactionId);
         return true;
       }
       finally
       {
-        this.ClearFtsKeys();
+        ClearFtsKeys();
       }
     }
 
     private bool CreateDeletionFtsKeys(Row evaluatedRow)
     {
-      return this.deleteFtsKeys.ParseKeys(evaluatedRow);
+      return deleteFtsKeys.ParseKeys(evaluatedRow);
     }
 
     private bool CreateInsertionFtsKeys(Row evaluatedRow)
     {
-      return this.insertFtsKeys.ParseKeys(evaluatedRow);
+      return insertFtsKeys.ParseKeys(evaluatedRow);
     }
 
     private bool SynchFtsLists()
     {
-      if (this.deleteFtsKeys.Count <= 0)
-        return this.insertFtsKeys.Count > 0;
+      if (deleteFtsKeys.Count <= 0)
+        return insertFtsKeys.Count > 0;
       return true;
     }
 
     private short[] GetTableColumnsOrder()
     {
-      List<Row.Column> columnList = this.KeyPCode.EnumColumns();
+      List<Row.Column> columnList = KeyPCode.EnumColumns();
       short[] numArray = new short[columnList.Count];
       int index = 0;
       for (int count = columnList.Count; index < count; ++index)
@@ -87,39 +87,39 @@ namespace VistaDB.Engine.Core.Indexing
 
     protected override Row DoAllocateCurrentRow()
     {
-      Row emptyRowInstance = this.CreateEmptyRowInstance();
-      this.columnOrderIndex = emptyRowInstance.AppendColumn((IColumn) new SmallIntColumn());
-      this.tokenIndex = emptyRowInstance.AppendColumn((IColumn) new NVarcharColumn((string) null, 8192, this.Culture, !this.CaseSensitive, NCharColumn.DefaultUnicode));
-      this.occurrenceIndex = emptyRowInstance.AppendColumn((IColumn) new IntColumn());
-      if (this.Encryption != null)
-        emptyRowInstance[this.tokenIndex].AssignAttributes((string) null, true, false, true, false);
+      Row emptyRowInstance = CreateEmptyRowInstance();
+      columnOrderIndex = emptyRowInstance.AppendColumn((IColumn) new SmallIntColumn());
+      tokenIndex = emptyRowInstance.AppendColumn((IColumn) new NVarcharColumn((string) null, 8192, Culture, !CaseSensitive, NCharColumn.DefaultUnicode));
+      occurrenceIndex = emptyRowInstance.AppendColumn((IColumn) new IntColumn());
+      if (Encryption != null)
+        emptyRowInstance[tokenIndex].AssignAttributes((string) null, true, false, true, false);
       return emptyRowInstance;
     }
 
     protected override void OnEvaluateSpoolKey(bool forceOutput)
     {
-      Row currentRow = this.ParentRowset.CurrentRow;
+      Row currentRow = ParentRowset.CurrentRow;
       try
       {
-        this.KeyPCode.Exec(currentRow, this.ftsEvaluationRow);
-        if (!this.CreateInsertionFtsKeys(this.ftsEvaluationRow))
+        KeyPCode.Exec(currentRow, ftsEvaluationRow);
+        if (!CreateInsertionFtsKeys(ftsEvaluationRow))
           return;
-        foreach (Row insertFtsKey in (List<Row>) this.insertFtsKeys)
-          this.spool.PushKey(insertFtsKey, forceOutput);
+        foreach (Row insertFtsKey in (List<Row>) insertFtsKeys)
+          spool.PushKey(insertFtsKey, forceOutput);
       }
       finally
       {
-        this.insertFtsKeys.Clear();
+        insertFtsKeys.Clear();
       }
     }
 
     protected override void OnAllocateRows()
     {
       base.OnAllocateRows();
-      short[] tableColumnsOrder = this.GetTableColumnsOrder();
-      this.deleteFtsKeys = new FTSIndex.FtsKeys(this.CurrentRow.CopyInstance(), tableColumnsOrder);
-      this.insertFtsKeys = new FTSIndex.FtsKeys(this.CurrentRow.CopyInstance(), tableColumnsOrder);
-      this.ftsEvaluationRow = this.CreateEmptyRowInstance();
+      short[] tableColumnsOrder = GetTableColumnsOrder();
+      deleteFtsKeys = new FtsKeys(CurrentRow.CopyInstance(), tableColumnsOrder);
+      insertFtsKeys = new FtsKeys(CurrentRow.CopyInstance(), tableColumnsOrder);
+      ftsEvaluationRow = CreateEmptyRowInstance();
     }
 
     protected override bool OnCreateRow(bool blank, Row newRow)
@@ -139,12 +139,12 @@ namespace VistaDB.Engine.Core.Indexing
 
     protected override bool OnFlushCurrentRow()
     {
-      return this.FlushFtsKeys();
+      return FlushFtsKeys();
     }
 
     protected override Row DoEvaluateLink(DataStorage masterStorage, EvalStack linking, Row sourceRow, Row targetRow)
     {
-      this.ftsEvaluator = linking;
+      ftsEvaluator = linking;
       Row link = base.DoEvaluateLink(masterStorage, (EvalStack) null, sourceRow, targetRow);
       link?.InitTop();
       return link;
@@ -159,25 +159,25 @@ namespace VistaDB.Engine.Core.Indexing
     {
       try
       {
-        this.KeyPCode.Exec(this.ParentRowset.CurrentRow, this.ftsEvaluationRow);
-        this.CreateDeletionFtsKeys(this.ftsEvaluationRow);
-        this.KeyPCode.Exec(this.ParentRowset.SatelliteRow, this.ftsEvaluationRow);
-        this.CreateInsertionFtsKeys(this.ftsEvaluationRow);
-        if (!this.SynchFtsLists())
+        KeyPCode.Exec(ParentRowset.CurrentRow, ftsEvaluationRow);
+        CreateDeletionFtsKeys(ftsEvaluationRow);
+        KeyPCode.Exec(ParentRowset.SatelliteRow, ftsEvaluationRow);
+        CreateInsertionFtsKeys(ftsEvaluationRow);
+        if (!SynchFtsLists())
           return true;
-        this.FreezeRelationships();
+        FreezeRelationships();
         try
         {
-          return this.UpdateRow(true);
+          return UpdateRow(true);
         }
         finally
         {
-          this.DefreezeRelationships();
+          DefreezeRelationships();
         }
       }
       finally
       {
-        this.ClearFtsKeys();
+        ClearFtsKeys();
       }
     }
 
@@ -185,12 +185,12 @@ namespace VistaDB.Engine.Core.Indexing
     {
       try
       {
-        this.KeyPCode.Exec(this.ParentRowset.SatelliteRow, this.ftsEvaluationRow);
-        return !this.CreateInsertionFtsKeys(this.ftsEvaluationRow) || base.DoCreateLinkFrom(externalStorage, type, newRow);
+        KeyPCode.Exec(ParentRowset.SatelliteRow, ftsEvaluationRow);
+        return !CreateInsertionFtsKeys(ftsEvaluationRow) || base.DoCreateLinkFrom(externalStorage, type, newRow);
       }
       finally
       {
-        this.ClearFtsKeys();
+        ClearFtsKeys();
       }
     }
 
@@ -198,34 +198,34 @@ namespace VistaDB.Engine.Core.Indexing
     {
       try
       {
-        this.KeyPCode.Exec(this.ParentRowset.CurrentRow, this.ftsEvaluationRow);
-        return !this.CreateDeletionFtsKeys(this.ftsEvaluationRow) || base.DoDeleteLinkFrom(externalStorage, type, row);
+        KeyPCode.Exec(ParentRowset.CurrentRow, ftsEvaluationRow);
+        return !CreateDeletionFtsKeys(ftsEvaluationRow) || base.DoDeleteLinkFrom(externalStorage, type, row);
       }
       finally
       {
-        this.ClearFtsKeys();
+        ClearFtsKeys();
       }
     }
 
-    protected override bool OnSetScope(Row lowValue, Row highValue, DataStorage.ScopeType scopes, bool exactMatching)
+    protected override bool OnSetScope(Row lowValue, Row highValue, ScopeType scopes, bool exactMatching)
     {
-      if (this.ftsFilter == null)
-        this.ftsFilter = new FTSKeysFilter(this.ParentRowset.MaxRowId);
+      if (ftsFilter == null)
+        ftsFilter = new FTSKeysFilter(ParentRowset.MaxRowId);
       else
-        this.ftsFilter.Reset(this.ParentRowset.MaxRowId);
+        ftsFilter.Reset(ParentRowset.MaxRowId);
       return base.OnSetScope(lowValue, highValue, scopes, exactMatching);
     }
 
     protected override void OnGetScope(out IVistaDBRow lowValue, out IVistaDBRow highValue)
     {
-      short[] tableColumnsOrder = this.GetTableColumnsOrder();
-      Row emptyRowInstance1 = this.CreateEmptyRowInstance();
-      Row emptyRowInstance2 = this.CreateEmptyRowInstance();
+      short[] tableColumnsOrder = GetTableColumnsOrder();
+      Row emptyRowInstance1 = CreateEmptyRowInstance();
+      Row emptyRowInstance2 = CreateEmptyRowInstance();
       int index = 0;
       for (int length = tableColumnsOrder.Length; index < length; ++index)
       {
-        emptyRowInstance1.AppendColumn((IColumn) this.ParentRowset.TopRow[(int) tableColumnsOrder[index]].Duplicate(false));
-        emptyRowInstance2.AppendColumn((IColumn) this.ParentRowset.BottomRow[(int) tableColumnsOrder[index]].Duplicate(false));
+        emptyRowInstance1.AppendColumn((IColumn) ParentRowset.TopRow[(int) tableColumnsOrder[index]].Duplicate(false));
+        emptyRowInstance2.AppendColumn((IColumn) ParentRowset.BottomRow[(int) tableColumnsOrder[index]].Duplicate(false));
       }
       lowValue = (IVistaDBRow) emptyRowInstance1;
       highValue = (IVistaDBRow) emptyRowInstance2;
@@ -233,35 +233,35 @@ namespace VistaDB.Engine.Core.Indexing
 
     internal override void DoSetFtsActive()
     {
-      this.DoSetFtsInactive();
-      if (this.ftsFilter == null)
-        this.ftsFilter = new FTSKeysFilter(this.ParentRowset.MaxRowId);
+      DoSetFtsInactive();
+      if (ftsFilter == null)
+        ftsFilter = new FTSKeysFilter(ParentRowset.MaxRowId);
       else
-        this.ftsFilter.Reset(this.ParentRowset.MaxRowId);
-      this.ParentRowset.AttachFilter((Filter) this.ftsFilter);
+        ftsFilter.Reset(ParentRowset.MaxRowId);
+      ParentRowset.AttachFilter((Filter) ftsFilter);
     }
 
     internal override void DoSetFtsInactive()
     {
-      this.ParentRowset.DetachFilter(Filter.FilterType.Optimized, (Filter) this.ftsFilter);
+      ParentRowset.DetachFilter(Filter.FilterType.Optimized, (Filter) ftsFilter);
     }
 
     protected override void Destroy()
     {
-      this.ftsEvaluator = (EvalStack) null;
-      if (this.deleteFtsKeys != null)
-        this.deleteFtsKeys.Clear();
-      this.deleteFtsKeys = (FTSIndex.FtsKeys) null;
-      if (this.insertFtsKeys != null)
-        this.insertFtsKeys.Clear();
-      this.insertFtsKeys = (FTSIndex.FtsKeys) null;
-      this.ftsEvaluationRow = (Row) null;
+      ftsEvaluator = (EvalStack) null;
+      if (deleteFtsKeys != null)
+        deleteFtsKeys.Clear();
+      deleteFtsKeys = (FtsKeys) null;
+      if (insertFtsKeys != null)
+        insertFtsKeys.Clear();
+      insertFtsKeys = (FtsKeys) null;
+      ftsEvaluationRow = (Row) null;
       base.Destroy();
     }
 
     internal class WordAnalyzer : IWordBreaker
     {
-      private static FTSIndex.WordAnalyzer.StopWords stopWords = new FTSIndex.WordAnalyzer.StopWords();
+      private static StopWords stopWords = new StopWords();
 
       public bool IsWordBreaker(string s, int position)
       {
@@ -272,7 +272,7 @@ namespace VistaDB.Engine.Core.Indexing
 
       public bool IsStopWord(string word)
       {
-        return FTSIndex.WordAnalyzer.stopWords.ContainsKey(word);
+        return stopWords.ContainsKey(word);
       }
 
       internal class StopWords : Dictionary<string, int>
@@ -285,11 +285,11 @@ namespace VistaDB.Engine.Core.Indexing
             using (StringReader stringReader = new StringReader(SQLResource.StopWords_EN))
             {
               for (string key = stringReader.ReadLine(); key != null; key = stringReader.ReadLine())
-                this.Add(key, 0);
+                Add(key, 0);
             }
           }
-          catch (Exception ex)
-          {
+          catch (Exception)
+                    {
           }
         }
       }
@@ -309,18 +309,18 @@ namespace VistaDB.Engine.Core.Indexing
       {
         this.patternRowResult = patternRowResult;
         this.patternRowResult.InitTop();
-        this.tableColumnsOrders = columnOrders;
-        this.maxLen = this.patternRowResult[FTSIndex.FtsKeys.dataIndex].MaxLength;
+        tableColumnsOrders = columnOrders;
+        maxLen = this.patternRowResult[dataIndex].MaxLength;
       }
 
       private void CreateEntry(Row evaluatedRow, string token, int columnOrder, int occurence)
       {
-        Row row = this.patternRowResult.CopyInstance();
+        Row row = patternRowResult.CopyInstance();
         row.CopyMetaData(evaluatedRow);
-        row[FTSIndex.FtsKeys.columnOrderIndex].Value = (object) this.tableColumnsOrders[columnOrder];
-        row[FTSIndex.FtsKeys.dataIndex].Value = (object) token;
-        row[FTSIndex.FtsKeys.occurenceIndex].Value = (object) occurence;
-        this.Add(row);
+        row[columnOrderIndex].Value = (object) tableColumnsOrders[columnOrder];
+        row[dataIndex].Value = (object) token;
+        row[occurenceIndex].Value = (object) occurence;
+        Add(row);
       }
 
       private string GetToken(string columnValue, ref int position)
@@ -328,17 +328,17 @@ namespace VistaDB.Engine.Core.Indexing
         ++position;
         if (position >= columnValue.Length)
           return (string) null;
-        while (position < columnValue.Length && FTSIndex.WordBreaker.IsWordBreaker(columnValue, position))
+        while (position < columnValue.Length && WordBreaker.IsWordBreaker(columnValue, position))
           ++position;
         int startIndex = position;
-        while (position < columnValue.Length && !FTSIndex.WordBreaker.IsWordBreaker(columnValue, position))
+        while (position < columnValue.Length && !WordBreaker.IsWordBreaker(columnValue, position))
           ++position;
         if (position == startIndex)
           return (string) null;
         string str = columnValue.Substring(startIndex, position - startIndex).Trim(' ', char.MinValue);
         if (str.Length == 0)
           return (string) null;
-        if (str.Length <= this.maxLen)
+        if (str.Length <= maxLen)
           return str;
         return str.Substring(0, 1);
       }
@@ -352,15 +352,15 @@ namespace VistaDB.Engine.Core.Indexing
           {
             int occurence = -1;
             int position = -1;
-            for (string token = this.GetToken(columnValue, ref position); token != null; token = this.GetToken(columnValue, ref position))
+            for (string token = GetToken(columnValue, ref position); token != null; token = GetToken(columnValue, ref position))
             {
               ++occurence;
-              if (!FTSIndex.WordBreaker.IsStopWord(token))
-                this.CreateEntry(evaluatedRow, token, column.RowIndex, occurence);
+              if (!WordBreaker.IsStopWord(token))
+                CreateEntry(evaluatedRow, token, column.RowIndex, occurence);
             }
           }
         }
-        return this.Count > 0;
+        return Count > 0;
       }
     }
   }

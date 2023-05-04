@@ -7,28 +7,28 @@ namespace VistaDB.Engine.Core
   {
     private int freezeCounter;
 
-    internal void AddRelation(DataStorage masterStorage, DataStorage slaveStorage, Relationships.Type type, EvalStack linking, bool maxPriority)
+    internal void AddRelation(DataStorage masterStorage, DataStorage slaveStorage, Type type, EvalStack linking, bool maxPriority)
     {
-      foreach (Relationships.Relation relation in (List<Relationships.Relation>) this)
+      foreach (Relation relation in (List<Relation>) this)
       {
         if (relation.MasterStorage == masterStorage && relation.SlaveStorage == slaveStorage)
           return;
       }
-      Relationships.Relation relation1 = new Relationships.Relation(masterStorage, slaveStorage, type, linking);
+            Relation relation1 = new Relation(masterStorage, slaveStorage, type, linking);
       if (maxPriority)
-        this.Insert(0, relation1);
+        Insert(0, relation1);
       else
-        this.Add(relation1);
+        Add(relation1);
     }
 
     internal void RemoveRelation(DataStorage masterStorage, DataStorage slaveStorage)
     {
-      for (int index = this.Count - 1; index >= 0; --index)
+      for (int index = Count - 1; index >= 0; --index)
       {
-        Relationships.Relation relation = this[index];
+                Relation relation = this[index];
         if (relation.MasterStorage == masterStorage && relation.SlaveStorage == slaveStorage)
         {
-          this.RemoveAt(index);
+          RemoveAt(index);
           break;
         }
       }
@@ -36,10 +36,10 @@ namespace VistaDB.Engine.Core
 
     internal bool Freeze(bool currentStatus)
     {
-      if (++this.freezeCounter > 1)
+      if (++freezeCounter > 1)
         return currentStatus;
       bool flag = false;
-      foreach (Relationships.Relation relation in (List<Relationships.Relation>) this)
+      foreach (Relation relation in (List<Relation>) this)
       {
         relation.Active = false;
         flag = flag || relation.Active;
@@ -49,17 +49,17 @@ namespace VistaDB.Engine.Core
 
     internal bool Defreeze(bool currentStatus)
     {
-      if (--this.freezeCounter > 0)
+      if (--freezeCounter > 0)
         return currentStatus;
-      this.freezeCounter = 0;
-      foreach (Relationships.Relation relation in (List<Relationships.Relation>) this)
+      freezeCounter = 0;
+      foreach (Relation relation in (List<Relation>) this)
         relation.Active = true;
       return true;
     }
 
     internal bool MaskRelationship(DataStorage masterStorage, DataStorage slaveStorage, bool activate)
     {
-      foreach (Relationships.Relation relation in (List<Relationships.Relation>) this)
+      foreach (Relation relation in (List<Relation>) this)
       {
         if (relation.MasterStorage == masterStorage && relation.SlaveStorage == slaveStorage)
         {
@@ -85,23 +85,23 @@ namespace VistaDB.Engine.Core
       private DataStorage masterStorage;
       private DataStorage slaveStorage;
       private EvalStack evaluation;
-      private Relationships.Type type;
+      private Type type;
       private bool active;
 
-      internal Relation(DataStorage masterStorage, DataStorage slaveStorage, Relationships.Type type, EvalStack evaluation)
+      internal Relation(DataStorage masterStorage, DataStorage slaveStorage, Type type, EvalStack evaluation)
       {
         this.masterStorage = masterStorage;
         this.slaveStorage = slaveStorage;
         this.type = type;
         this.evaluation = evaluation;
-        this.active = false;
+        active = false;
       }
 
       internal DataStorage MasterStorage
       {
         get
         {
-          return this.masterStorage;
+          return masterStorage;
         }
       }
 
@@ -109,7 +109,7 @@ namespace VistaDB.Engine.Core
       {
         get
         {
-          return this.slaveStorage;
+          return slaveStorage;
         }
       }
 
@@ -117,15 +117,15 @@ namespace VistaDB.Engine.Core
       {
         get
         {
-          return this.evaluation;
+          return evaluation;
         }
       }
 
-      internal Relationships.Type Type
+      internal Type Type
       {
         get
         {
-          return this.type;
+          return type;
         }
       }
 
@@ -133,53 +133,53 @@ namespace VistaDB.Engine.Core
       {
         get
         {
-          return this.active;
+          return active;
         }
         set
         {
-          this.active = value;
+          active = value;
         }
       }
 
       internal bool Activate(DataStorage pivotStorage)
       {
-        if (this.active)
+        if (active)
           return pivotStorage.ActivateLink(this);
         return true;
       }
 
       internal bool Create(DataStorage pivotStorage)
       {
-        if (this.active)
+        if (active)
           return pivotStorage.CreateLink(this);
         return true;
       }
 
       internal bool Update(DataStorage pivotStorage)
       {
-        if (this.active)
+        if (active)
           return pivotStorage.UpdateLink(this);
         return true;
       }
 
       internal bool Delete(DataStorage pivotStorage)
       {
-        if (this.active)
+        if (active)
           return pivotStorage.DeleteLink(this);
         return true;
       }
 
       internal bool Assume(bool toModify)
       {
-        if (this.active)
-          return this.SlaveStorage.AssumeLink(this, toModify);
+        if (active)
+          return SlaveStorage.AssumeLink(this, toModify);
         return true;
       }
 
       internal bool Resume(bool toModify)
       {
-        if (this.active)
-          return this.SlaveStorage.ResumeLink(this, toModify);
+        if (active)
+          return SlaveStorage.ResumeLink(this, toModify);
         return true;
       }
     }

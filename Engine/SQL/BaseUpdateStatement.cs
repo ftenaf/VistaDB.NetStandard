@@ -16,24 +16,24 @@ namespace VistaDB.Engine.SQL
     protected override void OnParse(LocalSQLConnection connection, SQLParser parser)
     {
       if (parser.IsToken("FROM"))
-        this.ParseFromClause(parser);
-      this.ParseWhereClause(parser);
+        ParseFromClause(parser);
+      ParseWhereClause(parser);
     }
 
     public override SourceTable GetTableByAlias(string tableAlias)
     {
-      if (this.connection.CompareString(this.destinationTable.Alias, tableAlias, true) == 0)
-        return this.destinationTable;
+      if (connection.CompareString(destinationTable.Alias, tableAlias, true) == 0)
+        return destinationTable;
       return base.GetTableByAlias(tableAlias);
     }
 
     public override SearchColumnResult GetTableByColumnName(string columnName, out SourceTable table, out int columnIndex)
     {
-      int columnOrdinal = this.destinationTable.Schema.GetColumnOrdinal(columnName);
+      int columnOrdinal = destinationTable.Schema.GetColumnOrdinal(columnName);
       if (columnOrdinal < 0)
         return base.GetTableByColumnName(columnName, out table, out columnIndex);
       columnIndex = columnOrdinal;
-      table = this.destinationTable;
+      table = destinationTable;
       return SearchColumnResult.Found;
     }
 
@@ -45,22 +45,22 @@ namespace VistaDB.Engine.SQL
     protected override VistaDBType OnPrepareQuery()
     {
       int tableIndex = 0;
-      IViewList views = this.Database.EnumViews();
-      IVistaDBTableNameCollection tableNames = this.Database.GetTableNames();
-      if (this.join != null)
+      IViewList views = Database.EnumViews();
+      IVistaDBTableNameCollection tableNames = Database.GetTableNames();
+      if (join != null)
       {
-        this.join = this.join.PrepareTables(tableNames, views, this.sourceTables, false, ref tableIndex);
-        if (this.join is NativeSourceTable && !this.sourceTables.Contains((SourceTable) this.join))
-          this.sourceTables.AddTable(this.destinationTable);
+        join = join.PrepareTables(tableNames, views, sourceTables, false, ref tableIndex);
+        if (join is NativeSourceTable && !sourceTables.Contains((SourceTable) join))
+          sourceTables.AddTable(destinationTable);
       }
       int index1 = -1;
-      if (this.sourceTables.Count > 0)
+      if (sourceTables.Count > 0)
       {
-        string tableName = this.destinationTable.TableName;
-        for (int index2 = 0; index2 < this.sourceTables.Count; ++index2)
+        string tableName = destinationTable.TableName;
+        for (int index2 = 0; index2 < sourceTables.Count; ++index2)
         {
-          SourceTable sourceTable = this.sourceTables[index2];
-          if (this.connection.CompareString(tableName, sourceTable.TableName, true) == 0 || this.connection.CompareString(tableName, sourceTable.Alias, true) == 0)
+          SourceTable sourceTable = sourceTables[index2];
+          if (connection.CompareString(tableName, sourceTable.TableName, true) == 0 || connection.CompareString(tableName, sourceTable.Alias, true) == 0)
           {
             index1 = index2;
             if (sourceTable.Alias == "")
@@ -68,68 +68,68 @@ namespace VistaDB.Engine.SQL
           }
         }
       }
-      this.isTableInSourceList = index1 >= 0;
+      isTableInSourceList = index1 >= 0;
       if (index1 >= 0)
       {
-        this.destinationTable = this.sourceTables[index1];
+        destinationTable = sourceTables[index1];
       }
       else
       {
-        this.destinationTable = (SourceTable) this.destinationTable.PrepareTables(tableNames, views, (TableCollection) null, false, ref tableIndex);
-        this.destinationTable.Prepare();
-        if (this.sourceTables.Count == 0)
+        destinationTable = (SourceTable) destinationTable.PrepareTables(tableNames, views, (TableCollection) null, false, ref tableIndex);
+        destinationTable.Prepare();
+        if (sourceTables.Count == 0)
         {
-          this.sourceTables.AddTable(this.destinationTable);
-          this.join = (IRowSet) this.destinationTable;
+          sourceTables.AddTable(destinationTable);
+          join = (IRowSet) destinationTable;
         }
       }
-      this.sourceTables.Prepare();
-      this.PrepareOptimize();
-      if (this.join != null)
-        this.join.Prepare();
-      this.PrepareSetColumns();
-      this.whereClause.Prepare();
-      this.destinationTable.Unprepare();
-      this.destinationTable.ReadOnly = false;
-      this.sourceTables.Unprepare();
+      sourceTables.Prepare();
+      PrepareOptimize();
+      if (join != null)
+        join.Prepare();
+      PrepareSetColumns();
+      whereClause.Prepare();
+      destinationTable.Unprepare();
+      destinationTable.ReadOnly = false;
+      sourceTables.Unprepare();
       return VistaDBType.Unknown;
     }
 
     protected override IQueryResult OnExecuteQuery()
     {
-      this.affectedRows = 0L;
-      this.Optimize();
+      affectedRows = 0L;
+      Optimize();
       try
       {
-        if (!this.destinationTable.Opened)
-          this.destinationTable.Open();
-        this.sourceTables.Open();
-        this.destinationTable.First(this.constraintOperations);
-        this.DoPrepareTriggers();
+        if (!destinationTable.Opened)
+          destinationTable.Open();
+        sourceTables.Open();
+        destinationTable.First(constraintOperations);
+        DoPrepareTriggers();
         bool justReset = true;
         try
         {
-          if (!this.isTableInSourceList && this.sourceTables.Count == 1)
-            this.ExecuteSimple();
+          if (!isTableInSourceList && sourceTables.Count == 1)
+            ExecuteSimple();
           else
-            this.ExecuteJoin();
+            ExecuteJoin();
           justReset = false;
         }
         finally
         {
-          this.Connection.CachedAffectedRows = this.affectedRows;
-          this.DoExecuteTriggers(justReset);
+          Connection.CachedAffectedRows = affectedRows;
+          DoExecuteTriggers(justReset);
         }
       }
       catch
       {
-        this.sourceTables.Close();
-        this.destinationTable.Close();
+        sourceTables.Close();
+        destinationTable.Close();
         throw;
       }
-      this.sourceTables.Free();
-      this.destinationTable.FreeTable();
-      this.SetChanged();
+      sourceTables.Free();
+      destinationTable.FreeTable();
+      SetChanged();
       return (IQueryResult) null;
     }
 
@@ -147,11 +147,11 @@ namespace VistaDB.Engine.SQL
 
     protected virtual void ExecuteSimple()
     {
-      while (!this.destinationTable.Eof)
+      while (!destinationTable.Eof)
       {
-        if (this.whereClause.Execute(false))
-          this.AcceptRow();
-        this.destinationTable.Next(this.constraintOperations);
+        if (whereClause.Execute(false))
+          AcceptRow();
+        destinationTable.Next(constraintOperations);
       }
     }
   }

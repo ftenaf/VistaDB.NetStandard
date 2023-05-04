@@ -14,19 +14,19 @@ namespace VistaDB.Engine.SQL.Signatures
     public override SignatureType OnPrepare()
     {
       SignatureType signatureType = base.OnPrepare();
-      if (!Utils.IsIntegerDataType(this.dataType))
-        throw new VistaDBSQLException(558, "~", this.lineNo, this.symbolNo);
+      if (!Utils.IsIntegerDataType(dataType))
+        throw new VistaDBSQLException(558, "~", lineNo, symbolNo);
       return signatureType;
     }
 
     protected override IColumn InternalExecute()
     {
-      if (this.GetIsChanged())
+      if (GetIsChanged())
       {
-        ((IValue) this.result).Value = (~(Row.Column) this.operand.Execute()).Value;
-        this.needsEvaluation = false;
+        ((IValue) result).Value = (~(Row.Column) operand.Execute()).Value;
+        needsEvaluation = false;
       }
-      return this.result;
+      return result;
     }
   }
 }

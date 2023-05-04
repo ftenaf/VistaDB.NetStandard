@@ -13,26 +13,26 @@ namespace VistaDB.Engine.SQL.Signatures
     {
       parser.SkipToken(true);
       if (!parser.IsToken("("))
-        throw new VistaDBSQLException(500, "\"(\"", this.lineNo, this.symbolNo);
-      this.parameters.Add(parser.NextSignature(true, true, 6));
+        throw new VistaDBSQLException(500, "\"(\"", lineNo, symbolNo);
+      parameters.Add(parser.NextSignature(true, true, 6));
       parser.ExpectedExpression("AS");
       parser.SkipToken(true);
-      this.dataType = parser.ReadDataType(out this.len);
-      if (this.len == 0)
-        this.len = 30;
+      dataType = parser.ReadDataType(out len);
+      if (len == 0)
+        len = 30;
       parser.ExpectedExpression(")");
-      this.paramValues = new IColumn[1];
-      this.parameterTypes = new VistaDBType[1];
-      this.parameterTypes[0] = this.dataType;
-      this.signatureType = SignatureType.Expression;
-      this.skipNull = true;
-      this.width = 0;
+      paramValues = new IColumn[1];
+      parameterTypes = new VistaDBType[1];
+      parameterTypes[0] = dataType;
+      signatureType = SignatureType.Expression;
+      skipNull = true;
+      width = 0;
     }
 
     public override SignatureType OnPrepare()
     {
       SignatureType signatureType = base.OnPrepare();
-      this.width = !Utils.IsCharacterDataType(this.dataType) || Utils.IsCharacterDataType(this[0].DataType) ? this[0].GetWidth() : this.len;
+      width = !Utils.IsCharacterDataType(dataType) || Utils.IsCharacterDataType(this[0].DataType) ? this[0].GetWidth() : len;
       return signatureType;
     }
 
@@ -41,19 +41,19 @@ namespace VistaDB.Engine.SQL.Signatures
       if (!base.IsEquals(signature))
         return false;
       CastFunction castFunction = (CastFunction) signature;
-      if (this.dataType == signature.DataType)
-        return this.len == castFunction.len;
+      if (dataType == signature.DataType)
+        return len == castFunction.len;
       return false;
     }
 
     protected override object ExecuteSubProgram()
     {
-      return ((IValue) this.paramValues[0]).Value;
+      return ((IValue) paramValues[0]).Value;
     }
 
     public override int GetWidth()
     {
-      return this.width;
+      return width;
     }
   }
 }

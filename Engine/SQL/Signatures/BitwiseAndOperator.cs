@@ -13,37 +13,37 @@ namespace VistaDB.Engine.SQL.Signatures
 
     protected override IColumn InternalExecute()
     {
-      if (this.GetIsChanged())
+      if (GetIsChanged())
       {
-        IColumn column1 = this.leftOperand.Execute();
-        IColumn column2 = this.rightOperand.Execute();
+        IColumn column1 = leftOperand.Execute();
+        IColumn column2 = rightOperand.Execute();
         if (column1.IsNull && column2.IsNull)
         {
-          ((IValue) this.result).Value = (object) null;
+          ((IValue) result).Value = (object) null;
         }
         else
         {
-          this.Convert((IValue) column1, (IValue) this.leftValue);
-          this.Convert((IValue) column2, (IValue) this.rightValue);
-          ((IValue) this.result).Value = this.GetResult();
+          Convert((IValue) column1, (IValue) leftValue);
+          Convert((IValue) column2, (IValue) rightValue);
+          ((IValue) result).Value = GetResult();
         }
-        this.needsEvaluation = false;
+        needsEvaluation = false;
       }
-      return this.result;
+      return result;
     }
 
     protected virtual object GetResult()
     {
-      return ((Row.Column) this.leftValue & (Row.Column) this.rightValue).Value;
+      return ((Row.Column) leftValue & (Row.Column) rightValue).Value;
     }
 
     public override SignatureType OnPrepare()
     {
-      SignatureType signatureType = ConstantSignature.PrepareBinaryOperator(ref this.leftOperand, ref this.rightOperand, out this.dataType, true, false, this.text, this.lineNo, this.symbolNo);
-      if (!Utils.IsIntegerDataType(this.dataType))
-        throw new VistaDBSQLException(558, this.text, this.lineNo, this.symbolNo);
-      this.leftValue = this.CreateColumn(this.dataType);
-      this.rightValue = this.CreateColumn(this.dataType);
+      SignatureType signatureType = ConstantSignature.PrepareBinaryOperator(ref leftOperand, ref rightOperand, out dataType, true, false, text, lineNo, symbolNo);
+      if (!Utils.IsIntegerDataType(dataType))
+        throw new VistaDBSQLException(558, text, lineNo, symbolNo);
+      leftValue = CreateColumn(dataType);
+      rightValue = CreateColumn(dataType);
       return signatureType;
     }
   }

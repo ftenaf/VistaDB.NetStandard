@@ -8,12 +8,12 @@ namespace VistaDB.Engine.SQL.Signatures
 
     internal StoredFunctionDescr(IUserDefinedFunctionInformation sp)
     {
-      this.storedFunction = sp;
+      storedFunction = sp;
     }
 
     public override Signature CreateSignature(SQLParser parser)
     {
-      return (Signature) new StoredFunction(parser, this.storedFunction);
+      return (Signature) new StoredFunction(parser, storedFunction);
     }
   }
 }

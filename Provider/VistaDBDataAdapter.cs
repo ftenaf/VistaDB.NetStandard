@@ -25,67 +25,67 @@ namespace VistaDB.Provider
     public VistaDBDataAdapter(VistaDBCommand selectCommand)
       : this()
     {
-      this.SelectCommand = selectCommand;
+      SelectCommand = selectCommand;
     }
 
     public VistaDBDataAdapter(string selectCommandText, VistaDBConnection conn)
       : this()
     {
-      this.SelectCommand = new VistaDBCommand(selectCommandText, conn);
+      SelectCommand = new VistaDBCommand(selectCommandText, conn);
     }
 
     public VistaDBDataAdapter(string selectCommandText, string connectionString)
       : this()
     {
       VistaDBConnection connection = new VistaDBConnection(connectionString);
-      this.SelectCommand = new VistaDBCommand(selectCommandText, connection);
+      SelectCommand = new VistaDBCommand(selectCommandText, connection);
     }
 
-    public VistaDBCommand DeleteCommand
+    public new VistaDBCommand DeleteCommand
     {
       get
       {
-        return this.cmdDelete;
+        return cmdDelete;
       }
       set
       {
-        this.cmdDelete = value;
+        cmdDelete = value;
       }
     }
 
-    public VistaDBCommand InsertCommand
+    new public VistaDBCommand InsertCommand
     {
       get
       {
-        return this.cmdInsert;
+        return cmdInsert;
       }
       set
       {
-        this.cmdInsert = value;
+        cmdInsert = value;
       }
     }
 
-    public VistaDBCommand SelectCommand
+    public new VistaDBCommand SelectCommand
     {
       get
       {
-        return this.cmdSelect;
+        return cmdSelect;
       }
       set
       {
-        this.cmdSelect = value;
+        cmdSelect = value;
       }
     }
 
-    public VistaDBCommand UpdateCommand
+    public new VistaDBCommand UpdateCommand
     {
       get
       {
-        return this.cmdUpdate;
+        return cmdUpdate;
       }
       set
       {
-        this.cmdUpdate = value;
+        cmdUpdate = value;
       }
     }
 
@@ -101,7 +101,7 @@ namespace VistaDB.Provider
 
     protected override void OnRowUpdated(RowUpdatedEventArgs value)
     {
-      VistaDBRowUpdatedEventHandler updatedEventHandler = (VistaDBRowUpdatedEventHandler) this.Events[VistaDBDataAdapter.EventRowUpdated];
+      VistaDBRowUpdatedEventHandler updatedEventHandler = (VistaDBRowUpdatedEventHandler) Events[EventRowUpdated];
       if (updatedEventHandler != null && value is VistaDBRowUpdatedEventArgs)
         updatedEventHandler((object) this, (VistaDBRowUpdatedEventArgs) value);
       base.OnRowUpdated(value);
@@ -109,7 +109,7 @@ namespace VistaDB.Provider
 
     protected override void OnRowUpdating(RowUpdatingEventArgs value)
     {
-      VistaDBRowUpdatingEventHandler updatingEventHandler = (VistaDBRowUpdatingEventHandler) this.Events[VistaDBDataAdapter.EventRowUpdating];
+      VistaDBRowUpdatingEventHandler updatingEventHandler = (VistaDBRowUpdatingEventHandler) Events[EventRowUpdating];
       if (updatingEventHandler != null && value is VistaDBRowUpdatingEventArgs)
         updatingEventHandler((object) this, (VistaDBRowUpdatingEventArgs) value);
       base.OnRowUpdating(value);
@@ -119,18 +119,18 @@ namespace VistaDB.Provider
     {
       add
       {
-        VistaDBRowUpdatingEventHandler updatingEventHandler = (VistaDBRowUpdatingEventHandler) this.Events[VistaDBDataAdapter.EventRowUpdating];
+        VistaDBRowUpdatingEventHandler updatingEventHandler = (VistaDBRowUpdatingEventHandler) Events[EventRowUpdating];
         if (updatingEventHandler != null && value.Target is DbCommandBuilder)
         {
           VistaDBRowUpdatingEventHandler builder = (VistaDBRowUpdatingEventHandler) VistaDBCommandBuilder.FindBuilder((MulticastDelegate) updatingEventHandler);
           if (builder != null)
-            this.Events.RemoveHandler(VistaDBDataAdapter.EventRowUpdating, (Delegate) builder);
+            Events.RemoveHandler(EventRowUpdating, (Delegate) builder);
         }
-        this.Events.AddHandler(VistaDBDataAdapter.EventRowUpdating, (Delegate) value);
+        Events.AddHandler(EventRowUpdating, (Delegate) value);
       }
       remove
       {
-        this.Events.RemoveHandler(VistaDBDataAdapter.EventRowUpdating, (Delegate) value);
+        Events.RemoveHandler(EventRowUpdating, (Delegate) value);
       }
     }
 
@@ -138,11 +138,11 @@ namespace VistaDB.Provider
     {
       add
       {
-        this.Events.AddHandler(VistaDBDataAdapter.EventRowUpdated, (Delegate) value);
+        Events.AddHandler(EventRowUpdated, (Delegate) value);
       }
       remove
       {
-        this.Events.RemoveHandler(VistaDBDataAdapter.EventRowUpdated, (Delegate) value);
+        Events.RemoveHandler(EventRowUpdated, (Delegate) value);
       }
     }
 
@@ -150,11 +150,11 @@ namespace VistaDB.Provider
     {
       get
       {
-        return (IDbCommand) this.cmdDelete;
+        return (IDbCommand) cmdDelete;
       }
       set
       {
-        this.cmdDelete = (VistaDBCommand) value;
+        cmdDelete = (VistaDBCommand) value;
       }
     }
 
@@ -162,11 +162,11 @@ namespace VistaDB.Provider
     {
       get
       {
-        return (IDbCommand) this.cmdInsert;
+        return (IDbCommand) cmdInsert;
       }
       set
       {
-        this.cmdInsert = (VistaDBCommand) value;
+        cmdInsert = (VistaDBCommand) value;
       }
     }
 
@@ -174,11 +174,11 @@ namespace VistaDB.Provider
     {
       get
       {
-        return (IDbCommand) this.cmdSelect;
+        return (IDbCommand) cmdSelect;
       }
       set
       {
-        this.cmdSelect = (VistaDBCommand) value;
+        cmdSelect = (VistaDBCommand) value;
       }
     }
 
@@ -186,11 +186,11 @@ namespace VistaDB.Provider
     {
       get
       {
-        return (IDbCommand) this.cmdUpdate;
+        return (IDbCommand) cmdUpdate;
       }
       set
       {
-        this.cmdUpdate = (VistaDBCommand) value;
+        cmdUpdate = (VistaDBCommand) value;
       }
     }
 

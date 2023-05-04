@@ -4,7 +4,7 @@
   {
     public static void BeginLogging()
     {
-      Support.BeginLogging((string) null);
+            BeginLogging((string) null);
     }
 
     public static void BeginLogging(string message)
@@ -17,7 +17,7 @@
 
     public static void EndLogging()
     {
-      Support.EndLogging((string) null);
+            EndLogging((string) null);
     }
 
     public static void EndLogging(string message)

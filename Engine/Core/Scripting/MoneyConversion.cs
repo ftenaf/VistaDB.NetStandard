@@ -6,9 +6,9 @@ namespace VistaDB.Engine.Core.Scripting
   internal class MoneyConversion : Signature
   {
     internal MoneyConversion(string name, int groupId, int endOfGroupId)
-      : base(name, groupId, Signature.Operations.BgnGroup, Signature.Priorities.StdOperator, VistaDBType.Money, endOfGroupId)
+      : base(name, groupId, Operations.BgnGroup, Priorities.StdOperator, VistaDBType.Money, endOfGroupId)
     {
-      this.AddParameter(VistaDBType.Unknown);
+      AddParameter(VistaDBType.Unknown);
     }
 
     protected override void OnExecute(ProcedureCode pcode, int entry, Connection connection, DataStorage contextStorage, Row contextRow, ref bool bypassNextGroup, Row rowResult)
